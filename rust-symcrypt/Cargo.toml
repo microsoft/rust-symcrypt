@@ -1,10 +1,13 @@
 [package]
 name = "symcrypt"
 authors = ["nnmkhang"]
-version = "0.1.0"
+version = "0.1.1"
 license = "MIT OR Apache-2.0"
 description = "Friendly and Idiomatic wrappers for SymCrypt"
 edition = "2021"
+homepage = "https://github.com/microsoft/SymCrypt"
+repository = "https://github.com/microsoft/rust-symcrypt"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

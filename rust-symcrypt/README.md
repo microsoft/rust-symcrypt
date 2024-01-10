@@ -34,10 +34,7 @@ You can configure your system one of 3 ways.
     Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.lib`
 
 3. Permanently add the lib path into your system PATH environment variable. Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.lib`
-    This can be done manually or via powershell:
-    ```Powershell
-    [Environment]::SetEnvironmentVariable("RUSTFLAGS", "-L C:\Your-Path-To-SymCrypt\SymCrypt\bin\lib", [EnvironmentVariableTarget]::Machine)
-    ```
+
 **Option 1 or Option 2 is what is recommended for ease of use.**
 
 ### Configure symcrypttesmodule.dll location
@@ -67,12 +64,8 @@ Here are 4 recommended options to ensure your `symcrypttestmodule.dll` is found 
 
 3. Manually copy `symcrypttestmodule.dll` into your `C:/Windows/System32/` 
     Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.dll`
-4. Permanently add the `symcrypttestmodule.dll` path into your System PATH environment variable.
-    Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.lib`
-    This can be done manually or via powershell:
-    ```Powershell
-        [Environment]::SetEnvironmentVariable("PATH", "C:\Your-Path-To-SymCrypt\SymCrypt\bin\exe", [EnvironmentVariableTarget]::Machine)
-    ```
+4. Permanently add the `symcrypttestmodule.dll` path into your System PATH environment variable. Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.lib`
+
 **Option 3 or Option 4 is what is recommended for ease of use.** 
 
 
