@@ -6,7 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-symcrypt-sys = {path = "../symcrypt-sys"}
+# uses '../symcrypt-sys' when compiled locally, and uses
+# version 0.1.0 from crates.io when published
+symcrypt-sys = {path = "../symcrypt-sys", version = "0.1.0"}
+
 libc = "0.2.0"
 lazy_static = "1.4.0"
 
