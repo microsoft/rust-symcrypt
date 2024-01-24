@@ -1,72 +1,30 @@
-
 # SymCrypt Rust Wrapper
 
 This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https://github.com/microsoft/SymCrypt), an open-source cryptographic library.
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**Note:** As of version 0.1.0, only Windows AMD64 (x86_64) is supported.
+**Note:** As of version `0.1.3`, only `Windows AMD64`, and [`Linux Mariner`](https://github.com/microsoft/CBL-Mariner) are fully supported, with partial support for other linux distros such as `Ubuntu`.
 
-## Installation
-To use the SymCrypt crate, you must have a local version of [SymCrypt](https://github.com/microsoft/SymCrypt) downloaded.
+For ease of use, we have included a `symcrypttestmodule.dll` and `symcrypttestmodule.lib` in the `bin/amd64/` folder for users on Windows. This will only work on computers using an `AMD64 (x86_64)` architecture.
 
-Please follow the [Build Instructions](https://github.com/microsoft/SymCrypt/blob/main/BUILD.md) that is provided by SymCrypt to install SymCrypt for your target architecture.
+We have also included the required `libsymcrypt.so` files needed for Linux users. These `.so` files have been built for the [Mariner](https://github.com/microsoft/CBL-Mariner) distro, but have been tested and confirmed working on `Ubuntu 22.04.3` via WSL. Support for other distros aside from Mariner is not guaranteed. 
 
-Once SymCrypt is installed and built locally on your machine, we must configure your machine so that the SymCrypt crate's build script can easily find `symcrypttestmodule.dll` and `symcrypttestmodule.lib` 
-which are both requirements for the SymCrypt crate. 
+If you are using a different architecture, you will have to continue with the install and build steps outlined in the `BUILD.md` file.
 
-### Configure symcrypttestmodule.lib location
-The `symcrypttestmodule.lib` can be found in the the following path after SymCrypt has been successfully downloaded and built. 
+## Quick Start Guide
 
-`C:\Your-Path-To-SymCrypt\SymCrypt\bin\lib`
- 
-The SymCrypt crate needs a static lib to link to during its build/link time. You must configure your system so that the SymCrypt crate's build script can easily find the needed `symcrypttestmodule.lib` file.
+### Windows:
+Copy the `symcrypttestmodule.dll` and `symcrypttestmodule.lib` from the `/bin/amd64` folder and place it into your `C:/Windows/System32` folder. 
 
-You can configure your system one of 3 ways.
+For more information please see the `BUILD.md` file
 
-1. Add the lib path as a one time cargo environment variable.
-    ```powershell
-    $env:RUSTFLAGS='-L C:\Your-Path-To-SymCrypt\SymCrypt\bin\lib'
-    ```
-    **Note:** This change will only persist within the current process, and you must re-set the PATH environment variable after closing the PowerShell window.
+### Linux:
+Copy all of the `libsymcrypt.so*` files from the `/bin/linux` folder and place it into your `/usr/bin/x86_64-linux-gnu/` folder. 
 
-2. Manually copy the `symcrypttestmodule.lib` to `C:\Windows\System32`
-    Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.lib`
+For more information please see the `BUILD.md` file
 
-3. Permanently add the lib path into your system PATH environment variable. Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.lib`
-
-**Option 1 or Option 2 is what is recommended for ease of use.**
-
-### Configure symcrypttesmodule.dll location
-
-The symcrypttestmodule.dll can be found in the the following path after SymCrypt has been successfully downloaded and built. 
-
-`C:\Your-Path-To-SymCrypt\SymCrypt\bin\exe`
-
-During runtime, Windows will handle finding all needed `dll`'s in order to run the intended program, this includes our `symcrypttestmodule.dll` file. The places Windows will look are:
-
-1. The folder from which the application loaded.
-2. The system folder. Use the `GetSystemDirectory` function to retrieve the path of this folder.
-3. The Windows folder. Use the `GetWindowsDirectory` function to get the path of this folder.
-4. The current folder.
-5. The directories listed in the PATH environment variable.
-
-For more info please see: [Dynamic-link library search order](https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order)
-
-Here are 4 recommended options to ensure your `symcrypttestmodule.dll` is found by Windows during runtime.
-
-1. Put the symcrypttesmodule.dll in the same folder as your output `.exe` file. If you are doing development (not release), the common path will be: `C:\your-project\target\debug\`.
-2. Add the symcrypttestmoudle.dll path as a one time environment variable. 
-    ```powershell
-    $env:PATH = "C:\Your-Path-To-SymCrypt\SymCrypt\bin\exe;$env:PATH"
-    ```
-    **Note:** This change will only persist within the current process, and you must re-set the PATH environment variable after closing the PowerShell window.
-
-3. Manually copy `symcrypttestmodule.dll` into your `C:/Windows/System32/` 
-    Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.dll`
-4. Permanently add the `symcrypttestmodule.dll` path into your System PATH environment variable. Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypttestmodule.lib`
-
-**Option 3 or Option 4 is what is recommended for ease of use.** 
+**Note:** This path may be different depending on your flavour of linux. The goal is to place the `libsymcrypt.so*` files in a location where the your linux distro can find the required libs at build/run time.
 
 
 ## Supported APIs
@@ -100,15 +58,18 @@ There are unit tests attached to each file that show how to use each function. I
 add symcrypt to your `Cargo.toml` file.
 
 ```rust
-symcrypt = "0.1.0"
+[dependencies]
+symcrypt = "0.1.3"
+hex = "0.4.3"
 ```
 
 include symcrypt in your code  
 
 ```rust
 use symcrypt::hash::sha256; 
-use symcrpt::symcrypt_init;
-fn  main() {
+use symcrypt::symcrypt_init();
+use hex;
+fn main() {
     symcrpyt_init();
     let data = hex::decode("641ec2cf711e").unwrap();
     let expected: &str = "cfdbd6c9acf9842ce04e8e6a0421838f858559cf22d2ea8a38bd07d5e4692233";

@@ -26,13 +26,15 @@ fn main() {
 
     #[cfg(target_os = "linux")]
     {
-        // Note: Currently only Windows is supported.
-        println!("cargo:rustc-link-lib=dylib=symcrypt"); // the lib prefix for libsymcrypt is implied on linux
+        // Note: Linux support is based off of the Mariner distro.
+        // This has been tested on Ubuntu 22.04.03 LTS on WSL and has confirmed working but support for other distros 
+        // aside from Mariner is not guaranteed so YMMV. 
+        println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on linux
 
-        // Linux based systems use a .so file format that is different from the .lib and .dll format on Windows.
-        // TODO: Create a script that copies all libsymcrypt.so* files from SymCrypt path to /lib/x86_64-linux-gnu/
-        // The ld linker will look for the symcrypt.so files within /lib/x86_64-linux-gnu/. No need to set a hardcoded path.
-        // This is not needed on Mariner as it comes with SymCrypt out of the box. SymCrypt team will work to create a SymCrypt
-        // package that will be available via apt get which will install the symcrypt.so files to /lib/x86_64-linux-gnu
+        // You must put the included symcrypt.so files in your usr/lib/x86_64-linux-gnu/ path.
+        // This is where the linux ld linker will look for the symcrypt.so files.
+
+        // Note: This process is a band-aid. Long-term, our long term solution is to package manage SymCrypt for a subset of
+        // linux distros. 
     }
 }
