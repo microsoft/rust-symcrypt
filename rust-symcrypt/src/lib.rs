@@ -77,6 +77,15 @@
 
 use std::sync::Once;
 
+pub mod block_ciphers;
+pub mod chacha;
+pub mod ecdh;
+pub mod eckey;
+pub mod errors;
+pub mod gcm;
+pub mod hash;
+pub mod hmac;
+
 /// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
 ///  all subsequent calls will be no-ops
 pub fn symcrypt_init() {
@@ -93,21 +102,28 @@ pub fn symcrypt_init() {
     }
 }
 
-/// Takes in a `rand_length` and returns a [`Vec<u8>`] with `rand_length` random bytes
-pub fn symcrypt_random(rand_length: u64) -> Vec<u8> {
-    let mut random_buffer: Vec<u8> = vec![0; rand_length as usize];
+/// Takes in a a buffer called buff and fills it with random bytes. This function cannot fail.
+pub fn symcrypt_random(buff: &mut [u8]) {
     unsafe {
         // SAFETY: FFI calls
-        symcrypt_sys::SymCryptRandom(random_buffer.as_mut_ptr(), rand_length);
+        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as u64);
     }
-    random_buffer
 }
 
-pub mod block_ciphers;
-pub mod chacha;
-pub mod ecdh;
-pub mod eckey;
-pub mod errors;
-pub mod gcm;
-pub mod hash;
-pub mod hmac;
+#[cfg(test)]
+mod test {
+    use super::*;
+    
+    #[test]
+    fn test_symcrypt_random(){
+        let mut buff_1 = [0u8; 10];
+        let mut buff_2 = [0u8; 10];
+
+        symcrypt_random(&mut buff_1);
+        symcrypt_random(&mut buff_2);
+
+        assert_ne!(buff_1, buff_2);
+    }
+}
+
+
