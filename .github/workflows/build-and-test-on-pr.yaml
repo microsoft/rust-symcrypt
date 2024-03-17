@@ -1,0 +1,35 @@
+# This workflow is to validate the changes in PR by cargo build and test
+name: Build and Test on PR
+
+# Condition for workflow trigger (on PR to main)
+on:
+    pull_request:
+        branches:
+            -   main
+    push:
+
+jobs:
+    build-and-test:
+        name: Build and Test
+        runs-on: windows-2019
+
+        defaults:
+            run:
+              working-directory: "rust-symcrypt"
+
+        steps:
+            # checkout code using external action
+            -   name: Checkout code
+                uses: actions/checkout@v4
+            
+            # copy symcrypt modules to system32
+            -   name: Copy symcrypt modules to system32
+                run: |
+                        cd bin\amd64
+                        Get-ChildItem | Copy-Item -Destination "C:\Windows\System32" -Force
+            
+            # build and test current changes made
+            -   name: Build and Test
+                run: |
+                        cargo build
+                        cargo test
