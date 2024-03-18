@@ -3,25 +3,21 @@
 //! This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https://github.com/microsoft/SymCrypt), an open-source cryptographic library.
 //!
 //! This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
-//!
-//! **Note:** As of version `0.1.3`, only `Windows AMD64`, and [`Linux Mariner`](https://github.com/microsoft/CBL-Mariner) are fully supported, with partial support for other linux distros such as `Ubuntu`.
-//!
-//! For ease of use, we have included a `symcrypttestmodule.dll` and `symcrypttestmodule.lib` in the `C:\Users\<your-user>\.cargo\registry\src\github.com-****\symcrypt-0.1.3\bin\amd64` folder for users on Windows. This will only work on computers using an `AMD64 (x86_64)` architecture.
-//!
-//! We have also included the required `libsymcrypt.so` files needed for Linux users. These `.so` files have been built for the [Mariner](https://github.com/microsoft/CBL-Mariner) distro, but have been tested and confirmed working on `Ubuntu 22.04.3` via WSL. Support for other distros aside from Mariner is not guaranteed.
-//! These files are included in the `~/.cargo/registry/src/github.com-****/symcrypt-0.1.3\bin\linux` folder for users on Linux.
-//!
-//! If you are using a different architecture, you will have to continue with the install and build steps outlined in the `BUILD.md` file.
-//!
+//! 
+//! **Note:** As of version `0.2.0`, only `Windows AMD64`, and [`Linux Mariner`](https://github.com/microsoft/CBL-Mariner) are fully supported, with partial support for other linux distros such as `Ubuntu`.
+//! 
+//! ## Changelog
+//! To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
+//! 
 //! ## Quick Start Guide
 //!
 //! ### Windows:
-//! Copy the `symcrypttestmodule.dll` and `symcrypttestmodule.lib` from the `C:\Users\<your-user>\.cargo\registry\src\github.com-****\symcrypt-0.1.3\bin\amd64` folder and place it into your `C:/Windows/System32` folder.
+//! Download and copy the `symcrypt.dll` and `symcrypt.lib` from [link here](asdafs) `C:/Windows/System32` folder.
 //!
 //! For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 //!
 //! ### Linux:
-//! Copy all of the `libsymcrypt.so*` files from the `~/.cargo/registry/src/github.com-****/symcrypt-0.1.3\bin\linux` folder and place it into your `/usr/bin/x86_64-linux-gnu/` folder.
+//! Download and copy all of the `libsymcrypt.so*` files from [link here](asdfasdf) and place them into your `/usr/bin/x86_64-linux-gnu/` folder.
 //!
 //! For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 //!
@@ -57,7 +53,7 @@
 //!
 //! add symcrypt to your `Cargo.toml` file.
 //!
-//! `symcrypt = "0.1.3"`
+//! `symcrypt = "0.2.0"`
 //!
 //! include symcrypt in your code
 //!
@@ -77,7 +73,6 @@
 
 
 // TODO:
-// update the info for rust-symcrypt, add the release page with the testmodule, point to that page
 // remove the bin folders from rust-symcrypt repo and the crate
 // update crate version to major version 2
 // add release notes for rust symcrypt
