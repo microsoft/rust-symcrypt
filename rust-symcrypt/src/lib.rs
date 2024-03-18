@@ -8,20 +8,20 @@
 //!
 //! For ease of use, we have included a `symcrypttestmodule.dll` and `symcrypttestmodule.lib` in the `C:\Users\<your-user>\.cargo\registry\src\github.com-****\symcrypt-0.1.3\bin\amd64` folder for users on Windows. This will only work on computers using an `AMD64 (x86_64)` architecture.
 //!
-//! We have also included the required `libsymcrypt.so` files needed for Linux users. These `.so` files have been built for the [Mariner](https://github.com/microsoft/CBL-Mariner) distro, but have been tested and confirmed working on `Ubuntu 22.04.3` via WSL. Support for other distros aside from Mariner is not guaranteed. 
-//! These files are included in the `~/.cargo/registry/src/github.com-****/symcrypt-0.1.3\bin\linux` folder for users on Linux. 
-//! 
+//! We have also included the required `libsymcrypt.so` files needed for Linux users. These `.so` files have been built for the [Mariner](https://github.com/microsoft/CBL-Mariner) distro, but have been tested and confirmed working on `Ubuntu 22.04.3` via WSL. Support for other distros aside from Mariner is not guaranteed.
+//! These files are included in the `~/.cargo/registry/src/github.com-****/symcrypt-0.1.3\bin\linux` folder for users on Linux.
+//!
 //! If you are using a different architecture, you will have to continue with the install and build steps outlined in the `BUILD.md` file.
 //!
 //! ## Quick Start Guide
 //!
 //! ### Windows:
-//! Copy the `symcrypttestmodule.dll` and `symcrypttestmodule.lib` from the `C:\Users\<your-user>\.cargo\registry\src\github.com-****\symcrypt-0.1.3\bin\amd64` folder and place it into your `C:/Windows/System32` folder. 
+//! Copy the `symcrypttestmodule.dll` and `symcrypttestmodule.lib` from the `C:\Users\<your-user>\.cargo\registry\src\github.com-****\symcrypt-0.1.3\bin\amd64` folder and place it into your `C:/Windows/System32` folder.
 //!
 //! For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 //!
 //! ### Linux:
-//! Copy all of the `libsymcrypt.so*` files from the `~/.cargo/registry/src/github.com-****/symcrypt-0.1.3\bin\linux` folder and place it into your `/usr/bin/x86_64-linux-gnu/` folder. 
+//! Copy all of the `libsymcrypt.so*` files from the `~/.cargo/registry/src/github.com-****/symcrypt-0.1.3\bin\linux` folder and place it into your `/usr/bin/x86_64-linux-gnu/` folder.
 //!
 //! For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 //!
@@ -58,13 +58,13 @@
 //! add symcrypt to your `Cargo.toml` file.
 //!
 //! `symcrypt = "0.1.3"`
-//! 
+//!
 //! include symcrypt in your code
 //!
 //! ```rust
 //! use symcrypt::hash::sha256;
 //! use symcrypt::symcrypt_init;
-//! 
+//!
 //! fn  main() {
 //!     symcrypt_init();
 //!     let data = hex::decode("641ec2cf711e").unwrap();
@@ -74,6 +74,13 @@
 //!     assert_eq!(hex::encode(result), expected);
 //! }
 //! ```
+
+
+// TODO:
+// update the info for rust-symcrypt, add the release page with the testmodule, point to that page
+// remove the bin folders from rust-symcrypt repo and the crate
+// update crate version to major version 2
+// add release notes for rust symcrypt
 
 use std::sync::Once;
 
@@ -113,9 +120,9 @@ pub fn symcrypt_random(buff: &mut [u8]) {
 #[cfg(test)]
 mod test {
     use super::*;
-    
+
     #[test]
-    fn test_symcrypt_random(){
+    fn test_symcrypt_random() {
         let mut buff_1 = [0u8; 10];
         let mut buff_2 = [0u8; 10];
 
@@ -125,5 +132,3 @@ mod test {
         assert_ne!(buff_1, buff_2);
     }
 }
-
-

@@ -94,7 +94,7 @@ impl EcDh {
         public_key: &[u8],
     ) -> Result<Self, SymCryptError> {
         let num_format = get_num_format(curve);
-        let ec_point_format = symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY;
+        let ec_point_format = get_ec_point_format(curve);
         let edch_key = EcKey::new(curve)?;
 
         unsafe {
@@ -124,17 +124,14 @@ impl EcDh {
     /// `get_public_key_bytes()` returns a [`Vec<u8>`] that is the public key associated with the current [`EcDh`] struct.
     pub fn get_public_key_bytes(&self) -> Result<Vec<u8>, SymCryptError> {
         let num_format = get_num_format(self.curve_type);
-        let ec_point_format = symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY;
+        let ec_point_format = get_ec_point_format(self.curve_type);
 
         unsafe {
             // SAFETY: FFI calls
-            let pub_key_len = symcrypt_sys::SymCryptEckeySizeofPublicKey(
-                self.key.inner(),
-                symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY,
-            );
+            let pub_key_len =
+                symcrypt_sys::SymCryptEckeySizeofPublicKey(self.key.inner(), ec_point_format);
 
             let mut pub_key_bytes = vec![0u8; pub_key_len as usize];
-
             match symcrypt_sys::SymCryptEckeyGetValue(
                 self.key.inner(),
                 std::ptr::null_mut(), // setting private key to null since we will only access public key

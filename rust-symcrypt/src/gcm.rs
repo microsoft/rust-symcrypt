@@ -190,10 +190,14 @@ fn gcm_expand_key(
 /// [`validate_gcm_parameters`] is a utility function that validates the input parameters for a GCM call.
 ///
 /// `cipher` will only accept [`BlockCipherType::AesBlock`]
+///
 /// `nonce` is a reference to a nonce array that must be 12 bytes.
+///
 /// `auth_data` is an optional parameter that can be provided, if you do not wish to provide
 /// any auth data, input an empty array.
+///
 /// `data` is a reference to a data array to be encrypted
+///
 /// `tag` is a reference to your tag buffer, the size of the tag buffer will be checked.
 pub fn validate_gcm_parameters(
     cipher: BlockCipherType,

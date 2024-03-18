@@ -10,4 +10,4 @@ Within this repository, there are 3 crates:
 
 The purpose of these crates is to bring FIPS-compliant cryptography to the Rust Ecosystem. Currently, there is only binding support for Windows and Linux.
 
-**Note:** As of version 0.1.0, only Windows AMD64 is supported.
+**Note:** As of version `0.1.3`, only `Windows AMD64`, and [`Linux Mariner`](https://github.com/microsoft/CBL-Mariner) are fully supported, with partial support for other linux distros such as `Ubuntu`.
