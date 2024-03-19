@@ -71,12 +71,6 @@
 //! }
 //! ```
 
-
-// TODO:
-// remove the bin folders from rust-symcrypt repo and the crate
-// update crate version to major version 2
-// add release notes for rust symcrypt
-
 use std::sync::Once;
 
 pub mod block_ciphers;
@@ -104,7 +98,7 @@ pub fn symcrypt_init() {
     }
 }
 
-/// Takes in a a buffer called buff and fills it with random bytes. This function cannot fail.
+/// Takes in a a buffer called `buff` and fills it with random bytes. This function cannot fail.
 pub fn symcrypt_random(buff: &mut [u8]) {
     unsafe {
         // SAFETY: FFI calls
