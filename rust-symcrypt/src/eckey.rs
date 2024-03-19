@@ -155,9 +155,25 @@ pub(crate) fn convert_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_ECURVE
 
 // get_num_format returns the correct number format needed for TLS interop since 25519 spec defines the use of Little Endian.
 pub(crate) fn get_num_format(curve_type: CurveType) -> i32 {
-    if curve_type == CurveType::Curve25519 {
-        return symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST;
-    } else {
-        return symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST;
+    // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
+    let num_format = match curve_type {
+        CurveType::Curve25519 => {
+            symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST
+        }
+        CurveType::NistP256 | CurveType::NistP384 => {
+            return symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST
+        }
     };
+    num_format
+}
+
+pub(crate) fn get_ec_point_format(curve_type: CurveType) -> i32 {
+    // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
+    let ec_point_format = match curve_type {
+        CurveType::Curve25519 => symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_X,
+        CurveType::NistP256 | CurveType::NistP384 => {
+            symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY
+        }
+    };
+    ec_point_format
 }

@@ -6,9 +6,9 @@ fn main() {
         println!("cargo:rustc-link-search=native=C:/Windows/System32/"); 
 
         // Test module to search for in lieu of symcrypt.dll
-        println!("cargo:rustc-link-lib=dylib=symcrypttestmodule");
+        println!("cargo:rustc-link-lib=dylib=symcrypt");
 
-        // During run time, the OS will handle finding the symcrypttestmodule.dll file. The places Windows will look will be:
+        // During run time, the OS will handle finding the symcrypt.dll file. The places Windows will look will be:
         // 1. The folder from which the application loaded.
         // 2. The system folder. Use the GetSystemDirectory function to retrieve the path of this folder.
         // 3. The Windows folder. Use the GetWindowsDirectory function to get the path of this folder.
@@ -17,7 +17,7 @@ fn main() {
 
         // For more info please see: https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order
 
-        // For the least invasive usage, we suggest putting the symcrypttestmodule.dll inside of same folder as the .exe file.
+        // For the least invasive usage, we suggest putting the symcrypt.dll inside of same folder as the .exe file.
         // This will be something like: C:/your-project/target/debug/
 
         // Note: This process is a band-aid. Long-term SymCrypt will be shipped with Windows which will make this process much more
