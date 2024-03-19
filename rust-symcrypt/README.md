@@ -13,6 +13,7 @@ We have also included the required `libsymcrypt.so` files needed for Linux users
 If you are using a different architecture, you will have to continue with the install and build steps outlined in the `BUILD.md` file.
 
 ## Quick Start Guide
+**Note:** At the moment the provided symcrypt.dll is not production signed and not FIPS compliant and should only be used in the interm until an official production signed symcrypt.dll is available.
 
 ### Windows:
 Copy the `symcrypt.dll` and `symcrypt.lib` from the `/bin/amd64` folder and place it into your `C:/Windows/System32` folder. 
