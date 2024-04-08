@@ -6,7 +6,7 @@ fn main() {
         println!("cargo:rustc-link-search=native=C:/Windows/System32/"); 
 
         // Test module to search for in lieu of symcrypt.dll
-        println!("cargo:rustc-link-lib=dylib=symcrypt");
+        println!("cargo:rustc-link-lib=dylib=symcrypttestmodule");
 
         // During run time, the OS will handle finding the symcrypt.dll file. The places Windows will look will be:
         // 1. The folder from which the application loaded.

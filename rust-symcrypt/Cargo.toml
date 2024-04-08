@@ -15,7 +15,7 @@ exclude = ["bin/"]
 [dependencies]
 # uses '../symcrypt-sys' when compiled locally, and uses
 # version 0.1.0 from crates.io when published
-symcrypt-sys = {path = "../symcrypt-sys", version = "0.2.0"}
+symcrypt-sys = {path = "../symcrypt-sys", version = "0.1.2"}
 libc = "0.2.0"
 lazy_static = "1.4.0"
 
