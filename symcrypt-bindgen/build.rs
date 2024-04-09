@@ -24,10 +24,10 @@ fn main() {
         .allowlist_function("SymCryptModuleInit")
         .allowlist_var("^(SYMCRYPT_CODE_VERSION.*)$")
         // HASH FUNCTIONS
-        .allowlist_function("^(SymCryptSha(256|384|512|1)(?:Init|Append|Result|StateCopy)?)$")
-        .allowlist_var("^(SYMCRYPT_(SHA256|SHA384|SHA512|SHA1)_RESULT_SIZE$)")
+        .allowlist_function("^SymCrypt(?:Sha(?:256|384|512|1)|Md5)(?:Init|Append|Result|StateCopy)?$")
+        .allowlist_var("^(SYMCRYPT_(SHA256|SHA384|SHA512|SHA1|MD5)_RESULT_SIZE$)")
         // HMAC FUNCTIONS
-        .allowlist_function("^(SymCryptHmacSha(256|384|512)(?:ExpandKey|Init|Append|Result|StateCopy)?)$")
+        .allowlist_function("^SymCryptHmac(?:Sha(?:256|384|512|1)|Md5)(?:ExpandKey|Init|Append|Result|StateCopy)?$")
         // GCM FUNCTIONS
         .allowlist_function("^(SymCryptGcm(?:ValidateParameters|ExpandKey|Encrypt|Decrypt|Init|StateCopy|AuthPart|DecryptPart|EncryptPart|EncryptFinal|DecryptFinal)?)$")
         .allowlist_function("SymCryptChaCha20Poly1305(Encrypt|Decrypt)")
