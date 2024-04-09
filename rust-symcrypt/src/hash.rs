@@ -31,8 +31,8 @@
 //! ```
 //!
 //!
-//! ## Stateful Hash for Sha256, Sha384, Sha512 and Sha1
-//! Hashing via state uses the [`HashState`] trait. [`Sha256State`], [`Sha384State`], [`Sha512State`] and [`Sha1State`] will implement the [`HashState`].
+//! ## Stateful Hash for Sha256, Sha384, Sha512, Sha1 and Md5
+//! Hashing via state uses the [`HashState`] trait. [`Sha256State`], [`Sha384State`], [`Sha512State`], [`Sha1State`] and [`Md5State`] will implement the [`HashState`].
 //! Usage of across all of the [`HashState`]'s will be very similar.
 //!
 //! ```
@@ -55,6 +55,8 @@ use std::pin::Pin;
 use std::ptr;
 use symcrypt_sys;
 
+/// 16
+pub const MD5_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_MD5_RESULT_SIZE as usize;
 /// 20
 pub const SHA1_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA1_RESULT_SIZE as usize;
 /// 32
@@ -78,6 +80,90 @@ pub trait HashState: Clone {
     fn append(&mut self, data: &[u8]);
 
     fn result(&mut self) -> Self::Result;
+}
+
+/// [`Md5State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
+pub struct Md5State(Pin<Box<symcrypt_sys::SYMCRYPT_MD5_STATE>>);
+// Sha1State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+// around when returning from Md5State::new(). Box<> heap allocates the memory and ensures that it does not move
+//
+// SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
+// doing so would lead to use-after-free and inconsistent states.
+
+impl Md5State {
+    pub fn new() -> Self {
+        let mut instance = Md5State(Box::pin(symcrypt_sys::SYMCRYPT_MD5_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptMd5Init(&mut *instance.0);
+        }
+        instance
+    }
+}
+
+impl HashState for Md5State {
+    type Result = [u8; MD5_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptMd5Append(
+                &mut *self.0,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    fn result(&mut self) -> Self::Result {
+        let mut result = [0u8; MD5_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptMd5Result(&mut *self.0, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+impl Clone for Md5State {
+    fn clone(&self) -> Self {
+        let mut new_state = Md5State(Box::pin(symcrypt_sys::SYMCRYPT_MD5_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptMd5StateCopy(&*self.0, &mut *new_state.0);
+        }
+        new_state
+    }
+}
+
+impl Drop for Md5State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+}
+
+/// Stateless hash function for MD5.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `MD5_RESULT_SIZE`, which is 16 bytes. This call cannot fail.
+pub fn md5(data: &[u8]) -> [u8; MD5_RESULT_SIZE] {
+    let mut result = [0; MD5_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        symcrypt_sys::SymCryptMd5(
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
+    }
+    result
 }
 
 /// [`Sha1State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
@@ -456,6 +542,15 @@ mod test {
     }
 
     #[test]
+    fn test_stateless_md5_hash() {
+        let data = hex::decode("abcd").unwrap();
+        let expected: &str = "7838496fd0586421bbb500bb6f472f13";
+
+        let result = md5(&data);
+        assert_eq!(hex::encode(result), expected);
+    }
+
+    #[test]
     fn test_stateless_sha1_hash() {
         let data = hex::decode("").unwrap();
         let expected: &str = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
@@ -491,8 +586,22 @@ mod test {
         assert_eq!(hex::encode(result), expected);
     }
 
+    #[test]
+    fn test_state_md5_hash() {
+        let data = hex::decode("abcd").unwrap();
+        let expected: &str = "7838496fd0586421bbb500bb6f472f13";
 
-    /// add the statefull hash
+        test_generic_hash_state(Md5State::new(), &data, expected);
+    }
+
+    #[test]
+    fn test_state_sha1_hash() {
+        let data = hex::decode("0572ba293b54cb").unwrap();
+        let expected: &str = "47e3410eb833b589790aee07daf473d9c3d2327d";
+
+        test_generic_hash_state(Sha1State::new(), &data, expected);
+    }
+    
     #[test]
     fn test_state_sha256_hash() {
         let data = hex::decode("").unwrap();
@@ -510,6 +619,26 @@ mod test {
     }
 
     #[test]
+    fn test_state_sha512_hash() {
+        let data = hex::decode("3a1a5486014b6d78b3defd").unwrap();
+        let expected: &str = "22219e717adaa5c6ded0ebd3bb4d4a00459afaa6fc112cf9e937fe5bb335abea3e2a2d171084c228b55e60701abb27a4107a2d4059523a3c4605d337d72e44e9";
+
+        test_generic_hash_state(Sha512State::new(), &data, expected);
+    }
+
+    #[test]
+    fn test_state_md5_clone() {
+        let data = hex::decode("b2e5753cb450").unwrap();
+        test_generic_state_clone(Md5State::new(), &data);
+    }
+
+    #[test]
+    fn test_state_sha1_clone() {
+        let data = hex::decode("b2e5753cb4501fb8").unwrap();
+        test_generic_state_clone(Sha1State::new(), &data);
+    }
+
+    #[test]
     fn test_state_sha256_clone() {
         let data = hex::decode("641ec2cf711e").unwrap();
         test_generic_state_clone(Sha256State::new(), &data);
@@ -519,6 +648,30 @@ mod test {
     fn test_state_sha384_clone() {
         let data = hex::decode("f268267bfb73d5417ac2bc4a5c64").unwrap();
         test_generic_state_clone(Sha384State::new(), &data);
+    }
+
+    #[test]
+    fn test_state_sha512_clone() {
+        let data = hex::decode("7834dc7a4a8e9b17281ac472d3").unwrap();
+        test_generic_state_clone(Sha512State::new(), &data);
+    }
+
+    #[test]
+    fn test_state_md5_multiple_append() {
+        let data_1 = hex::decode("ab").unwrap();
+        let data_2 = hex::decode("cd").unwrap();
+        let expected: &str = "7838496fd0586421bbb500bb6f472f13";
+
+        test_generic_state_multiple_append(Md5State::new(), &data_1, &data_2, expected);
+    }
+
+    #[test]
+    fn test_state_sha1_multiple_append() {
+        let data_1 = hex::decode("516074a3438e1575e8").unwrap();
+        let data_2 = hex::decode("8b9f9c68").unwrap();
+        let expected: &str = "ab5bdc9a47aaee3c40d74658425dfddb2ff0b0ea";
+
+        test_generic_state_multiple_append(Sha1State::new(), &data_1, &data_2, expected);
     }
 
     #[test]
@@ -537,5 +690,14 @@ mod test {
         let expected: &str = "6f246b1f839e73e585c6356c01e9878ff09e9904244ed0914edb4dc7dbe9ceef3f4695988d521d14d30ee40b84a4c3c8";
 
         test_generic_state_multiple_append(Sha384State::new(), &data_1, &data_2, expected);
+    }
+
+    #[test]
+    fn test_state_sha512_multiple_append() {
+        let data_1 = hex::decode("02b4bd7930f8").unwrap();
+        let data_2 = hex::decode("cdf5f5379b25").unwrap();
+        let expected: &str = "490aa49d4fcb8d229a9848f803b78b18e7fc59d12e76ab6d2712cc3ae37dcb1f1dfe28d551d11b957622f622a9b43979f6ec6cd3f2ac605b947b05cc0df272e0";
+
+        test_generic_state_multiple_append(Sha512State::new(), &data_1, &data_2, expected);
     }
 }

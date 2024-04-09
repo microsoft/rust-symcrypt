@@ -3,6 +3,7 @@
 pub const SYMCRYPT_CODE_VERSION_API: u32 = 103;
 pub const SYMCRYPT_CODE_VERSION_MINOR: u32 = 1;
 pub const SYMCRYPT_CODE_VERSION_PATCH: u32 = 0;
+pub const SYMCRYPT_MD5_RESULT_SIZE: u32 = 16;
 pub const SYMCRYPT_SHA1_RESULT_SIZE: u32 = 20;
 pub const SYMCRYPT_SHA256_RESULT_SIZE: u32 = 32;
 pub const SYMCRYPT_SHA384_RESULT_SIZE: u32 = 48;
@@ -206,6 +207,104 @@ fn bindgen_test_layout__SYMCRYPT_MD5_CHAINING_STATE() {
     );
 }
 pub type SYMCRYPT_MD5_CHAINING_STATE = _SYMCRYPT_MD5_CHAINING_STATE;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_MD5_STATE {
+    pub bytesInBuffer: UINT32,
+    pub magic: SIZE_T,
+    pub dataLengthL: UINT64,
+    pub dataLengthH: UINT64,
+    pub buffer: [BYTE; 64usize],
+    pub chain: SYMCRYPT_MD5_CHAINING_STATE,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_MD5_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_MD5_STATE> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_MD5_STATE>(),
+        112usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_MD5_STATE))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_MD5_STATE>(),
+        16usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_MD5_STATE))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).bytesInBuffer) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_MD5_STATE),
+            "::",
+            stringify!(bytesInBuffer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_MD5_STATE),
+            "::",
+            stringify!(magic)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dataLengthL) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_MD5_STATE),
+            "::",
+            stringify!(dataLengthL)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dataLengthH) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_MD5_STATE),
+            "::",
+            stringify!(dataLengthH)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).buffer) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_MD5_STATE),
+            "::",
+            stringify!(buffer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).chain) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_MD5_STATE),
+            "::",
+            stringify!(chain)
+        )
+    );
+}
+impl Default for _SYMCRYPT_MD5_STATE {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_MD5_STATE = _SYMCRYPT_MD5_STATE;
+pub type PSYMCRYPT_MD5_STATE = *mut _SYMCRYPT_MD5_STATE;
+pub type PCSYMCRYPT_MD5_STATE = *const SYMCRYPT_MD5_STATE;
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
@@ -897,6 +996,74 @@ fn bindgen_test_layout__SYMCRYPT_HMAC_MD5_EXPANDED_KEY() {
     );
 }
 pub type SYMCRYPT_HMAC_MD5_EXPANDED_KEY = _SYMCRYPT_HMAC_MD5_EXPANDED_KEY;
+pub type PSYMCRYPT_HMAC_MD5_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_MD5_EXPANDED_KEY;
+pub type PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY = *const SYMCRYPT_HMAC_MD5_EXPANDED_KEY;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_HMAC_MD5_STATE {
+    pub hash: SYMCRYPT_MD5_STATE,
+    pub pKey: PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_HMAC_MD5_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_MD5_STATE> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_HMAC_MD5_STATE>(),
+        128usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_HMAC_MD5_STATE))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_HMAC_MD5_STATE>(),
+        16usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_HMAC_MD5_STATE))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hash) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_MD5_STATE),
+            "::",
+            stringify!(hash)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pKey) as usize - ptr as usize },
+        112usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_MD5_STATE),
+            "::",
+            stringify!(pKey)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        120usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_MD5_STATE),
+            "::",
+            stringify!(magic)
+        )
+    );
+}
+impl Default for _SYMCRYPT_HMAC_MD5_STATE {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_HMAC_MD5_STATE = _SYMCRYPT_HMAC_MD5_STATE;
+pub type PSYMCRYPT_HMAC_MD5_STATE = *mut _SYMCRYPT_HMAC_MD5_STATE;
+pub type PCSYMCRYPT_HMAC_MD5_STATE = *const SYMCRYPT_HMAC_MD5_STATE;
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
@@ -955,6 +1122,74 @@ fn bindgen_test_layout__SYMCRYPT_HMAC_SHA1_EXPANDED_KEY() {
     );
 }
 pub type SYMCRYPT_HMAC_SHA1_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY;
+pub type PSYMCRYPT_HMAC_SHA1_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY;
+pub type PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA1_EXPANDED_KEY;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_HMAC_SHA1_STATE {
+    pub hash: SYMCRYPT_SHA1_STATE,
+    pub pKey: PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_HMAC_SHA1_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_SHA1_STATE> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_HMAC_SHA1_STATE>(),
+        144usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_HMAC_SHA1_STATE))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_HMAC_SHA1_STATE>(),
+        16usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_HMAC_SHA1_STATE))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hash) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_SHA1_STATE),
+            "::",
+            stringify!(hash)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pKey) as usize - ptr as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_SHA1_STATE),
+            "::",
+            stringify!(pKey)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        136usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_SHA1_STATE),
+            "::",
+            stringify!(magic)
+        )
+    );
+}
+impl Default for _SYMCRYPT_HMAC_SHA1_STATE {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_HMAC_SHA1_STATE = _SYMCRYPT_HMAC_SHA1_STATE;
+pub type PSYMCRYPT_HMAC_SHA1_STATE = *mut _SYMCRYPT_HMAC_SHA1_STATE;
+pub type PCSYMCRYPT_HMAC_SHA1_STATE = *const SYMCRYPT_HMAC_SHA1_STATE;
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
@@ -4466,6 +4701,21 @@ extern "C" {
     pub fn SymCryptModuleInit(api: UINT32, minor: UINT32);
 }
 extern "C" {
+    pub fn SymCryptMd5(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptMd5Init(pState: PSYMCRYPT_MD5_STATE);
+}
+extern "C" {
+    pub fn SymCryptMd5Append(pState: PSYMCRYPT_MD5_STATE, pbData: PCBYTE, cbData: SIZE_T);
+}
+extern "C" {
+    pub fn SymCryptMd5Result(pState: PSYMCRYPT_MD5_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptMd5StateCopy(pSrc: PCSYMCRYPT_MD5_STATE, pDst: PSYMCRYPT_MD5_STATE);
+}
+extern "C" {
     pub fn SymCryptSha1(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
 extern "C" {
@@ -4524,6 +4774,78 @@ extern "C" {
 }
 extern "C" {
     pub fn SymCryptSha512StateCopy(pSrc: PCSYMCRYPT_SHA512_STATE, pDst: PSYMCRYPT_SHA512_STATE);
+}
+extern "C" {
+    pub fn SymCryptHmacMd5ExpandKey(
+        pExpandedKey: PSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
+        pbKey: PCBYTE,
+        cbKey: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptHmacMd5(
+        pExpandedKey: PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
+        pbData: PCBYTE,
+        cbData: SIZE_T,
+        pbResult: PBYTE,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacMd5StateCopy(
+        pSrc: PCSYMCRYPT_HMAC_MD5_STATE,
+        pExpandedKey: PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
+        pDst: PSYMCRYPT_HMAC_MD5_STATE,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacMd5Init(
+        pState: PSYMCRYPT_HMAC_MD5_STATE,
+        pExpandedKey: PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacMd5Append(pState: PSYMCRYPT_HMAC_MD5_STATE, pbData: PCBYTE, cbData: SIZE_T);
+}
+extern "C" {
+    pub fn SymCryptHmacMd5Result(pState: PSYMCRYPT_HMAC_MD5_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptHmacSha1ExpandKey(
+        pExpandedKey: PSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
+        pbKey: PCBYTE,
+        cbKey: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptHmacSha1(
+        pExpandedKey: PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
+        pbData: PCBYTE,
+        cbData: SIZE_T,
+        pbResult: PBYTE,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacSha1StateCopy(
+        pSrc: PCSYMCRYPT_HMAC_SHA1_STATE,
+        pExpandedKey: PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
+        pDst: PSYMCRYPT_HMAC_SHA1_STATE,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacSha1Init(
+        pState: PSYMCRYPT_HMAC_SHA1_STATE,
+        pExpandedKey: PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacSha1Append(
+        pState: PSYMCRYPT_HMAC_SHA1_STATE,
+        pbData: PCBYTE,
+        cbData: SIZE_T,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacSha1Result(pState: PSYMCRYPT_HMAC_SHA1_STATE, pbResult: PBYTE);
 }
 extern "C" {
     pub fn SymCryptHmacSha256ExpandKey(
