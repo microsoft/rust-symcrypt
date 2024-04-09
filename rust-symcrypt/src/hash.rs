@@ -84,7 +84,7 @@ pub trait HashState: Clone {
 
 /// [`Md5State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
 pub struct Md5State(Pin<Box<symcrypt_sys::SYMCRYPT_MD5_STATE>>);
-// Sha1State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+// Md5State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Md5State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
 // SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
