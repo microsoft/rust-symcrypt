@@ -31,9 +31,9 @@
 //! ```
 //!
 //!
-//! ## Stateful Hash for Sha256 and Sha384
-//! Hashing via state uses the [`HashState`] trait. [`Sha256State`] and [`Sha384State`] both implement the [`HashState`].
-//! Usage of [`Sha256State`] and [`Sha384State`] will be very similar.
+//! ## Stateful Hash for Sha256, Sha384, Sha512 and Sha1
+//! Hashing via state uses the [`HashState`] trait. [`Sha256State`], [`Sha384State`], [`Sha512State`] and [`Sha1State`] will implement the [`HashState`].
+//! Usage of across all of the [`HashState`]'s will be very similar.
 //!
 //! ```
 //! use symcrypt::hash::*;
@@ -55,14 +55,18 @@ use std::pin::Pin;
 use std::ptr;
 use symcrypt_sys;
 
+/// 20
+pub const SHA1_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA1_RESULT_SIZE as usize;
 /// 32
 pub const SHA256_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA256_RESULT_SIZE as usize;
 /// 48
 pub const SHA384_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA384_RESULT_SIZE as usize;
+/// 64
+pub const SHA512_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA512_RESULT_SIZE as usize;
 
 /// Generic trait for stateful hashing
 ///
-/// `type Result` will be either 32 or 48 bytes, depending on if [`Sha256State`] or [`Sha384State`] is used.
+/// `type Result` will be dependent on the which [`HashState`] you use.
 ///
 /// `append()` appends to be hashed data to the state, this operation can be done multiple times on the same state.
 ///
@@ -74,6 +78,90 @@ pub trait HashState: Clone {
     fn append(&mut self, data: &[u8]);
 
     fn result(&mut self) -> Self::Result;
+}
+
+/// [`Sha1State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
+pub struct Sha1State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA1_STATE>>);
+// Sha1State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+// around when returning from Sha1State::new(). Box<> heap allocates the memory and ensures that it does not move
+//
+// SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
+// doing so would lead to use-after-free and inconsistent states.
+
+impl Sha1State {
+    pub fn new() -> Self {
+        let mut instance = Sha1State(Box::pin(symcrypt_sys::SYMCRYPT_SHA1_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha1Init(&mut *instance.0);
+        }
+        instance
+    }
+}
+
+impl HashState for Sha1State {
+    type Result = [u8; SHA1_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha1Append(
+                &mut *self.0,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    fn result(&mut self) -> Self::Result {
+        let mut result = [0u8; SHA1_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha1Result(&mut *self.0, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+impl Clone for Sha1State {
+    fn clone(&self) -> Self {
+        let mut new_state = Sha1State(Box::pin(symcrypt_sys::SYMCRYPT_SHA1_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha1StateCopy(&*self.0, &mut *new_state.0);
+        }
+        new_state
+    }
+}
+
+impl Drop for Sha1State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+}
+
+/// Stateless hash function for SHA1.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `SHA1_RESULT_SIZE`, which is 20 bytes. This call cannot fail.
+pub fn sha1(data: &[u8]) -> [u8; SHA1_RESULT_SIZE] {
+    let mut result = [0; SHA1_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        symcrypt_sys::SymCryptSha1(
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
+    }
+    result
 }
 
 /// [`Sha256State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
@@ -163,7 +251,7 @@ pub fn sha256(data: &[u8]) -> [u8; SHA256_RESULT_SIZE] {
 /// [`Sha384State`] is a struct that represents a stateful sha384 hash and implements the [`HashState`] trait.
 pub struct Sha384State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA384_STATE>>);
 // Sha384State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
-// around when returning from Sha256State::new(). Box<> heap allocates the memory and ensures that it does not move
+// around when returning from Sha384State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
 // SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
 // doing so would lead to use-after-free and inconsistent states.
@@ -244,6 +332,90 @@ pub fn sha384(data: &[u8]) -> [u8; SHA384_RESULT_SIZE] {
     result
 }
 
+/// [`Sha512State`] is a struct that represents a stateful sha512 hash and implements the [`HashState`] trait.
+pub struct Sha512State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA512_STATE>>);
+// Sha512State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+// around when returning from Sha512State::new(). Box<> heap allocates the memory and ensures that it does not move
+//
+// SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
+// doing so would lead to use-after-free and inconsistent states.
+
+impl Sha512State {
+    pub fn new() -> Self {
+        let mut instance = Sha512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA512_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha512Init(&mut *instance.0);
+        }
+        instance
+    }
+}
+
+impl HashState for Sha512State {
+    type Result = [u8; SHA512_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha512Append(
+                &mut *self.0,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    fn result(&mut self) -> Self::Result {
+        let mut result = [0u8; SHA512_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha512Result(&mut *self.0, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+impl Clone for Sha512State {
+    fn clone(&self) -> Self {
+        let mut new_state = Sha512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA512_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha512StateCopy(&*self.0, &mut *new_state.0);
+        }
+        new_state
+    }
+}
+
+impl Drop for Sha512State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+}
+
+/// Stateless hash function for SHA512.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `SHA512_RESULT_SIZE`, which is 60 bytes. This call cannot fail.
+pub fn sha512(data: &[u8]) -> [u8; SHA512_RESULT_SIZE] {
+    let mut result = [0; SHA512_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        symcrypt_sys::SymCryptSha512(
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
+    }
+    result
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -284,6 +456,15 @@ mod test {
     }
 
     #[test]
+    fn test_stateless_sha1_hash() {
+        let data = hex::decode("").unwrap();
+        let expected: &str = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+
+        let result = sha1(&data);
+        assert_eq!(hex::encode(result), expected);
+    }
+
+    #[test]
     fn test_stateless_sha256_hash() {
         let data = hex::decode("641ec2cf711e").unwrap();
         let expected: &str = "cfdbd6c9acf9842ce04e8e6a0421838f858559cf22d2ea8a38bd07d5e4692233";
@@ -301,6 +482,17 @@ mod test {
         assert_eq!(hex::encode(result), expected);
     }
 
+    #[test]
+    fn test_stateless_sha512_hash() {
+        let data = hex::decode("").unwrap();
+        let expected: &str = "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e";
+
+        let result = sha512(&data);
+        assert_eq!(hex::encode(result), expected);
+    }
+
+
+    /// add the statefull hash
     #[test]
     fn test_state_sha256_hash() {
         let data = hex::decode("").unwrap();
