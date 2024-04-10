@@ -12,7 +12,7 @@
 //!
 //! `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
 //! To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
-//! To enable all weak crypto you can instead pass `weak-crypto` into your `Cargo.toml` instead.
+//! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
 //!
 //! In your `Cargo.toml`
 //! 
