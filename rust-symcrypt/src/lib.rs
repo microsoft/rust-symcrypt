@@ -12,12 +12,12 @@
 //! ## Quick Start Guide
 //!
 //! ### Windows:
-//! Download and copy the `symcrypt.dll` and `symcrypt.lib` from [link here](asdafs) `C:/Windows/System32` folder.
+//! Download and copy the `symcrypt.dll` and `symcrypt.lib` for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them in your `C:/Windows/System32` folder.
 //!
 //! For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 //!
 //! ### Linux:
-//! Download and copy all of the `libsymcrypt.so*` files from [link here](asdfasdf) and place them into your `/usr/bin/x86_64-linux-gnu/` folder.
+//! Download and copy all of the `libsymcrypt.so*` files for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them into your `/usr/bin/x86_64-linux-gnu/` folder.
 //!
 //! For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 //!

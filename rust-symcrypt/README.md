@@ -6,24 +6,17 @@ This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to creat
 
 **Note:** As of version `0.2.0`, only `Windows AMD64`, and [`Linux Mariner`](https://github.com/microsoft/CBL-Mariner) are fully supported, with partial support for other linux distros such as `Ubuntu`.
 
-For ease of use, we have included a `symcrypt.dll` and `symcrypt.lib` in the `bin/amd64/` folder for users on Windows. This will only work on computers using an `AMD64 (x86_64)` architecture.
-
-We have also included the required `libsymcrypt.so` files needed for Linux users. These `.so` files have been built for the [Mariner](https://github.com/microsoft/CBL-Mariner) distro, but have been tested and confirmed working on `Ubuntu 22.04.3` via WSL. Support for other distros aside from Mariner is not guaranteed. 
-
-If you are using a different architecture, you will have to continue with the install and build steps outlined in the `BUILD.md` file.
-
 ## Quick Start Guide
-**Note:** At the moment the provided symcrypt.dll is not production signed and not FIPS compliant and should only be used in the interm until an official production signed symcrypt.dll is available.
 
 ### Windows:
-Copy the `symcrypt.dll` and `symcrypt.lib` from the `/bin/amd64` folder and place it into your `C:/Windows/System32` folder. 
+Download and copy the `symcrypt.dll` and `symcrypt.lib` for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them in your `C:/Windows/System32` folder.
 
-For more information please see the `BUILD.md` file
+For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 
 ### Linux:
-Copy all of the `libsymcrypt.so*` files from the `/bin/linux` folder and place it into your `/usr/bin/x86_64-linux-gnu/` folder. 
+Download and copy all of the `libsymcrypt.so*` files for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them into your `/usr/bin/x86_64-linux-gnu/` folder.
 
-For more information please see the `BUILD.md` file
+For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 
 **Note:** This path may be different depending on your flavour of linux. The goal is to place the `libsymcrypt.so*` files in a location where the your linux distro can find the required libs at build/run time.
 
