@@ -6,7 +6,9 @@ who want to use their own `symcrypt*` files.
 ## Installation
 To use the SymCrypt crate, you must have a local version of [SymCrypt](https://github.com/microsoft/SymCrypt) downloaded.
 
-Please follow the [Build Instructions](https://github.com/microsoft/SymCrypt/blob/main/BUILD.md) that is provided by SymCrypt to install SymCrypt for your target architecture.
+For ease of use, the recommended usage is to obtain these binaries from the official SymCrypt [Repo](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2).
+
+If you wish to build your own version please follow the [Build Instructions](https://github.com/microsoft/SymCrypt/blob/main/BUILD.md) that is provided by SymCrypt to install SymCrypt for your target architecture.
 
 Once SymCrypt is installed and built locally on your machine, we must configure your machine so that the SymCrypt crate's build script can easily find `symcrypt.dll` and `symcrypt.lib` which are needed on Windows, or the `libsymcrypt.so*` files which are needed for Linux. 
 
