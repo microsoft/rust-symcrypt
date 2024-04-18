@@ -4,7 +4,7 @@ This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https:/
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**Note:** As of version `0.2.0`, only `Windows AMD64`, and [`Linux Mariner`](https://github.com/microsoft/CBL-Mariner) are fully supported, with partial support for other linux distros such as `Ubuntu`.
+**Note:** As of version `0.2.0`, only `Windows AMD64`, and [`Linux Azure Linux`](https://github.com/microsoft/azurelinux) are fully supported, with partial support for other Linux distros such as `Ubuntu`.
 
 ## Quick Start Guide
 
@@ -18,7 +18,7 @@ Download and copy all of the `libsymcrypt.so*` files for you corresponding CPU a
 
 For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 
-**Note:** This path may be different depending on your flavour of linux. The goal is to place the `libsymcrypt.so*` files in a location where the your linux distro can find the required libs at build/run time.
+**Note:** This path may be different depending on your flavour of Linux. The goal is to place the `libsymcrypt.so*` files in a location where the your Linux distro can find the required libs at build/run time.
 
 
 ## Supported APIs

@@ -8,15 +8,15 @@ To use the SymCrypt crate, you must have a local version of [SymCrypt](https://g
 
 For ease of use, the recommended usage is to obtain these binaries from the official SymCrypt [Repo](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2).
 
-If you wish to build your own version please follow the [Build Instructions](https://github.com/microsoft/SymCrypt/blob/main/BUILD.md) that is provided by SymCrypt to install SymCrypt for your target architecture.
+If you wish to build your own version please follow the [Build Instructions](https://github.com/microsoft/SymCrypt/blob/main/BUILD.md) that are provided by SymCrypt to install SymCrypt for your target architecture.
 
 Once SymCrypt is installed and built locally on your machine, we must configure your machine so that the SymCrypt crate's build script can easily find `symcrypt.dll` and `symcrypt.lib` which are needed on Windows, or the `libsymcrypt.so*` files which are needed for Linux. 
 
 ### Windows Install 
 
-The `symcrypt.lib` can be found in the the following path after SymCrypt has been successfully downloaded and built. 
+The `symcrypt.lib` can be found in the the following path after SymCrypt has been successfully built. 
 
-`C:\Your-Path-To-SymCrypt\SymCrypt\bin\lib`
+`C:\Your-Path-To-SymCrypt\SymCrypt\dll\lib`
 
 The SymCrypt crate needs a static lib to link to during its build/link time. You must configure your system so that the SymCrypt crate's build script can easily find the needed `symcrypt.lib` file.
 
@@ -24,7 +24,7 @@ You can configure your system one of 3 ways.
 
 1. Add the lib path as a one time cargo environment variable.
     ```powershell
-    $env:RUSTFLAGS='-L C:\Your-Path-To-SymCrypt\SymCrypt\bin\lib'
+    $env:RUSTFLAGS='-L C:\Your-Path-To-SymCrypt\SymCrypt\dll\lib'
     ```
     **Note:** This change will only persist within the current process, and you must re-set the PATH environment variable after closing the PowerShell window.
 
@@ -35,7 +35,7 @@ You can configure your system one of 3 ways.
 
 **Option 1 or Option 2 is what is recommended for ease of use.**
 
-The `symcrypt.dll` can be found in the the following path after SymCrypt has been successfully downloaded and built. 
+The `symcrypt.dll` can be found in the the following path after SymCrypt has been successfully built. 
 
 `C:\Your-Path-To-SymCrypt\SymCrypt\bin\exe`
 

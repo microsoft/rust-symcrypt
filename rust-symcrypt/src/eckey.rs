@@ -155,7 +155,6 @@ pub(crate) fn convert_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_ECURVE
 
 // get_num_format returns the correct number format needed for TLS interop since 25519 spec defines the use of Little Endian.
 pub(crate) fn get_num_format(curve_type: CurveType) -> i32 {
-    // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
     let num_format = match curve_type {
         CurveType::Curve25519 => {
             symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST
