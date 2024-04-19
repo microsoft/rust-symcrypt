@@ -1,11 +1,15 @@
+use std::env;
+
 fn main() {
     #[cfg(target_os = "windows")]
     {
         // Look for the .lib file during link time. We are searching the Windows/System32 path which is set as a current default to match
         // the long term placement of a Windows shipped symcrypt.dll 
-        println!("cargo:rustc-link-search=native=C:/Windows/System32/"); 
+        // println!("cargo:rustc-link-search=native=C:/Windows/System32/"); 
 
-        // Test module to search for in lieu of symcrypt.dll
+        let lib_path = env::var("SYMCRYPT_LIB_PATH").unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set"));
+        println!("cargo:rustc-link-search=native={}", lib_path);
+
         println!("cargo:rustc-link-lib=dylib=symcrypt");
 
         // During run time, the OS will handle finding the symcrypt.dll file. The places Windows will look will be:
@@ -18,7 +22,6 @@ fn main() {
         // For more info please see: https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order
 
         // For the least invasive usage, we suggest putting the symcrypt.dll inside of same folder as the .exe file.
-        // This will be something like: C:/your-project/target/debug/
 
         // Note: This process is a band-aid. Long-term SymCrypt will be shipped with Windows which will make this process much more
         // streamlined. 
@@ -26,9 +29,9 @@ fn main() {
 
     #[cfg(target_os = "linux")]
     {
-        // Note: Linux support is based off of the Mariner distro.
+        // Note: Linux support is based off of the Azure Linux distro.
         // This has been tested on Ubuntu 22.04.03 LTS on WSL and has confirmed working but support for other distros 
-        // aside from Mariner is not guaranteed so YMMV. 
+        // aside from Azure Linux is not guaranteed so YMMV. 
         println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on linux
 
         // You must put the included symcrypt.so files in your usr/lib/x86_64-linux-gnu/ path.

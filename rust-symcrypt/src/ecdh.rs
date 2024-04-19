@@ -5,7 +5,7 @@
 //! ## Secret agreement with `Nist256`, `Nist384` and `Curve25519`.
 //! This calling pattern be similar for `Nist384`, and `Curve25519` except that `EcDh::new()`
 //! will be called with the desired [`CurveType`]
-//! ```
+//! ```rust
 //! use symcrypt::ecdh::EcDh;
 //! use symcrypt::eckey::CurveType;
 //!

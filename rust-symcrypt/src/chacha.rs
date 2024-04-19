@@ -4,7 +4,7 @@
 //!
 //! ## Encrypt in place
 //!
-//! ```
+//! ```rust
 //! use hex::*;
 //! use symcrypt::chacha::chacha20_poly1305_encrypt_in_place;
 //!
@@ -35,7 +35,7 @@
 //!
 //! ## Decrypt in place
 //!
-//! ```
+//! ```rust
 //! use hex::*;
 //! use symcrypt::chacha::chacha20_poly1305_decrypt_in_place;
 //!

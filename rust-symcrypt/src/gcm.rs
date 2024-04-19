@@ -4,7 +4,7 @@
 //!
 //! ## Encrypt in place
 //!
-//! ```
+//! ```rust
 //! use symcrypt::block_ciphers::BlockCipherType;
 //! use symcrypt::gcm::GcmExpandedKey;
 //!
@@ -33,7 +33,7 @@
 //! ```
 //!
 //! ## Decrypt in place
-//! ```
+//! ```rust
 //! use symcrypt::block_ciphers::BlockCipherType;
 //! use symcrypt::gcm::GcmExpandedKey;
 //!

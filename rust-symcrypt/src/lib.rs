@@ -10,19 +10,8 @@
 //! To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
 //! 
 //! ## Quick Start Guide
-//!
-//! ### Windows:
-//! Download and copy the `symcrypt.dll` and `symcrypt.lib` for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them in your `C:/Windows/System32` folder.
-//!
-//! For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
-//!
-//! ### Linux:
-//! Download and copy all of the `libsymcrypt.so*` files for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them into your `/usr/bin/x86_64-linux-gnu/` folder.
-//!
-//! For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
-//!
-//! **Note:** This path may be different depending on your flavour of Linux. The goal is to place the `libsymcrypt.so*` files in a location where the your Linux distro can find the required libs at build/run time.
-//!
+//! Please refer to the [rust-symcrypt Quick Start Guide](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide) to download and configure the required binaries.
+//! 
 //! ## Supported APIs
 //!
 //! Hashing:

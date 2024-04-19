@@ -3,7 +3,7 @@
 //! # Examples
 //!
 //! ## Stateless Sha256
-//! ```
+//! ```rust
 //! use symcrypt::hash::*;
 //! use hex::*;
 //!
@@ -17,7 +17,7 @@
 //! ```
 //!
 //! ## Stateless Sha384
-//! ```
+//! ```rust
 //! use symcrypt::hash::*;
 //! use hex::*;
 //!

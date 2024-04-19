@@ -9,12 +9,27 @@ This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to creat
 ## Quick Start Guide
 
 ### Windows:
-Download and copy the `symcrypt.dll` and `symcrypt.lib` for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them in your `C:/Windows/System32` folder.
+Download the `symcrypt.dll` and `symcrypt.lib` for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them somewhere accessible on your machine.
+
+Set the required `SYMCRYPT_LIB_PATH` environment variable. You can do this by using the following command:
+
+`setx SYMCRYPT_LIB_PATH "<your-path-to-symcrypt-lib-folder>"`
+
+During runtime, Windows will handle finding all needed `dll`'s in order to run the intended program, this includes our `symcrypt.dll` file.
+
+Here are 2 recommended options to ensure your `symcrypt.dll` is found by Windows during runtime, for more info please see [Dynamic-link library search order](https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order).
+
+1. Put the `symcrypt.dll` in the same folder as your output `.exe` file. If you are doing development (not release), the common path will be: `C:\your-project\target\debug\`.
+2. Permanently add the `symcrypt.dll` path into your System PATH environment variable. Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypt.lib`
+
+**Note this is a temporary solution while we work on shipping SymCrypt out of the box on Windows.**
 
 For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 
 ### Linux:
-Download and copy all of the `libsymcrypt.so*` files for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2) and place them into your `/usr/bin/x86_64-linux-gnu/` folder.
+Download and all of the `libsymcrypt.so*` files for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2).
+
+Support for `Debian` and `Ubuntu` via package manager is in the works, for now you must place the `libsymcrypt.so*` files into linker load path. The way that this is set will vary between distros. On most distros it set via the environment variable `$LD_LIBRARY_PATH`. 
 
 For more information please see the `BUILD.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 
