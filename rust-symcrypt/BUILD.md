@@ -18,7 +18,7 @@ The `symcrypt.lib` can be found in the the following path after SymCrypt has bee
 
 `C:\Your-Path-To-SymCrypt-Build-Output\dll\`
 
-The SymCrypt crate needs a static lib to link to during its build/link time. You must configure your system so that the SymCrypt crate's build script can easily find the needed `symcrypt.lib` file.
+The SymCrypt crate needs to link against the SymCrypt import library during build.
 
 To do so you must set the `SYMCRYPT_LIB_PATH` environment variable. You can do this by using the following command:
 
@@ -43,9 +43,15 @@ Here are 2 recommended options to ensure your `symcrypt.dll` is found by Windows
 1. Put the `symcrypt.dll` in the same folder as your output `.exe` file. If you are doing development (not release), the common path will be: `C:\your-project\target\debug\`.
 2. Permanently add the `symcrypt.dll` path into your System PATH environment variable. Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypt.lib`
 
+### Azure Linux Install
+
+For Azure Linux 2.0 you can install the required SymCrypt binaries via: `tdnf install symcrypt`
+
+**Note:** SymCrypt will be included out the box with Azure Linux 3.0 which has not yet shipped.
+
 ### Linux Install
 
-After building SymCrypt on linux, the required `libsymcrypt.so*` files can be found in the following path:
+After building SymCrypt on Linux, the required `libsymcrypt.so*` files can be found in the following path:
 `~/Your-Path-To-SymCrypt-Build-Output/lib/`
 
 The symcrypt crate needs to be able to link with these libs during build/run time. In order to mimic the installation path for other libraries, you must place the `libsymcrypt.so*` files into linker load path. The way that this is set will vary between distros. On most distros it set via the environment variable `$LD_LIBRARY_PATH`.

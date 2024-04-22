@@ -32,12 +32,12 @@ fn main() {
         // Note: Linux support is based off of the Azure Linux distro.
         // This has been tested on Ubuntu 22.04.03 LTS on WSL and has confirmed working but support for other distros 
         // aside from Azure Linux is not guaranteed so YMMV. 
-        println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on linux
+        println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on Linux
 
         // You must put the included symcrypt.so files in your usr/lib/x86_64-linux-gnu/ path.
-        // This is where the linux ld linker will look for the symcrypt.so files.
+        // This is where the Linux ld linker will look for the symcrypt.so files.
 
         // Note: This process is a band-aid. Long-term, our long term solution is to package manage SymCrypt for a subset of
-        // linux distros. 
+        // Linux distros. 
     }
 }
