@@ -3662,7 +3662,7 @@ extern "C" {
     ) -> SYMCRYPT_ERROR;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypttestmodule", kind = "dylib")]
+#[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
 }
@@ -3996,7 +3996,7 @@ extern "C" {
     pub fn SymCryptEcurveSizeofFieldElement(pCurve: PCSYMCRYPT_ECURVE) -> UINT32;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypttestmodule", kind = "dylib")]
+#[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -4005,7 +4005,7 @@ extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypttestmodule", kind = "dylib")]
+#[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -4014,7 +4014,7 @@ extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypttestmodule", kind = "dylib")]
+#[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }

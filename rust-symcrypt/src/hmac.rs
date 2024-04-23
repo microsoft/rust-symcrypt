@@ -3,7 +3,7 @@
 //! # Examples
 //!
 //! ## Stateless Hmac for HmacSha256
-//! ```
+//! ```rust
 //! use symcrypt::hmac::hmac_sha256;
 //!
 //! // Set up input
@@ -17,7 +17,7 @@
 //! ```
 //!
 //! ## Stateless Hmac for HmacSha384
-//! ```
+//! ```rust
 //! use symcrypt::hmac::hmac_sha384;
 //!
 //! // Set up input
@@ -34,7 +34,7 @@
 //!
 //! Hmac via state uses the [`HmacState`] trait. [`HmacSha256State`] and [`HmacSha384State`] both implement the [`HmacState`].
 //! Usage of [`HmacSha256State`] and [`HmacSha384State`] will be very similar.
-//! ```
+//! ```rust
 //! use symcrypt::hmac::HmacSha256State;
 //! use crate::symcrypt::hmac::HmacState;
 //!
