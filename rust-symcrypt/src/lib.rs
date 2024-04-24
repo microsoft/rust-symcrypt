@@ -8,7 +8,7 @@
 //! 
 //! ## Changelog
 //! To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
-//! 
+//!
 //! ## Quick Start Guide
 //! Please refer to the [rust-symcrypt Quick Start Guide](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide) to download and configure the required binaries.
 //! 

@@ -1,5 +1,24 @@
 //! Hashing functions. For further documentation please refer to symcrypt.h
 //!
+//!
+//! # Supported Hashing functions
+//! ```ignore
+//! Md5 // Note: Md5 is disabled by default, to enable pass the md5 flag
+//! Sha1 // Note: Sha1 is disabled by default, to enable pass the sha1 flag
+//! Sha256
+//! Sha384
+//! Sha512
+//! ```
+//!
+//! `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
+//! To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
+//! To enable all weak crypto you can instead pass `weak-crypto` into your `Cargo.toml` instead.
+//!
+//! In your `Cargo.toml`
+//! 
+//! `symcrypt = {version = "0.2.0", features = ["weak-crypto"]}`
+//! 
+//!
 //! # Examples
 //!
 //! ## Stateless Sha256
@@ -30,12 +49,11 @@
 //! assert_eq!(hex::encode(result), expected);
 //! ```
 //!
+//! ## Stateful Hashing
+//! Hashing via state uses the [`HashState`] trait. All of the supported hashing algorithms will implement the [`HashState`].
+//! Usage across each hash state will be very similar.
 //!
-//! ## Stateful Hash for Sha256, Sha384, Sha512, Sha1 and Md5
-//! Hashing via state uses the [`HashState`] trait. [`Sha256State`], [`Sha384State`], [`Sha512State`], [`Sha1State`] and [`Md5State`] will implement the [`HashState`].
-//! Usage of across all of the [`HashState`]'s will be very similar.
-//!
-//! ```
+//! ```rust
 //! use symcrypt::hash::*;
 //! use hex::*;
 //!
@@ -56,8 +74,10 @@ use std::ptr;
 use symcrypt_sys;
 
 /// 16
+#[cfg(feature = "md5")]
 pub const MD5_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_MD5_RESULT_SIZE as usize;
 /// 20
+#[cfg(feature = "sha1")]
 pub const SHA1_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA1_RESULT_SIZE as usize;
 /// 32
 pub const SHA256_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA256_RESULT_SIZE as usize;
@@ -68,7 +88,7 @@ pub const SHA512_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA512_RESULT_SIZE 
 
 /// Generic trait for stateful hashing
 ///
-/// `type Result` will be dependent on the which [`HashState`] you use.
+/// `Result` will be dependent on the which [`HashState`] you use.
 ///
 /// `append()` appends to be hashed data to the state, this operation can be done multiple times on the same state.
 ///
@@ -82,14 +102,15 @@ pub trait HashState: Clone {
     fn result(&mut self) -> Self::Result;
 }
 
-/// [`Md5State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
+/// [`Md5State`] is a struct that represents a stateful md5 hash and implements the [`HashState`] trait.
+#[cfg(feature = "md5")]
 pub struct Md5State(Pin<Box<symcrypt_sys::SYMCRYPT_MD5_STATE>>);
 // Md5State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Md5State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
 // SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
 // doing so would lead to use-after-free and inconsistent states.
-
+#[cfg(feature = "md5")]
 impl Md5State {
     pub fn new() -> Self {
         let mut instance = Md5State(Box::pin(symcrypt_sys::SYMCRYPT_MD5_STATE::default()));
@@ -101,6 +122,7 @@ impl Md5State {
     }
 }
 
+#[cfg(feature = "md5")]
 impl HashState for Md5State {
     type Result = [u8; MD5_RESULT_SIZE];
 
@@ -125,6 +147,7 @@ impl HashState for Md5State {
     }
 }
 
+#[cfg(feature = "md5")]
 impl Clone for Md5State {
     fn clone(&self) -> Self {
         let mut new_state = Md5State(Box::pin(symcrypt_sys::SYMCRYPT_MD5_STATE::default()));
@@ -136,6 +159,7 @@ impl Clone for Md5State {
     }
 }
 
+#[cfg(feature = "md5")]
 impl Drop for Md5State {
     fn drop(&mut self) {
         unsafe {
@@ -153,6 +177,7 @@ impl Drop for Md5State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `MD5_RESULT_SIZE`, which is 16 bytes. This call cannot fail.
+#[cfg(feature = "md5")]
 pub fn md5(data: &[u8]) -> [u8; MD5_RESULT_SIZE] {
     let mut result = [0; MD5_RESULT_SIZE];
     unsafe {
@@ -166,7 +191,8 @@ pub fn md5(data: &[u8]) -> [u8; MD5_RESULT_SIZE] {
     result
 }
 
-/// [`Sha1State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
+/// [`Sha1State`] is a struct that represents a stateful sha1 hash and implements the [`HashState`] trait.
+#[cfg(feature = "sha1")]
 pub struct Sha1State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA1_STATE>>);
 // Sha1State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha1State::new(). Box<> heap allocates the memory and ensures that it does not move
@@ -174,6 +200,7 @@ pub struct Sha1State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA1_STATE>>);
 // SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
 // doing so would lead to use-after-free and inconsistent states.
 
+#[cfg(feature = "sha1")]
 impl Sha1State {
     pub fn new() -> Self {
         let mut instance = Sha1State(Box::pin(symcrypt_sys::SYMCRYPT_SHA1_STATE::default()));
@@ -185,6 +212,7 @@ impl Sha1State {
     }
 }
 
+#[cfg(feature = "sha1")]
 impl HashState for Sha1State {
     type Result = [u8; SHA1_RESULT_SIZE];
 
@@ -209,6 +237,7 @@ impl HashState for Sha1State {
     }
 }
 
+#[cfg(feature = "sha1")]
 impl Clone for Sha1State {
     fn clone(&self) -> Self {
         let mut new_state = Sha1State(Box::pin(symcrypt_sys::SYMCRYPT_SHA1_STATE::default()));
@@ -220,6 +249,7 @@ impl Clone for Sha1State {
     }
 }
 
+#[cfg(feature = "sha1")]
 impl Drop for Sha1State {
     fn drop(&mut self) {
         unsafe {
@@ -237,6 +267,7 @@ impl Drop for Sha1State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `SHA1_RESULT_SIZE`, which is 20 bytes. This call cannot fail.
+#[cfg(feature = "sha1")]
 pub fn sha1(data: &[u8]) -> [u8; SHA1_RESULT_SIZE] {
     let mut result = [0; SHA1_RESULT_SIZE];
     unsafe {
@@ -504,6 +535,8 @@ pub fn sha512(data: &[u8]) -> [u8; SHA512_RESULT_SIZE] {
 
 #[cfg(test)]
 mod test {
+    // Note: by default sha1 and md5 are turned off, to enable for testing you can use:
+    // cargo test --features "weak-crypto"
     use super::*;
 
     fn test_generic_hash_state<H: HashState>(mut hash_state: H, data: &[u8], expected: &str)
@@ -541,15 +574,17 @@ mod test {
         assert_eq!(hex::encode(result), expected);
     }
 
+    #[cfg(feature = "md5")]
     #[test]
     fn test_stateless_md5_hash() {
-        let data = hex::decode("abcd").unwrap();
-        let expected: &str = "7838496fd0586421bbb500bb6f472f13";
+        let data = hex::decode("d5976f79d83d3a0dc9806c3c66f3efd8").unwrap();
+        let expected: &str = "00f913260f0ba7ba8652bf012c2b8af6";
 
         let result = md5(&data);
         assert_eq!(hex::encode(result), expected);
     }
 
+    #[cfg(feature = "sha1")]
     #[test]
     fn test_stateless_sha1_hash() {
         let data = hex::decode("").unwrap();
@@ -586,6 +621,7 @@ mod test {
         assert_eq!(hex::encode(result), expected);
     }
 
+    #[cfg(feature = "md5")]
     #[test]
     fn test_state_md5_hash() {
         let data = hex::decode("abcd").unwrap();
@@ -594,6 +630,7 @@ mod test {
         test_generic_hash_state(Md5State::new(), &data, expected);
     }
 
+    #[cfg(feature = "sha1")]
     #[test]
     fn test_state_sha1_hash() {
         let data = hex::decode("0572ba293b54cb").unwrap();
@@ -601,7 +638,7 @@ mod test {
 
         test_generic_hash_state(Sha1State::new(), &data, expected);
     }
-    
+
     #[test]
     fn test_state_sha256_hash() {
         let data = hex::decode("").unwrap();
@@ -626,12 +663,14 @@ mod test {
         test_generic_hash_state(Sha512State::new(), &data, expected);
     }
 
+    #[cfg(feature = "md5")]
     #[test]
     fn test_state_md5_clone() {
         let data = hex::decode("b2e5753cb450").unwrap();
         test_generic_state_clone(Md5State::new(), &data);
     }
 
+    #[cfg(feature = "sha1")]
     #[test]
     fn test_state_sha1_clone() {
         let data = hex::decode("b2e5753cb4501fb8").unwrap();
@@ -656,6 +695,7 @@ mod test {
         test_generic_state_clone(Sha512State::new(), &data);
     }
 
+    #[cfg(feature = "md5")]
     #[test]
     fn test_state_md5_multiple_append() {
         let data_1 = hex::decode("ab").unwrap();
@@ -665,6 +705,7 @@ mod test {
         test_generic_state_multiple_append(Md5State::new(), &data_1, &data_2, expected);
     }
 
+    #[cfg(feature = "sha1")]
     #[test]
     fn test_state_sha1_multiple_append() {
         let data_1 = hex::decode("516074a3438e1575e8").unwrap();
