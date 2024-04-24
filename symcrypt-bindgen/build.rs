@@ -58,30 +58,6 @@ fn main() {
         .derive_default(true)
         .generate()
         .expect("Unable to generate bindings");
-// SymCryptRsakeyAllocate
-// SymCryptRsakeyGenerate
-// SymCryptRsakeySetValue
-// SymCryptRsakeyFree
-// SymCryptSizeofRsakeyFromParams
-// SymCryptRsakeyCreate
-// SymCryptRsakeyWipe
-// SymCryptRsakeyHasPrivateKey
-// SymCryptRsakeySizeofModulus
-// SymCryptRsakeyModulusBits
-//SymCryptRsakeySizeofPublicExponent
-// SymCryptRsakeySizeofPrime
-// add sha1 for interop? 
-// s
-// SymCryptEcDsaVerify ! do not generate the self test 
-// SymCryptDsaSign
-// SymCryptDsaVerify
-// SymCryptRsaPssSign
-//SymCryptRsaPssVerify
-// SymCryptRsaPkcs1Sign
-// SymCryptRsaPkcs1Verify
-// SymCryptRsaRaw*, includes SymCryptRsaRawEncrypt, SymCryptRsaRawDecrypt
-// SymCryptRsaPkcs1Encrypt
-// SymCryptRsaPkcs1Decrypt
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
         .write_to_file(out_path.join("raw_generated_bindings.rs"))
