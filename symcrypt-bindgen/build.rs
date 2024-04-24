@@ -46,6 +46,8 @@ fn main() {
         .allowlist_function("^(SymCryptRsaRaw.*)$")
         // DSA FUNCTIONS
         .allowlist_function("^(SymCryptDsa(Sign|Verify).*)$")
+        // ECDSA functions
+        .allowlist_function("^(SymCryptEcDsa(Sign|Verify).*)")
         // RSA PKCS1 FUNCTIONS
         .allowlist_function("^(SymCryptRsaPkcs1(Sign|Verify|Encrypt|Decrypt).*)$")
         // RSA PSS FUNCTIONS

@@ -519,7 +519,7 @@ impl Drop for Sha512State {
 ///
 /// `data` is a reference to an array of arbitrary length.
 ///
-/// `result` is an array of size `SHA512_RESULT_SIZE`, which is 60 bytes. This call cannot fail.
+/// `result` is an array of size `SHA512_RESULT_SIZE`, which is 64 bytes. This call cannot fail.
 pub fn sha512(data: &[u8]) -> [u8; SHA512_RESULT_SIZE] {
     let mut result = [0; SHA512_RESULT_SIZE];
     unsafe {

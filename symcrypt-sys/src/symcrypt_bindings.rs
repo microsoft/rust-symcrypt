@@ -5713,6 +5713,28 @@ extern "C" {
     ) -> SYMCRYPT_ERROR;
 }
 extern "C" {
+    pub fn SymCryptEcDsaSign(
+        pKey: PCSYMCRYPT_ECKEY,
+        pbHashValue: PCBYTE,
+        cbHashValue: SIZE_T,
+        format: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+        pbSignature: PBYTE,
+        cbSignature: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptEcDsaVerify(
+        pKey: PCSYMCRYPT_ECKEY,
+        pbHashValue: PCBYTE,
+        cbHashValue: SIZE_T,
+        pbSignature: PCBYTE,
+        cbSignature: SIZE_T,
+        format: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
     pub fn SymCryptEcDhSecretAgreement(
         pkPrivate: PCSYMCRYPT_ECKEY,
         pkPublic: PCSYMCRYPT_ECKEY,
