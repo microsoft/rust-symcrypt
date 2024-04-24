@@ -5,6 +5,7 @@ pub const SYMCRYPT_CODE_VERSION_MINOR: u32 = 1;
 pub const SYMCRYPT_CODE_VERSION_PATCH: u32 = 0;
 pub const SYMCRYPT_SHA256_RESULT_SIZE: u32 = 32;
 pub const SYMCRYPT_SHA384_RESULT_SIZE: u32 = 48;
+pub const SYMCRYPT_SHA512_RESULT_SIZE: u32 = 64;
 pub const SYMCRYPT_FLAG_ECKEY_ECDH: u32 = 8192;
 pub const SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR: SYMCRYPT_ERROR = 0;
 pub const SYMCRYPT_ERROR_SYMCRYPT_UNUSED: SYMCRYPT_ERROR = 32768;
@@ -34,6 +35,11 @@ pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_TWISTED_EDWARDS: _SYMCRYPT_
 pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_MONTGOMERY: _SYMCRYPT_ECURVE_TYPE = 3;
 pub type _SYMCRYPT_ECURVE_TYPE = ::std::os::raw::c_int;
 pub use self::_SYMCRYPT_ECURVE_TYPE as SYMCRYPT_ECURVE_TYPE;
+pub const _SYMCRYPT_DLGROUP_FIPS_SYMCRYPT_DLGROUP_FIPS_NONE: _SYMCRYPT_DLGROUP_FIPS = 0;
+pub const _SYMCRYPT_DLGROUP_FIPS_SYMCRYPT_DLGROUP_FIPS_186_2: _SYMCRYPT_DLGROUP_FIPS = 1;
+pub const _SYMCRYPT_DLGROUP_FIPS_SYMCRYPT_DLGROUP_FIPS_186_3: _SYMCRYPT_DLGROUP_FIPS = 2;
+pub type _SYMCRYPT_DLGROUP_FIPS = ::std::os::raw::c_int;
+pub use self::_SYMCRYPT_DLGROUP_FIPS as SYMCRYPT_DLGROUP_FIPS;
 pub type BYTE = ::std::os::raw::c_uchar;
 pub type UINT32 = ::std::os::raw::c_uint;
 pub type UINT64 = ::std::os::raw::c_ulonglong;
@@ -42,6 +48,8 @@ pub type SIZE_T = ULONG_PTR;
 pub type PBYTE = *mut BYTE;
 pub type PCBYTE = *const BYTE;
 pub type PCUINT32 = *const UINT32;
+pub type PUINT64 = *mut UINT64;
+pub type PCUINT64 = *const UINT64;
 pub type PVOID = *mut ::std::os::raw::c_void;
 pub type PCVOID = *const ::std::os::raw::c_void;
 pub type BOOLEAN = BYTE;
@@ -232,6 +240,104 @@ fn bindgen_test_layout__SYMCRYPT_SHA1_CHAINING_STATE() {
 pub type SYMCRYPT_SHA1_CHAINING_STATE = _SYMCRYPT_SHA1_CHAINING_STATE;
 #[repr(C)]
 #[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_SHA1_STATE {
+    pub bytesInBuffer: UINT32,
+    pub magic: SIZE_T,
+    pub dataLengthL: UINT64,
+    pub dataLengthH: UINT64,
+    pub buffer: [BYTE; 64usize],
+    pub chain: SYMCRYPT_SHA1_CHAINING_STATE,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_SHA1_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_SHA1_STATE> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_SHA1_STATE>(),
+        128usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_SHA1_STATE))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_SHA1_STATE>(),
+        16usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_SHA1_STATE))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).bytesInBuffer) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA1_STATE),
+            "::",
+            stringify!(bytesInBuffer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA1_STATE),
+            "::",
+            stringify!(magic)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dataLengthL) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA1_STATE),
+            "::",
+            stringify!(dataLengthL)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dataLengthH) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA1_STATE),
+            "::",
+            stringify!(dataLengthH)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).buffer) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA1_STATE),
+            "::",
+            stringify!(buffer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).chain) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA1_STATE),
+            "::",
+            stringify!(chain)
+        )
+    );
+}
+impl Default for _SYMCRYPT_SHA1_STATE {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_SHA1_STATE = _SYMCRYPT_SHA1_STATE;
+pub type PSYMCRYPT_SHA1_STATE = *mut _SYMCRYPT_SHA1_STATE;
+pub type PCSYMCRYPT_SHA1_STATE = *const SYMCRYPT_SHA1_STATE;
+#[repr(C)]
+#[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHA256_CHAINING_STATE {
     pub H: [UINT32; 8usize],
@@ -395,6 +501,105 @@ fn bindgen_test_layout__SYMCRYPT_SHA512_CHAINING_STATE() {
     );
 }
 pub type SYMCRYPT_SHA512_CHAINING_STATE = _SYMCRYPT_SHA512_CHAINING_STATE;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_SHA512_STATE {
+    pub bytesInBuffer: UINT32,
+    pub magic: SIZE_T,
+    pub dataLengthL: UINT64,
+    pub dataLengthH: UINT64,
+    pub buffer: [BYTE; 128usize],
+    pub chain: SYMCRYPT_SHA512_CHAINING_STATE,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_SHA512_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_SHA512_STATE> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_SHA512_STATE>(),
+        224usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_SHA512_STATE))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_SHA512_STATE>(),
+        16usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_SHA512_STATE))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).bytesInBuffer) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA512_STATE),
+            "::",
+            stringify!(bytesInBuffer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA512_STATE),
+            "::",
+            stringify!(magic)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dataLengthL) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA512_STATE),
+            "::",
+            stringify!(dataLengthL)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dataLengthH) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA512_STATE),
+            "::",
+            stringify!(dataLengthH)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).buffer) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA512_STATE),
+            "::",
+            stringify!(buffer)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).chain) as usize - ptr as usize },
+        160usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_SHA512_STATE),
+            "::",
+            stringify!(chain)
+        )
+    );
+}
+impl Default for _SYMCRYPT_SHA512_STATE {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_SHA512_STATE = _SYMCRYPT_SHA512_STATE;
+pub type PSYMCRYPT_SHA512_STATE = *mut _SYMCRYPT_SHA512_STATE;
+pub type PCSYMCRYPT_SHA512_STATE = *const SYMCRYPT_SHA512_STATE;
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Copy, Clone)]
@@ -872,15 +1077,6 @@ impl Default for _SYMCRYPT_HMAC_SHA256_STATE {
         }
     }
 }
-
-unsafe impl Send for _SYMCRYPT_HMAC_SHA256_STATE {
-    // TODO: discuss send/sync implementation for rustls
-}
-
-unsafe impl Sync for _SYMCRYPT_HMAC_SHA256_STATE {
-    // TODO: discuss send/sync implementation for rustls
-}
-
 pub type SYMCRYPT_HMAC_SHA256_STATE = _SYMCRYPT_HMAC_SHA256_STATE;
 pub type PSYMCRYPT_HMAC_SHA256_STATE = *mut _SYMCRYPT_HMAC_SHA256_STATE;
 pub type PCSYMCRYPT_HMAC_SHA256_STATE = *const SYMCRYPT_HMAC_SHA256_STATE;
@@ -1007,14 +1203,6 @@ impl Default for _SYMCRYPT_HMAC_SHA384_STATE {
         }
     }
 }
-unsafe impl Send for _SYMCRYPT_HMAC_SHA384_STATE {
-    // TODO: discuss send/sync implementation for rustls
-}
-
-unsafe impl Sync for _SYMCRYPT_HMAC_SHA384_STATE {
-    // TODO: discuss send/sync implementation for rustls
-}
-
 pub type SYMCRYPT_HMAC_SHA384_STATE = _SYMCRYPT_HMAC_SHA384_STATE;
 pub type PSYMCRYPT_HMAC_SHA384_STATE = *mut _SYMCRYPT_HMAC_SHA384_STATE;
 pub type PCSYMCRYPT_HMAC_SHA384_STATE = *const SYMCRYPT_HMAC_SHA384_STATE;
@@ -1076,6 +1264,74 @@ fn bindgen_test_layout__SYMCRYPT_HMAC_SHA512_EXPANDED_KEY() {
     );
 }
 pub type SYMCRYPT_HMAC_SHA512_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
+pub type PSYMCRYPT_HMAC_SHA512_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
+pub type PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_HMAC_SHA512_STATE {
+    pub hash: SYMCRYPT_SHA512_STATE,
+    pub pKey: PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_HMAC_SHA512_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_SHA512_STATE> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_HMAC_SHA512_STATE>(),
+        240usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_HMAC_SHA512_STATE))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_HMAC_SHA512_STATE>(),
+        16usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_HMAC_SHA512_STATE))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hash) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_SHA512_STATE),
+            "::",
+            stringify!(hash)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pKey) as usize - ptr as usize },
+        224usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_SHA512_STATE),
+            "::",
+            stringify!(pKey)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        232usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_HMAC_SHA512_STATE),
+            "::",
+            stringify!(magic)
+        )
+    );
+}
+impl Default for _SYMCRYPT_HMAC_SHA512_STATE {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_HMAC_SHA512_STATE = _SYMCRYPT_HMAC_SHA512_STATE;
+pub type PSYMCRYPT_HMAC_SHA512_STATE = *mut _SYMCRYPT_HMAC_SHA512_STATE;
+pub type PCSYMCRYPT_HMAC_SHA512_STATE = *const SYMCRYPT_HMAC_SHA512_STATE;
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Copy, Clone)]
@@ -1874,15 +2130,6 @@ pub type PSYMCRYPT_BLOCKCIPHER_MAC_MODE = ::std::option::Option<
 pub type PSYMCRYPT_BLOCKCIPHER_AEADPART_MODE = ::std::option::Option<
     unsafe extern "C" fn(pState: PVOID, pbSrc: PCBYTE, pbDst: PBYTE, cbData: SIZE_T),
 >;
-
-unsafe impl Send for _SYMCRYPT_BLOCKCIPHER {
-    // TODO: discuss send/sync implementation for rustls
-}
-
-unsafe impl Sync for _SYMCRYPT_BLOCKCIPHER {
-    // TODO: discuss send/sync implementation for rustls
-}
-
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_BLOCKCIPHER {
@@ -2860,6 +3107,716 @@ impl Default for _SYMCRYPT_MODELEMENT {
         }
     }
 }
+#[repr(C)]
+#[repr(align(32))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_RSAKEY {
+    pub fAlgorithmInfo: UINT32,
+    pub cbTotalSize: UINT32,
+    pub hasPrivateKey: BOOLEAN,
+    pub nSetBitsOfModulus: UINT32,
+    pub nBitsOfModulus: UINT32,
+    pub nDigitsOfModulus: UINT32,
+    pub nPubExp: UINT32,
+    pub nPrimes: UINT32,
+    pub nBitsOfPrimes: [UINT32; 2usize],
+    pub nDigitsOfPrimes: [UINT32; 2usize],
+    pub nMaxDigitsOfPrimes: UINT32,
+    pub au64PubExp: [UINT64; 1usize],
+    pub pbPrimes: [PBYTE; 2usize],
+    pub pbCrtInverses: [PBYTE; 2usize],
+    pub pbPrivExps: [PBYTE; 1usize],
+    pub pbCrtPrivExps: [PBYTE; 2usize],
+    pub pmModulus: PSYMCRYPT_MODULUS,
+    pub pmPrimes: [PSYMCRYPT_MODULUS; 2usize],
+    pub peCrtInverses: [PSYMCRYPT_MODELEMENT; 2usize],
+    pub piPrivExps: [PSYMCRYPT_INT; 1usize],
+    pub piCrtPrivExps: [PSYMCRYPT_INT; 2usize],
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_RSAKEY() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_RSAKEY> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_RSAKEY>(),
+        192usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_RSAKEY))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_RSAKEY>(),
+        32usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_RSAKEY))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fAlgorithmInfo) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(fAlgorithmInfo)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cbTotalSize) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(cbTotalSize)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hasPrivateKey) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(hasPrivateKey)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nSetBitsOfModulus) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(nSetBitsOfModulus)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nBitsOfModulus) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(nBitsOfModulus)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nDigitsOfModulus) as usize - ptr as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(nDigitsOfModulus)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nPubExp) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(nPubExp)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nPrimes) as usize - ptr as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(nPrimes)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nBitsOfPrimes) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(nBitsOfPrimes)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nDigitsOfPrimes) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(nDigitsOfPrimes)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nMaxDigitsOfPrimes) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(nMaxDigitsOfPrimes)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).au64PubExp) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(au64PubExp)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pbPrimes) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(pbPrimes)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pbCrtInverses) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(pbCrtInverses)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pbPrivExps) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(pbPrivExps)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pbCrtPrivExps) as usize - ptr as usize },
+        104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(pbCrtPrivExps)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pmModulus) as usize - ptr as usize },
+        120usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(pmModulus)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pmPrimes) as usize - ptr as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(pmPrimes)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).peCrtInverses) as usize - ptr as usize },
+        144usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(peCrtInverses)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).piPrivExps) as usize - ptr as usize },
+        160usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(piPrivExps)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).piCrtPrivExps) as usize - ptr as usize },
+        168usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(piCrtPrivExps)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        184usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSAKEY),
+            "::",
+            stringify!(magic)
+        )
+    );
+}
+impl Default for _SYMCRYPT_RSAKEY {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_RSAKEY = _SYMCRYPT_RSAKEY;
+pub type PSYMCRYPT_RSAKEY = *mut SYMCRYPT_RSAKEY;
+pub type PCSYMCRYPT_RSAKEY = *const SYMCRYPT_RSAKEY;
+#[repr(C)]
+#[repr(align(32))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_DLGROUP {
+    pub cbTotalSize: UINT32,
+    pub fHasPrimeQ: BOOLEAN,
+    pub nBitsOfP: UINT32,
+    pub cbPrimeP: UINT32,
+    pub nDigitsOfP: UINT32,
+    pub nMaxBitsOfP: UINT32,
+    pub nBitsOfQ: UINT32,
+    pub cbPrimeQ: UINT32,
+    pub nDigitsOfQ: UINT32,
+    pub nMaxBitsOfQ: UINT32,
+    pub isSafePrimeGroup: BOOLEAN,
+    pub nMinBitsPriv: UINT32,
+    pub nDefaultBitsPriv: UINT32,
+    pub nBitsOfSeed: UINT32,
+    pub cbSeed: UINT32,
+    pub eFipsStandard: SYMCRYPT_DLGROUP_FIPS,
+    pub pHashAlgorithm: PCSYMCRYPT_HASH,
+    pub dwGenCounter: UINT32,
+    pub bIndexGenG: BYTE,
+    pub pbQ: PBYTE,
+    pub pmP: PSYMCRYPT_MODULUS,
+    pub pmQ: PSYMCRYPT_MODULUS,
+    pub peG: PSYMCRYPT_MODELEMENT,
+    pub pbSeed: PBYTE,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_DLGROUP() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_DLGROUP> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_DLGROUP>(),
+        128usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_DLGROUP))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_DLGROUP>(),
+        32usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_DLGROUP))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cbTotalSize) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(cbTotalSize)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fHasPrimeQ) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(fHasPrimeQ)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nBitsOfP) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nBitsOfP)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cbPrimeP) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(cbPrimeP)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nDigitsOfP) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nDigitsOfP)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nMaxBitsOfP) as usize - ptr as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nMaxBitsOfP)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nBitsOfQ) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nBitsOfQ)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cbPrimeQ) as usize - ptr as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(cbPrimeQ)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nDigitsOfQ) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nDigitsOfQ)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nMaxBitsOfQ) as usize - ptr as usize },
+        36usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nMaxBitsOfQ)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).isSafePrimeGroup) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(isSafePrimeGroup)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nMinBitsPriv) as usize - ptr as usize },
+        44usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nMinBitsPriv)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nDefaultBitsPriv) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nDefaultBitsPriv)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nBitsOfSeed) as usize - ptr as usize },
+        52usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(nBitsOfSeed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cbSeed) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(cbSeed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).eFipsStandard) as usize - ptr as usize },
+        60usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(eFipsStandard)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pHashAlgorithm) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(pHashAlgorithm)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).dwGenCounter) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(dwGenCounter)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).bIndexGenG) as usize - ptr as usize },
+        76usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(bIndexGenG)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pbQ) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(pbQ)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pmP) as usize - ptr as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(pmP)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pmQ) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(pmQ)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).peG) as usize - ptr as usize },
+        104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(peG)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pbSeed) as usize - ptr as usize },
+        112usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(pbSeed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        120usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLGROUP),
+            "::",
+            stringify!(magic)
+        )
+    );
+}
+impl Default for _SYMCRYPT_DLGROUP {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_DLGROUP = _SYMCRYPT_DLGROUP;
+pub type PCSYMCRYPT_DLGROUP = *const SYMCRYPT_DLGROUP;
+#[repr(C)]
+#[repr(align(32))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_DLKEY {
+    pub fAlgorithmInfo: UINT32,
+    pub fHasPrivateKey: BOOLEAN,
+    pub fPrivateModQ: BOOLEAN,
+    pub nBitsPriv: UINT32,
+    pub pDlgroup: PCSYMCRYPT_DLGROUP,
+    pub pbPrivate: PBYTE,
+    pub pePublicKey: PSYMCRYPT_MODELEMENT,
+    pub piPrivateKey: PSYMCRYPT_INT,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_DLKEY() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_DLKEY> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_DLKEY>(),
+        64usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_DLKEY))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_DLKEY>(),
+        32usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_DLKEY))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fAlgorithmInfo) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(fAlgorithmInfo)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fHasPrivateKey) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(fHasPrivateKey)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fPrivateModQ) as usize - ptr as usize },
+        5usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(fPrivateModQ)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nBitsPriv) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(nBitsPriv)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pDlgroup) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(pDlgroup)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pbPrivate) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(pbPrivate)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pePublicKey) as usize - ptr as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(pePublicKey)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).piPrivateKey) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(piPrivateKey)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_DLKEY),
+            "::",
+            stringify!(magic)
+        )
+    );
+}
+impl Default for _SYMCRYPT_DLKEY {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_DLKEY = _SYMCRYPT_DLKEY;
+pub type PCSYMCRYPT_DLKEY = *const SYMCRYPT_DLKEY;
 pub const _SYMCRYPT_ECPOINT_COORDINATES_SYMCRYPT_ECPOINT_COORDINATES_INVALID:
     _SYMCRYPT_ECPOINT_COORDINATES = 0;
 pub const _SYMCRYPT_ECPOINT_COORDINATES_SYMCRYPT_ECPOINT_COORDINATES_SINGLE:
@@ -2950,15 +3907,6 @@ impl Default for _SYMCRYPT_ECURVE_INFO_PRECOMP {
     }
 }
 pub type SYMCRYPT_ECURVE_INFO_PRECOMP = _SYMCRYPT_ECURVE_INFO_PRECOMP;
-
-unsafe impl Send for _SYMCRYPT_ECURVE {
-    // TODO: discuss send/sync implemenation for rustls
-}
-
-unsafe impl Sync for _SYMCRYPT_ECURVE {
-    // TODO: discuss send/sync implementation for rustls
-} 
-
 #[repr(C)]
 #[repr(align(32))]
 #[derive(Copy, Clone)]
@@ -3423,15 +4371,6 @@ pub struct _SYMCRYPT_ECKEY {
     pub piPrivateKey: PSYMCRYPT_INT,
     pub magic: SIZE_T,
 }
-
-unsafe impl Send for _SYMCRYPT_ECKEY {
-    // TODO: discuss send/sync implementation for rustls
-}
-
-unsafe impl Sync for _SYMCRYPT_ECKEY {
-    // TODO: discuss send/sync implementation for rustls
-}
-
 #[test]
 fn bindgen_test_layout__SYMCRYPT_ECKEY() {
     const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_ECKEY> = ::std::mem::MaybeUninit::uninit();
@@ -3526,6 +4465,21 @@ extern "C" {
     pub fn SymCryptModuleInit(api: UINT32, minor: UINT32);
 }
 extern "C" {
+    pub fn SymCryptSha1(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha1Init(pState: PSYMCRYPT_SHA1_STATE);
+}
+extern "C" {
+    pub fn SymCryptSha1Append(pState: PSYMCRYPT_SHA1_STATE, pbData: PCBYTE, cbData: SIZE_T);
+}
+extern "C" {
+    pub fn SymCryptSha1Result(pState: PSYMCRYPT_SHA1_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha1StateCopy(pSrc: PCSYMCRYPT_SHA1_STATE, pDst: PSYMCRYPT_SHA1_STATE);
+}
+extern "C" {
     pub fn SymCryptSha256(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
 extern "C" {
@@ -3554,6 +4508,21 @@ extern "C" {
 }
 extern "C" {
     pub fn SymCryptSha384StateCopy(pSrc: PCSYMCRYPT_SHA384_STATE, pDst: PSYMCRYPT_SHA384_STATE);
+}
+extern "C" {
+    pub fn SymCryptSha512(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha512Init(pState: PSYMCRYPT_SHA512_STATE);
+}
+extern "C" {
+    pub fn SymCryptSha512Append(pState: PSYMCRYPT_SHA512_STATE, pbData: PCBYTE, cbData: SIZE_T);
+}
+extern "C" {
+    pub fn SymCryptSha512Result(pState: PSYMCRYPT_SHA512_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha512StateCopy(pSrc: PCSYMCRYPT_SHA512_STATE, pDst: PSYMCRYPT_SHA512_STATE);
 }
 extern "C" {
     pub fn SymCryptHmacSha256ExpandKey(
@@ -3632,6 +4601,44 @@ extern "C" {
     pub fn SymCryptHmacSha384Result(pState: PSYMCRYPT_HMAC_SHA384_STATE, pbResult: PBYTE);
 }
 extern "C" {
+    pub fn SymCryptHmacSha512ExpandKey(
+        pExpandedKey: PSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
+        pbKey: PCBYTE,
+        cbKey: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptHmacSha512(
+        pExpandedKey: PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
+        pbData: PCBYTE,
+        cbData: SIZE_T,
+        pbResult: PBYTE,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacSha512StateCopy(
+        pSrc: PCSYMCRYPT_HMAC_SHA512_STATE,
+        pExpandedKey: PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
+        pDst: PSYMCRYPT_HMAC_SHA512_STATE,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacSha512Init(
+        pState: PSYMCRYPT_HMAC_SHA512_STATE,
+        pExpandedKey: PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacSha512Append(
+        pState: PSYMCRYPT_HMAC_SHA512_STATE,
+        pbData: PCBYTE,
+        cbData: SIZE_T,
+    );
+}
+extern "C" {
+    pub fn SymCryptHmacSha512Result(pState: PSYMCRYPT_HMAC_SHA512_STATE, pbResult: PBYTE);
+}
+extern "C" {
     pub fn SymCryptChaCha20Poly1305Encrypt(
         pbKey: PCBYTE,
         cbKey: SIZE_T,
@@ -3662,7 +4669,7 @@ extern "C" {
     ) -> SYMCRYPT_ERROR;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypttestmodule", kind = "dylib")]
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
 }
@@ -3852,19 +4859,75 @@ pub const _SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST: _SYMCRYPT_NU
 pub const _SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST: _SYMCRYPT_NUMBER_FORMAT = 2;
 pub type _SYMCRYPT_NUMBER_FORMAT = ::std::os::raw::c_int;
 pub use self::_SYMCRYPT_NUMBER_FORMAT as SYMCRYPT_NUMBER_FORMAT;
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct _SYMCRYPT_RSA_PARAMS {
+    pub version: UINT32,
+    pub nBitsOfModulus: UINT32,
+    pub nPrimes: UINT32,
+    pub nPubExp: UINT32,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_RSA_PARAMS() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_RSA_PARAMS> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_RSA_PARAMS>(),
+        16usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_RSA_PARAMS))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_RSA_PARAMS>(),
+        4usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_RSA_PARAMS))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).version) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSA_PARAMS),
+            "::",
+            stringify!(version)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nBitsOfModulus) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSA_PARAMS),
+            "::",
+            stringify!(nBitsOfModulus)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nPrimes) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSA_PARAMS),
+            "::",
+            stringify!(nPrimes)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nPubExp) as usize - ptr as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_RSA_PARAMS),
+            "::",
+            stringify!(nPubExp)
+        )
+    );
+}
+pub type SYMCRYPT_RSA_PARAMS = _SYMCRYPT_RSA_PARAMS;
+pub type PCSYMCRYPT_RSA_PARAMS = *const SYMCRYPT_RSA_PARAMS;
 pub const _SYMCRYPT_ECURVE_GEN_ALG_ID_SYMCRYPT_ECURVE_GEN_ALG_ID_NULL: _SYMCRYPT_ECURVE_GEN_ALG_ID =
     0;
 pub type _SYMCRYPT_ECURVE_GEN_ALG_ID = ::std::os::raw::c_int;
 pub use self::_SYMCRYPT_ECURVE_GEN_ALG_ID as SYMCRYPT_ECURVE_GEN_ALG_ID;
-
-unsafe impl Send for _SYMCRYPT_ECURVE_PARAMS {
-    // TODO: discuss send/sync implementation for rustls
-}  
-
-unsafe impl Sync for _SYMCRYPT_ECURVE_PARAMS {
-    // TODO: discuss send/sync implementation for rustls
-}
-
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_ECURVE_PARAMS {
@@ -3978,6 +5041,25 @@ pub const _SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY: _SYMCRYPT_ECPOINT
 pub type _SYMCRYPT_ECPOINT_FORMAT = ::std::os::raw::c_int;
 pub use self::_SYMCRYPT_ECPOINT_FORMAT as SYMCRYPT_ECPOINT_FORMAT;
 extern "C" {
+    pub fn SymCryptRsakeyAllocate(
+        pParams: PCSYMCRYPT_RSA_PARAMS,
+        flags: UINT32,
+    ) -> PSYMCRYPT_RSAKEY;
+}
+extern "C" {
+    pub fn SymCryptRsakeyFree(pkObj: PSYMCRYPT_RSAKEY);
+}
+extern "C" {
+    pub fn SymCryptRsakeyCreate(
+        pbBuffer: PBYTE,
+        cbBuffer: SIZE_T,
+        pParams: PCSYMCRYPT_RSA_PARAMS,
+    ) -> PSYMCRYPT_RSAKEY;
+}
+extern "C" {
+    pub fn SymCryptRsakeyWipe(pkDst: PSYMCRYPT_RSAKEY);
+}
+extern "C" {
     pub fn SymCryptEcurveAllocate(
         pParams: PCSYMCRYPT_ECURVE_PARAMS,
         flags: UINT32,
@@ -3993,10 +5075,87 @@ extern "C" {
     pub fn SymCryptEckeyFree(pkObj: PSYMCRYPT_ECKEY);
 }
 extern "C" {
+    pub fn SymCryptRsakeyHasPrivateKey(pkRsakey: PCSYMCRYPT_RSAKEY) -> BOOLEAN;
+}
+extern "C" {
+    pub fn SymCryptRsakeySizeofModulus(pkRsakey: PCSYMCRYPT_RSAKEY) -> UINT32;
+}
+extern "C" {
+    pub fn SymCryptRsakeyModulusBits(pkRsakey: PCSYMCRYPT_RSAKEY) -> UINT32;
+}
+extern "C" {
+    pub fn SymCryptRsakeySizeofPublicExponent(pRsakey: PCSYMCRYPT_RSAKEY, index: UINT32) -> UINT32;
+}
+extern "C" {
+    pub fn SymCryptRsakeySizeofPrime(pkRsakey: PCSYMCRYPT_RSAKEY, index: UINT32) -> UINT32;
+}
+extern "C" {
+    pub fn SymCryptRsakeyGetNumberOfPublicExponents(pkRsakey: PCSYMCRYPT_RSAKEY) -> UINT32;
+}
+extern "C" {
+    pub fn SymCryptRsakeyGetNumberOfPrimes(pkRsakey: PCSYMCRYPT_RSAKEY) -> UINT32;
+}
+extern "C" {
+    pub fn SymCryptRsakeyGenerate(
+        pkRsakey: PSYMCRYPT_RSAKEY,
+        pu64PubExp: PCUINT64,
+        nPubExp: UINT32,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsakeySetValue(
+        pbModulus: PCBYTE,
+        cbModulus: SIZE_T,
+        pu64PubExp: PCUINT64,
+        nPubExp: UINT32,
+        ppPrimes: *mut PCBYTE,
+        pcbPrimes: *mut SIZE_T,
+        nPrimes: UINT32,
+        numFormat: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+        pkRsakey: PSYMCRYPT_RSAKEY,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsakeyGetValue(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbModulus: PBYTE,
+        cbModulus: SIZE_T,
+        pu64PubExp: PUINT64,
+        nPubExp: UINT32,
+        ppPrimes: *mut PBYTE,
+        pcbPrimes: *mut SIZE_T,
+        nPrimes: UINT32,
+        numFormat: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsakeyGetCrtValue(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        ppCrtExponents: *mut PBYTE,
+        pcbCrtExponents: *mut SIZE_T,
+        nCrtExponents: UINT32,
+        pbCrtCoefficient: PBYTE,
+        cbCrtCoefficient: SIZE_T,
+        pbPrivateExponent: PBYTE,
+        cbPrivateExponent: SIZE_T,
+        numFormat: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsakeyExtendKeyUsage(
+        pkRsakey: PSYMCRYPT_RSAKEY,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
     pub fn SymCryptEcurveSizeofFieldElement(pCurve: PCSYMCRYPT_ECURVE) -> UINT32;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypttestmodule", kind = "dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -4005,7 +5164,7 @@ extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypttestmodule", kind = "dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -4014,7 +5173,7 @@ extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypttestmodule", kind = "dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -4052,6 +5211,181 @@ extern "C" {
         cbPublicKey: SIZE_T,
         numFormat: SYMCRYPT_NUMBER_FORMAT,
         ecPointFormat: SYMCRYPT_ECPOINT_FORMAT,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    #[doc = " Crypto algorithm API *"]
+    pub fn SymCryptRsaRawEncrypt(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        numFormat: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsaRawDecrypt(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        numFormat: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsaPkcs1Encrypt(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        flags: UINT32,
+        nfDst: SYMCRYPT_NUMBER_FORMAT,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+        pcbDst: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsaPkcs1Decrypt(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        nfSrc: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+        pcbDst: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_OID {
+    pub cbOID: UINT32,
+    pub pbOID: PCBYTE,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_OID() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_OID> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_OID>(),
+        16usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_OID))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_OID>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_OID))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cbOID) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_OID),
+            "::",
+            stringify!(cbOID)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pbOID) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_OID),
+            "::",
+            stringify!(pbOID)
+        )
+    );
+}
+impl Default for _SYMCRYPT_OID {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_OID = _SYMCRYPT_OID;
+pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
+extern "C" {
+    pub fn SymCryptRsaPkcs1Sign(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbHashValue: PCBYTE,
+        cbHashValue: SIZE_T,
+        pHashOIDs: PCSYMCRYPT_OID,
+        nOIDCount: SIZE_T,
+        flags: UINT32,
+        nfSignature: SYMCRYPT_NUMBER_FORMAT,
+        pbSignature: PBYTE,
+        cbSignature: SIZE_T,
+        pcbSignature: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsaPkcs1Verify(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbHashValue: PCBYTE,
+        cbHashValue: SIZE_T,
+        pbSignature: PCBYTE,
+        cbSignature: SIZE_T,
+        nfSignature: SYMCRYPT_NUMBER_FORMAT,
+        pHashOID: PCSYMCRYPT_OID,
+        nOIDCount: SIZE_T,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsaPssSign(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbHashValue: PCBYTE,
+        cbHashValue: SIZE_T,
+        hashAlgorithm: PCSYMCRYPT_HASH,
+        cbSalt: SIZE_T,
+        flags: UINT32,
+        nfSignature: SYMCRYPT_NUMBER_FORMAT,
+        pbSignature: PBYTE,
+        cbSignature: SIZE_T,
+        pcbSignature: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsaPssVerify(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbHashValue: PCBYTE,
+        cbHashValue: SIZE_T,
+        pbSignature: PCBYTE,
+        cbSignature: SIZE_T,
+        nfSignature: SYMCRYPT_NUMBER_FORMAT,
+        hashAlgorithm: PCSYMCRYPT_HASH,
+        cbSalt: SIZE_T,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptDsaSign(
+        pKey: PCSYMCRYPT_DLKEY,
+        pbHashValue: PCBYTE,
+        cbHashValue: SIZE_T,
+        format: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+        pbSignature: PBYTE,
+        cbSignature: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptDsaVerify(
+        pKey: PCSYMCRYPT_DLKEY,
+        pbHashValue: PCBYTE,
+        cbHashValue: SIZE_T,
+        pbSignature: PCBYTE,
+        cbSignature: SIZE_T,
+        format: SYMCRYPT_NUMBER_FORMAT,
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }

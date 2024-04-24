@@ -24,10 +24,10 @@ fn main() {
         .allowlist_function("SymCryptModuleInit")
         .allowlist_var("^(SYMCRYPT_CODE_VERSION.*)$")
         // HASH FUNCTIONS
-        .allowlist_function("^(SymCryptSha(256|384)(?:Init|Append|Result|StateCopy)?)$")
-        .allowlist_var("^(SYMCRYPT_(SHA256|SHA384)_RESULT_SIZE$)")
+        .allowlist_function("^(SymCryptSha(256|384|512|1)(?:Init|Append|Result|StateCopy)?)$")
+        .allowlist_var("^(SYMCRYPT_(SHA256|SHA384|SHA512)_RESULT_SIZE$)")
         // HMAC FUNCTIONS
-        .allowlist_function("^(SymCryptHmacSha(256|384)(?:ExpandKey|Init|Append|Result|StateCopy)?)$")
+        .allowlist_function("^(SymCryptHmacSha(256|384|512)(?:ExpandKey|Init|Append|Result|StateCopy)?)$")
         // GCM FUNCTIONS
         .allowlist_function("^(SymCryptGcm(?:ValidateParameters|ExpandKey|Encrypt|Decrypt|Init|StateCopy|AuthPart|DecryptPart|EncryptPart|EncryptFinal|DecryptFinal)?)$")
         .allowlist_function("SymCryptChaCha20Poly1305(Encrypt|Decrypt)")
@@ -41,6 +41,15 @@ fn main() {
         .allowlist_function("^(SymCryptEckey(Allocate|Free|SizeofPublicKey|GetValue|SetRandom|SetValue|SetRandom|))$")
         .allowlist_var("SYMCRYPT_FLAG_ECKEY_ECDH")
         .allowlist_function("SymCryptEcDhSecretAgreement")
+        // RSA FUNCTIONS
+        .allowlist_function("^(SymCryptRsakey.*)$")
+        .allowlist_function("^(SymCryptRsaRaw.*)$")
+        // DSA FUNCTIONS
+        .allowlist_function("^(SymCryptDsa(Sign|Verify).*)$")
+        // RSA PKCS1 FUNCTIONS
+        .allowlist_function("^(SymCryptRsaPkcs1(Sign|Verify|Encrypt|Decrypt).*)$")
+        // RSA PSS FUNCTIONS
+        .allowlist_function("^(SymCryptRsaPss(Sign|Verify).*)$")
         // UTILITY FUNCTIONS
         .allowlist_function("SymCryptWipe")
         .allowlist_function("SymCryptRandom")
@@ -49,7 +58,30 @@ fn main() {
         .derive_default(true)
         .generate()
         .expect("Unable to generate bindings");
-
+// SymCryptRsakeyAllocate
+// SymCryptRsakeyGenerate
+// SymCryptRsakeySetValue
+// SymCryptRsakeyFree
+// SymCryptSizeofRsakeyFromParams
+// SymCryptRsakeyCreate
+// SymCryptRsakeyWipe
+// SymCryptRsakeyHasPrivateKey
+// SymCryptRsakeySizeofModulus
+// SymCryptRsakeyModulusBits
+//SymCryptRsakeySizeofPublicExponent
+// SymCryptRsakeySizeofPrime
+// add sha1 for interop? 
+// s
+// SymCryptEcDsaVerify ! do not generate the self test 
+// SymCryptDsaSign
+// SymCryptDsaVerify
+// SymCryptRsaPssSign
+//SymCryptRsaPssVerify
+// SymCryptRsaPkcs1Sign
+// SymCryptRsaPkcs1Verify
+// SymCryptRsaRaw*, includes SymCryptRsaRawEncrypt, SymCryptRsaRawDecrypt
+// SymCryptRsaPkcs1Encrypt
+// SymCryptRsaPkcs1Decrypt
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
         .write_to_file(out_path.join("raw_generated_bindings.rs"))
