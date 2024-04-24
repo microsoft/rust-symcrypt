@@ -3,15 +3,15 @@
 //! This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https://github.com/microsoft/SymCrypt), an open-source cryptographic library.
 //!
 //! This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
-//! 
+//!
 //! **Note:** As of version `0.2.0`, only `Windows AMD64`, and [`Azure Linux`](https://github.com/microsoft/azurelinux) are fully supported, with partial support for other Linux distros such as `Ubuntu`.
-//! 
+//!
 //! ## Changelog
 //! To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
-//! 
+//!
 //! ## Quick Start Guide
 //! Please refer to the [rust-symcrypt Quick Start Guide](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide) to download and configure the required binaries.
-//! 
+//!
 //! ## Supported APIs
 //!
 //! Hashing:
