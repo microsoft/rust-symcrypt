@@ -81,6 +81,7 @@ use symcrypt_sys;
 #[cfg(feature = "md5")]
 pub const MD5_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_MD5_RESULT_SIZE as usize;
 /// 20
+#[cfg(feature = "sha1")]
 pub const SHA1_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA1_RESULT_SIZE as usize;
 /// 32
 pub const SHA256_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA256_RESULT_SIZE as usize;
