@@ -1,6 +1,6 @@
 //! Hmac functions. For further documentation please refer to symcrypt.h
-//! 
-//! 
+//!
+//!
 //! # Supported Hashing functions
 //! ```ignore
 //! HmacMd5 // Note: Md5 is disabled by default, to enable pass the md5 flag
@@ -12,11 +12,11 @@
 //! `HmacMd5` and `HmacSha1` are considered weak crypto, and are only added for interop purposes.
 //! To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
 //! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
-//! 
+//!
 //! In your `Cargo.toml`
-//! 
+//!
 //! `symcrypt = {version = "0.2.0", features = ["weak-crypto"]}`
-//! 
+//!
 //! # Examples
 //!
 //! ## Stateless Hmac for HmacSha256
@@ -51,7 +51,7 @@
 //!
 //! Hmac via state uses the [`HmacState`] trait. All of the supported hmac algorithms will implement the [`HmacState`].
 //! Usage across each hash state will be very similar.
-//! 
+//!
 //! ```rust
 //! use symcrypt::hmac::HmacSha256State;
 //! use crate::symcrypt::hmac::HmacState;
@@ -153,12 +153,12 @@ struct HmacMd5Inner {
 
 #[cfg(feature = "md5")]
 unsafe impl Send for HmacMd5Inner {
-    // Md5 Send/Sync is not needed for rustls, adding for consistency. 
+    // Md5 Send/Sync is not needed for rustls, adding for consistency.
 }
 
 #[cfg(feature = "md5")]
 unsafe impl Sync for HmacMd5Inner {
-    // Md5 Send/Sync is not needed for rustls, adding for consistency. 
+    // Md5 Send/Sync is not needed for rustls, adding for consistency.
 }
 
 #[cfg(feature = "md5")]
@@ -265,10 +265,7 @@ impl Drop for HmacMd5State {
 ///
 /// `result` is an array of size `MD5_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
 #[cfg(feature = "md5")]
-pub fn hmac_md5(
-    key: &[u8],
-    data: &[u8],
-) -> Result<[u8; MD5_HMAC_RESULT_SIZE], SymCryptError> {
+pub fn hmac_md5(key: &[u8], data: &[u8]) -> Result<[u8; MD5_HMAC_RESULT_SIZE], SymCryptError> {
     let mut result = [0u8; MD5_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -294,7 +291,6 @@ pub fn hmac_md5(
         }
     }
 }
-
 
 /// `HmacSha1ExpandedKey` is a struct that represents the expanded key for the [`HmacSha1State`].
 #[cfg(feature = "sha1")]
@@ -340,12 +336,12 @@ struct HmacSha1Inner {
 
 #[cfg(feature = "sha1")]
 unsafe impl Send for HmacSha1Inner {
-    // Sha1 Send/Sync is not needed for rustls, adding for consistency. 
+    // Sha1 Send/Sync is not needed for rustls, adding for consistency.
 }
 
 #[cfg(feature = "sha1")]
 unsafe impl Sync for HmacSha1Inner {
-    // Sha1 Send/Sync is not needed for rustls, adding for consistency. 
+    // Sha1 Send/Sync is not needed for rustls, adding for consistency.
 }
 
 #[cfg(feature = "sha1")]
@@ -452,10 +448,7 @@ impl Drop for HmacSha1State {
 ///
 /// `result` is an array of size `SHA1_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
 #[cfg(feature = "sha1")]
-pub fn hmac_sha1(
-    key: &[u8],
-    data: &[u8],
-) -> Result<[u8; SHA1_HMAC_RESULT_SIZE], SymCryptError> {
+pub fn hmac_sha1(key: &[u8], data: &[u8]) -> Result<[u8; SHA1_HMAC_RESULT_SIZE], SymCryptError> {
     let mut result = [0u8; SHA1_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -869,11 +862,11 @@ struct HmacSha512Inner {
 }
 
 unsafe impl Send for HmacSha512Inner {
-    // Sha512 Send/Sync is not needed for rustls, adding for consistency. 
+    // Sha512 Send/Sync is not needed for rustls, adding for consistency.
 }
 
 unsafe impl Sync for HmacSha512Inner {
-    // Sha512 Send/Sync is not needed for rustls, adding for consistency. 
+    // Sha512 Send/Sync is not needed for rustls, adding for consistency.
 }
 
 impl HmacSha512State {

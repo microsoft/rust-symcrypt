@@ -15,9 +15,9 @@
 //! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
 //!
 //! In your `Cargo.toml`
-//! 
+//!
 //! `symcrypt = {version = "0.2.0", features = ["weak-crypto"]}`
-//! 
+//!
 //!
 //! # Examples
 //!
