@@ -51,8 +51,12 @@
 //!
 //! Hmac via state uses the [`HmacState`] trait. All of the supported hmac algorithms will implement the [`HmacState`].
 //! Usage across each hash state will be very similar.
+<<<<<<< HEAD
 //! 
 //! ```rust
+=======
+//! ```
+>>>>>>> 5b1dad27ac98912288fdb0d7bd35f5ddadab0edf
 //! use symcrypt::hmac::HmacSha256State;
 //! use crate::symcrypt::hmac::HmacState;
 //!
