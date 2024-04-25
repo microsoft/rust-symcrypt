@@ -44,8 +44,6 @@ fn main() {
         // RSA FUNCTIONS
         .allowlist_function("^(SymCryptRsakey.*)$")
         .allowlist_function("^(SymCryptRsaRaw.*)$")
-        // DSA FUNCTIONS
-        .allowlist_function("^(SymCryptDsa(Sign|Verify).*)$")
         // ECDSA functions
         .allowlist_function("^(SymCryptEcDsa(Sign|Verify).*)")
         // RSA PKCS1 FUNCTIONS
