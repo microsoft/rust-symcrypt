@@ -115,7 +115,7 @@ pub trait HmacState: Clone {
 struct HmacMd5ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_MD5_EXPANDED_KEY);
 // Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
 
-// Since HmacMd5ExpandedKey can be referenced multiple times, HmacMd5ExpandedKey must be ref counted and a there needs to be a separate drop()
+// Since HmacMd5ExpandedKey can be referenced multiple times, HmacMd5ExpandedKey must be ref counted and there needs to be a separate drop()
 #[cfg(feature = "md5")]
 impl Drop for HmacMd5ExpandedKey {
     fn drop(&mut self) {
@@ -150,16 +150,6 @@ struct HmacMd5Inner {
     //
     // This semantic is not needed for the state field since it is initialized in line with HmacMd5Inner initialization.
     expanded_key: Pin<Arc<HmacMd5ExpandedKey>>,
-}
-
-#[cfg(feature = "md5")]
-unsafe impl Send for HmacMd5Inner {
-    // Md5 Send/Sync is not needed for rustls, adding for consistency.
-}
-
-#[cfg(feature = "md5")]
-unsafe impl Sync for HmacMd5Inner {
-    // Md5 Send/Sync is not needed for rustls, adding for consistency.
 }
 
 #[cfg(feature = "md5")]
@@ -298,7 +288,7 @@ pub fn hmac_md5(key: &[u8], data: &[u8]) -> Result<[u8; MD5_HMAC_RESULT_SIZE], S
 struct HmacSha1ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_SHA1_EXPANDED_KEY);
 // Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
 
-// Since HmacSha1ExpandedKey can be referenced multiple times, HmacSha1ExpandedKey must be ref counted and a there needs to be a separate drop()
+// Since HmacSha1ExpandedKey can be referenced multiple times, HmacSha1ExpandedKey must be ref counted and there needs to be a separate drop()
 #[cfg(feature = "sha1")]
 impl Drop for HmacSha1ExpandedKey {
     fn drop(&mut self) {
@@ -333,16 +323,6 @@ struct HmacSha1Inner {
     //
     // This semantic is not needed for the state field since it is initialized in line with HmacSha1Inner initialization.
     expanded_key: Pin<Arc<HmacSha1ExpandedKey>>,
-}
-
-#[cfg(feature = "sha1")]
-unsafe impl Send for HmacSha1Inner {
-    // Sha1 Send/Sync is not needed for rustls, adding for consistency.
-}
-
-#[cfg(feature = "sha1")]
-unsafe impl Sync for HmacSha1Inner {
-    // Sha1 Send/Sync is not needed for rustls, adding for consistency.
 }
 
 #[cfg(feature = "sha1")]
@@ -480,7 +460,7 @@ pub fn hmac_sha1(key: &[u8], data: &[u8]) -> Result<[u8; SHA1_HMAC_RESULT_SIZE],
 struct HmacSha256ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_SHA256_EXPANDED_KEY);
 // Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
 
-// Since HmacSha256ExpandedKey can be referenced multiple times, HmacSha256ExpandedKey must be ref counted and a there needs to be a separate drop()
+// Since HmacSha256ExpandedKey can be referenced multiple times, HmacSha256ExpandedKey must be ref counted and there needs to be a separate drop()
 impl Drop for HmacSha256ExpandedKey {
     fn drop(&mut self) {
         unsafe {
@@ -654,7 +634,7 @@ pub fn hmac_sha256(
 struct HmacSha384ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_SHA384_EXPANDED_KEY);
 // Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
 
-// Since HmacSha384ExpandedKey can be referenced multiple times, HmacSha384ExpandedKey must be ref counted and a there needs to be a separate drop()
+// Since HmacSha384ExpandedKey can be referenced multiple times, HmacSha384ExpandedKey must be ref counted and there needs to be a separate drop()
 impl Drop for HmacSha384ExpandedKey {
     fn drop(&mut self) {
         unsafe {
@@ -829,7 +809,7 @@ pub fn hmac_sha384(
 struct HmacSha512ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_SHA512_EXPANDED_KEY);
 // Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
 
-// Since HmacSha512ExpandedKey can be referenced multiple times, HmacSha512ExpandedKey must be ref counted and a there needs to be a separate drop()
+// Since HmacSha512ExpandedKey can be referenced multiple times, HmacSha512ExpandedKey must be ref counted and there needs to be a separate drop()
 impl Drop for HmacSha512ExpandedKey {
     fn drop(&mut self) {
         unsafe {
@@ -862,13 +842,6 @@ struct HmacSha512Inner {
     expanded_key: Pin<Arc<HmacSha512ExpandedKey>>,
 }
 
-unsafe impl Send for HmacSha512Inner {
-    // Sha512 Send/Sync is not needed for rustls, adding for consistency.
-}
-
-unsafe impl Sync for HmacSha512Inner {
-    // Sha512 Send/Sync is not needed for rustls, adding for consistency.
-}
 
 impl HmacSha512State {
     /// `new()` takes in a reference to a key and can return a `SymCryptError` that is propagated back to the caller.
