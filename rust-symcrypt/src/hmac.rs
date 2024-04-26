@@ -1,5 +1,22 @@
 //! Hmac functions. For further documentation please refer to symcrypt.h
 //!
+//!
+//! # Supported Hashing functions
+//! ```ignore
+//! HmacMd5 // Note: Md5 is disabled by default, to enable pass the md5 flag
+//! HmacSha1 // Note: Sha1 is disabled by default, to enable pass the sha1 flag
+//! HmacSha256
+//! HmacSha384
+//! HmacSha512
+//! ```
+//! `HmacMd5` and `HmacSha1` are considered weak crypto, and are only added for interop purposes.
+//! To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
+//! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
+//!
+//! In your `Cargo.toml`
+//!
+//! `symcrypt = {version = "0.2.0", features = ["weak-crypto"]}`
+//!
 //! # Examples
 //!
 //! ## Stateless Hmac for HmacSha256
@@ -32,8 +49,9 @@
 //!
 //! ## Stateful Hmac for HmacSha256 and HmacSha384
 //!
-//! Hmac via state uses the [`HmacState`] trait. [`HmacSha256State`] and [`HmacSha384State`] both implement the [`HmacState`].
-//! Usage of [`HmacSha256State`] and [`HmacSha384State`] will be very similar.
+//! Hmac via state uses the [`HmacState`] trait. All of the supported hmac algorithms will implement the [`HmacState`].
+//! Usage across each hash state will be very similar.
+//!
 //! ```rust
 //! use symcrypt::hmac::HmacSha256State;
 //! use crate::symcrypt::hmac::HmacState;
@@ -59,14 +77,22 @@ use std::ptr;
 use std::sync::Arc;
 use symcrypt_sys;
 
+/// 16
+#[cfg(feature = "md5")]
+pub const MD5_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_MD5_RESULT_SIZE as usize;
+/// 20
+#[cfg(feature = "sha1")]
+pub const SHA1_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA1_RESULT_SIZE as usize;
 /// 32
 pub const SHA256_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA256_RESULT_SIZE as usize;
 /// 48
 pub const SHA384_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA384_RESULT_SIZE as usize;
+/// 64
+pub const SHA512_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA512_RESULT_SIZE as usize;
 
 /// Generic trait for stateful Hmac functions
 ///
-/// `type Result` will be either 32 or 48 bytes, depending on if `HmacSha256` or `HmacSha384` is used.
+/// `Result` will depend on what HmacState is used.
 ///
 /// `append()` appends data to the `HmacShaXXXState`, this operation can be done multiple times.
 ///
@@ -84,11 +110,357 @@ pub trait HmacState: Clone {
     fn result(self) -> Self::Result;
 }
 
+/// `HmacMd5ExpandedKey` is a struct that represents the expanded key for the [`HmacMd5State`].
+#[cfg(feature = "md5")]
+struct HmacMd5ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_MD5_EXPANDED_KEY);
+// Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
+
+// Since HmacMd5ExpandedKey can be referenced multiple times, HmacMd5ExpandedKey must be ref counted and there needs to be a separate drop()
+#[cfg(feature = "md5")]
+impl Drop for HmacMd5ExpandedKey {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+/// `HmacMd5State` is a struct that represents a stateful Hmac using MD5 and implements the [`HmacState`] trait.
+#[cfg(feature = "md5")]
+pub struct HmacMd5State {
+    // SymCrypt expects the address for its structs to stay static through the struct's lifetime to guarantee that structs are not memcpy'd as
+    // doing so would lead to use-after-free and inconsistent states.
+
+    // Using an `HmacMd5Inner` state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+    // around when returning from `HmacMd5State::new()`. Box<> heap allocates the memory and ensures that it does not move
+    // within its lifetime.
+    inner: Pin<Box<HmacMd5Inner>>,
+}
+
+#[cfg(feature = "md5")]
+struct HmacMd5Inner {
+    state: symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE,
+
+    // Must Arc<> the expanded_key field since it must be ref counted, clones of HmacSha265State will reference the same expanded key. Pin<> on the key
+    // is to ensure that address is not moved throughout the expanded key's lifetime.
+    //
+    // This semantic is not needed for the state field since it is initialized in line with HmacMd5Inner initialization.
+    expanded_key: Pin<Arc<HmacMd5ExpandedKey>>,
+}
+
+#[cfg(feature = "md5")]
+impl HmacMd5State {
+    /// `new()` takes in a reference to a key and can return a `SymCryptError` that is propagated back to the caller.
+    pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
+        let mut expanded_key = Arc::new(HmacMd5ExpandedKey(
+            symcrypt_sys::SYMCRYPT_HMAC_MD5_EXPANDED_KEY::default(),
+        ));
+        unsafe {
+            // SAFETY: FFI calls
+            match symcrypt_sys::SymCryptHmacMd5ExpandKey(
+                // Arc::get_mut() to unbind the Arc<>, &mut (T).0 to get raw pointer for SymCrypt
+                &mut (Arc::get_mut(&mut expanded_key).unwrap()).0,
+                key.as_ptr(),
+                key.len() as symcrypt_sys::SIZE_T,
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                    let mut instance = HmacMd5State {
+                        inner: Box::pin(HmacMd5Inner {
+                            state: symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE::default(),
+                            expanded_key: Pin::new(expanded_key),
+                        }),
+                    };
+                    symcrypt_sys::SymCryptHmacMd5Init(
+                        &mut instance.inner.state,
+                        &instance.inner.expanded_key.0,
+                    );
+                    Ok(instance)
+                }
+                err => Err(err.into()),
+            }
+        }
+    }
+}
+
+#[cfg(feature = "md5")]
+impl HmacState for HmacMd5State {
+    type Result = [u8; MD5_HMAC_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacMd5Append(
+                &mut self.inner.state,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+
+    fn result(mut self) -> Self::Result {
+        let mut result = [0u8; MD5_HMAC_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacMd5Result(&mut self.inner.state, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+/// Creates a clone of the current `HmacMd5State`. Clone will create a new state field but will reference the same
+/// `expanded_key` of the current `HmacMd5State`.
+#[cfg(feature = "md5")]
+impl Clone for HmacMd5State {
+    // Clone will increase the refcount on expanded_key field
+    fn clone(&self) -> Self {
+        let mut new_state = HmacMd5State {
+            inner: Box::pin(HmacMd5Inner {
+                state: symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE::default(),
+                expanded_key: Pin::clone(&self.inner.expanded_key),
+            }),
+        };
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacMd5StateCopy(
+                &self.inner.state,
+                &self.inner.expanded_key.0,
+                &mut new_state.inner.state,
+            );
+        }
+        new_state
+    }
+}
+
+#[cfg(feature = "md5")]
+impl Drop for HmacMd5State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.inner.state) as *mut c_void,
+                mem::size_of_val(&mut self.inner.state) as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+/// Stateless Hmac function for HmacMd5.
+///
+/// `key` is a reference to a key.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `MD5_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
+#[cfg(feature = "md5")]
+pub fn hmac_md5(key: &[u8], data: &[u8]) -> Result<[u8; MD5_HMAC_RESULT_SIZE], SymCryptError> {
+    let mut result = [0u8; MD5_HMAC_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        let mut expanded_key = HmacMd5ExpandedKey(
+            // Arc not needed here since this key will not be shared
+            symcrypt_sys::SYMCRYPT_HMAC_MD5_EXPANDED_KEY::default(),
+        );
+        match symcrypt_sys::SymCryptHmacMd5ExpandKey(
+            &mut expanded_key.0,
+            key.as_ptr(),
+            key.len() as symcrypt_sys::SIZE_T,
+        ) {
+            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                symcrypt_sys::SymCryptHmacMd5(
+                    &mut expanded_key.0,
+                    data.as_ptr(),
+                    data.len() as symcrypt_sys::SIZE_T,
+                    result.as_mut_ptr(),
+                );
+                Ok(result)
+            }
+            err => Err(err.into()),
+        }
+    }
+}
+
+/// `HmacSha1ExpandedKey` is a struct that represents the expanded key for the [`HmacSha1State`].
+#[cfg(feature = "sha1")]
+struct HmacSha1ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_SHA1_EXPANDED_KEY);
+// Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
+
+// Since HmacSha1ExpandedKey can be referenced multiple times, HmacSha1ExpandedKey must be ref counted and there needs to be a separate drop()
+#[cfg(feature = "sha1")]
+impl Drop for HmacSha1ExpandedKey {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+/// `HmacSha1State` is a struct that represents a stateful Hmac using SHA1 and implements the [`HmacState`] trait.
+#[cfg(feature = "sha1")]
+pub struct HmacSha1State {
+    // SymCrypt expects the address for its structs to stay static through the struct's lifetime to guarantee that structs are not memcpy'd as
+    // doing so would lead to use-after-free and inconsistent states.
+
+    // Using an `HmacSha1Inner` state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+    // around when returning from `HmacSha1State::new()`. Box<> heap allocates the memory and ensures that it does not move
+    // within its lifetime.
+    inner: Pin<Box<HmacSha1Inner>>,
+}
+
+#[cfg(feature = "sha1")]
+struct HmacSha1Inner {
+    state: symcrypt_sys::SYMCRYPT_HMAC_SHA1_STATE,
+
+    // Must Arc<> the expanded_key field since it must be ref counted, clones of HmacSha265State will reference the same expanded key. Pin<> on the key
+    // is to ensure that address is not moved throughout the expanded key's lifetime.
+    //
+    // This semantic is not needed for the state field since it is initialized in line with HmacSha1Inner initialization.
+    expanded_key: Pin<Arc<HmacSha1ExpandedKey>>,
+}
+
+#[cfg(feature = "sha1")]
+impl HmacSha1State {
+    /// `new()` takes in a reference to a key and can return a `SymCryptError` that is propagated back to the caller.
+    pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
+        let mut expanded_key = Arc::new(HmacSha1ExpandedKey(
+            symcrypt_sys::SYMCRYPT_HMAC_SHA1_EXPANDED_KEY::default(),
+        ));
+        unsafe {
+            // SAFETY: FFI calls
+            match symcrypt_sys::SymCryptHmacSha1ExpandKey(
+                // Arc::get_mut() to unbind the Arc<>, &mut (T).0 to get raw pointer for SymCrypt
+                &mut (Arc::get_mut(&mut expanded_key).unwrap()).0,
+                key.as_ptr(),
+                key.len() as symcrypt_sys::SIZE_T,
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                    let mut instance = HmacSha1State {
+                        inner: Box::pin(HmacSha1Inner {
+                            state: symcrypt_sys::SYMCRYPT_HMAC_SHA1_STATE::default(),
+                            expanded_key: Pin::new(expanded_key),
+                        }),
+                    };
+                    symcrypt_sys::SymCryptHmacSha1Init(
+                        &mut instance.inner.state,
+                        &instance.inner.expanded_key.0,
+                    );
+                    Ok(instance)
+                }
+                err => Err(err.into()),
+            }
+        }
+    }
+}
+
+#[cfg(feature = "sha1")]
+impl HmacState for HmacSha1State {
+    type Result = [u8; SHA1_HMAC_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacSha1Append(
+                &mut self.inner.state,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+
+    fn result(mut self) -> Self::Result {
+        let mut result = [0u8; SHA1_HMAC_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacSha1Result(&mut self.inner.state, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+/// Creates a clone of the current `HmacSha1State`. Clone will create a new state field but will reference the same
+/// `expanded_key` of the current `HmacSha1State`.
+#[cfg(feature = "sha1")]
+impl Clone for HmacSha1State {
+    // Clone will increase the refcount on expanded_key field
+    fn clone(&self) -> Self {
+        let mut new_state = HmacSha1State {
+            inner: Box::pin(HmacSha1Inner {
+                state: symcrypt_sys::SYMCRYPT_HMAC_SHA1_STATE::default(),
+                expanded_key: Pin::clone(&self.inner.expanded_key),
+            }),
+        };
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacSha1StateCopy(
+                &self.inner.state,
+                &self.inner.expanded_key.0,
+                &mut new_state.inner.state,
+            );
+        }
+        new_state
+    }
+}
+
+#[cfg(feature = "sha1")]
+impl Drop for HmacSha1State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.inner.state) as *mut c_void,
+                mem::size_of_val(&mut self.inner.state) as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+/// Stateless Hmac function for HmacSha1.
+///
+/// `key` is a reference to a key.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `SHA1_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
+#[cfg(feature = "sha1")]
+pub fn hmac_sha1(key: &[u8], data: &[u8]) -> Result<[u8; SHA1_HMAC_RESULT_SIZE], SymCryptError> {
+    let mut result = [0u8; SHA1_HMAC_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        let mut expanded_key = HmacSha1ExpandedKey(
+            // Arc not needed here since this key will not be shared
+            symcrypt_sys::SYMCRYPT_HMAC_SHA1_EXPANDED_KEY::default(),
+        );
+        match symcrypt_sys::SymCryptHmacSha1ExpandKey(
+            &mut expanded_key.0,
+            key.as_ptr(),
+            key.len() as symcrypt_sys::SIZE_T,
+        ) {
+            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                symcrypt_sys::SymCryptHmacSha1(
+                    &mut expanded_key.0,
+                    data.as_ptr(),
+                    data.len() as symcrypt_sys::SIZE_T,
+                    result.as_mut_ptr(),
+                );
+                Ok(result)
+            }
+            err => Err(err.into()),
+        }
+    }
+}
+
 /// `HmacSha256ExpandedKey` is a struct that represents the expanded key for the [`HmacSha256State`].
 struct HmacSha256ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_SHA256_EXPANDED_KEY);
 // Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
 
-// Since HmacSha256ExpandedKey can be referenced multiple times, HmacSha256ExpandedKey must be ref counted and a there needs to be a separate drop()
+// Since HmacSha256ExpandedKey can be referenced multiple times, HmacSha256ExpandedKey must be ref counted and there needs to be a separate drop()
 impl Drop for HmacSha256ExpandedKey {
     fn drop(&mut self) {
         unsafe {
@@ -262,7 +634,7 @@ pub fn hmac_sha256(
 struct HmacSha384ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_SHA384_EXPANDED_KEY);
 // Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
 
-// Since HmacSha384ExpandedKey can be referenced multiple times, HmacSha384ExpandedKey must be ref counted and a there needs to be a separate drop()
+// Since HmacSha384ExpandedKey can be referenced multiple times, HmacSha384ExpandedKey must be ref counted and there needs to be a separate drop()
 impl Drop for HmacSha384ExpandedKey {
     fn drop(&mut self) {
         unsafe {
@@ -433,8 +805,177 @@ pub fn hmac_sha384(
     }
 }
 
+/// `HmacSha512ExpandedKey` is a struct that represents the expanded key for the [`HmacSha512State`].
+struct HmacSha512ExpandedKey(symcrypt_sys::SYMCRYPT_HMAC_SHA512_EXPANDED_KEY);
+// Wrapping the expanded key so that it can be independently dropped after it's ref count has gone to 0
+
+// Since HmacSha512ExpandedKey can be referenced multiple times, HmacSha512ExpandedKey must be ref counted and there needs to be a separate drop()
+impl Drop for HmacSha512ExpandedKey {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+/// `HmacSha512State` is a struct that represents a stateful Hmac using SHA512 and implements the [`HmacState`] trait.
+pub struct HmacSha512State {
+    // SymCrypt expects the address for its structs to stay static through the struct's lifetime to guarantee that structs are not memcpy'd as
+    // doing so would lead to use-after-free and inconsistent states.
+
+    // Using an `HmacSha512Inner` state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+    // around when returning from `HmacSha512State::new()`. Box<> heap allocates the memory and ensures that it does not move
+    // within its lifetime.
+    inner: Pin<Box<HmacSha512Inner>>,
+}
+struct HmacSha512Inner {
+    state: symcrypt_sys::SYMCRYPT_HMAC_SHA512_STATE,
+
+    // Must Arc<> the expanded_key field since it must be ref counted, clones of HmacSha265State will reference the same expanded key. Pin<> on the key
+    // is to ensure that address is not moved throughout the expanded key's lifetime.
+    //
+    // This semantic is not needed for the state field since it is initialized in line with HmacSha512Inner initialization.
+    expanded_key: Pin<Arc<HmacSha512ExpandedKey>>,
+}
+
+
+impl HmacSha512State {
+    /// `new()` takes in a reference to a key and can return a `SymCryptError` that is propagated back to the caller.
+    pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
+        let mut expanded_key = Arc::new(HmacSha512ExpandedKey(
+            symcrypt_sys::SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::default(),
+        ));
+        unsafe {
+            // SAFETY: FFI calls
+            match symcrypt_sys::SymCryptHmacSha512ExpandKey(
+                // Arc::get_mut() to unbind the Arc<>, &mut (T).0 to get raw pointer for SymCrypt
+                &mut (Arc::get_mut(&mut expanded_key).unwrap()).0,
+                key.as_ptr(),
+                key.len() as symcrypt_sys::SIZE_T,
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                    let mut instance = HmacSha512State {
+                        inner: Box::pin(HmacSha512Inner {
+                            state: symcrypt_sys::SYMCRYPT_HMAC_SHA512_STATE::default(),
+                            expanded_key: Pin::new(expanded_key),
+                        }),
+                    };
+                    symcrypt_sys::SymCryptHmacSha512Init(
+                        &mut instance.inner.state,
+                        &instance.inner.expanded_key.0,
+                    );
+                    Ok(instance)
+                }
+                err => Err(err.into()),
+            }
+        }
+    }
+}
+
+impl HmacState for HmacSha512State {
+    type Result = [u8; SHA512_HMAC_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacSha512Append(
+                &mut self.inner.state,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+
+    fn result(mut self) -> Self::Result {
+        let mut result = [0u8; SHA512_HMAC_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacSha512Result(&mut self.inner.state, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+/// Creates a clone of the current `HmacSha512State`. Clone will create a new state field but will reference the same
+/// `expanded_key` of the current `HmacSha512State`.
+impl Clone for HmacSha512State {
+    // Clone will increase the refcount on expanded_key field
+    fn clone(&self) -> Self {
+        let mut new_state = HmacSha512State {
+            inner: Box::pin(HmacSha512Inner {
+                state: symcrypt_sys::SYMCRYPT_HMAC_SHA512_STATE::default(),
+                expanded_key: Pin::clone(&self.inner.expanded_key),
+            }),
+        };
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptHmacSha512StateCopy(
+                &self.inner.state,
+                &self.inner.expanded_key.0,
+                &mut new_state.inner.state,
+            );
+        }
+        new_state
+    }
+}
+
+impl Drop for HmacSha512State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.inner.state) as *mut c_void,
+                mem::size_of_val(&mut self.inner.state) as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+/// Stateless Hmac function for HmacSha512.
+///
+/// `key` is a reference to a key.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `SHA512_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
+pub fn hmac_sha512(
+    key: &[u8],
+    data: &[u8],
+) -> Result<[u8; SHA512_HMAC_RESULT_SIZE], SymCryptError> {
+    let mut result = [0u8; SHA512_HMAC_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        let mut expanded_key = HmacSha512ExpandedKey(
+            // Arc not needed here since this key will not be shared
+            symcrypt_sys::SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::default(),
+        );
+        match symcrypt_sys::SymCryptHmacSha512ExpandKey(
+            &mut expanded_key.0,
+            key.as_ptr(),
+            key.len() as symcrypt_sys::SIZE_T,
+        ) {
+            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                symcrypt_sys::SymCryptHmacSha512(
+                    &mut expanded_key.0,
+                    data.as_ptr(),
+                    data.len() as symcrypt_sys::SIZE_T,
+                    result.as_mut_ptr(),
+                );
+                Ok(result)
+            }
+            err => Err(err.into()),
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
+    // Note: by default sha1 and md5 are turned off, to enable for testing you can use:
+    // cargo test --features "weak-crypto"
     use super::*;
 
     fn test_generic_hmac_state<H: HmacState>(mut hmac_state: H, data: &[u8], expected: &str)
@@ -469,6 +1010,102 @@ mod test {
         hmac_state.append(&data_2);
 
         let result = hmac_state.result();
+        assert_eq!(hex::encode(result), expected);
+    }
+
+    #[cfg(feature = "md5")]
+    #[test]
+    pub fn test_hmac_md5() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("").unwrap();
+        let expected = "c9e99a43cd8fa24a840aa85c7cca0061";
+
+        let hmac_test = HmacMd5State::new(&p_key).unwrap();
+        test_generic_hmac_state(hmac_test, &data, expected)
+    }
+
+    #[cfg(feature = "md5")]
+    #[test]
+    pub fn test_hmac_md5_state_clone() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("68656c6c6f20776f726c64").unwrap();
+
+        let hmac_state = HmacMd5State::new(&p_key).unwrap();
+        test_generic_state_clone(hmac_state, &data);
+    }
+
+    #[cfg(feature = "md5")]
+    #[test]
+    fn test_hmac_md5_multiple_append() {
+        let p_key = hex::decode("0a71d5cf99849bc13d73832dcd864244").unwrap();
+        let data_1 = hex::decode("68656c6c6f").unwrap();
+        let data_2 = hex::decode("20776f726c64").unwrap();
+        let expected = "42a97a3f45d7fef6108e02f6ee71f49b";
+
+        test_generic_state_multiple_append(
+            HmacMd5State::new(&p_key).unwrap(),
+            &data_1,
+            &data_2,
+            expected,
+        );
+    }
+
+    #[cfg(feature = "md5")]
+    #[test]
+    pub fn test_stateless_hmac_md5() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("68656c6c6f20776f726c64").unwrap();
+        let expected = "b109c0856bad128a6b615e3418b08181";
+
+        let result = hmac_md5(&p_key, &data).unwrap();
+        assert_eq!(hex::encode(result), expected);
+    }
+
+    #[cfg(feature = "sha1")]
+    #[test]
+    pub fn test_hmac_sha1() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("").unwrap();
+        let expected = "a040bd89759c8e9bd034445344436956b6af1635";
+
+        let hmac_test = HmacSha1State::new(&p_key).unwrap();
+        test_generic_hmac_state(hmac_test, &data, expected)
+    }
+
+    #[cfg(feature = "sha1")]
+    #[test]
+    pub fn test_hmac_sha1_state_clone() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("68656c6c6f20776f726c64").unwrap();
+
+        let hmac_state = HmacSha1State::new(&p_key).unwrap();
+        test_generic_state_clone(hmac_state, &data);
+    }
+
+    #[cfg(feature = "sha1")]
+    #[test]
+    fn test_hmac_sha1_multiple_append() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data_1 = hex::decode("68656c6c6f").unwrap();
+        let data_2 = hex::decode("20776f726c64").unwrap();
+        let expected = "3fc1da114bca53529bcf5eabe16418a4027c6e7f";
+
+        test_generic_state_multiple_append(
+            HmacSha1State::new(&p_key).unwrap(),
+            &data_1,
+            &data_2,
+            expected,
+        );
+    }
+
+    #[cfg(feature = "sha1")]
+    #[test]
+    pub fn test_stateless_hmac_sha1() {
+        let p_key = hex::decode("0a71d5cf99849bc13d73832dcd864244").unwrap();
+        let data = hex::decode("73796d637279707420697320636f6f6c").unwrap();
+        let expected = "de5b35480010f91338befde41808f4b50caa40d1";
+
+        let result = hmac_sha1(&p_key, &data).unwrap();
         assert_eq!(hex::encode(result), expected);
     }
 
@@ -560,6 +1197,50 @@ mod test {
         let expected = "ad88735f29e167dabded11b57e168f0b773b2985f4c2d2234c8d7a6bf01e2a791590bc0165003f9a7e47c4c687622fd6";
 
         let result = hmac_sha384(&p_key, &data).unwrap();
+        assert_eq!(hex::encode(result), expected);
+    }
+
+    #[test]
+    pub fn test_hmac_512() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("").unwrap();
+        let expected = "61152f47382fe24ac39daf80f66a76c7e74678cc5670035ec6a2a3d179aebd4eadc0d2a640e30e37d05a3942a7a3e192ce812e7e77c8549abdb7bfc153f5fa87";
+
+        let hmac_test = HmacSha512State::new(&p_key).unwrap();
+        test_generic_hmac_state(hmac_test, &data, expected)
+    }
+
+    #[test]
+    pub fn test_hmac_sha512_state_clone() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("68656c6c6f20776f726c64").unwrap();
+
+        let hmac_state = HmacSha512State::new(&p_key).unwrap();
+        test_generic_state_clone(hmac_state, &data);
+    }
+
+    #[test]
+    fn test_hmac_sha512_multiple_append() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data_1 = hex::decode("68656c6c6f").unwrap();
+        let data_2 = hex::decode("20776f726c64").unwrap();
+        let expected = "2665c2835d7759b0be0485f0a6c9538378e4edfa27e985935990c3d92378060d6022e48b8ee7f07ba0369690ac7f51e484bfea37908b3d001a1f344cc15483b7";
+
+        test_generic_state_multiple_append(
+            HmacSha512State::new(&p_key).unwrap(),
+            &data_1,
+            &data_2,
+            expected,
+        );
+    }
+
+    #[test]
+    pub fn test_stateless_hmac_sha512() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("68656c6c6f20776f726c64").unwrap();
+        let expected = "2665c2835d7759b0be0485f0a6c9538378e4edfa27e985935990c3d92378060d6022e48b8ee7f07ba0369690ac7f51e484bfea37908b3d001a1f344cc15483b7";
+
+        let result = hmac_sha512(&p_key, &data).unwrap();
         assert_eq!(hex::encode(result), expected);
     }
 }
