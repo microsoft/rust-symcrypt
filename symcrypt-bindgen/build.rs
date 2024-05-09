@@ -40,10 +40,17 @@ fn main() {
         .allowlist_var("^SymCryptEcurveParams(NistP256|NistP384|Curve25519)$")
         .allowlist_function("^(SymCryptEckey(Allocate|Free|SizeofPublicKey|GetValue|SetRandom|SetValue|SetRandom|))$")
         .allowlist_var("SYMCRYPT_FLAG_ECKEY_ECDH")
+        .allowlist_var("SYMCRYPT_FLAG_ECKEY_ECDSA")
         .allowlist_function("SymCryptEcDhSecretAgreement")
         // RSA FUNCTIONS
-        .allowlist_function("^(SymCryptRsakey.*)$")
-        .allowlist_function("^(SymCryptRsaRaw.*)$")
+        .allowlist_function("^SymCryptRsa.*") // Must allow ALL SymCryptRsakey* before blocking the functions that are not needed.
+        .blocklist_function("SymCryptRsakeyCreate")
+        .blocklist_function("SymCryptRsakeySizeofRsakeyFromParams")
+        .blocklist_function("SymCryptRsakeyWipe")
+        .blocklist_function("SymCryptRsaSelftest")
+        .blocklist_function("^SymCryptRsaRaw.*$")
+        .allowlist_var("SYMCRYPT_FLAG_RSAKEY_ENCRYPT")
+        .allowlist_var("SYMCRYPT_FLAG_RSAKEY_SIGN")
         // ECDSA functions
         .allowlist_function("^(SymCryptEcDsa(Sign|Verify).*)")
         // RSA PKCS1 FUNCTIONS

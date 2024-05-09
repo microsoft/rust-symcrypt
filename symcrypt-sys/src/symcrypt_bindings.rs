@@ -8,7 +8,10 @@ pub const SYMCRYPT_SHA1_RESULT_SIZE: u32 = 20;
 pub const SYMCRYPT_SHA256_RESULT_SIZE: u32 = 32;
 pub const SYMCRYPT_SHA384_RESULT_SIZE: u32 = 48;
 pub const SYMCRYPT_SHA512_RESULT_SIZE: u32 = 64;
+pub const SYMCRYPT_FLAG_ECKEY_ECDSA: u32 = 4096;
 pub const SYMCRYPT_FLAG_ECKEY_ECDH: u32 = 8192;
+pub const SYMCRYPT_FLAG_RSAKEY_SIGN: u32 = 4096;
+pub const SYMCRYPT_FLAG_RSAKEY_ENCRYPT: u32 = 8192;
 pub const SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR: SYMCRYPT_ERROR = 0;
 pub const SYMCRYPT_ERROR_SYMCRYPT_UNUSED: SYMCRYPT_ERROR = 32768;
 pub const SYMCRYPT_ERROR_SYMCRYPT_WRONG_KEY_SIZE: SYMCRYPT_ERROR = 32769;
@@ -4932,16 +4935,6 @@ extern "C" {
     pub fn SymCryptRsakeyFree(pkObj: PSYMCRYPT_RSAKEY);
 }
 extern "C" {
-    pub fn SymCryptRsakeyCreate(
-        pbBuffer: PBYTE,
-        cbBuffer: SIZE_T,
-        pParams: PCSYMCRYPT_RSA_PARAMS,
-    ) -> PSYMCRYPT_RSAKEY;
-}
-extern "C" {
-    pub fn SymCryptRsakeyWipe(pkDst: PSYMCRYPT_RSAKEY);
-}
-extern "C" {
     pub fn SymCryptEcurveAllocate(
         pParams: PCSYMCRYPT_ECURVE_PARAMS,
         flags: UINT32,
@@ -5096,29 +5089,7 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
-extern "C" {
-    #[doc = " Crypto algorithm API *"]
-    pub fn SymCryptRsaRawEncrypt(
-        pkRsakey: PCSYMCRYPT_RSAKEY,
-        pbSrc: PCBYTE,
-        cbSrc: SIZE_T,
-        numFormat: SYMCRYPT_NUMBER_FORMAT,
-        flags: UINT32,
-        pbDst: PBYTE,
-        cbDst: SIZE_T,
-    ) -> SYMCRYPT_ERROR;
-}
-extern "C" {
-    pub fn SymCryptRsaRawDecrypt(
-        pkRsakey: PCSYMCRYPT_RSAKEY,
-        pbSrc: PCBYTE,
-        cbSrc: SIZE_T,
-        numFormat: SYMCRYPT_NUMBER_FORMAT,
-        flags: UINT32,
-        pbDst: PBYTE,
-        cbDst: SIZE_T,
-    ) -> SYMCRYPT_ERROR;
-}
+
 extern "C" {
     pub fn SymCryptRsaPkcs1Encrypt(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5137,6 +5108,36 @@ extern "C" {
         pbSrc: PCBYTE,
         cbSrc: SIZE_T,
         nfSrc: SYMCRYPT_NUMBER_FORMAT,
+        flags: UINT32,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+        pcbDst: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsaOaepEncrypt(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        hashAlgorithm: PCSYMCRYPT_HASH,
+        pbLabel: PCBYTE,
+        cbLabel: SIZE_T,
+        flags: UINT32,
+        nfDst: SYMCRYPT_NUMBER_FORMAT,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+        pcbDst: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptRsaOaepDecrypt(
+        pkRsakey: PCSYMCRYPT_RSAKEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        nfSrc: SYMCRYPT_NUMBER_FORMAT,
+        hashAlgorithm: PCSYMCRYPT_HASH,
+        pbLabel: PCBYTE,
+        cbLabel: SIZE_T,
         flags: UINT32,
         pbDst: PBYTE,
         cbDst: SIZE_T,

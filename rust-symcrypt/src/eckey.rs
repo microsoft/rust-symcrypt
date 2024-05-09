@@ -5,6 +5,7 @@
 use crate::{errors::SymCryptError, symcrypt_init};
 use lazy_static::lazy_static;
 use symcrypt_sys;
+use crate::NumberFormat;
 
 /// [`CurveType`] provides an enum of the curve types that can be used when creating a key(s)
 /// via `ecdh::EcDh::new()`. The current curve types supported is `NistP256`, `NistP384`, and `Curve25519`.
@@ -157,10 +158,10 @@ pub(crate) fn convert_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_ECURVE
 pub(crate) fn get_num_format(curve_type: CurveType) -> i32 {
     let num_format = match curve_type {
         CurveType::Curve25519 => {
-            symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST
+            NumberFormat::LSB.to_num_format()
         }
         CurveType::NistP256 | CurveType::NistP384 => {
-            return symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST
+            NumberFormat::MSB.to_num_format()
         }
     };
     num_format

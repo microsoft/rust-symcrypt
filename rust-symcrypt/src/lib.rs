@@ -15,12 +15,18 @@
 //! ## Supported APIs
 //!
 //! Hashing:
+//! - Md5 ( statefull/stateless )
+//! - Sha1 ( statefull/stateless )
 //! - Sha256 ( statefull/stateless )
 //! - Sha384 ( statefull/stateless )
+//! - Sha512 ( statefull/stateless )
 //!
 //! HMAC:
+//! - HmacMd5 ( statefull/stateless )
+//! - HmacSha1 ( statefull/stateless )
 //! - HmacSha256 ( statefull/stateless )
 //! - HmacSha384 ( statefull/stateless )
+//! - HmacSha512 ( statefull/stateless )
 //!
 //! GCM:
 //! - Encryption ( in place )
@@ -32,6 +38,10 @@
 //!
 //! ECDH:
 //! - ECDH Secret Agreement
+//!
+//! **Note**: `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
+//! To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
+//! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
 //!
 //! ## Usage
 //! There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash. `symcrypt_init()` must be run before any other calls to the underlying symcrypt code.
@@ -70,6 +80,7 @@ pub mod errors;
 pub mod gcm;
 pub mod hash;
 pub mod hmac;
+pub mod rsa;
 
 /// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
 ///  all subsequent calls will be no-ops
@@ -92,6 +103,20 @@ pub fn symcrypt_random(buff: &mut [u8]) {
     unsafe {
         // SAFETY: FFI calls
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as u64);
+    }
+}
+
+pub enum NumberFormat {
+    LSB,
+    MSB,
+}
+
+impl NumberFormat {
+    fn to_num_format(&self) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {        
+        match self {
+            NumberFormat::LSB => symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST,
+            NumberFormat::MSB => symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST,
+        }
     }
 }
 

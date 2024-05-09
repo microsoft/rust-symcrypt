@@ -38,13 +38,19 @@ For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](h
 
 ## Supported APIs
 
-Hashing:
+ Hashing:
+- Md5 ( statefull/stateless )
+- Sha1 ( statefull/stateless )
 - Sha256 ( statefull/stateless )
 - Sha384 ( statefull/stateless )
+- Sha512 ( statefull/stateless )
 
 HMAC:
+- HmacMd5 ( statefull/stateless )
+- HmacSha1 ( statefull/stateless )
 - HmacSha256 ( statefull/stateless )
 - HmacSha384 ( statefull/stateless )
+- HmacSha512 ( statefull/stateless )
 
 GCM:
 - Encryption ( in place )
@@ -56,6 +62,10 @@ ChaCha:
 
 ECDH:
 - ECDH Secret Agreement
+
+**Note**: `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
+To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
+To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
 
 ## Usage
 There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash. `symcrypt_init()` must be run before any other calls to the underlying symcrypt code.
