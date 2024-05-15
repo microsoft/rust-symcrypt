@@ -47,6 +47,7 @@ pub type ULONG_PTR = ::std::os::raw::c_ulonglong;
 pub type SIZE_T = ULONG_PTR;
 pub type PBYTE = *mut BYTE;
 pub type PCBYTE = *const BYTE;
+pub type PUINT32 = *mut UINT32;
 pub type PCUINT32 = *const UINT32;
 pub type PUINT64 = *mut UINT64;
 pub type PCUINT64 = *const UINT64;
@@ -4258,6 +4259,16 @@ pub type PSYMCRYPT_ECKEY = *mut SYMCRYPT_ECKEY;
 pub type PCSYMCRYPT_ECKEY = *const SYMCRYPT_ECKEY;
 extern "C" {
     pub fn SymCryptWipe(pbData: PVOID, cbData: SIZE_T);
+}
+extern "C" {
+    pub fn SymCryptLoadMsbFirstUint64(
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        pDst: PUINT64,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptStoreMsbFirstUint64(src: UINT64, pbDst: PBYTE, cbDst: SIZE_T) -> SYMCRYPT_ERROR;
 }
 extern "C" {
     pub fn SymCryptModuleInit(api: UINT32, minor: UINT32);

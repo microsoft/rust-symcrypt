@@ -106,16 +106,26 @@ pub fn symcrypt_random(buff: &mut [u8]) {
     }
 }
 
+/// `NumberFormat` is an enum that contains a friendly representation of endianess
+///
+/// `LSB`: Bytes are ordered from the least significant to the most significant, commonly referred to as "little-endian".
+///
+/// `MSB`: Bytes are ordered from the most significant to the least significant, commonly referred to as "big-endian".
 pub enum NumberFormat {
     LSB,
     MSB,
 }
 
 impl NumberFormat {
-    fn to_num_format(&self) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {        
+    /// Converts `NumberFormat` to the corresponding `SYMCRYPT_NUMBER_FORMAT`
+    fn to_num_format(&self) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {
         match self {
-            NumberFormat::LSB => symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST,
-            NumberFormat::MSB => symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST,
+            NumberFormat::LSB => {
+                symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST
+            }
+            NumberFormat::MSB => {
+                symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST
+            }
         }
     }
 }

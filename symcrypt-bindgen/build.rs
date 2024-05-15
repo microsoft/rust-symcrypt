@@ -60,6 +60,8 @@ fn main() {
         // UTILITY FUNCTIONS
         .allowlist_function("SymCryptWipe")
         .allowlist_function("SymCryptRandom")
+        .allowlist_function("SymCryptLoadMsbFirstUint64")
+        .allowlist_function("SymCryptStoreMsbFirstUint64")    
         
         .generate_comments(true)
         .derive_default(true)

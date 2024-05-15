@@ -842,7 +842,6 @@ struct HmacSha512Inner {
     expanded_key: Pin<Arc<HmacSha512ExpandedKey>>,
 }
 
-
 impl HmacSha512State {
     /// `new()` takes in a reference to a key and can return a `SymCryptError` that is propagated back to the caller.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
