@@ -76,7 +76,7 @@ include symcrypt in your code
 
 ```rust
 use symcrypt::hash::sha256; 
-use symcrypt::symcrypt_init();
+use symcrypt::symcrypt_init;
 use hex;
 fn main() {
     symcrpyt_init();
