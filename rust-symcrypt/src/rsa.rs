@@ -469,15 +469,8 @@ mod test {
         assert_eq!(key_pair.key_usage(), RsaKeyUsage::Sign);
 
         let blob = key_pair.export_key_pair_blob().unwrap();
-
-
-        let n_bits_mod = blob.modulus.len() *8;
-
-
-        let new_key_pair = RsaKeyPair::set_key_pair(n_bits_mod as u32, &blob.modulus, &blob.pub_exp, &blob.p, &blob.q, key_pair.key_usage).unwrap();
-
+        let new_key_pair = RsaKeyPair::set_key_pair( &blob.modulus, &blob.pub_exp, &blob.p, &blob.q, key_pair.key_usage).unwrap();
         let blob_2 = new_key_pair.export_key_pair_blob().unwrap();
-
         assert_eq!(blob_2.crt_coefficient, blob.crt_coefficient);
     }
 
@@ -559,7 +552,7 @@ mod test {
             17, 124, 191, 60, 163, 218, 149, 209, 207, 181,
         ];
         let pub_exp: u64 = 65537;
-        let result = RsaPublicKey::set_public_key(2048, &modulus, &pub_exp.to_be_bytes(), RsaKeyUsage::Encrypt);
+        let result = RsaPublicKey::set_public_key(&modulus, &pub_exp.to_be_bytes(), RsaKeyUsage::Encrypt);
 
         assert!(result.is_ok());
         let pub_key = result.unwrap();
