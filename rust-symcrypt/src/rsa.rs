@@ -25,8 +25,6 @@
 //              ...
 //        }
 
-/// 6. A lot of the functions take in a NumberFormat ( MSB, LSB.) Should we include this when we create a new Public / Key pair state?  Also talked with Phil, ASN is MSB, are there any
-/// use cases for LSB? Should we remove the option from the user and force MSB?
 ///
 // Rsa functions. For further documentation please refer to symcrypt.h
 // TODO rest of the documentation
@@ -43,7 +41,6 @@ const DEFAULT_PUBLIC_EXPONENT: u64 = 0x10001;
 pub struct RsaKeyPair {
     inner: symcrypt_sys::PSYMCRYPT_RSAKEY,
     key_usage: RsaKeyUsage,
-    number_format: NumberFormat,
 }
 
 /// Rsa Public Key State
@@ -52,11 +49,12 @@ pub struct RsaKeyPair {
 pub struct RsaPublicKey {
     inner: symcrypt_sys::PSYMCRYPT_RSAKEY,
     key_usage: RsaKeyUsage,
-    number_format: NumberFormat,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// `RsaKeyUsage` will indicate if the [`RsaKeyPair`] or [`RsaPublicKey`] will be used for [`RsaKeyUsage::Sign`] or [`RsaKeyUsage::Encrypt`].
+/// 
+/// [`RsaKeyUsage::Encrypt`] will have both [`RsaKeyUsage::Sign`] and [`RsaKeyUsage::Encrypt`] flags set.
 pub enum RsaKeyUsage {
     Sign,
     Encrypt,
@@ -65,13 +63,13 @@ pub enum RsaKeyUsage {
 // !Review: Should we add the no fips / minimal validation flags? The whole purpose is to eventually get to fips, adding these extra flags might not be needed?
 // #define SYMCRYPT_FLAG_KEY_NO_FIPS               (0x100)
 // #define SYMCRYPT_FLAG_KEY_MINIMAL_VALIDATION    (0x200)
-// #define SYMCRYPT_FLAG_RSAKEY_SIGN       (0x1000)
+// #define SYMCRYPT_FLAG_RSAKEY_SIGN       (0x1000) 
 // #define SYMCRYPT_FLAG_RSAKEY_ENCRYPT    (0x2000)
 impl RsaKeyUsage {
     pub fn to_flag(&self) -> symcrypt_sys::UINT32 {
         match self {
             RsaKeyUsage::Sign => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_SIGN,
-            RsaKeyUsage::Encrypt => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_ENCRYPT,
+            RsaKeyUsage::Encrypt => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_ENCRYPT | symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_SIGN ,
         }
     }
 }
@@ -186,12 +184,11 @@ impl RsaKeyPair {
         n_bits_mod: u32,
         pub_exp: Option<&[u8]>,
         key_usage: RsaKeyUsage,
-        num_format: NumberFormat,
     ) -> Result<Self, SymCryptError> {
-        let rsa_key = allocate_rsa(2, n_bits_mod); // !Review: @Phil has mentioned that there is no scenario that we'd want to ONLY generate a public key, @Crypto folks is this the case?
+        let rsa_key = allocate_rsa(2, n_bits_mod)?; // !Review: @Phil has mentioned that there is no scenario that we'd want to ONLY generate a public key, @Crypto folks is this the case?
         let u64_pub_exp = match pub_exp {
             Some(exp) => RsaKeyPair::load_msb_first_u64(exp)?,
-            None => DEFAULT_PUBLIC_EXPONENT, // if no public exponent is provided, use the default ( 2^16 + 1 )
+            None => DEFAULT_PUBLIC_EXPONENT, // If no public exponent is provided, use the default ( 2^16 + 1 )
         };
         unsafe {
             // SAFETY: FFI calls
@@ -205,7 +202,6 @@ impl RsaKeyPair {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKeyPair {
                     inner: rsa_key,
                     key_usage: key_usage,
-                    number_format: num_format,
                 }),
                 err => Err(err.into()),
             }
@@ -221,19 +217,17 @@ impl RsaKeyPair {
     /// `p` takes in reference to a byte array that contains the first prime.
     ///
     /// `q` takes in reference to a byte array that contains the second prime.
-    ///
-    /// `num_format` takes in a [`NumberFormat`] that specifies either [`NumberFormat::LSB`] or [`NumberFormat::MSB`] which must match ALL inputs.
     pub fn set_key_pair(
-        n_bits_mod: u32,
         modulus_buffer: &[u8],
         pub_exp: &[u8],
         p: &[u8],
         q: &[u8],
-        num_format: NumberFormat,
         key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let rsa_key = allocate_rsa(2, n_bits_mod);
+        let n_bits_mod = modulus_buffer.len() as u32;
+        let rsa_key = allocate_rsa(2, n_bits_mod * 8)?;
         let u64_pub_exp = RsaKeyPair::load_msb_first_u64(pub_exp)?;
+
         // Construct the primes_ptr and primes_len_ptr for SymCryptRsakeyValue consumption
         let primes_ptr = [p.as_ptr(), q.as_ptr()].as_mut_ptr();
         let primes_len_ptr = [
@@ -251,14 +245,13 @@ impl RsaKeyPair {
                 primes_ptr,
                 primes_len_ptr,
                 2 as symcrypt_sys::UINT32,
-                num_format.to_num_format(),
+                NumberFormat::MSB.to_num_format(),
                 key_usage.to_flag(),
                 rsa_key,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKeyPair {
                     inner: rsa_key,
                     key_usage: key_usage,
-                    number_format: num_format,
                 }),
                 err => Err(err.into()),
             }
@@ -274,13 +267,6 @@ impl RsaKeyPair {
             let prime_2 = symcrypt_sys::SymCryptRsakeySizeofPrime(self.inner(), 1);
             (prime_1, prime_2)
         }
-    }
-
-    /// `number_of_pub_primes()` returns a `u32` representing the number of primes associated with the [`RsaKeyPair`]
-    pub fn number_of_pub_primes(&self) -> u32 {
-        2
-        // !REVIEW: Can call SymCryptRsakeyGetNumberOfPrimes() instead, but it's a wasteful call since we know RsaKeyPair musth have value 2.
-        // this value is also assumed since this struct is RsaKeyPair
     }
 
     /// `export_key_pair_blob()` returns a [`RsaKeyPairBlob`] value.
@@ -320,7 +306,7 @@ impl RsaKeyPair {
                 [p.as_mut_ptr(), q.as_mut_ptr()].as_mut_ptr(),
                 primes_len.as_mut_ptr(),
                 2 as symcrypt_sys::UINT32,
-                self.number_format.to_num_format(),
+                NumberFormat::MSB.to_num_format(),
                 self.key_usage.to_flag(),
             );
             if result != symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
@@ -336,7 +322,7 @@ impl RsaKeyPair {
                 crt_coefficient.len() as symcrypt_sys::SIZE_T,
                 private_exponent.as_mut_ptr(),
                 private_exponent.len() as symcrypt_sys::SIZE_T,
-                self.number_format.to_num_format(),
+                NumberFormat::MSB.to_num_format(),
                 self.key_usage.to_flag(),
             );
             if result != symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
@@ -357,58 +343,6 @@ impl RsaKeyPair {
             private_exp: private_exponent,
         })
     }
-}
-
-impl Drop for RsaKeyPair {
-    fn drop(&mut self) {
-        unsafe {
-            // SAFETY: FFI calls
-            symcrypt_sys::SymCryptRsakeyFree(self.inner());
-        }
-    }
-}
-
-impl RsaPublicKey {
-    /// `set_public_key()` sets only the public key information onto the [`RsaPublicKey`].
-    ///
-    /// `modulus_buffer` takes in a reference to a byte array that contains the modulus of the Rsa key.
-    ///
-    /// `pub_exp` takes in a `&[u8]` that is an array of bytes representing the public exponent.
-    ///
-    /// `num_format` takes in a [`NumberFormat`] that specifies either [`NumberFormat::LSB`] or [`NumberFormat::MSB`] which must match ALL inputs.
-    pub fn set_public_key(
-        n_bits_mod: u32,
-        modulus_buffer: &[u8],
-        pub_exp: &[u8], 
-        num_format: NumberFormat,
-        key_usage: RsaKeyUsage,
-    ) -> Result<Self, SymCryptError> {
-        let rsa_key = allocate_rsa(0, n_bits_mod);
-        let u64_pub_exp = RsaKeyPair::load_msb_first_u64(pub_exp)?;
-        unsafe {
-            // SAFETY: FFI calls
-            // When only setting the public key, ppPrimes, pcbPrimes and nPrimes can be NULL, NULL and 0
-            match symcrypt_sys::SymCryptRsakeySetValue(
-                modulus_buffer.as_ptr(),
-                modulus_buffer.len() as symcrypt_sys::SIZE_T,
-                [u64_pub_exp].as_ptr(),
-                1 as symcrypt_sys::UINT32,
-                ptr::null_mut(),
-                ptr::null_mut(),
-                0,
-                num_format.to_num_format(),
-                key_usage.to_flag(),
-                rsa_key,
-            ) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaPublicKey {
-                    inner: rsa_key,
-                    key_usage: key_usage,
-                    number_format: num_format,
-                }),
-                err => Err(err.into()),
-            }
-        }
-    }
 
     /// `export_public_key_blob()` will export a [`RsaPublicKey`].
     pub fn export_public_key_blob(&self) -> Result<RsaPublicKeyBlob, SymCryptError> {
@@ -426,7 +360,7 @@ impl RsaPublicKey {
                 ptr::null_mut(),
                 ptr::null_mut(),
                 0,
-                self.number_format.to_num_format(),
+                NumberFormat::MSB.to_num_format(),
                 self.key_usage.to_flag(),
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaPublicKeyBlob {
@@ -437,12 +371,53 @@ impl RsaPublicKey {
             }
         }
     }
+}
 
-    /// `number_of_pub_primes()` returns a `u32` representing the number of primes associated with the [`RsaPublicKey`]
-    pub fn number_of_pub_primes(&self) -> u32 {
-        0
-        // !REVIEW: Can call SymCryptRsakeyGetNumberOfPrimes() instead, but it's a wasteful call since we know RsaPublicKey must have value 0.
-        // This value is assumed since we know that this object is a RsaPublicKey
+impl Drop for RsaKeyPair {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptRsakeyFree(self.inner());
+        }
+    }
+}
+
+impl RsaPublicKey {
+    /// `set_public_key()` sets only the public key information onto the [`RsaPublicKey`].
+    ///
+    /// `modulus_buffer` takes in a reference to a byte array that contains the modulus of the Rsa key.
+    ///
+    /// `pub_exp` takes in a `&[u8]` that is an array of bytes representing the public exponent.
+    pub fn set_public_key(
+        modulus_buffer: &[u8],
+        pub_exp: &[u8], 
+        key_usage: RsaKeyUsage, // !Review should we let the caller deal with this? 
+    ) -> Result<Self, SymCryptError> {
+        let n_bits_mod = modulus_buffer.len() as u32;
+        let rsa_key = allocate_rsa(0, n_bits_mod*8)?;
+        let u64_pub_exp = RsaKeyPair::load_msb_first_u64(pub_exp)?;
+        unsafe {
+            // SAFETY: FFI calls
+            // When only setting the public key, ppPrimes, pcbPrimes and nPrimes can be NULL, NULL and 0
+            match symcrypt_sys::SymCryptRsakeySetValue(
+                modulus_buffer.as_ptr(),
+                modulus_buffer.len() as symcrypt_sys::SIZE_T,
+                [u64_pub_exp].as_ptr(),
+                1 as symcrypt_sys::UINT32,
+                ptr::null_mut(),
+                ptr::null_mut(),
+                0,
+                NumberFormat::MSB.to_num_format(),
+                key_usage.to_flag(), // !Review: can set this sign and encrypt
+                rsa_key,
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaPublicKey {
+                    inner: rsa_key,
+                    key_usage: key_usage,
+                }),
+                err => Err(err.into()),
+            }
+        }
     }
 }
 
@@ -456,7 +431,7 @@ impl Drop for RsaPublicKey {
 }
 
 // Utility function to reduce common RSA allocation call
-fn allocate_rsa(n_primes: u32, n_bits_mod: u32) -> symcrypt_sys::PSYMCRYPT_RSAKEY {
+fn allocate_rsa(n_primes: u32, n_bits_mod: u32) -> Result<symcrypt_sys::PSYMCRYPT_RSAKEY, SymCryptError> {
     let rsa_params = symcrypt_sys::SYMCRYPT_RSA_PARAMS {
         version: 1 as symcrypt_sys::UINT32, // No other version aside from version 1 is specified
         nBitsOfModulus: n_bits_mod as symcrypt_sys::UINT32,
@@ -465,7 +440,11 @@ fn allocate_rsa(n_primes: u32, n_bits_mod: u32) -> symcrypt_sys::PSYMCRYPT_RSAKE
     };
     unsafe {
         // SAFETY: FFI calls
-        symcrypt_sys::SymCryptRsakeyAllocate(&rsa_params, 0)
+        let result = symcrypt_sys::SymCryptRsakeyAllocate(&rsa_params, 0);
+        if result == ptr::null_mut() {
+            return Err(SymCryptError::AuthenticationFailure)
+        }
+        Ok(result)
     }
 }
 
@@ -476,10 +455,30 @@ mod test {
 
     #[test]
     fn test_generate_new_default_exponent() {
-        let result = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::Sign, NumberFormat::MSB);
+        let result = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::Sign);
         assert!(result.is_ok());
         let key_pair = result.unwrap();
         assert_eq!(key_pair.key_usage(), RsaKeyUsage::Sign);
+    }
+
+    #[test]
+    fn test_generate_get_then_set() {
+        let result = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::Sign);
+        assert!(result.is_ok());
+        let key_pair = result.unwrap();
+        assert_eq!(key_pair.key_usage(), RsaKeyUsage::Sign);
+
+        let blob = key_pair.export_key_pair_blob().unwrap();
+
+
+        let n_bits_mod = blob.modulus.len() *8;
+
+
+        let new_key_pair = RsaKeyPair::set_key_pair(n_bits_mod as u32, &blob.modulus, &blob.pub_exp, &blob.p, &blob.q, key_pair.key_usage).unwrap();
+
+        let blob_2 = new_key_pair.export_key_pair_blob().unwrap();
+
+        assert_eq!(blob_2.crt_coefficient, blob.crt_coefficient);
     }
 
     #[test]
@@ -523,12 +522,10 @@ mod test {
         let pub_exp: u64 = 65537;
 
         let result = RsaKeyPair::set_key_pair(
-            2048,
             &modulus,
             &pub_exp.to_be_bytes(),
             &p,
             &q,
-            NumberFormat::MSB,
             RsaKeyUsage::Sign,
         );
         assert!(result.is_ok());
@@ -537,7 +534,6 @@ mod test {
         assert_eq!(key_pair.size_of_primes(), (128,128));
         assert_eq!(key_pair.size_of_modulus(), 256);
         assert_eq!(key_pair.size_of_public_exponent(), 3);
-        assert_eq!(key_pair.number_of_pub_primes(), 2);
         let key_blob = key_pair.export_key_pair_blob().unwrap(); 
         assert_eq!(key_blob.modulus, modulus.to_vec());
         assert_eq!(key_blob.p, p);
@@ -563,7 +559,7 @@ mod test {
             17, 124, 191, 60, 163, 218, 149, 209, 207, 181,
         ];
         let pub_exp: u64 = 65537;
-        let result = RsaPublicKey::set_public_key(2048, &modulus, &pub_exp.to_be_bytes(), NumberFormat::MSB, RsaKeyUsage::Encrypt);
+        let result = RsaPublicKey::set_public_key(2048, &modulus, &pub_exp.to_be_bytes(), RsaKeyUsage::Encrypt);
 
         assert!(result.is_ok());
         let pub_key = result.unwrap();
