@@ -39,18 +39,18 @@ For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](h
 ## Supported APIs
 
  Hashing:
-- Md5 ( statefull/stateless )
-- Sha1 ( statefull/stateless )
-- Sha256 ( statefull/stateless )
-- Sha384 ( statefull/stateless )
-- Sha512 ( statefull/stateless )
+- Md5 ( stateful/stateless )
+- Sha1 ( stateful/stateless )
+- Sha256 ( stateful/stateless )
+- Sha384 ( stateful/stateless )
+- Sha512 ( stateful/stateless )
 
 HMAC:
-- HmacMd5 ( statefull/stateless )
-- HmacSha1 ( statefull/stateless )
-- HmacSha256 ( statefull/stateless )
-- HmacSha384 ( statefull/stateless )
-- HmacSha512 ( statefull/stateless )
+- HmacMd5 ( stateful/stateless )
+- HmacSha1 ( stateful/stateless )
+- HmacSha256 ( stateful/stateless )
+- HmacSha384 ( stateful/stateless )
+- HmacSha512 ( stateful/stateless )
 
 GCM:
 - Encryption ( in place )

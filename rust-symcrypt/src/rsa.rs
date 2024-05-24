@@ -1,45 +1,26 @@
-/// !REVIEW: I've tried to closely follow SymCrypts API calls and semantics making some simplifications, but I think we have a chance to simplify further if we choose to.
-/// My questions / Suggestions:
-/// 1. We've introduced the idea of the RsaKeyPair / RsaPublicKey state, which can hold a lot of data, and makes a lot of the calls to the underlying SymCrypt code redundant. most of the accessors no longer
-/// needed to call SymCrypt since the same data is stored on the state or is assumed
-/// 2. to keep this thread safe, I've combined the alloc / generate and alloc / set pattern to just one function
-/// 3. This code is pretty raw, and would not be very usable, the idea would be to write a crate on top of this one, called something like symcrypt_rsa_parse, which will be a friendlier
-/// interface on top of the RSA code we have right now it would have convenience functions like rsa_from_pkcs8, rsa_from_der, rsa_from_asn1 etc. ( this could be part of the intern project as well.)
-/// 4. with how many steps / options there is for generating a key, we can maybe do a builder pattern, this would be similar to how it is on NCrypt / BCrypt where they have
-/// RsaKey functions and the RsaKey.finalize() at the end.
-/// ex:
-///         builder = RsaKeyBuilder::new()
-///             .key_mode(RsaKeyMode::KeyPair)
-///             .key_usage(RsaKeyUsage::Sign)
-///             .generate_key()
-/// My thought is to leave it how it is right now as there are not that many parameters that we need to specify, but thought I would point out the pattern.
-///
-/// 5.
-// !REVIEW: instead of using in/out buffers for the get functions, we can use Vec<> which will be slower but more robust, and will not require the user to know the len of the fields,
-//  Or we could instead return a struct with the info
-//       pub struct KeyReturnValue {
-//          key_mode : RsaKeyMode,
-//          modulus: u64,
-//          p: &[u8],
-//          q: &[u8],
-//              ...
-//        }
-
-///
-// Rsa functions. For further documentation please refer to symcrypt.h
-// TODO rest of the documentation
+/// Rsa functions. For further documentation please refer to symcrypt.h
+/// TODO rest of the documentation
 use crate::errors::SymCryptError;
 use crate::NumberFormat;
 use std::ptr;
 
-/// 2^16 + 1
-const DEFAULT_PUBLIC_EXPONENT: u64 = 0x10001;
+/// Create a InnerRsaKey object that drop the allocation when it leaves scope.
+pub(crate) struct InnerRsaKey(pub(crate) symcrypt_sys::PSYMCRYPT_RSAKEY);
+
+impl Drop for InnerRsaKey {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptRsakeyFree(self.0);
+        }
+    }
+}
 
 /// Rsa Public and Private Key State.
 ///
 /// [`RsaKeyPair`] stores a private and public Rsa key.
 pub struct RsaKeyPair {
-    inner: symcrypt_sys::PSYMCRYPT_RSAKEY,
+    inner: InnerRsaKey,
     key_usage: RsaKeyUsage,
 }
 
@@ -47,26 +28,24 @@ pub struct RsaKeyPair {
 ///
 /// [`RsaPublicKey`] stores an Rsa public key.
 pub struct RsaPublicKey {
-    inner: symcrypt_sys::PSYMCRYPT_RSAKEY,
+    inner: InnerRsaKey,
     key_usage: RsaKeyUsage,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// `RsaKeyUsage` will indicate if the [`RsaKeyPair`] or [`RsaPublicKey`] will be used for [`RsaKeyUsage::Sign`] or [`RsaKeyUsage::Encrypt`].
-/// 
-/// [`RsaKeyUsage::Encrypt`] will have both [`RsaKeyUsage::Sign`] and [`RsaKeyUsage::Encrypt`] flags set.
 pub enum RsaKeyUsage {
+
+    // When using [`RsaKeyUsage::Sign`], the intended usage for the key will be only Signing.
     Sign,
+
+    /// When using [`RsaKeyUsage::Encrypt`], the intended usage for the key can be either Signing or Encryption.
     Encrypt,
 }
 
-// !Review: Should we add the no fips / minimal validation flags? The whole purpose is to eventually get to fips, adding these extra flags might not be needed?
-// #define SYMCRYPT_FLAG_KEY_NO_FIPS               (0x100)
-// #define SYMCRYPT_FLAG_KEY_MINIMAL_VALIDATION    (0x200)
-// #define SYMCRYPT_FLAG_RSAKEY_SIGN       (0x1000) 
-// #define SYMCRYPT_FLAG_RSAKEY_ENCRYPT    (0x2000)
+// to_symcrypt_flag() is only needed internally and should not be exposed to caller.
 impl RsaKeyUsage {
-    pub fn to_flag(&self) -> symcrypt_sys::UINT32 {
+    pub(crate) fn to_symcrypt_flag(&self) -> symcrypt_sys::UINT32 {
         match self {
             RsaKeyUsage::Sign => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_SIGN,
             RsaKeyUsage::Encrypt => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_ENCRYPT | symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_SIGN ,
@@ -76,7 +55,8 @@ impl RsaKeyUsage {
 
 #[derive(Debug)]
 #[allow(dead_code)]
-pub struct RsaKeyPairBlob {
+/// `[RsaKeyPairExportBlob]` holds the values of the `[RsaKeyPair]` when the key pair is exported.  
+pub struct RsaKeyPairExportBlob {
     modulus: Vec<u8>,
     pub_exp: Vec<u8>,
     p: Vec<u8>,
@@ -89,7 +69,8 @@ pub struct RsaKeyPairBlob {
 
 #[derive(Debug)]
 #[allow(dead_code)]
-pub struct RsaPublicKeyBlob {
+/// `[RsaPublicKeyExportBlob]` holds the values of the `[RsaPublicKey]` when the key is exported.
+pub struct RsaPublicKeyExportBlob {
     modulus: Vec<u8>,
     pub_exp: Vec<u8>,
 }
@@ -107,19 +88,23 @@ impl RsaKeyPair {
         pub_exp: Option<&[u8]>,
         key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let rsa_key = allocate_rsa(2, n_bits_mod)?; // !Review: @Phil has mentioned that there is no scenario that we'd want to ONLY generate a public key, @Crypto folks is this the case?
-        let u64_pub_exp = match pub_exp {
-            Some(exp) => load_msb_first_u64(exp)?,
-            None => DEFAULT_PUBLIC_EXPONENT, // If no public exponent is provided, use the default ( 2^16 + 1 )
+        let (pub_exp_ptr, pub_exp_count) = match pub_exp {
+            Some(exp) => {
+                let u64_pub_exp = load_msb_first_u64(exp)?;
+                ([u64_pub_exp].as_ptr(), 1) // This array has a length of 1.
+            },
+            None => (ptr::null(), 0), // If no public exponent is provided, use null and count 0 which will notify SymCrypt to use their default exponent.
         };
+    
+        let rsa_key = allocate_rsa(2, n_bits_mod)?;
+    
         unsafe {
             // SAFETY: FFI calls
-            // No flags specified for SymCryptRsakeyAllocate
             match symcrypt_sys::SymCryptRsakeyGenerate(
-                rsa_key,
-                [u64_pub_exp].as_ptr(), // This array has a length of 1.
-                1,
-                key_usage.to_flag(),
+                rsa_key.0,
+                pub_exp_ptr, // Pointer to the public exponent array or null.
+                pub_exp_count, // Count of public exponents.
+                key_usage.to_symcrypt_flag(),
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKeyPair {
                     inner: rsa_key,
@@ -146,8 +131,8 @@ impl RsaKeyPair {
         q: &[u8],
         key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let n_bits_mod = modulus_buffer.len() as u32;
-        let rsa_key = allocate_rsa(2, n_bits_mod * 8)?;
+        let n_bits_mod = (modulus_buffer.len() as u32) * 8; // Convert the size from bytes to bits.
+        let rsa_key = allocate_rsa(2, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
 
         // Construct the primes_ptr and primes_len_ptr for SymCryptRsakeyValue consumption
@@ -167,9 +152,9 @@ impl RsaKeyPair {
                 primes_ptr,
                 primes_len_ptr,
                 2 as symcrypt_sys::UINT32,
-                NumberFormat::MSB.to_num_format(),
-                key_usage.to_flag(),
-                rsa_key,
+                NumberFormat::MSB.to_symcrypt_format(),
+                key_usage.to_symcrypt_flag(),
+                rsa_key.0,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKeyPair {
                     inner: rsa_key,
@@ -185,14 +170,14 @@ impl RsaKeyPair {
         unsafe {
             // SAFETY: FFI calls
             // Currently, only two prime RSA is supported, i.e. the only valid indexes are 0 and 1
-            let prime_1 = symcrypt_sys::SymCryptRsakeySizeofPrime(self.inner, 0);
-            let prime_2 = symcrypt_sys::SymCryptRsakeySizeofPrime(self.inner, 1);
+            let prime_1 = symcrypt_sys::SymCryptRsakeySizeofPrime(self.inner.0, 0);
+            let prime_2 = symcrypt_sys::SymCryptRsakeySizeofPrime(self.inner.0, 1);
             (prime_1, prime_2)
         }
     }
 
     /// `export_key_pair_blob()` returns a [`RsaKeyPairBlob`] value.
-    pub fn export_key_pair_blob(&self) -> Result<RsaKeyPairBlob, SymCryptError> {
+    pub fn export_key_pair_blob(&self) -> Result<RsaKeyPairExportBlob, SymCryptError> {
         // Get size of primes only once
         let (size_p, size_q) = self.size_of_primes();
 
@@ -220,7 +205,7 @@ impl RsaKeyPair {
         unsafe {
             // SAFETY: FFI calls
             let result = symcrypt_sys::SymCryptRsakeyGetValue(
-                self.inner,
+                self.inner.0,
                 modulus_buffer.as_mut_ptr(),
                 modulus_buffer.len() as symcrypt_sys::SIZE_T,
                 pub_exp.as_mut_ptr(),
@@ -228,15 +213,15 @@ impl RsaKeyPair {
                 [p.as_mut_ptr(), q.as_mut_ptr()].as_mut_ptr(),
                 primes_len.as_mut_ptr(),
                 2 as symcrypt_sys::UINT32,
-                NumberFormat::MSB.to_num_format(),
-                self.key_usage.to_flag(),
+                NumberFormat::MSB.to_symcrypt_format(),
+                self.key_usage.to_symcrypt_flag(),
             );
             if result != symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
                 return Err(result.into());
             }
 
             let result = symcrypt_sys::SymCryptRsakeyGetCrtValue(
-                self.inner,
+                self.inner.0,
                 [d_p.as_mut_ptr(), d_q.as_mut_ptr()].as_mut_ptr(),
                 crt_lens.as_mut_ptr(),
                 2,
@@ -244,8 +229,8 @@ impl RsaKeyPair {
                 crt_coefficient.len() as symcrypt_sys::SIZE_T,
                 private_exponent.as_mut_ptr(),
                 private_exponent.len() as symcrypt_sys::SIZE_T,
-                NumberFormat::MSB.to_num_format(),
-                self.key_usage.to_flag(),
+                NumberFormat::MSB.to_symcrypt_format(),
+                self.key_usage.to_symcrypt_flag(),
             );
             if result != symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
                 return Err(result.into());
@@ -254,7 +239,7 @@ impl RsaKeyPair {
 
         let pub_exp_bytes = store_msb_first_u64(pub_exp[0], self.size_of_public_exponent())?;
 
-        Ok(RsaKeyPairBlob {
+        Ok(RsaKeyPairExportBlob {
             modulus: modulus_buffer,
             pub_exp: pub_exp_bytes,
             p,
@@ -267,14 +252,14 @@ impl RsaKeyPair {
     }
 
     /// `export_public_key_blob()` will export a [`RsaPublicKey`].
-    pub fn export_public_key_blob(&self) -> Result<RsaPublicKeyBlob, SymCryptError> {
+    pub fn export_public_key_blob(&self) -> Result<RsaPublicKeyExportBlob, SymCryptError> {
         let mut modulus_buffer = vec![0u8; self.size_of_modulus() as usize];
         let mut pub_exp = vec![0u64; 1];
         unsafe {
             // SAFETY: FFI calls
             // When only getting the public key, ppPrimes, pcbPrimes and nPrimes can be NULL, NULL and 0.
             match symcrypt_sys::SymCryptRsakeyGetValue(
-                self.inner,
+                self.inner.0,
                 modulus_buffer.as_mut_ptr(),
                 modulus_buffer.len() as symcrypt_sys::SIZE_T,
                 pub_exp.as_mut_ptr(),
@@ -282,10 +267,10 @@ impl RsaKeyPair {
                 ptr::null_mut(),
                 ptr::null_mut(),
                 0,
-                NumberFormat::MSB.to_num_format(),
-                self.key_usage.to_flag(),
+                NumberFormat::MSB.to_symcrypt_format(),
+                self.key_usage.to_symcrypt_flag(),
             ) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaPublicKeyBlob {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaPublicKeyExportBlob {
                     modulus: modulus_buffer,
                     pub_exp: store_msb_first_u64(pub_exp[0], self.size_of_public_exponent())?,
                 }),
@@ -299,7 +284,7 @@ impl RsaKeyPair {
     pub fn size_of_modulus(&self) -> u32 {
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptRsakeySizeofModulus(self.inner)
+            symcrypt_sys::SymCryptRsakeySizeofModulus(self.inner.0)
         }
     }
 
@@ -309,7 +294,7 @@ impl RsaKeyPair {
         unsafe {
             // SAFETY: FFI calls
             // Only one public exponent is supported, so the only valid index is 0.
-            symcrypt_sys::SymCryptRsakeySizeofPublicExponent(self.inner, 0)
+            symcrypt_sys::SymCryptRsakeySizeofPublicExponent(self.inner.0, 0)
         }
     }
 
@@ -318,20 +303,12 @@ impl RsaKeyPair {
         self.key_usage
     }
 
-    /// `key_usage` returns the intended usage for the RSA key pair.
+    /// `inner` gives crate access to the inner symcrypt Rsa Key struct.
     pub(crate) fn inner(&self) -> symcrypt_sys::PSYMCRYPT_RSAKEY  {
-        self.inner
+        self.inner.0
     }
 }
 
-impl Drop for RsaKeyPair {
-    fn drop(&mut self) {
-        unsafe {
-            // SAFETY: FFI calls
-            symcrypt_sys::SymCryptRsakeyFree(self.inner);
-        }
-    }
-}
 
 impl RsaPublicKey {
     /// `set_public_key()` sets only the public key information onto the [`RsaPublicKey`].
@@ -344,8 +321,8 @@ impl RsaPublicKey {
         pub_exp: &[u8], 
         key_usage: RsaKeyUsage, // !Review should we let the caller deal with this? 
     ) -> Result<Self, SymCryptError> {
-        let n_bits_mod = modulus_buffer.len() as u32;
-        let rsa_key = allocate_rsa(0, n_bits_mod*8)?;
+        let n_bits_mod = (modulus_buffer.len() as u32) * 8; // Convert the size from bytes to bits
+        let rsa_key = allocate_rsa(0, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
         unsafe {
             // SAFETY: FFI calls
@@ -358,9 +335,9 @@ impl RsaPublicKey {
                 ptr::null_mut(),
                 ptr::null_mut(),
                 0,
-                NumberFormat::MSB.to_num_format(),
-                key_usage.to_flag(), // !Review: can set this sign and encrypt
-                rsa_key,
+                NumberFormat::MSB.to_symcrypt_format(),
+                key_usage.to_symcrypt_flag(), // !Review: can set this sign and encrypt
+                rsa_key.0,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaPublicKey {
                     inner: rsa_key,
@@ -376,7 +353,7 @@ impl RsaPublicKey {
     pub fn size_of_modulus(&self) -> u32 {
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptRsakeySizeofModulus(self.inner)
+            symcrypt_sys::SymCryptRsakeySizeofModulus(self.inner.0)
         }
     }
 
@@ -386,96 +363,24 @@ impl RsaPublicKey {
         unsafe {
             // SAFETY: FFI calls
             // Only one public exponent is supported, so the only valid index is 0.
-            symcrypt_sys::SymCryptRsakeySizeofPublicExponent(self.inner, 0)
+            symcrypt_sys::SymCryptRsakeySizeofPublicExponent(self.inner.0, 0)
         }
     }
+
     /// `key_usage` returns the intended usage for the RSA public key.
     pub fn key_usage(&self) -> RsaKeyUsage {
         self.key_usage
     }
 
-    /// `key_usage` gives crate access to the 
+    /// `inner` gives crate access to the inner symcrypt Rsa Key struct.
     pub(crate) fn inner(&self) -> symcrypt_sys::PSYMCRYPT_RSAKEY  {
-        self.inner
+        self.inner.0
     }
 }
 
-impl Drop for RsaPublicKey {
-    fn drop(&mut self) {
-        unsafe {
-            // SAFETY: FFI calls
-            symcrypt_sys::SymCryptRsakeyFree(self.inner);
-        }
-    }
-}
-
-/// A trait for RSA signing.
-pub trait RsaSign {
-    /// Signs a message using the RSA private key.
-    ///
-    /// # Parameters
-    ///
-    /// - `message`: A byte slice representing the message to be signed.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` which is:
-    /// - `Ok(Vec<u8>)`: A vector of bytes containing the signature.
-    /// - `Err(String)`: An error message if the signing operation fails.
-    fn sign(&self, message: &[u8]) -> Result<Vec<u8>, String>;
-}
-
-/// A trait for RSA signature verification.
-pub trait RsaVerify {
-    /// Verifies a message signature using the RSA public key.
-    ///
-    /// # Parameters
-    ///
-    /// - `message`: A byte slice representing the original message.
-    /// - `signature`: A byte slice representing the signature to be verified.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` which is:
-    /// - `Ok(bool)`: A boolean indicating whether the signature is valid (`true`) or not (`false`).
-    /// - `Err(String)`: An error message if the verification operation fails.
-    fn verify(&self, message: &[u8], signature: &[u8]) -> Result<bool, String>;
-}
-
-/// A trait for RSA encryption.
-pub trait RsaEncrypt {
-    /// Encrypts a plaintext message using the RSA public key.
-    ///
-    /// # Parameters
-    ///
-    /// - `plaintext`: A byte slice representing the plaintext message to be encrypted.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` which is:
-    /// - `Ok(Vec<u8>)`: A vector of bytes containing the ciphertext.
-    /// - `Err(String)`: An error message if the encryption operation fails.
-    fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, String>;
-}
-
-/// A trait for RSA decryption.
-pub trait RsaDecrypt {
-    /// Decrypts a ciphertext message using the RSA private key.
-    ///
-    /// # Parameters
-    ///
-    /// - `ciphertext`: A byte slice representing the ciphertext message to be decrypted.
-    ///
-    /// # Returns
-    ///
-    /// A `Result` which is:
-    /// - `Ok(Vec<u8>)`: A vector of bytes containing the decrypted plaintext.
-    /// - `Err(String)`: An error message if the decryption operation fails.
-    fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, String>;
-}
 
 // Utility function to reduce common RSA allocation call
-fn allocate_rsa(n_primes: u32, n_bits_mod: u32) -> Result<symcrypt_sys::PSYMCRYPT_RSAKEY, SymCryptError> {
+fn allocate_rsa(n_primes: u32, n_bits_mod: u32) -> Result<InnerRsaKey, SymCryptError> {
     let rsa_params = symcrypt_sys::SYMCRYPT_RSA_PARAMS {
         version: 1 as symcrypt_sys::UINT32, // No other version aside from version 1 is specified
         nBitsOfModulus: n_bits_mod as symcrypt_sys::UINT32,
@@ -488,19 +393,19 @@ fn allocate_rsa(n_primes: u32, n_bits_mod: u32) -> Result<symcrypt_sys::PSYMCRYP
         if result == ptr::null_mut() {
             return Err(SymCryptError::AuthenticationFailure)
         }
-        Ok(result)
+        Ok(InnerRsaKey(result))
     }
 }
 
 /// Utility function to store a `u64` into a new byte vector in big-endian format.
-fn store_msb_first_u64(value: u64, size_of_exp: u32) -> Result<Vec<u8>, SymCryptError> {
-    let mut dst = vec![0u8; size_of_exp as usize]; // Allocate tight size in bytes for storing public exponent
+fn store_msb_first_u64(value: u64, size: u32) -> Result<Vec<u8>, SymCryptError> {
+    let mut dst = vec![0u8; size as usize]; // Allocate tight size in bytes for storing public exponent
     unsafe {
         // SAFETY: FFI calls
         match symcrypt_sys::SymCryptStoreMsbFirstUint64(
             value,
             dst.as_mut_ptr(),
-            size_of_exp as u64,
+            size as u64,
         ) {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(dst),
             err => Err(SymCryptError::from(err)),
@@ -636,8 +541,5 @@ mod test {
         assert_eq!(pub_key.key_usage(), RsaKeyUsage::Encrypt);
         assert_eq!(pub_key.size_of_modulus(), 256);
         assert_eq!(pub_key.size_of_public_exponent(), 3);
-        assert_eq!(pub_key.number_of_pub_primes(), 0);
-        let pub_key_blob = pub_key.export_public_key_blob().unwrap(); 
-        assert_eq!(pub_key_blob.modulus, modulus.to_vec());
     }
 }

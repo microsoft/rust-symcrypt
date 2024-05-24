@@ -15,18 +15,18 @@
 //! ## Supported APIs
 //!
 //! Hashing:
-//! - Md5 ( statefull/stateless )
-//! - Sha1 ( statefull/stateless )
-//! - Sha256 ( statefull/stateless )
-//! - Sha384 ( statefull/stateless )
-//! - Sha512 ( statefull/stateless )
+//! - Md5 ( stateful/stateless )
+//! - Sha1 ( stateful/stateless )
+//! - Sha256 ( stateful/stateless )
+//! - Sha384 ( stateful/stateless )
+//! - Sha512 ( stateful/stateless )
 //!
 //! HMAC:
-//! - HmacMd5 ( statefull/stateless )
-//! - HmacSha1 ( statefull/stateless )
-//! - HmacSha256 ( statefull/stateless )
-//! - HmacSha384 ( statefull/stateless )
-//! - HmacSha512 ( statefull/stateless )
+//! - HmacMd5 ( stateful/stateless )
+//! - HmacSha1 ( stateful/stateless )
+//! - HmacSha256 ( stateful/stateless )
+//! - HmacSha384 ( stateful/stateless )
+//! - HmacSha512 ( stateful/stateless )
 //!
 //! GCM:
 //! - Encryption ( in place )
@@ -81,6 +81,7 @@ pub mod gcm;
 pub mod hash;
 pub mod hmac;
 pub mod rsa;
+// pub mod pkcs1;
 
 /// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
 ///  all subsequent calls will be no-ops
@@ -118,7 +119,7 @@ pub enum NumberFormat {
 
 impl NumberFormat {
     /// Converts `NumberFormat` to the corresponding `SYMCRYPT_NUMBER_FORMAT`
-    fn to_num_format(&self) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {
+    fn to_symcrypt_format(&self) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {
         match self {
             NumberFormat::LSB => {
                 symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST
