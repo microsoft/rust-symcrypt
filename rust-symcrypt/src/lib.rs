@@ -39,6 +39,11 @@
 //! ECDH:
 //! - ECDH Secret Agreement
 //!
+//! RSA:
+//! - PKCS1 ( Sign, Verify, Encrypt, Decrypt )
+//! - PSS ( Sign, Verify )
+//! - OAEP ( Encrypt, Decrypt )
+//!
 //! **Note**: `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
 //! To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
 //! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
@@ -81,7 +86,6 @@ pub mod gcm;
 pub mod hash;
 pub mod hmac;
 pub mod rsa;
-// pub mod pkcs1;
 
 /// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
 ///  all subsequent calls will be no-ops

@@ -38,7 +38,7 @@ For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](h
 
 ## Supported APIs
 
- Hashing:
+Hashing:
 - Md5 ( stateful/stateless )
 - Sha1 ( stateful/stateless )
 - Sha256 ( stateful/stateless )
@@ -62,6 +62,11 @@ ChaCha:
 
 ECDH:
 - ECDH Secret Agreement
+
+RSA: 
+- PKCS1 ( Sign, Verify, Encrypt, Decrypt )
+- PSS ( Sign, Verify )
+- OAEP ( Encrypt, Decrypt )
 
 **Note**: `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
 To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`

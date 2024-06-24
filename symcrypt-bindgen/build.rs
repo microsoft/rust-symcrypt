@@ -26,6 +26,7 @@ fn main() {
         // HASH FUNCTIONS
         .allowlist_function("^SymCrypt(?:Sha(?:256|384|512|1)|Md5)(?:Init|Append|Result|StateCopy)?$")
         .allowlist_var("^(SYMCRYPT_(SHA256|SHA384|SHA512|SHA1|MD5)_RESULT_SIZE$)")
+        .allowlist_var("^SymCrypt(?:Sha3_(?:256|384|512)|Sha(?:256|384|512|1)|Md5)Algorithm$")
         // HMAC FUNCTIONS
         .allowlist_function("^SymCryptHmac(?:Sha(?:256|384|512|1)|Md5)(?:ExpandKey|Init|Append|Result|StateCopy)?$")
         // GCM FUNCTIONS
@@ -55,8 +56,12 @@ fn main() {
         .allowlist_function("^(SymCryptEcDsa(Sign|Verify).*)")
         // RSA PKCS1 FUNCTIONS
         .allowlist_function("^(SymCryptRsaPkcs1(Sign|Verify|Encrypt|Decrypt).*)$")
+        .allowlist_var("SYMCRYPT_FLAG_RSA_PKCS1_NO_ASN1")
+        .allowlist_var("SYMCRYPT_FLAG_RSA_PKCS1_OPTIONAL_HASH_OID")
         // RSA PSS FUNCTIONS
         .allowlist_function("^(SymCryptRsaPss(Sign|Verify).*)$")
+        // OID LISTS
+        .allowlist_var("^SymCrypt(Sha(1|256|384|512|3_(256|384|512))|Md5)OidList$")
         // UTILITY FUNCTIONS
         .allowlist_function("SymCryptWipe")
         .allowlist_function("SymCryptRandom")

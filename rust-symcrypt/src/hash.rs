@@ -86,6 +86,59 @@ pub const SHA384_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA384_RESULT_SIZE 
 /// 64
 pub const SHA512_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA512_RESULT_SIZE as usize;
 
+/// Hashing Algorithms that are supported by SymCrypt
+#[derive(Copy, Clone)]
+pub enum HashAlgorithm {
+    #[cfg(feature = "md5")]
+    Md5,
+    #[cfg(feature = "sha1")]
+    Sha1,
+    Sha256,
+    Sha384,
+    Sha512,
+    Sha3_256,
+    Sha3_384,
+    Sha3_512,
+}
+
+impl HashAlgorithm {
+    // Returns the symcrypt_sys::_SYMCRYPT_OID for calling underlying SymCrypt functions, hidden from the user.
+    pub(crate) fn to_oid_list(&self) -> &[symcrypt_sys::_SYMCRYPT_OID] {
+        unsafe {
+            match self {
+                #[cfg(feature = "md5")]
+                HashAlgorithm::Md5 => &symcrypt_sys::SymCryptMd5OidList,
+                #[cfg(feature = "sha1")]
+                HashAlgorithm::Sha1 => &symcrypt_sys::SymCryptSha1OidList,
+                HashAlgorithm::Sha256 => &symcrypt_sys::SymCryptSha256OidList,
+                HashAlgorithm::Sha384 => &symcrypt_sys::SymCryptSha384OidList,
+                HashAlgorithm::Sha512 => &symcrypt_sys::SymCryptSha512OidList,
+                HashAlgorithm::Sha3_256 => &symcrypt_sys::SymCryptSha3_256OidList,
+                HashAlgorithm::Sha3_384 => &symcrypt_sys::SymCryptSha3_384OidList,
+                HashAlgorithm::Sha3_512 => &symcrypt_sys::SymCryptSha3_512OidList,
+            }
+        }
+    }
+    
+    /// Returns the symcrypt_sys::PCSYMCRYPT_HASH for calling underlying SymCrypt functions, hidden from the user.
+    pub(crate) fn to_symcrypt_hash(&self) -> symcrypt_sys::PCSYMCRYPT_HASH {
+        unsafe {
+            match self {
+                #[cfg(feature = "md5")]
+                HashAlgorithm::Md5 => symcrypt_sys::SymCryptMd5Algorithm,
+                #[cfg(feature = "sha1")]
+                HashAlgorithm::Sha1 => symcrypt_sys::SymCryptSha1Algorithm,
+                HashAlgorithm::Sha256 => symcrypt_sys::SymCryptSha256Algorithm,
+                HashAlgorithm::Sha384 => symcrypt_sys::SymCryptSha384Algorithm,
+                HashAlgorithm::Sha512 => symcrypt_sys::SymCryptSha512Algorithm,
+                HashAlgorithm::Sha3_256 => symcrypt_sys::SymCryptSha3_256Algorithm,
+                HashAlgorithm::Sha3_384 => symcrypt_sys::SymCryptSha3_384Algorithm,
+                HashAlgorithm::Sha3_512 => symcrypt_sys::SymCryptSha3_512Algorithm,
+            }
+        }
+    }
+}
+
 /// Generic trait for stateful hashing
 ///
 /// `Result` will be dependent on the which [`HashState`] you use.
