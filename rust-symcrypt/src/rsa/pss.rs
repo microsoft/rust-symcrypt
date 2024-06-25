@@ -8,7 +8,7 @@
 //! ## Sign and Verify with [`RsaKeyPair`]
 //!
 //! ```rust
-//! use symcrypt::{RsaKeyPair, RsaKeyUsage};
+//! use symcrypt::rsa::{RsaKeyPair, RsaKeyUsage};
 //! use symcrypt::hash::{sha256, HashAlgorithm};
 //!
 //! // Generate key pair

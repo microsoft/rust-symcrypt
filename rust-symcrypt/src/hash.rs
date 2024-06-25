@@ -128,7 +128,7 @@ impl HashAlgorithm {
             }
         }
     }
-    
+
     /// Returns the symcrypt_sys::PCSYMCRYPT_HASH for calling underlying SymCrypt functions, hidden from the user.
     pub(crate) fn to_symcrypt_hash(&self) -> symcrypt_sys::PCSYMCRYPT_HASH {
         unsafe {
@@ -605,7 +605,8 @@ pub struct Sha3_256State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_256_STATE>>);
 
 impl Sha3_256State {
     pub fn new() -> Self {
-        let mut instance = Sha3_256State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default()));
+        let mut instance =
+            Sha3_256State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default()));
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_256Init(&mut *instance.0);
@@ -640,7 +641,8 @@ impl HashState for Sha3_256State {
 
 impl Clone for Sha3_256State {
     fn clone(&self) -> Self {
-        let mut new_state = Sha3_256State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default()));
+        let mut new_state =
+            Sha3_256State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default()));
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_256StateCopy(&*self.0, &mut *new_state.0);
@@ -689,7 +691,8 @@ pub struct Sha3_384State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_384_STATE>>);
 
 impl Sha3_384State {
     pub fn new() -> Self {
-        let mut instance = Sha3_384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default()));
+        let mut instance =
+            Sha3_384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default()));
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_384Init(&mut *instance.0);
@@ -724,7 +727,8 @@ impl HashState for Sha3_384State {
 
 impl Clone for Sha3_384State {
     fn clone(&self) -> Self {
-        let mut new_state = Sha3_384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default()));
+        let mut new_state =
+            Sha3_384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default()));
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_384StateCopy(&*self.0, &mut *new_state.0);
@@ -773,7 +777,8 @@ pub struct Sha3_512State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_512_STATE>>);
 
 impl Sha3_512State {
     pub fn new() -> Self {
-        let mut instance = Sha3_512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default()));
+        let mut instance =
+            Sha3_512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default()));
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_512Init(&mut *instance.0);
@@ -808,7 +813,8 @@ impl HashState for Sha3_512State {
 
 impl Clone for Sha3_512State {
     fn clone(&self) -> Self {
-        let mut new_state = Sha3_512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default()));
+        let mut new_state =
+            Sha3_512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default()));
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_512StateCopy(&*self.0, &mut *new_state.0);
@@ -936,28 +942,28 @@ mod test {
     }
 
     #[test]
-    fn test_stateless_sha3_256_hash() { 
+    fn test_stateless_sha3_256_hash() {
         let data = hex::decode("").unwrap();
         let expected: &str = "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a";
         let result = sha3_256(&data);
         assert_eq!(hex::encode(result), expected);
     }
-    
+
     #[test]
-    fn test_stateless_sha3_384_hash() { 
+    fn test_stateless_sha3_384_hash() {
         let data = hex::decode("").unwrap();
         let expected: &str = "0c63a75b845e4f7d01107d852e4c2485c51a50aaaa94fc61995e71bbee983a2ac3713831264adb47fb6bd1e058d5f004";
         let result = sha3_384(&data);
         assert_eq!(hex::encode(result), expected);
-    }   
+    }
 
     #[test]
-    fn test_stateless_sha3_512_hash() { 
+    fn test_stateless_sha3_512_hash() {
         let data = hex::decode("").unwrap();
         let expected: &str = "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26";
         let result = sha3_512(&data);
         assert_eq!(hex::encode(result), expected);
-    }   
+    }
 
     #[cfg(feature = "md5")]
     #[test]
@@ -1074,7 +1080,6 @@ mod test {
         let data = hex::decode("fc7b8cda").unwrap();
         test_generic_state_clone(Sha3_512State::new(), &data);
     }
-
 
     #[cfg(feature = "md5")]
     #[test]

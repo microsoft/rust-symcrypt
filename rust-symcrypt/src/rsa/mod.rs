@@ -60,8 +60,6 @@
 //! let modulus_size = public_key.get_size_of_modulus();
 //! let pub_exp_size = public_key.get_size_of_public_exponent();
 //!
-//! // Export the public key to a blob.
-//! let public_key_blob = public_key.export_public_key_blob().unwrap();
 //! ```
 //!
 use crate::errors::SymCryptError;
@@ -78,6 +76,7 @@ pub mod pss;
 ///  When the flag is set, this function will do signature verification by not using hash OID when needed
 /// What is cbSalt? can we just always assume it will be the hash length of the HashAlgorithm?
 /// what is the label for OAEP? what can I put in the example?
+/// do we need to export the public key for RsaPublicKey?
 
 // InnerRsaKey is a wrapper around symcrypt_sys::PSYMCRYPT_RSAKEY.
 #[derive(Debug)]
@@ -254,8 +253,8 @@ impl RsaKeyPair {
         }
     }
 
-    /// `size_of_primes()` returns a tuple of type `u32` containing the sizes, in bytes, of byte arrays large enough to store each of the two primes of the RSA key.
-    pub fn size_of_primes(&self) -> (u32, u32) {
+    /// `get_size_of_primes()` returns a tuple of type `u32` containing the sizes, in bytes, of byte arrays large enough to store each of the two primes of the RSA key.
+    pub fn get_size_of_primes(&self) -> (u32, u32) {
         unsafe {
             // SAFETY: FFI calls
             // Currently, only two prime RSA is supported, i.e. the only valid indexes are 0 and 1
@@ -268,7 +267,7 @@ impl RsaKeyPair {
     /// `export_key_pair_blob()` returns a [`RsaKeyPairExportBlob`] value.
     pub fn export_key_pair_blob(&self) -> Result<RsaKeyPairExportBlob, SymCryptError> {
         // Get size of primes only once
-        let (size_p, size_q) = self.size_of_primes();
+        let (size_p, size_q) = self.get_size_of_primes();
 
         // Allocate buffers for filling RsaKeyPairExportBlob
         let mut modulus_buffer = vec![0u8; self.get_size_of_modulus() as usize];
@@ -326,7 +325,7 @@ impl RsaKeyPair {
             }
         }
 
-        let pub_exp_bytes = store_msb_first_u64(pub_exp[0], self.size_of_public_exponent())?;
+        let pub_exp_bytes = store_msb_first_u64(pub_exp[0], self.get_size_of_public_exponent())?;
 
         Ok(RsaKeyPairExportBlob {
             modulus: modulus_buffer,
@@ -340,7 +339,7 @@ impl RsaKeyPair {
         })
     }
 
-    /// `export_public_key_blob()` will export a [`RsaPublicKey`].
+    /// `export_public_key_blob()` will export a [`RsaPublicKeyExportBlob`].
     pub fn export_public_key_blob(&self) -> Result<RsaPublicKeyExportBlob, SymCryptError> {
         let mut modulus_buffer = vec![0u8; self.get_size_of_modulus() as usize];
         let mut pub_exp = vec![0u64; 1];
@@ -361,7 +360,7 @@ impl RsaKeyPair {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaPublicKeyExportBlob {
                     modulus: modulus_buffer,
-                    pub_exp: store_msb_first_u64(pub_exp[0], self.size_of_public_exponent())?,
+                    pub_exp: store_msb_first_u64(pub_exp[0], self.get_size_of_public_exponent())?,
                 }),
                 err => Err(err.into()),
             }
@@ -377,9 +376,9 @@ impl RsaKeyPair {
         }
     }
 
-    /// `size_of_public_exponent()` returns a `u32` representing the (tight) size in bytes of a byte array big enough to store
+    /// `get_size_of_public_exponent()` returns a `u32` representing the (tight) size in bytes of a byte array big enough to store
     /// the public exponent of the key.
-    pub fn size_of_public_exponent(&self) -> u32 {
+    pub fn get_size_of_public_exponent(&self) -> u32 {
         unsafe {
             // SAFETY: FFI calls
             // Only one public exponent is supported, so the only valid index is 0.
@@ -447,9 +446,9 @@ impl RsaPublicKey {
         }
     }
 
-    /// `size_of_public_exponent()` returns a `u32` representing the (tight) size in bytes of a byte array big enough to store
+    /// `get_size_of_public_exponent()` returns a `u32` representing the (tight) size in bytes of a byte array big enough to store
     /// the public exponent of the key.
-    pub fn size_of_public_exponent(&self) -> u32 {
+    pub fn get_size_of_public_exponent(&self) -> u32 {
         unsafe {
             // SAFETY: FFI calls
             // Only one public exponent is supported, so the only valid index is 0.
@@ -594,9 +593,9 @@ mod test {
         assert!(result.is_ok());
         let key_pair = result.unwrap();
         assert_eq!(key_pair.get_key_usage(), RsaKeyUsage::Sign);
-        assert_eq!(key_pair.size_of_primes(), (128, 128));
+        assert_eq!(key_pair.get_size_of_primes(), (128, 128));
         assert_eq!(key_pair.get_size_of_modulus(), 256);
-        assert_eq!(key_pair.size_of_public_exponent(), 3);
+        assert_eq!(key_pair.get_size_of_public_exponent(), 3);
         let key_blob = key_pair.export_key_pair_blob().unwrap();
         assert_eq!(key_blob.modulus, modulus.to_vec());
         assert_eq!(key_blob.p, p);
@@ -630,7 +629,7 @@ mod test {
 
         assert_eq!(pub_key.get_key_usage(), RsaKeyUsage::Encrypt);
         assert_eq!(pub_key.get_size_of_modulus(), 256);
-        assert_eq!(pub_key.size_of_public_exponent(), 3);
+        assert_eq!(pub_key.get_size_of_public_exponent(), 3);
     }
 
     /// new
@@ -645,7 +644,7 @@ mod test {
         );
         assert_eq!(
             public_key_blob.pub_exp.len(),
-            key_pair.size_of_public_exponent() as usize
+            key_pair.get_size_of_public_exponent() as usize
         );
     }
 

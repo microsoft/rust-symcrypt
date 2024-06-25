@@ -8,7 +8,7 @@
 //! ## Sign and Verify using RsaKeyPair and RsaPublicKey
 //!
 //! ```rust
-//! use symcrypt::{RsaKeyPair, RsaKeyUsage};
+//! use symcrypt::rsa::{RsaKeyPair, RsaKeyUsage, RsaPublicKey};
 //! use symcrypt::hash::{sha256, HashAlgorithm};
 //!
 //! // Generate key pair.
@@ -33,7 +33,7 @@
 //! ## Encrypt and Decrypt using RsaKeyPair
 //!
 //! ```rust
-//! use symcrypt::{RsaKeyPair, RsaKeyUsage};
+//! use symcrypt::rsa::{RsaKeyPair, RsaKeyUsage};
 //!
 //! // Generate key pair.
 //! let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
