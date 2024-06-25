@@ -20,6 +20,9 @@
 //! - Sha256 ( stateful/stateless )
 //! - Sha384 ( stateful/stateless )
 //! - Sha512 ( stateful/stateless )
+//! - Sha3_256 ( stateful/stateless )
+//! - Sha3_384 ( stateful/stateless )
+//! - Sha3_512 ( stateful/stateless )
 //!
 //! HMAC:
 //! - HmacMd5 ( stateful/stateless )
