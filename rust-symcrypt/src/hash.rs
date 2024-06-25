@@ -1132,8 +1132,6 @@ mod test {
         test_generic_state_multiple_append(Sha3_256State::new(), &data_1, &data_2, expected);
     }
 
-
-    
     #[test]
     fn test_state_sha3_384_multiple_append() {
         let data_1 = hex::decode("cc4764d3e295097298").unwrap();
