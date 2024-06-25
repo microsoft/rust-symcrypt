@@ -8,6 +8,9 @@ pub const SYMCRYPT_SHA1_RESULT_SIZE: u32 = 20;
 pub const SYMCRYPT_SHA256_RESULT_SIZE: u32 = 32;
 pub const SYMCRYPT_SHA384_RESULT_SIZE: u32 = 48;
 pub const SYMCRYPT_SHA512_RESULT_SIZE: u32 = 64;
+pub const SYMCRYPT_SHA3_256_RESULT_SIZE: u32 = 32;
+pub const SYMCRYPT_SHA3_384_RESULT_SIZE: u32 = 48;
+pub const SYMCRYPT_SHA3_512_RESULT_SIZE: u32 = 64;
 pub const SYMCRYPT_FLAG_ECKEY_ECDSA: u32 = 4096;
 pub const SYMCRYPT_FLAG_ECKEY_ECDH: u32 = 8192;
 pub const SYMCRYPT_FLAG_RSAKEY_SIGN: u32 = 4096;
@@ -42,6 +45,7 @@ pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_TWISTED_EDWARDS: _SYMCRYPT_
 pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_MONTGOMERY: _SYMCRYPT_ECURVE_TYPE = 3;
 pub type _SYMCRYPT_ECURVE_TYPE = ::std::os::raw::c_int;
 pub use self::_SYMCRYPT_ECURVE_TYPE as SYMCRYPT_ECURVE_TYPE;
+pub type UINT8 = ::std::os::raw::c_uchar;
 pub type BYTE = ::std::os::raw::c_uchar;
 pub type UINT32 = ::std::os::raw::c_uint;
 pub type UINT64 = ::std::os::raw::c_ulonglong;
@@ -49,7 +53,6 @@ pub type ULONG_PTR = ::std::os::raw::c_ulonglong;
 pub type SIZE_T = ULONG_PTR;
 pub type PBYTE = *mut BYTE;
 pub type PCBYTE = *const BYTE;
-pub type PUINT32 = *mut UINT32;
 pub type PCUINT32 = *const UINT32;
 pub type PUINT64 = *mut UINT64;
 pub type PCUINT64 = *const UINT64;
@@ -800,6 +803,109 @@ impl Default for _SYMCRYPT_SHA384_STATE {
 pub type SYMCRYPT_SHA384_STATE = _SYMCRYPT_SHA384_STATE;
 pub type PSYMCRYPT_SHA384_STATE = *mut _SYMCRYPT_SHA384_STATE;
 pub type PCSYMCRYPT_SHA384_STATE = *const SYMCRYPT_SHA384_STATE;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct _SYMCRYPT_KECCAK_STATE {
+    pub inputBlockSize: UINT32,
+    pub stateIndex: UINT32,
+    pub __bindgen_padding_0: u64,
+    pub state: [UINT64; 25usize],
+    pub magic: SIZE_T,
+    pub paddingValue: UINT8,
+    pub squeezeMode: BOOLEAN,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_KECCAK_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_KECCAK_STATE> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_KECCAK_STATE>(),
+        240usize,
+        concat!("Size of: ", stringify!(_SYMCRYPT_KECCAK_STATE))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_KECCAK_STATE>(),
+        16usize,
+        concat!("Alignment of ", stringify!(_SYMCRYPT_KECCAK_STATE))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).inputBlockSize) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_KECCAK_STATE),
+            "::",
+            stringify!(inputBlockSize)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).stateIndex) as usize - ptr as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_KECCAK_STATE),
+            "::",
+            stringify!(stateIndex)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).state) as usize - ptr as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+extern "C" {
+    pub fn SymCryptSha3_256StateCopy(
+        pSrc: PCSYMCRYPT_SHA3_256_STATE,
+        pDst: PSYMCRYPT_SHA3_256_STATE,
+    );
+}            stringify!(_SYMCRYPT_KECCAK_STATE),
+            "::",
+            stringify!(state)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        216usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_KECCAK_STATE),
+            "::",
+            stringify!(magic)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).paddingValue) as usize - ptr as usize },
+        224usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_KECCAK_STATE),
+            "::",
+            stringify!(paddingValue)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).squeezeMode) as usize - ptr as usize },
+        225usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_SYMCRYPT_KECCAK_STATE),
+            "::",
+            stringify!(squeezeMode)
+        )
+    );
+}
+pub type SYMCRYPT_KECCAK_STATE = _SYMCRYPT_KECCAK_STATE;
+pub type SYMCRYPT_SHA3_256_STATE = SYMCRYPT_KECCAK_STATE;
+pub type PSYMCRYPT_SHA3_256_STATE = *mut SYMCRYPT_KECCAK_STATE;
+pub type PCSYMCRYPT_SHA3_256_STATE = *const SYMCRYPT_SHA3_256_STATE;
+pub type SYMCRYPT_SHA3_384_STATE = SYMCRYPT_KECCAK_STATE;
+pub type PSYMCRYPT_SHA3_384_STATE = *mut SYMCRYPT_KECCAK_STATE;
+pub type PCSYMCRYPT_SHA3_384_STATE = *const SYMCRYPT_SHA3_384_STATE;
+pub type SYMCRYPT_SHA3_512_STATE = SYMCRYPT_KECCAK_STATE;
+pub type PSYMCRYPT_SHA3_512_STATE = *mut SYMCRYPT_KECCAK_STATE;
+pub type PCSYMCRYPT_SHA3_512_STATE = *const SYMCRYPT_SHA3_512_STATE;
 pub type SYMCRYPT_HASH = _SYMCRYPT_HASH;
 pub type PCSYMCRYPT_HASH = *const SYMCRYPT_HASH;
 pub type PSYMCRYPT_HASH_INIT_FUNC = ::std::option::Option<unsafe extern "C" fn(pState: PVOID)>;
@@ -4389,20 +4495,56 @@ extern "C" {
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
-    pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
+    pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
 }
 #[cfg(target_os = "linux")]
 extern "C" {
-    pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
+    pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
+}
+extern "C" {
+    pub fn SymCryptSha3_256(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha3_256Init(pState: PSYMCRYPT_SHA3_256_STATE);
+}
+extern "C" {
+    pub fn SymCryptSha3_256Append(pState: PSYMCRYPT_SHA3_256_STATE, pbData: PCBYTE, cbData: SIZE_T);
+}
+extern "C" {
+    pub fn SymCryptSha3_256Result(pState: PSYMCRYPT_SHA3_256_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha3_256StateCopy(
+        pSrc: PCSYMCRYPT_SHA3_256_STATE,
+        pDst: PSYMCRYPT_SHA3_256_STATE,
+    );
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
-    pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
+    pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
 }
 #[cfg(target_os = "linux")]
 extern "C" {
-    pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
+    pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
+}
+extern "C" {
+    pub fn SymCryptSha3_384(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha3_384Init(pState: PSYMCRYPT_SHA3_384_STATE);
+}
+extern "C" {
+    pub fn SymCryptSha3_384Append(pState: PSYMCRYPT_SHA3_384_STATE, pbData: PCBYTE, cbData: SIZE_T);
+}
+extern "C" {
+    pub fn SymCryptSha3_384Result(pState: PSYMCRYPT_SHA3_384_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha3_384StateCopy(
+        pSrc: PCSYMCRYPT_SHA3_384_STATE,
+        pDst: PSYMCRYPT_SHA3_384_STATE,
+    );
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
@@ -4412,6 +4554,24 @@ extern "C" {
 #[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
+}
+extern "C" {
+    pub fn SymCryptSha3_512(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha3_512Init(pState: PSYMCRYPT_SHA3_512_STATE);
+}
+extern "C" {
+    pub fn SymCryptSha3_512Append(pState: PSYMCRYPT_SHA3_512_STATE, pbData: PCBYTE, cbData: SIZE_T);
+}
+extern "C" {
+    pub fn SymCryptSha3_512Result(pState: PSYMCRYPT_SHA3_512_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub fn SymCryptSha3_512StateCopy(
+        pSrc: PCSYMCRYPT_SHA3_512_STATE,
+        pDst: PSYMCRYPT_SHA3_512_STATE,
+    );
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
@@ -5174,7 +5334,6 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
-
 extern "C" {
     pub fn SymCryptRsaPkcs1Encrypt(
         pkRsakey: PCSYMCRYPT_RSAKEY,

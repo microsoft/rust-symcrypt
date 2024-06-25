@@ -8,6 +8,9 @@
 //! Sha256
 //! Sha384
 //! Sha512
+//! Sha3_256
+//! Sha3_384
+//! Sha3_512
 //! ```
 //!
 //! `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
@@ -85,6 +88,12 @@ pub const SHA256_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA256_RESULT_SIZE 
 pub const SHA384_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA384_RESULT_SIZE as usize;
 /// 64
 pub const SHA512_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA512_RESULT_SIZE as usize;
+/// 32
+pub const SHA3_256_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA3_256_RESULT_SIZE as usize;
+/// 48
+pub const SHA3_384_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA3_384_RESULT_SIZE as usize;
+/// 64
+pub const SHA3_512_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA3_512_RESULT_SIZE as usize;
 
 /// Hashing Algorithms that are supported by SymCrypt
 #[derive(Copy, Clone)]
@@ -586,6 +595,258 @@ pub fn sha512(data: &[u8]) -> [u8; SHA512_RESULT_SIZE] {
     result
 }
 
+/// [`Sha3_256State`] is a struct that represents a stateful sha3_256 hash and implements the [`HashState`] trait.
+pub struct Sha3_256State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_256_STATE>>);
+// Sha3_256State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+// around when returning from Sha3_256State::new(). Box<> heap allocates the memory and ensures that it does not move
+//
+// SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
+// doing so would lead to use-after-free and inconsistent states.
+
+impl Sha3_256State {
+    pub fn new() -> Self {
+        let mut instance = Sha3_256State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_256Init(&mut *instance.0);
+        }
+        instance
+    }
+}
+
+impl HashState for Sha3_256State {
+    type Result = [u8; SHA3_256_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_256Append(
+                &mut *self.0,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    fn result(&mut self) -> Self::Result {
+        let mut result = [0u8; SHA3_256_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_256Result(&mut *self.0, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+impl Clone for Sha3_256State {
+    fn clone(&self) -> Self {
+        let mut new_state = Sha3_256State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_256StateCopy(&*self.0, &mut *new_state.0);
+        }
+        new_state
+    }
+}
+
+impl Drop for Sha3_256State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+}
+
+/// Stateless hash function for SHA3_256.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `SHA3_256_RESULT_SIZE`, which is 32 bytes. This call cannot fail.
+pub fn sha3_256(data: &[u8]) -> [u8; SHA3_256_RESULT_SIZE] {
+    let mut result = [0; SHA3_256_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        symcrypt_sys::SymCryptSha3_256(
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
+    }
+    result
+}
+
+/// [`Sha3_384State`] is a struct that represents a stateful sha3_384 hash and implements the [`HashState`] trait.
+pub struct Sha3_384State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_384_STATE>>);
+// Sha3_384State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+// around when returning from Sha3_384State::new(). Box<> heap allocates the memory and ensures that it does not move
+//
+// SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
+// doing so would lead to use-after-free and inconsistent states.
+
+impl Sha3_384State {
+    pub fn new() -> Self {
+        let mut instance = Sha3_384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_384Init(&mut *instance.0);
+        }
+        instance
+    }
+}
+
+impl HashState for Sha3_384State {
+    type Result = [u8; SHA3_384_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_384Append(
+                &mut *self.0,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    fn result(&mut self) -> Self::Result {
+        let mut result = [0u8; SHA3_384_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_384Result(&mut *self.0, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+impl Clone for Sha3_384State {
+    fn clone(&self) -> Self {
+        let mut new_state = Sha3_384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_384StateCopy(&*self.0, &mut *new_state.0);
+        }
+        new_state
+    }
+}
+
+impl Drop for Sha3_384State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+}
+
+/// Stateless hash function for SHA3_384.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `SHA3_384_RESULT_SIZE`, which is 48 bytes. This call cannot fail.
+pub fn sha3_384(data: &[u8]) -> [u8; SHA3_384_RESULT_SIZE] {
+    let mut result = [0; SHA3_384_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        symcrypt_sys::SymCryptSha3_384(
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
+    }
+    result
+}
+
+/// [`Sha3_512State`] is a struct that represents a stateful sha3_512 hash and implements the [`HashState`] trait.
+pub struct Sha3_512State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_512_STATE>>);
+// Sha3_512State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
+// around when returning from Sha3_512State::new(). Box<> heap allocates the memory and ensures that it does not move
+//
+// SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
+// doing so would lead to use-after-free and inconsistent states.
+
+impl Sha3_512State {
+    pub fn new() -> Self {
+        let mut instance = Sha3_512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_512Init(&mut *instance.0);
+        }
+        instance
+    }
+}
+
+impl HashState for Sha3_512State {
+    type Result = [u8; SHA3_512_RESULT_SIZE];
+
+    fn append(&mut self, data: &[u8]) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_512Append(
+                &mut *self.0,
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    fn result(&mut self) -> Self::Result {
+        let mut result = [0u8; SHA3_512_RESULT_SIZE];
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_512Result(&mut *self.0, result.as_mut_ptr());
+        }
+        result
+    }
+}
+
+impl Clone for Sha3_512State {
+    fn clone(&self) -> Self {
+        let mut new_state = Sha3_512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default()));
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptSha3_512StateCopy(&*self.0, &mut *new_state.0);
+        }
+        new_state
+    }
+}
+
+impl Drop for Sha3_512State {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.0) as *mut c_void,
+                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
+            )
+        }
+    }
+}
+
+/// Stateless hash function for SHA3_512.
+///
+/// `data` is a reference to an array of arbitrary length.
+///
+/// `result` is an array of size `SHA3_512_RESULT_SIZE`, which is 64 bytes. This call cannot fail.
+pub fn sha3_512(data: &[u8]) -> [u8; SHA3_512_RESULT_SIZE] {
+    let mut result = [0; SHA3_512_RESULT_SIZE];
+    unsafe {
+        // SAFETY: FFI calls
+        symcrypt_sys::SymCryptSha3_512(
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
+    }
+    result
+}
+
 #[cfg(test)]
 mod test {
     // Note: by default sha1 and md5 are turned off, to enable for testing you can use:
@@ -674,6 +935,30 @@ mod test {
         assert_eq!(hex::encode(result), expected);
     }
 
+    #[test]
+    fn test_stateless_sha3_256_hash() { 
+        let data = hex::decode("").unwrap();
+        let expected: &str = "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a";
+        let result = sha3_256(&data);
+        assert_eq!(hex::encode(result), expected);
+    }
+    
+    #[test]
+    fn test_stateless_sha3_384_hash() { 
+        let data = hex::decode("").unwrap();
+        let expected: &str = "0c63a75b845e4f7d01107d852e4c2485c51a50aaaa94fc61995e71bbee983a2ac3713831264adb47fb6bd1e058d5f004";
+        let result = sha3_384(&data);
+        assert_eq!(hex::encode(result), expected);
+    }   
+
+    #[test]
+    fn test_stateless_sha3_512_hash() { 
+        let data = hex::decode("").unwrap();
+        let expected: &str = "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26";
+        let result = sha3_512(&data);
+        assert_eq!(hex::encode(result), expected);
+    }   
+
     #[cfg(feature = "md5")]
     #[test]
     fn test_state_md5_hash() {
@@ -716,6 +1001,30 @@ mod test {
         test_generic_hash_state(Sha512State::new(), &data, expected);
     }
 
+    #[test]
+    fn test_state_sha3_256_hash() {
+        let data = hex::decode("71fbacdbf8541779c24a").unwrap();
+        let expected: &str = "cc4e5a216b01f987f24ab9cad5eb196e89d32ed4aac85acb727e18e40ceef00e";
+
+        test_generic_hash_state(Sha3_256State::new(), &data, expected);
+    }
+
+    #[test]
+    fn test_state_sha3_384_hash() {
+        let data = hex::decode("cc4764d3e295097298f2af8882f6").unwrap();
+        let expected: &str = "10f287f256643ad0dfb5955dd34587882e445cd5ae8da337e7c170fc0c1e48a03fb7a54ec71335113dbdccccc944da41";
+
+        test_generic_hash_state(Sha3_384State::new(), &data, expected);
+    }
+
+    #[test]
+    fn test_state_sha3_512_hash() {
+        let data = hex::decode("ecb907adfb85f9154a3c23e8").unwrap();
+        let expected: &str = "94ae34fed2ef51a383fb853296e4b797e48e00cad27f094d2f411c400c4960ca4c610bf3dc40e94ecfd0c7a18e418877e182ca3ae5ca5136e2856a5531710f48";
+
+        test_generic_hash_state(Sha3_512State::new(), &data, expected);
+    }
+
     #[cfg(feature = "md5")]
     #[test]
     fn test_state_md5_clone() {
@@ -747,6 +1056,25 @@ mod test {
         let data = hex::decode("7834dc7a4a8e9b17281ac472d3").unwrap();
         test_generic_state_clone(Sha512State::new(), &data);
     }
+
+    #[test]
+    fn test_state_sha3_256_clone() {
+        let data = hex::decode("5c56a6b18c39e66e1b7a993a").unwrap();
+        test_generic_state_clone(Sha3_256State::new(), &data);
+    }
+
+    #[test]
+    fn test_state_sha3_384_clone() {
+        let data = hex::decode("1ca984dcc913344370cf").unwrap();
+        test_generic_state_clone(Sha3_384State::new(), &data);
+    }
+
+    #[test]
+    fn test_state_sha3_512_clone() {
+        let data = hex::decode("fc7b8cda").unwrap();
+        test_generic_state_clone(Sha3_512State::new(), &data);
+    }
+
 
     #[cfg(feature = "md5")]
     #[test]
@@ -793,5 +1121,33 @@ mod test {
         let expected: &str = "490aa49d4fcb8d229a9848f803b78b18e7fc59d12e76ab6d2712cc3ae37dcb1f1dfe28d551d11b957622f622a9b43979f6ec6cd3f2ac605b947b05cc0df272e0";
 
         test_generic_state_multiple_append(Sha512State::new(), &data_1, &data_2, expected);
+    }
+
+    #[test]
+    fn test_state_sha3_256_multiple_append() {
+        let data_1 = hex::decode("5c56a6b18c39e66e").unwrap();
+        let data_2 = hex::decode("1b7a993a").unwrap();
+        let expected: &str = "b697556cb30d6df448ee38b973cb6942559de4c2567b1556240188c55ec0841c";
+
+        test_generic_state_multiple_append(Sha3_256State::new(), &data_1, &data_2, expected);
+    }
+
+    #[test]
+    fn test_state_sha3_384_multiple_append() {
+        let data_1 = hex::decode("cc4764d3e295097298").unwrap();
+        let data_2 = hex::decode("f2af8882f6").unwrap();
+        let expected: &str = "10f287f256643ad0dfb5955dd34587882e445cd5ae8da337e7c170fc0c1e48a03fb7a54ec71335113dbdccccc944da41";
+
+        test_generic_state_multiple_append(Sha3_384State::new(), &data_1, &data_2, expected);
+    }
+
+    #[test]
+    fn test_state_sha3_512_multiple_append() {
+        let data_1 = hex::decode("3d60939669").unwrap();
+        let data_2 = hex::decode("50abd846").unwrap();
+        let expected: &str = "53e30da8b74ae76abf1f65761653ebfbe87882e9ea0ea564addd7cfd5a6524578ad6be014d7799799ef5e15c679582\
+        b791159add823b95c91e26de62dcb74cfa";
+
+        test_generic_state_multiple_append(Sha3_512State::new(), &data_1, &data_2, expected);
     }
 }
