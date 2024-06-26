@@ -943,6 +943,7 @@ mod test {
         hash_state.append(&data_2);
 
         let result = hash_state.result();
+        assert_eq!(hash_state.get_hash_algorithm().get_result_size(), result.as_ref().len());
         assert_eq!(hex::encode(result), expected);
     }
 

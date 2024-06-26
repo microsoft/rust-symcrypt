@@ -166,9 +166,8 @@ fn pss_verify_helper(
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::hash::{sha256, sha384, HashAlgorithm};
+    use crate::hash::{sha256, HashAlgorithm};
     use crate::rsa::{RsaKeyPair, RsaKeyUsage, RsaPublicKey};
-    use crate::NumberFormat;
 
     #[test]
     fn test_pss_sign_and_verify_with_key_pair() {
@@ -267,21 +266,13 @@ mod test {
     fn test_pss_sign_and_verify_salt_too_large() {
         let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
 
-        let public_key_blob = key_pair.export_public_key_blob().unwrap();
-        let public_key = RsaPublicKey::set_public_key(
-            &public_key_blob.modulus,
-            &public_key_blob.pub_exp,
-            RsaKeyUsage::SignAndEncrypt,
-        )
-        .unwrap();
-
         let hashed_message = sha256(b"hello world");
         let hash_algorithm = HashAlgorithm::Sha256;
 
         // If the length of the hash + the size of the salt is larger than the size of the modulus, then generation should fail
         let salt_length = 1000;
 
-        let mut signature = key_pair
+        let signature = key_pair
             .pss_sign(&hashed_message, hash_algorithm, salt_length)
             .unwrap_err();
 

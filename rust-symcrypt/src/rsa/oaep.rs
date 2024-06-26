@@ -165,9 +165,8 @@ fn oaep_encrypt_helper(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::errors::SymCryptError;
-    use crate::hash::{sha256, HashAlgorithm};
+    use crate::hash::HashAlgorithm;
     use crate::rsa::{RsaKeyPair, RsaKeyUsage, RsaPublicKey};
 
     #[test]

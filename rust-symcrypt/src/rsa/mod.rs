@@ -518,7 +518,6 @@ fn load_msb_first_u64(src: &[u8]) -> Result<u64, SymCryptError> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::NumberFormat;
 
     #[test]
     fn test_generate_new_default_exponent() {
