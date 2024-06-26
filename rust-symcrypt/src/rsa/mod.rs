@@ -70,13 +70,9 @@ pub mod oaep;
 pub mod pkcs1;
 pub mod pss;
 
-/// !Review: Can we revisit RsaKeyUsage? It seems like it is not really needed since we dont actually do anything under the covers for it.
-/// Should we pre-append the 0 if MSB is not set?
-/// !Review: allow SYMCRYPT_FLAG_RSA_PKCS1_OPTIONAL_HASH_OID? for PKCS1?
-///  When the flag is set, this function will do signature verification by not using hash OID when needed
-/// What is cbSalt? can we just always assume it will be the hash length of the HashAlgorithm?
-/// what is the label for OAEP? what can I put in the example?
-/// do we need to export the public key for RsaPublicKey?
+/// !Review: Can we revisit RsaKeyUsage? It seems like it is not really needed since we dont actually do anything under the covers for it. 
+/// @ Mitch are the flags enforced at all by SymCrypt? If it's not, i think it might make it much easier to set symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_ENCRYPT | symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_SIGN
+/// We can enforce the usage in this layer but i dont feel good straying that far from symcrypt.
 
 // InnerRsaKey is a wrapper around symcrypt_sys::PSYMCRYPT_RSAKEY.
 #[derive(Debug)]
@@ -101,7 +97,7 @@ pub struct RsaKeyPair {
     key_usage: RsaKeyUsage,
 }
 
-/// Rsa Public Key State
+/// Rsa Public Key State.
 ///
 /// [`RsaPublicKey`] represents an Rsa public key and also contains the [`RsaKeyUsage`].
 #[derive(Debug)]
@@ -223,7 +219,7 @@ impl RsaKeyPair {
         let rsa_key = allocate_rsa(2, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
 
-        // Construct the primes_ptr and primes_len_ptr for SymCryptRsakeyValue consumption
+        // Construct the primes_ptr and primes_len_ptr for SymCryptRsaKeyValue consumption
         let primes_ptr = [p.as_ptr(), q.as_ptr()].as_mut_ptr();
         let primes_len_ptr = [
             p.len() as symcrypt_sys::SIZE_T,
