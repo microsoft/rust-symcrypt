@@ -81,17 +81,14 @@ impl RsaKeyPair {
                 hashed_message.len() as symcrypt_sys::SIZE_T,
                 converted_hash_oids.as_ptr(),
                 converted_hash_oids.len() as symcrypt_sys::SIZE_T,
-                symcrypt_sys::SYMCRYPT_FLAG_RSA_PKCS1_NO_ASN1,
+                0, // Setting ASN.1 OID in previous parameters. 
                 NumberFormat::MSB.to_symcrypt_format(),
                 signature.as_mut_ptr(),
                 modulus_size as symcrypt_sys::SIZE_T,
                 &mut result_size,
             );
             if error_code == symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
-                if (modulus_size as symcrypt_sys::SIZE_T) < result_size {
-                    return Err(SymCryptError::MemoryAllocationFailure);
-                }
-                signature.truncate(result_size as usize);
+                // For signing, the size of the output will always be the size of the modulus with current padding modes.
                 Ok(signature)
             } else {
                 Err(error_code.into())
@@ -122,7 +119,7 @@ impl RsaKeyPair {
                 &mut result_size,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                    // SymCrypt fills the buffer with info and returns the size of the signature in result_size
+                    // SymCrypt fills the buffer with info and returns the size of the decrypted value in result_size
                     // for the caller to decide if they wish to truncate the buffer to the actual size of the signature.
                     // Max size for the buffer is the size of the modulus.
                     decrypted_buffer.truncate(result_size as usize);
@@ -233,7 +230,7 @@ fn pkcs1_verify_helper(
             NumberFormat::MSB.to_symcrypt_format(), // Only MSB is supported
             converted_hash_oids.as_ptr(),
             converted_hash_oids.len() as symcrypt_sys::SIZE_T,
-            symcrypt_sys::SYMCRYPT_FLAG_RSA_PKCS1_OPTIONAL_HASH_OID,
+            0,
         ) {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
             err => Err(err.into()),

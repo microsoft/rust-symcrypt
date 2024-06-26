@@ -855,12 +855,7 @@ fn bindgen_test_layout__SYMCRYPT_KECCAK_STATE() {
         16usize,
         concat!(
             "Offset of field: ",
-extern "C" {
-    pub fn SymCryptSha3_256StateCopy(
-        pSrc: PCSYMCRYPT_SHA3_256_STATE,
-        pDst: PSYMCRYPT_SHA3_256_STATE,
-    );
-}            stringify!(_SYMCRYPT_KECCAK_STATE),
+            stringify!(_SYMCRYPT_KECCAK_STATE),
             "::",
             stringify!(state)
         )

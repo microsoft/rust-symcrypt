@@ -9,7 +9,7 @@
 //!
 //! ```rust
 //! use symcrypt::rsa::{RsaKeyPair, RsaKeyUsage};
-//! use symcrypt::hash::{sha256, HashAlgorithm};
+//! use symcrypt::hash::{sha256, HashAlgorithm, SHA256_RESULT_SIZE};
 //!
 //! // Generate key pair
 //! let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
@@ -17,7 +17,7 @@
 //! // Set up message
 //! let hashed_message = sha256(b"hello world");
 //! let hash_algorithm = HashAlgorithm::Sha256;
-//! let salt_length = 32;
+//! let salt_length = SHA256_RESULT_SIZE; // 32 bytes for SHA256
 //!
 //! // Create and verify the signature
 //! let signature = key_pair.pss_sign(&hashed_message, hash_algorithm, salt_length).unwrap();
@@ -69,10 +69,7 @@ impl RsaKeyPair {
             );
 
             if error_code == symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
-                // SymCrypt fills the buffer with info and returns the size of the signature in result_size
-                // for the caller to decide if they wish to truncate the buffer to the actual size of the signature.
-                // Max size for the buffer is the size of the modulus.
-                signature.truncate(result_size as usize);
+                // For signing the size of the output will always be the size of the modulus with the current padding modes.
                 Ok(signature)
             } else {
                 Err(error_code.into())

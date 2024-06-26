@@ -146,6 +146,22 @@ impl HashAlgorithm {
             }
         }
     }
+
+    /// Returns the result size as a `usize`. This is the size of the hash result in bytes.
+    pub fn get_result_size(&self) -> usize {
+        match self {
+            #[cfg(feature = "md5")]
+            HashAlgorithm::Md5 => MD5_RESULT_SIZE,
+            #[cfg(feature = "sha1")]
+            HashAlgorithm::Sha1 => SHA1_RESULT_SIZE,
+            HashAlgorithm::Sha256 => SHA256_RESULT_SIZE,
+            HashAlgorithm::Sha384 => SHA384_RESULT_SIZE,
+            HashAlgorithm::Sha512 => SHA512_RESULT_SIZE,
+            HashAlgorithm::Sha3_256 => SHA3_256_RESULT_SIZE,
+            HashAlgorithm::Sha3_384 => SHA3_384_RESULT_SIZE,
+            HashAlgorithm::Sha3_512 => SHA3_512_RESULT_SIZE,
+        }
+    }
 }
 
 /// Generic trait for stateful hashing
@@ -156,12 +172,16 @@ impl HashAlgorithm {
 ///
 /// `result()` returns the result of the hash. The state is wiped and re-initialized and ready for re-use; you
 /// do not need to re-run a `new()` call. This call cannot fail.
+/// 
+/// `get_hash_algorithm()` returns the associated [`HashAlgorithm`] used by the state.
 pub trait HashState: Clone {
     type Result;
 
     fn append(&mut self, data: &[u8]);
 
     fn result(&mut self) -> Self::Result;
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm;
 }
 
 /// [`Md5State`] is a struct that represents a stateful md5 hash and implements the [`HashState`] trait.
@@ -206,6 +226,10 @@ impl HashState for Md5State {
             symcrypt_sys::SymCryptMd5Result(&mut *self.0, result.as_mut_ptr());
         }
         result
+    }
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm {
+        HashAlgorithm::Md5
     }
 }
 
@@ -297,6 +321,10 @@ impl HashState for Sha1State {
         }
         result
     }
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm {
+        HashAlgorithm::Sha1
+    }
 }
 
 #[cfg(feature = "sha1")]
@@ -384,6 +412,10 @@ impl HashState for Sha256State {
         }
         result
     }
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm {
+        HashAlgorithm::Sha256
+    }
 }
 
 impl Clone for Sha256State {
@@ -467,6 +499,10 @@ impl HashState for Sha384State {
             symcrypt_sys::SymCryptSha384Result(&mut *self.0, result.as_mut_ptr());
         }
         result
+    }
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm {
+        HashAlgorithm::Sha384
     }
 }
 
@@ -552,6 +588,10 @@ impl HashState for Sha512State {
         }
         result
     }
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm {
+        HashAlgorithm::Sha512
+    }
 }
 
 impl Clone for Sha512State {
@@ -636,6 +676,10 @@ impl HashState for Sha3_256State {
             symcrypt_sys::SymCryptSha3_256Result(&mut *self.0, result.as_mut_ptr());
         }
         result
+    }
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm {
+        HashAlgorithm::Sha3_256
     }
 }
 
@@ -723,6 +767,10 @@ impl HashState for Sha3_384State {
         }
         result
     }
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm {
+        HashAlgorithm::Sha3_384
+    }
 }
 
 impl Clone for Sha3_384State {
@@ -808,6 +856,10 @@ impl HashState for Sha3_512State {
             symcrypt_sys::SymCryptSha3_512Result(&mut *self.0, result.as_mut_ptr());
         }
         result
+    }
+
+    fn get_hash_algorithm(&self) -> HashAlgorithm {
+        HashAlgorithm::Sha3_512
     }
 }
 
