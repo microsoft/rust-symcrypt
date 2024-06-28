@@ -75,23 +75,20 @@ impl RsaKeyPair {
         let converted_hash_oids = hash_algorithm.to_oid_list();
         unsafe {
             // SAFETY: FFI calls
-            let error_code = symcrypt_sys::SymCryptRsaPkcs1Sign(
+            match symcrypt_sys::SymCryptRsaPkcs1Sign(
                 self.inner(),
                 hashed_message.as_ptr(),
                 hashed_message.len() as symcrypt_sys::SIZE_T,
                 converted_hash_oids.as_ptr(),
                 converted_hash_oids.len() as symcrypt_sys::SIZE_T,
-                0, // Setting ASN.1 OID in previous parameters. 
+                0, // Setting ASN.1 OID in previous parameters.
                 NumberFormat::MSB.to_symcrypt_format(),
                 signature.as_mut_ptr(),
                 modulus_size as symcrypt_sys::SIZE_T,
                 &mut result_size,
-            );
-            if error_code == symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
-                // For signing, the size of the output will always be the size of the modulus with current padding modes.
-                Ok(signature)
-            } else {
-                Err(error_code.into())
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(signature),
+                err => Err(err.into()),
             }
         }
     }
@@ -341,5 +338,27 @@ mod tests {
         let decrypt_result = key_pair.pkcs1_decrypt(&invalid_encrypted_message);
 
         assert!(decrypt_result.is_err());
+    }
+
+    #[test]
+    fn test_pkcs1_encrypt_with_wrong_key_usage() {
+        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::Sign).unwrap();
+        let message = b"example message";
+
+        let encrypt_result = key_pair.pkcs1_encrypt(message).unwrap_err();
+        assert_eq!(encrypt_result, SymCryptError::InvalidArgument);
+    }
+
+    #[test]
+    fn test_pkcs1_sign_with_wrong_key_usage() {
+        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::Encrypt).unwrap();
+
+        let hashed_message = sha256(b"hello world");
+        let hash_algorithm = HashAlgorithm::Sha256;
+
+        let sign_result = key_pair
+            .pkcs1_sign(&hashed_message, hash_algorithm)
+            .unwrap_err();
+        assert_eq!(sign_result, SymCryptError::InvalidArgument);
     }
 }

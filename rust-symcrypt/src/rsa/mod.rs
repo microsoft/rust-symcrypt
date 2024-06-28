@@ -70,10 +70,6 @@ pub mod oaep;
 pub mod pkcs1;
 pub mod pss;
 
-/// !Review: Can we revisit RsaKeyUsage? It seems like it is not really needed since we dont actually do anything under the covers for it. 
-/// @ Mitch are the flags enforced at all by SymCrypt? If it's not, i think it might make it much easier to set symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_ENCRYPT | symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_SIGN
-/// We can enforce the usage in this layer but i dont feel good straying that far from symcrypt.
-
 // InnerRsaKey is a wrapper around symcrypt_sys::PSYMCRYPT_RSAKEY.
 #[derive(Debug)]
 pub(crate) struct InnerRsaKey(pub(crate) symcrypt_sys::PSYMCRYPT_RSAKEY);
@@ -108,7 +104,7 @@ pub struct RsaPublicKey {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// `RsaKeyUsage` will indicate if the [`RsaKeyPair`] or [`RsaPublicKey`] will be used for [`RsaKeyUsage::Sign`] or [`RsaKeyUsage::Encrypt`], or [`RsaKeyUsage::SignAndEncrypt`].
-/// This is to maintain interop with legacy Windows code and does not enforce any checks under the covers. The caller is responsible for ensuring the key is used correctly.
+/// This check is enforced by SymCrypt and will return [`SymCryptError::InvalidArgument`] if the key is used for the wrong purpose.
 pub enum RsaKeyUsage {
     // When using [`RsaKeyUsage::Sign`], the intended usage for the key will be only Signing.
     Sign,
@@ -116,7 +112,7 @@ pub enum RsaKeyUsage {
     /// When using [`RsaKeyUsage::Encrypt`], the intended usage for the key will be only Encryption.
     Encrypt,
 
-    /// When using [RsaKeyUsage::SignAndEncrypt`], the intended usage for the key can be either Signing or Encryption.
+    /// When using [`RsaKeyUsage::SignAndEncrypt`], the intended usage for the key can be either Signing or Encryption.
     SignAndEncrypt,
 }
 
@@ -136,7 +132,7 @@ impl RsaKeyUsage {
 #[derive(Debug)]
 #[allow(dead_code)]
 /// [`RsaKeyPairExportBlob`] holds the values of the `[RsaKeyPair]` when the key pair is exported.  
-/// NOTE: SymCrypt does not pre-append leading 0's if the MSB is set.
+/// NOTE: SymCrypt does not prepend leading 0's if the MSB is set.
 pub struct RsaKeyPairExportBlob {
     pub modulus: Vec<u8>,
     pub pub_exp: Vec<u8>,
@@ -151,7 +147,7 @@ pub struct RsaKeyPairExportBlob {
 #[derive(Debug)]
 #[allow(dead_code)]
 /// [`RsaPublicKeyExportBlob`] holds the values of the `[RsaPublicKey]` when the key is exported.
-/// NOTE: SymCrypt does not pre-append leading 0's if the MSB is set.
+/// NOTE: SymCrypt does not prepend leading 0's if the MSB is set.
 pub struct RsaPublicKeyExportBlob {
     pub modulus: Vec<u8>,
     pub pub_exp: Vec<u8>,
@@ -163,8 +159,7 @@ impl RsaKeyPair {
     ///
     /// `n_bits_mod` represents a `u32` that is the desired bit length of the Rsa key, `n_bits_mod` must be at least 1024 bits.
     ///
-    ///
-    /// `pub_exp` takes in an `Option<u64>` that is the public exponent. If `None` is provided, the default `2^16 +1` will be used.
+    /// `pub_exp` takes in an `Option<&[u8]>` that is the public exponent. If `None` is provided, the default `2^16 +1` will be used.
     ///  
     /// `key_usage` takes in a [`RsaKeyUsage`] and will indicate if this key will be used for [`RsaKeyUsage::Sign`], or [`RsaKeyUsage::Encrypt`], or [`RsaKeyUsage::SignAndEncrypt`]
     pub fn generate_new(
@@ -180,7 +175,7 @@ impl RsaKeyPair {
             None => (ptr::null(), 0), // If no public exponent is provided, use null and count 0 which will notify SymCrypt to use their default exponent.
         };
 
-        let rsa_key = allocate_rsa(2, n_bits_mod)?;
+        let rsa_key = allocate_rsa(2, n_bits_mod as symcrypt_sys::SIZE_T)?;
 
         unsafe {
             // SAFETY: FFI calls
@@ -215,7 +210,7 @@ impl RsaKeyPair {
         q: &[u8],
         key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let n_bits_mod = (modulus_buffer.len() as u32) * 8; // Convert the size from bytes to bits.
+        let n_bits_mod = (modulus_buffer.len() as symcrypt_sys::SIZE_T) * 8; // Convert the size from bytes to bits.
         let rsa_key = allocate_rsa(2, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
 
@@ -406,7 +401,7 @@ impl RsaPublicKey {
         pub_exp: &[u8],
         key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let n_bits_mod = (modulus_buffer.len() as u32) * 8; // Convert the size from bytes to bits
+        let n_bits_mod = (modulus_buffer.len() as symcrypt_sys::SIZE_T) * 8; // Convert the size from bytes to bits
         let rsa_key = allocate_rsa(0, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
         unsafe {
@@ -464,7 +459,10 @@ impl RsaPublicKey {
 }
 
 // Utility function to reduce common RSA allocation call
-fn allocate_rsa(n_primes: u32, n_bits_mod: u32) -> Result<InnerRsaKey, SymCryptError> {
+fn allocate_rsa(
+    n_primes: u32,
+    n_bits_mod: symcrypt_sys::SIZE_T,
+) -> Result<InnerRsaKey, SymCryptError> {
     let rsa_params = symcrypt_sys::SYMCRYPT_RSA_PARAMS {
         version: 1 as symcrypt_sys::UINT32, // No other version aside from version 1 is specified
         nBitsOfModulus: n_bits_mod as symcrypt_sys::UINT32,

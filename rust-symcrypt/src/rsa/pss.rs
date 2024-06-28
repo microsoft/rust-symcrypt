@@ -55,7 +55,7 @@ impl RsaKeyPair {
 
         unsafe {
             // SAFETY: FFI calls
-            let error_code = symcrypt_sys::SymCryptRsaPssSign(
+            match symcrypt_sys::SymCryptRsaPssSign(
                 self.inner(),
                 hashed_message.as_ptr(),
                 hashed_message.len() as symcrypt_sys::SIZE_T,
@@ -66,13 +66,12 @@ impl RsaKeyPair {
                 signature.as_mut_ptr(),
                 modulus_size as symcrypt_sys::SIZE_T,
                 &mut result_size,
-            );
-
-            if error_code == symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
-                // For signing the size of the output will always be the size of the modulus with the current padding modes.
-                Ok(signature)
-            } else {
-                Err(error_code.into())
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                    // For signing the size of the output will always be the size of the modulus with the current padding modes.
+                    Ok(signature)
+                }
+                err => Err(err.into()),
             }
         }
     }
@@ -271,6 +270,21 @@ mod test {
 
         // If the length of the hash + the size of the salt is larger than the size of the modulus, then generation should fail
         let salt_length = 1000;
+
+        let signature = key_pair
+            .pss_sign(&hashed_message, hash_algorithm, salt_length)
+            .unwrap_err();
+
+        assert_eq!(signature, SymCryptError::InvalidArgument);
+    }
+
+    #[test]
+    fn test_pss_sign_with_wrong_key_usage() {
+        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::Encrypt).unwrap();
+
+        let hashed_message = sha256(b"hello world");
+        let hash_algorithm = HashAlgorithm::Sha256;
+        let salt_length = 32;
 
         let signature = key_pair
             .pss_sign(&hashed_message, hash_algorithm, salt_length)

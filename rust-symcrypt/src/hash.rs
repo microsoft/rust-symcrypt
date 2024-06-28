@@ -172,7 +172,7 @@ impl HashAlgorithm {
 ///
 /// `result()` returns the result of the hash. The state is wiped and re-initialized and ready for re-use; you
 /// do not need to re-run a `new()` call. This call cannot fail.
-/// 
+///
 /// `get_hash_algorithm()` returns the associated [`HashAlgorithm`] used by the state.
 pub trait HashState: Clone {
     type Result;
@@ -943,7 +943,10 @@ mod test {
         hash_state.append(&data_2);
 
         let result = hash_state.result();
-        assert_eq!(hash_state.get_hash_algorithm().get_result_size(), result.as_ref().len());
+        assert_eq!(
+            hash_state.get_hash_algorithm().get_result_size(),
+            result.as_ref().len()
+        );
         assert_eq!(hex::encode(result), expected);
     }
 

@@ -54,7 +54,7 @@ impl RsaKeyPair {
 
         unsafe {
             // SAFETY: FFI calls
-            let error_code = symcrypt_sys::SymCryptRsaOaepDecrypt(
+            match symcrypt_sys::SymCryptRsaOaepDecrypt(
                 self.inner(),
                 encrypted_message.as_ptr(),
                 encrypted_message.len() as symcrypt_sys::SIZE_T,
@@ -66,16 +66,15 @@ impl RsaKeyPair {
                 decrypted_buffer.as_mut_ptr(),
                 modulus_size as symcrypt_sys::SIZE_T,
                 &mut result_size,
-            );
-
-            if error_code == symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
-                // SymCrypt fills the buffer with info and returns the size of the decrypted data in result_size
-                // for the caller to decide if they wish to truncate the buffer to the actual size of the decrypted data.
-                // Max size for the buffer is the size of the modulus.
-                decrypted_buffer.truncate(result_size as usize);
-                Ok(decrypted_buffer)
-            } else {
-                Err(error_code.into())
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                    // SymCrypt fills the buffer with info and returns the size of the decrypted data in result_size
+                    // for the caller to decide if they wish to truncate the buffer to the actual size of the decrypted data.
+                    // Max size for the buffer is the size of the modulus.
+                    decrypted_buffer.truncate(result_size as usize);
+                    Ok(decrypted_buffer)
+                }
+                err => Err(err.into()),
             }
         }
     }
@@ -141,7 +140,7 @@ fn oaep_encrypt_helper(
 
     unsafe {
         // SAFETY: FFI calls
-        let error_code = symcrypt_sys::SymCryptRsaOaepEncrypt(
+        match symcrypt_sys::SymCryptRsaOaepEncrypt(
             symcrypt_key,
             message.as_ptr(),
             message.len() as symcrypt_sys::SIZE_T,
@@ -153,12 +152,9 @@ fn oaep_encrypt_helper(
             encrypted.as_mut_ptr(),
             modulus_size as symcrypt_sys::SIZE_T,
             &mut result_size,
-        );
-
-        if error_code == symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR {
-            Ok(encrypted)
-        } else {
-            Err(error_code.into())
+        ) {
+            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(encrypted),
+            err => Err(err.into()),
         }
     }
 }
@@ -247,5 +243,19 @@ mod tests {
             .unwrap_err();
 
         assert_eq!(decrypted_message, SymCryptError::InvalidArgument);
+    }
+
+    #[test]
+    fn test_oaep_encrypt_with_wrong_key_usage() {
+        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::Sign).unwrap();
+
+        let message = b"example message";
+        let hash_algorithm = HashAlgorithm::Sha256;
+        let label = b"label";
+
+        let result = key_pair
+            .oaep_encrypt(message, hash_algorithm, label)
+            .unwrap_err();
+        assert_eq!(result, SymCryptError::InvalidArgument);
     }
 }
