@@ -2,6 +2,7 @@
 //!
 //! The [`CurveType`] enum provides an enumeration of supported curves that can be used in
 //! elliptical curve operations. Currently the only supported curves are `NistP256`, `NistP384` and `Curve25519`
+use crate::NumberFormat;
 use crate::{errors::SymCryptError, symcrypt_init};
 use lazy_static::lazy_static;
 use symcrypt_sys;
@@ -17,7 +18,7 @@ pub enum CurveType {
 
 // EcKey is a wrapper around symcrypt_sys::PSYMCRYPT_ECKEY.
 pub(crate) struct EcKey {
-    // Allocation for EcKey is handled by SymCrypt via SymCryptEcKeyAllocate, and is subsequently stored on the stack;
+    // Allocation for EcKey is handled by SymCrypt via SymCryptEcKeyAllocate, and is subsequently stored on the heap;
     // therefore pointer will not move and Box<> is not needed.
     inner: symcrypt_sys::PSYMCRYPT_ECKEY,
     curve: &'static EcCurve,
@@ -156,12 +157,8 @@ pub(crate) fn convert_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_ECURVE
 // get_num_format returns the correct number format needed for TLS interop since 25519 spec defines the use of Little Endian.
 pub(crate) fn get_num_format(curve_type: CurveType) -> i32 {
     let num_format = match curve_type {
-        CurveType::Curve25519 => {
-            symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST
-        }
-        CurveType::NistP256 | CurveType::NistP384 => {
-            return symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST
-        }
+        CurveType::Curve25519 => NumberFormat::LSB.to_symcrypt_format(),
+        CurveType::NistP256 | CurveType::NistP384 => NumberFormat::MSB.to_symcrypt_format(),
     };
     num_format
 }
