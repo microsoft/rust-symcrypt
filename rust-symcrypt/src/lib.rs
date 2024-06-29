@@ -22,7 +22,6 @@
 //! HMAC:
 //! - HmacSha256 ( statefull/stateless )
 //! - HmacSha384 ( statefull/stateless )
-//! - **weak-HmacSha1** ( statefull/stateless ) - Renamed from `HmacSha1` to emphasize vulnerabilities.
 //!
 //! GCM:
 //! - Encryption ( in place )
@@ -32,7 +31,7 @@
 //! - Encryption ( in place )
 //! - Decryption ( in place )
 //!
-//! **Note:** The `weak-sha1` and `weak-md5` naming conventions have been introduced to emphasize the vulnerabilities associated with these algorithms. Users are encouraged to use more secure algorithms for cryptographic needs.
+//! **Note:** The `weak-sha1` naming convention has been introduced to emphasize the vulnerabilities associated with this algorithms. Users are encouraged to use more secure algorithms for cryptographic needs.
 //! ECDH:
 //! - ECDH Secret Agreement
 //!
