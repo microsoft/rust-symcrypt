@@ -62,6 +62,16 @@ There are unit tests attached to each file that show how to use each function. I
 
 **Note:** This code snippet also uses the [hex](https://crates.io/crates/hex) crate.
 
+### Naming Conventions Update
+- Renamed `sha1` to `weak-sha1` in both `hash.rs` and `hmac.rs` to better reflect the security level of the SHA-1 algorithm.
+- Renamed `md5` to `weak-md5` in both `hash.rs` and `hmac.rs` to emphasize the vulnerabilities associated with the MD5 algorithm.
+
+### Documentation Updates
+- Updated the documentation to reflect the changes in naming conventions for `weak-sha1` and `weak-md5`.
+
+### Cargo.toml Changes
+- Updated `Cargo.toml` to reflect the changes in the hash and HMAC functionality. 
+
 ### Instructions:  
 
 add symcrypt to your `Cargo.toml` file.

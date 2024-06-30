@@ -17,6 +17,7 @@
 //! Hashing:
 //! - Sha256 ( statefull/stateless )
 //! - Sha384 ( statefull/stateless )
+//! - **weak-sha1** ( statefull/stateless ) - Renamed from `sha1` to better reflect the security level.
 //!
 //! HMAC:
 //! - HmacSha256 ( statefull/stateless )
@@ -30,6 +31,7 @@
 //! - Encryption ( in place )
 //! - Decryption ( in place )
 //!
+//! **Note:** The `weak-sha1` naming convention has been introduced to emphasize the vulnerabilities associated with this algorithms. Users are encouraged to use more secure algorithms for cryptographic needs.
 //! ECDH:
 //! - ECDH Secret Agreement
 //!

@@ -20,9 +20,9 @@ lazy_static = "1.4.0"
 
 [features]
 default = []
-md5 = []
-sha1 = []
-weak-crypto = ["md5","sha1"]
+weak-md5 = []
+weak-sha1 = []
+weak-crypto = ["weak-md5","weak-sha1"]
 
 [dev-dependencies]
 hex = "0.4.3"
