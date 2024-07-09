@@ -1,18 +1,15 @@
-//! PSS functions for [`RsaKeyPair`] and [`RsaPublicKey`]. For more info please refer to symcrypt.h
-//!
-//! Signing functionality is locked to only be usable by [`RsaKeyPair`].
-//! Verification functionality is provided by both [`RsaKeyPair`] and [`RsaPublicKey`].
+//! PSS functions for [`RsaKey`]. For more info please refer to symcrypt.h
 //!
 //! # Example
 //!
-//! ## Sign and Verify with [`RsaKeyPair`]
+//! ## Sign and Verify with [`RsaKey`]
 //!
 //! ```rust
-//! use symcrypt::rsa::{RsaKeyPair, RsaKeyUsage};
+//! use symcrypt::rsa::{RsaKey, RsaKeyUsage};
 //! use symcrypt::hash::{sha256, HashAlgorithm, SHA256_RESULT_SIZE};
 //!
 //! // Generate key pair
-//! let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+//! let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
 //!
 //! // Set up message
 //! let hashed_message = sha256(b"hello world");
@@ -28,20 +25,19 @@
 //!
 use crate::errors::SymCryptError;
 use crate::hash::HashAlgorithm;
-use crate::rsa::{RsaKeyPair, RsaPublicKey};
+use crate::rsa::RsaKey;
 use crate::NumberFormat;
-use symcrypt_sys::PSYMCRYPT_RSAKEY;
 
-impl RsaKeyPair {
-    /// `pss_sign` is only available for [`RsaKeyPair`].
-    ///
-    /// This function returns a `Vec<u8>` that represents the signature of the hashed message, or a [`SymCryptError`] if the operation failed.
+impl RsaKey {
+    /// `pss_sign()` returns a `Vec<u8>` that represents the signature of the hashed message, or a [`SymCryptError`] if the operation failed.
     ///
     /// `hashed_message` is a `&[u8]` that represents the message that has been hashed using the hash algorithm specified in `hash_algorithm`.
     ///  
     /// `hash_algorithm` is a [`HashAlgorithm`] that represents the hash algorithm used to hash the message.
     ///
     /// `salt_length` is a `usize` that represents the length of the salt to be used in the PSS signature, this value is typically the length of the hash output.
+    ///
+    /// This function will fail with [`SymCryptError::InvalidArgument`] if [`RsaKey`] does not have a private key attached.
     pub fn pss_sign(
         &self,
         hashed_message: &[u8],
@@ -76,7 +72,7 @@ impl RsaKeyPair {
         }
     }
 
-    /// `pss_verify` returns a [`SymCryptError`] if the signature verification fails and `Ok(())` if the verification is successful.
+    /// `pss_verify()` returns a [`SymCryptError`] if the signature verification fails and `Ok(())` if the verification is successful.
     ///
     /// Caller must check the return value to determine if the signature is valid before continuing.
     ///
@@ -94,70 +90,24 @@ impl RsaKeyPair {
         hash_algorithm: HashAlgorithm,
         salt_length: usize,
     ) -> Result<(), SymCryptError> {
-        pss_verify_helper(
-            self.inner(),
-            hashed_message,
-            signature,
-            hash_algorithm,
-            salt_length,
-        )
-    }
-}
+        let hash_algorithm_ptr = hash_algorithm.to_symcrypt_hash();
 
-impl RsaPublicKey {
-    /// `pss_verify` returns a [`SymCryptError`] if the signature verification fails and `Ok(())` if the verification is successful.
-    ///
-    /// Caller must check the return value to determine if the signature is valid before continuing.
-    ///
-    /// `hashed_message` is a `&[u8]` that represents the message that has been hashed using the hash algorithm specified in `hash_algorithm`.
-    ///  
-    /// `signature` is a `&[u8]` that represents the signature of the hashed message.
-    ///
-    /// `hash_algorithm` is a [`HashAlgorithm`] that represents the hash algorithm used to hash the message.
-    ///
-    /// `salt_length` is a `usize` that represents the length of the salt to be used in the PSS signature, this value is typically the length of the hash output.
-    pub fn pss_verify(
-        &self,
-        hashed_message: &[u8],
-        signature: &[u8],
-        hash_algorithm: HashAlgorithm,
-        salt_length: usize,
-    ) -> Result<(), SymCryptError> {
-        pss_verify_helper(
-            self.inner(),
-            hashed_message,
-            signature,
-            hash_algorithm,
-            salt_length,
-        )
-    }
-}
-
-// private helper functions for pss verify. The underlying call to SymCrypt is the same since SymCrypt does not make any distinction between public / key pair.
-fn pss_verify_helper(
-    symcrypt_key: PSYMCRYPT_RSAKEY,
-    hashed_message: &[u8],
-    signature: &[u8],
-    hash_algorithm: HashAlgorithm,
-    salt_length: usize,
-) -> Result<(), SymCryptError> {
-    let hash_algorithm_ptr = hash_algorithm.to_symcrypt_hash();
-
-    unsafe {
-        // SAFETY: FFI calls
-        match symcrypt_sys::SymCryptRsaPssVerify(
-            symcrypt_key,
-            hashed_message.as_ptr(),
-            hashed_message.len() as symcrypt_sys::SIZE_T,
-            signature.as_ptr(),
-            signature.len() as symcrypt_sys::SIZE_T,
-            NumberFormat::MSB.to_symcrypt_format(),
-            hash_algorithm_ptr,
-            salt_length as symcrypt_sys::SIZE_T,
-            0, // flags must be 0
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
-            err => Err(err.into()),
+        unsafe {
+            // SAFETY: FFI calls
+            match symcrypt_sys::SymCryptRsaPssVerify(
+                self.inner(),
+                hashed_message.as_ptr(),
+                hashed_message.len() as symcrypt_sys::SIZE_T,
+                signature.as_ptr(),
+                signature.len() as symcrypt_sys::SIZE_T,
+                NumberFormat::MSB.to_symcrypt_format(),
+                hash_algorithm_ptr,
+                salt_length as symcrypt_sys::SIZE_T,
+                0, // flags must be 0
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
+                err => Err(err.into()),
+            }
         }
     }
 }
@@ -166,11 +116,11 @@ fn pss_verify_helper(
 mod test {
     use super::*;
     use crate::hash::{sha256, HashAlgorithm};
-    use crate::rsa::{RsaKeyPair, RsaKeyUsage, RsaPublicKey};
+    use crate::rsa::{RsaKey, RsaKeyUsage};
 
     #[test]
     fn test_pss_sign_and_verify_with_key_pair() {
-        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+        let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
 
         let hashed_message = sha256(b"hello world");
         let hash_algorithm = HashAlgorithm::Sha256;
@@ -187,10 +137,10 @@ mod test {
     }
     #[test]
     fn test_pss_sign_and_verify_with_public_key_bytes() {
-        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+        let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
 
         let public_key_blob = key_pair.export_public_key_blob().unwrap();
-        let public_key = RsaPublicKey::set_public_key(
+        let public_key = RsaKey::set_public_key(
             &public_key_blob.modulus,
             &public_key_blob.pub_exp,
             RsaKeyUsage::SignAndEncrypt,
@@ -213,8 +163,10 @@ mod test {
 
     #[test]
     fn test_pss_sign_and_verify_with_different_key() {
-        let key_pair_1 = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
-        let key_pair_2 = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+        let key_pair_1 =
+            RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+        let key_pair_2 =
+            RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
 
         let hashed_message = sha256(b"hello world");
         let hash_algorithm = HashAlgorithm::Sha256;
@@ -233,10 +185,10 @@ mod test {
 
     #[test]
     fn test_pss_sign_and_verify_tampered_signature() {
-        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+        let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
 
         let public_key_blob = key_pair.export_public_key_blob().unwrap();
-        let public_key = RsaPublicKey::set_public_key(
+        let public_key = RsaKey::set_public_key(
             &public_key_blob.modulus,
             &public_key_blob.pub_exp,
             RsaKeyUsage::SignAndEncrypt,
@@ -263,7 +215,7 @@ mod test {
 
     #[test]
     fn test_pss_sign_and_verify_salt_too_large() {
-        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+        let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
 
         let hashed_message = sha256(b"hello world");
         let hash_algorithm = HashAlgorithm::Sha256;
@@ -280,7 +232,7 @@ mod test {
 
     #[test]
     fn test_pss_sign_with_wrong_key_usage() {
-        let key_pair = RsaKeyPair::generate_new(2048, None, RsaKeyUsage::Encrypt).unwrap();
+        let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::Encrypt).unwrap();
 
         let hashed_message = sha256(b"hello world");
         let hash_algorithm = HashAlgorithm::Sha256;
@@ -291,5 +243,27 @@ mod test {
             .unwrap_err();
 
         assert_eq!(signature, SymCryptError::InvalidArgument);
+    }
+
+    #[test]
+    fn test_pss_sign_with_public_key() {
+        let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+
+        let public_key_blob = key_pair.export_public_key_blob().unwrap();
+        let public_key = RsaKey::set_public_key(
+            &public_key_blob.modulus,
+            &public_key_blob.pub_exp,
+            RsaKeyUsage::SignAndEncrypt,
+        )
+        .unwrap();
+
+        let hashed_message = sha256(b"hello world");
+        let hash_algorithm = HashAlgorithm::Sha256;
+        let salt_length = 32;
+
+        let result = public_key
+            .pss_sign(&hashed_message, hash_algorithm, salt_length)
+            .unwrap_err();
+        assert_eq!(result, SymCryptError::InvalidArgument)
     }
 }
