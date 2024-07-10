@@ -76,7 +76,7 @@ impl RsaKey {
         }
     }
 
-    /// `oaep_encrypt()` returns a encrypted message as a `Vec<u8>`, or a [`SymCryptError`] if the operation fails.
+    /// `oaep_encrypt()` returns an encrypted message as a `Vec<u8>`, or a [`SymCryptError`] if the operation fails.
     ///
     /// `message` is a `&[u8]` that represents the message to encrypt.
     ///

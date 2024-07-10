@@ -90,13 +90,13 @@ impl RsaKey {
         }
     }
 
-    /// `pcks1_decrypt()` decrypts an encrypted buffer using the private key of [`RsaKey`] and returns a `Vec<u8>` representing the decrypted buffer,
+    /// `pcks1_decrypt()` decrypts an encrypted message using the private key of [`RsaKey`] and returns a `Vec<u8>` representing the decrypted message,
     /// or a [`SymCryptError`] if the operation fails.
     ///
-    /// `encrypted_buffer` is a `&[u8]` representing the encrypted buffer to be decrypted.
+    /// `encrypted_message` is a `&[u8]` representing the encrypted message to be decrypted.
     ///
     /// This function will fail with [`SymCryptError::InvalidArgument`] if [`RsaKey`] does not have a private key attached.
-    pub fn pkcs1_decrypt(&self, encrypted_buffer: &[u8]) -> Result<Vec<u8>, SymCryptError> {
+    pub fn pkcs1_decrypt(&self, encrypted_message: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         let mut result_size = 0;
         let modulus_size = self.get_size_of_modulus();
         let mut decrypted_buffer = vec![0u8; modulus_size as usize]; // Max size will be the size of the modulus.
@@ -104,8 +104,8 @@ impl RsaKey {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptRsaPkcs1Decrypt(
                 self.inner(),
-                encrypted_buffer.as_ptr(),
-                encrypted_buffer.len() as symcrypt_sys::SIZE_T,
+                encrypted_message.as_ptr(),
+                encrypted_message.len() as symcrypt_sys::SIZE_T,
                 NumberFormat::MSB.to_symcrypt_format(),
                 0, // No flags can be set
                 decrypted_buffer.as_mut_ptr(),
@@ -162,7 +162,7 @@ impl RsaKey {
     /// `pkcs1_encrypt()` encrypts a message using the public key of the key pair and returns a `Vec<u8>` representing the encrypted message,
     /// or a [`SymCryptError`] if the operation fails.
     ///
-    /// `message` is a `&[u8]` representing the buffer to be encrypted.
+    /// `message` is a `&[u8]` representing the message to be encrypted.
     pub fn pkcs1_encrypt(&self, message: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         let mut result_size = 0;
         let size_of_modulus = self.get_size_of_modulus();
