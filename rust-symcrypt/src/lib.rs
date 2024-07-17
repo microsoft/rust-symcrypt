@@ -82,8 +82,7 @@ use std::sync::Once;
 
 pub mod block_ciphers;
 pub mod chacha;
-pub mod ecdh;
-pub mod eckey;
+pub mod ecc;
 pub mod errors;
 pub mod gcm;
 pub mod hash;
