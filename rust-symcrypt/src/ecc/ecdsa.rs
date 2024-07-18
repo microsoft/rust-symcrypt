@@ -78,18 +78,12 @@ impl EcKey {
     /// `hash_value` is a `&[u8]` that represents the hash value to verify.
     /// 
     /// if the key usage is not [`EcKeyUsage::EcDsa`], or [`EcKeyUsage::EcDhAndEcDsa`] the function will
-    /// fail with a [`SymCryptError`] with the value [`SymCryptError::InvalidArgument`].
+    /// fail with a [`SymCryptError`] with the value [`SymCryptError::SignatureVerificationFailure`].
     pub fn ecdsa_verify(
         &self,
         signature: &[u8],
         hash_value: &[u8],
-    ) -> Result<(), SymCryptError> {
-
-        // SymCrypt does not AV for verify, and returns SignatureVerificationFailure if there is a usage mis-match
-        // but to keep consistency with Ecdsa sign, we are returning InvalidArgument.
-        if self.get_ec_curve_usage() == EcKeyUsage::EcDh {
-            return Err(SymCryptError::InvalidArgument);
-        }   
+    ) -> Result<(), SymCryptError> {  
         unsafe {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptEcDsaVerify(
@@ -143,7 +137,7 @@ mod tests {
 
         let key2 = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDh).unwrap();
         let result = key2.ecdsa_verify(&signature, &hash_value).unwrap_err();
-        assert_eq!(result, SymCryptError::InvalidArgument);
+        assert_eq!(result, SymCryptError::SignatureVerificationFailure);
     }
 
     #[test]
