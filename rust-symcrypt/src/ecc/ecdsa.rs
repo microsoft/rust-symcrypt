@@ -1,23 +1,48 @@
 //! EcDsa functions. For further documentation please refer to symcrypt.h
+//! 
+//! # Example
+//! 
+//! ## ECDSA Sign and Verify
+//! 
+//! ```rust
+//! use symcrypt::ecc::{EcKey, CurveType, EcKeyUsage};
+//! use hex::*;
+//! 
+//! // Set up input hash value
+//! let hash_value = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
+//! 
+//! // Generate a new ECDSA key pair
+//! let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+//! 
+//! // Sign the hash value
+//! let signature = key.ecdsa_sign(&hash_value).unwrap();
+//! 
+//! // Verify the signature
+//! let result = key.ecdsa_verify(&signature, &hash_value);
+//! 
+//! // Assert the signature is valid
+//! assert!(result.is_ok());
+//! 
+//! ```
+//! 
 use crate::ecc::{EcKey, curve_to_num_format, EcKeyUsage};
 use crate::errors::SymCryptError;
 use std::vec;
 use symcrypt_sys;
 
-// @phil, are we always doing MSB?
 impl EcKey {
     /// `ecdsa_sign()` returns a signature as a `Vec<u8>`, or a [`SymCryptError`] if the operation fails.
     ///
     /// `hash_value` is a `&[u8]` that represents the hash value to sign.
-    ///
-    /// `flags` is a `u32` that represents the flags to use.
+    /// 
+    /// If the key usage is not [`EcKeyUsage::EcDsa`], or [`EcKeyUsage::EcDhAndEcDsa`] the function will
+    /// fail with a [`SymCryptError`] with the value [`SymCryptError::InvalidArgument`].
     pub fn ecdsa_sign(
         &self,
         hash_value: &[u8],
     ) -> Result<Vec<u8>, SymCryptError> {
-        
-        // SymCrypt code currently AV's with SymCrypt Fatal Error.
-        // Panic'ing is not recomended in Rust so we are handling the error instead and returning SymCryptError::InvalidArgument
+        // SymCrypt code AV's with SymCrypt Fatal Error.
+        // Panic'ing is not normal here in Rust so we are handling the error instead and returning SymCryptError::InvalidArgument
         if self.get_ec_curve_usage() == EcKeyUsage::EcDh {
             return Err(SymCryptError::InvalidArgument);
         } 
@@ -32,7 +57,7 @@ impl EcKey {
                 hash_value.as_ptr(),
                 hash_value.len() as symcrypt_sys::SIZE_T,
                 curve_to_num_format(self.curve_type), // Derive number format from curve type
-                0, // @Phil, read amove the msg about truncating
+                0,
                 signature.as_mut_ptr(),
                 signature.len() as symcrypt_sys::SIZE_T,
             ) {
@@ -44,11 +69,27 @@ impl EcKey {
         }
     }
 
+    /// `ecdsa_verify()` returns `Ok(())` if the signature is valid, or a [`SymCryptError`] if the operation fails.
+    /// 
+    ///  Caller must check the return value to determine if the signature is valid before continuing.
+    /// 
+    /// `signature` is a `&[u8]` that represents the signature to verify.
+    /// 
+    /// `hash_value` is a `&[u8]` that represents the hash value to verify.
+    /// 
+    /// if the key usage is not [`EcKeyUsage::EcDsa`], or [`EcKeyUsage::EcDhAndEcDsa`] the function will
+    /// fail with a [`SymCryptError`] with the value [`SymCryptError::InvalidArgument`].
     pub fn ecdsa_verify(
         &self,
         signature: &[u8],
         hash_value: &[u8],
     ) -> Result<(), SymCryptError> {
+
+        // SymCrypt does not AV for verify, and returns SignatureVerificationFailure if there is a usage mis-match
+        // but to keep consistency with Ecdsa sign, we are returning InvalidArgument.
+        if self.get_ec_curve_usage() == EcKeyUsage::EcDh {
+            return Err(SymCryptError::InvalidArgument);
+        }   
         unsafe {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptEcDsaVerify(
@@ -58,7 +99,7 @@ impl EcKey {
                 signature.as_ptr(),
                 signature.len() as symcrypt_sys::SIZE_T,
                 curve_to_num_format(self.curve_type), // Derive number format from curve type
-                0, // @Phil, above comments about truncating
+                0,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
                 err => Err(err.into()),
@@ -72,7 +113,7 @@ mod tests {
     use super::*;
     use crate::ecc::CurveType;
     use crate::ecc::EcKeyUsage;
-    
+
     #[test]
     fn test_ecdsa_sign_and_verify_same_key() {
         let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
@@ -90,6 +131,18 @@ mod tests {
         let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDh).unwrap();
         let hash_value = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
         let result = key.ecdsa_sign(&hash_value).unwrap_err();
+        assert_eq!(result, SymCryptError::InvalidArgument);
+    }
+
+    #[test]
+    fn test_ecdsa_verify_wrong_key_usage() {
+        let hash_value = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
+    
+        let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+        let signature = key.ecdsa_sign(&hash_value,).unwrap();
+
+        let key2 = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDh).unwrap();
+        let result = key2.ecdsa_verify(&signature, &hash_value).unwrap_err();
         assert_eq!(result, SymCryptError::InvalidArgument);
     }
 
