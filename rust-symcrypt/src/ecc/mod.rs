@@ -45,7 +45,7 @@
 //! 
 //! // Get attributes of the key
 //! let public_key_size = key.get_size_of_public_key(); 
-//! let private_key_size = key.get_size_of_private_key(); // will be 0.
+//! let private_key_size = key.get_size_of_private_key();
 //! let curve_type = key.get_curve_type();
 //! let ec_usage = key.get_ec_curve_usage();
 //!
