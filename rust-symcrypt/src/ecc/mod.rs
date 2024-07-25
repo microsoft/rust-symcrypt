@@ -64,22 +64,6 @@ use std::ptr;
 pub mod ecdsa;
 pub mod ecdh;
 
-
-/// review:   X25519 has one X component, NIST curves have X and Y components How do we ensure that we're doing the right sizes etc.
-/// 
-/// for EcDsa Symcrypt has a flag for "NO TRUNCATE" // Allowed flags:
-//      SYMCRYPT_FLAG_ECDSA_NO_TRUNCATION: If set then the hash value will
-//      not be truncated.
-/// do we want to enforce this? 
-/// SymCrypt signature size is = privatekeysize*2 ? 
-/// 
-/// SYMCRYPT_FIPS_ASSERT will assert if the key usage is incorrect in SymCryptEcDsaSignEx which causes an AV. 
-/// I've done a check in the rust code to return an error if the key usage is incorrect. Panic for something like this is not rust-like
-/// 
-///size of priave key is for some reason 32 when no private key set
-///  
-/// I've removed the secret agreement return struct. its just a loose wrapper around a vec. i dont see a need for it.
-
 #[derive(Copy, Clone, PartialEq, Debug)]
 /// [`CurveType`] provides an enum of the curve types that can be used when creating a key(s)
 /// The current curve types supported is `NistP256`, `NistP384`, and `Curve25519`.
@@ -183,18 +167,18 @@ impl EcKey {
         unsafe {
             // SAFETY: FFI calls
             // Stack allocated since we will do SymCryptEckeyAllocate.
-            let key_ptr = symcrypt_sys::SymCryptEckeyAllocate(ec_curve.0);
-            if key_ptr.is_null() {
+            let key_ptr = InnerEcKey(symcrypt_sys::SymCryptEckeyAllocate(ec_curve.0));
+            if key_ptr.0.is_null() {
                 return Err(SymCryptError::MemoryAllocationFailure);
             }
 
             match symcrypt_sys::SymCryptEckeySetRandom(
                 ec_key_usage.to_symcrypt_flag(),
-                key_ptr
+                key_ptr.0
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     let key = EcKey {
-                        inner_key: InnerEcKey(key_ptr),
+                        inner_key: key_ptr,
                         curve_type: curve_type,
                         ec_key_usage,
                         has_private_key: true
@@ -223,9 +207,9 @@ impl EcKey {
         unsafe{ 
             //SAFETY: FFI calls
             // Stack allocated since we will do SymCryptEckeyAllocate.
-            let key_ptr = symcrypt_sys::SymCryptEckeyAllocate(ec_curve.0);
+            let key_ptr = InnerEcKey(symcrypt_sys::SymCryptEckeyAllocate(ec_curve.0));
 
-            if key_ptr.is_null() {
+            if key_ptr.0.is_null() {
                 return Err(SymCryptError::MemoryAllocationFailure);
             }
 
@@ -242,11 +226,11 @@ impl EcKey {
                 curve_to_num_format(curve_type),
                 curve_to_ec_point_format(curve_type),
                 ec_key_usage.to_symcrypt_flag(),
-                key_ptr
+                key_ptr.0
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     let key = EcKey {
-                        inner_key: InnerEcKey(key_ptr),
+                        inner_key: key_ptr,
                         curve_type: curve_type,
                         ec_key_usage,
                         has_private_key: true
@@ -272,8 +256,8 @@ impl EcKey {
         unsafe {
             // SAFETY: FFI calls
             // Stack allocated since we will do SymCryptEckeyAllocate.
-            let key_ptr = symcrypt_sys::SymCryptEckeyAllocate(ec_curve.0);
-            if key_ptr.is_null() {
+            let key_ptr = InnerEcKey(symcrypt_sys::SymCryptEckeyAllocate(ec_curve.0));
+            if key_ptr.0.is_null() {
                 return Err(SymCryptError::MemoryAllocationFailure);
             }
 
@@ -285,11 +269,11 @@ impl EcKey {
                 curve_to_num_format(curve_type),
                 curve_to_ec_point_format(curve_type),
                 ec_key_usage.to_symcrypt_flag(),
-                key_ptr,
+                key_ptr.0,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     let key = EcKey {
-                        inner_key: InnerEcKey(key_ptr),
+                        inner_key: key_ptr,
                         curve_type: curve_type,
                         ec_key_usage,
                         has_private_key: false
@@ -415,7 +399,6 @@ impl InnerEcCurve {
             CurveType::NistP384 => &*NIST_P384,
             CurveType::Curve25519 => &*CURVE_25519,
         };
-
         ec_curve
     }
 }

@@ -78,7 +78,6 @@ mod test {
 
     #[test]
     fn test_ecdh_nist_p256() {
-
         let ecdh_1_private = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDh).unwrap();
         let ecdh_2_private = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDh).unwrap();
 
@@ -98,7 +97,6 @@ mod test {
 
     #[test]
     fn test_ecdh_nist_p384() {
-
         let ecdh_1_private = EcKey::generate_key_pair(CurveType::NistP384, EcKeyUsage::EcDh).unwrap();
         let ecdh_2_private = EcKey::generate_key_pair(CurveType::NistP384, EcKeyUsage::EcDh).unwrap();
 
@@ -119,7 +117,6 @@ mod test {
 
     #[test]
     fn test_ecdh_curve_25519() {
-
         let ecdh_1_private = EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDh).unwrap();
         let ecdh_2_private = EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDh).unwrap();
 
@@ -140,7 +137,6 @@ mod test {
 
     #[test]
     fn test_ecdh_different_curve_types() {
-
         let ecdh_1_private = EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDh).unwrap();
         let ecdh_2_private = EcKey::generate_key_pair(CurveType::NistP384, EcKeyUsage::EcDh).unwrap();
 
@@ -158,7 +154,6 @@ mod test {
 
     #[test]
     fn test_ecdh_wrong_usage() {
-
         let ecdh_1_private = EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDsa).unwrap();
         let ecdh_2_private = EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDsa).unwrap();
 
@@ -174,5 +169,21 @@ mod test {
         let secret_agreement_1 = ecdh_1_private.ecdh_secret_agreement(ecdh_2_public).unwrap_err();
 
         assert_eq!(secret_agreement_1, SymCryptError::InvalidArgument);
+    }
+
+    #[test]
+    fn test_ecdh_no_private_key_set() {
+        let dummy_eckey = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDh).unwrap();
+        let dummy_public_key_bytes = dummy_eckey.export_public_key().unwrap();
+        let ecdh_1_no_private_key = EcKey::set_public_key(CurveType::NistP256, &dummy_public_key_bytes.as_slice(), EcKeyUsage::EcDh).unwrap();
+
+        let ecdh_2_private = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDh).unwrap();
+        let public_bytes_2 = ecdh_2_private.export_public_key().unwrap();
+        let ecdh_2_public =
+            EcKey::set_public_key(CurveType::NistP256, &public_bytes_2.as_slice(), EcKeyUsage::EcDh).unwrap();
+
+        let secret_agreement_1 = ecdh_1_no_private_key.ecdh_secret_agreement(ecdh_2_public).unwrap_err();
+
+        assert_eq!(SymCryptError::InvalidArgument, secret_agreement_1);
     }
 }
