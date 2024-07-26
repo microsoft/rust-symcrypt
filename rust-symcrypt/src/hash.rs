@@ -376,7 +376,7 @@ pub fn sha1(data: &[u8]) -> [u8; SHA1_RESULT_SIZE] {
 // pub struct Sha256State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA256_STATE>>);
 pub struct Sha256State(Pin<Box<Sha256InnerState>>);
 
-pub struct Sha256InnerState{
+pub struct Sha256InnerState {
     inner: symcrypt_sys::SYMCRYPT_SHA256_STATE,
     _pinned: PhantomPinned
 }
@@ -395,6 +395,11 @@ impl Sha256State {
         }
         instance
     }
+
+    // test this: make Sha256InnerState.inner() Box<> 
+    // then try to cast to PSYMCRYPT_STATE 
+    // inner.0 as *mut symcrypt_sys::SYMCRYPT_STATE
+
 
     // Safe method to access the inner state mutably
     pub(crate) fn get_inner_mut(&mut self) -> Pin<&mut symcrypt_sys::SYMCRYPT_SHA256_STATE> {
