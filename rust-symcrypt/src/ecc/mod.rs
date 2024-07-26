@@ -75,8 +75,18 @@ pub enum CurveType {
 
 #[derive(Debug)]
 // EcKey is a wrapper around symcrypt_sys::PSYMCRYPT_ECKEY.
-// No drop needed on InnerEcKey, drop is handled by EcKey::Drop();
 pub(crate) struct InnerEcKey (symcrypt_sys::PSYMCRYPT_ECKEY);
+
+// Must drop the EcKey before the expanded EcCurve is dropped
+// EcCurve has static lifetime so this will always be the case.
+impl Drop for InnerEcKey {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptEckeyFree(self.0);
+        }
+    }
+}
 
 // InnerEcCurve is a wrapper around symcrypt_sys::PSYMCRYPT_ECURVE.
 pub(crate) struct InnerEcCurve(pub(crate) symcrypt_sys::PSYMCRYPT_ECURVE);
@@ -141,17 +151,6 @@ unsafe impl Send for EcKey {
 
 unsafe impl Sync for EcKey {
     // TODO: Discuss send/sync for rustls
-}
-
-// Must drop the EcKey before the expanded EcCurve is dropped
-// EcCurve has static lifetime so this will always be the case.
-impl Drop for EcKey {
-    fn drop(&mut self) {
-        unsafe {
-            // SAFETY: FFI calls
-            symcrypt_sys::SymCryptEckeyFree(self.inner_key());
-        }
-    }
 }
 
 impl EcKey {
