@@ -373,12 +373,15 @@ pub fn sha1(data: &[u8]) -> [u8; SHA1_RESULT_SIZE] {
 }
 
 /// [`Sha256State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
-// pub struct Sha256State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA256_STATE>>);
 pub struct Sha256State(Pin<Box<Sha256InnerState>>);
-
 pub struct Sha256InnerState {
+    // inner represents the actual state of the hash from SymCrypt
     inner: symcrypt_sys::SYMCRYPT_SHA256_STATE,
-    _pinned: PhantomPinned
+    
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    //  This prevents the struct from implementing the Unpin trait, enforcing that any
+    //  references to this structure remain valid throughout its lifetime.
+        _pinned: PhantomPinned
 }
 // Sha256State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha256State::new(). Box<> heap allocates the memory and ensures that it does not move
@@ -391,23 +394,24 @@ impl Sha256State {
         let mut instance = Sha256State(Box::pin(Sha256InnerState{inner: symcrypt_sys::SYMCRYPT_SHA256_STATE::default(), _pinned: PhantomPinned}));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha256Init(&mut *instance.get_inner_mut());
+            symcrypt_sys::SymCryptSha256Init(instance.get_inner_mut());
         }
         instance
     }
 
-    // test this: make Sha256InnerState.inner() Box<> 
-    // then try to cast to PSYMCRYPT_STATE 
-    // inner.0 as *mut symcrypt_sys::SYMCRYPT_STATE
-
-
     // Safe method to access the inner state mutably
-    pub(crate) fn get_inner_mut(&mut self) -> Pin<&mut symcrypt_sys::SYMCRYPT_SHA256_STATE> {
-    // SAFETY: as_mut() returns a Pin<&mut Sha256InnerState> and inner is !Unpin
-    unsafe { Pin::new_unchecked(&mut self.0.as_mut().get_unchecked_mut().inner) }
+    pub(crate) fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA256_STATE {
+        unsafe { 
+            // SAFETY: getting a mutable raw pointer to the inner state
+            &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
+        }
+    }
+    
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA256_STATE {
+        &self.0.as_ref().get_ref().inner as *const _
     }
 }
-
 
 impl HashState for Sha256State {
     type Result = [u8; SHA256_RESULT_SIZE];
@@ -416,7 +420,7 @@ impl HashState for Sha256State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha256Append(
-                &mut *self.get_inner_mut(),
+                self.get_inner_mut(),
                 data.as_ptr(),
                 data.len() as symcrypt_sys::SIZE_T,
             );
@@ -427,7 +431,7 @@ impl HashState for Sha256State {
         let mut result = [0u8; SHA256_RESULT_SIZE];
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha256Result(&mut *self.get_inner_mut(), result.as_mut_ptr());
+            symcrypt_sys::SymCryptSha256Result(self.get_inner_mut(), result.as_mut_ptr());
         }
         result
     }
@@ -442,7 +446,7 @@ impl Clone for Sha256State {
         let mut new_state = Sha256State(Box::pin(Sha256InnerState{inner: symcrypt_sys::SYMCRYPT_SHA256_STATE::default(), _pinned: PhantomPinned}));
         unsafe {
             // SAFETY: FFI calls
-            //symcrypt_sys::SymCryptSha256StateCopy(&*self.get_inner_mut(), &mut *new_state.get_inner_mut());
+            symcrypt_sys::SymCryptSha256StateCopy(self.get_inner(), new_state.get_inner_mut());
         }
         new_state
     }
@@ -452,10 +456,10 @@ impl Drop for Sha256State {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls
-            // symcrypt_sys::SymCryptWipe(
-            //     ptr::addr_of_mut!(self.get_inner_mut()) as *mut c_void,
-            //     mem::size_of_val(&mut self.get_inner_mut()) as symcrypt_sys::SIZE_T,
-            // )
+            symcrypt_sys::SymCryptWipe(
+                self.get_inner() as *mut c_void,
+                mem::size_of_val(&mut self.get_inner()) as symcrypt_sys::SIZE_T,
+            )
         }
     }
 }
