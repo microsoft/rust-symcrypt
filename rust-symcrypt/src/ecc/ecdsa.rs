@@ -9,16 +9,16 @@
 //! use hex::*;
 //! 
 //! // Set up input hash value
-//! let hash_value = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
+//! let hashed_message = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
 //! 
 //! // Generate a new ECDSA key pair
 //! let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
 //! 
 //! // Sign the hash value
-//! let signature = key.ecdsa_sign(&hash_value).unwrap();
+//! let signature = key.ecdsa_sign(&hashed_message).unwrap();
 //! 
 //! // Verify the signature
-//! let result = key.ecdsa_verify(&signature, &hash_value);
+//! let result = key.ecdsa_verify(&signature, &hashed_message);
 //! 
 //! // Assert the signature is valid
 //! assert!(result.is_ok());
@@ -33,7 +33,7 @@ use symcrypt_sys;
 impl EcKey {
     /// `ecdsa_sign()` returns a signature as a `Vec<u8>`, or a [`SymCryptError`] if the operation fails.
     ///
-    /// `hash_value` is a `&[u8]` that represents the hash value to sign.
+    /// `hashed_message` is a `&[u8]` that represents the hash value to sign.
     /// 
     /// If the key usage is not [`EcKeyUsage::EcDsa`], or [`EcKeyUsage::EcDhAndEcDsa`] the function will
     /// fail with a [`SymCryptError`] with the value [`SymCryptError::InvalidArgument`].
@@ -75,21 +75,21 @@ impl EcKey {
     /// 
     /// `signature` is a `&[u8]` that represents the signature to verify.
     /// 
-    /// `hash_value` is a `&[u8]` that represents the hash value to verify.
+    /// `hashed_message` is a `&[u8]` that represents the hashed message to verify.
     /// 
     /// if the key usage is not [`EcKeyUsage::EcDsa`], or [`EcKeyUsage::EcDhAndEcDsa`] the function will
     /// fail with a [`SymCryptError`] with the value [`SymCryptError::SignatureVerificationFailure`].
     pub fn ecdsa_verify(
         &self,
         signature: &[u8],
-        hash_value: &[u8],
+        hashed_message: &[u8],
     ) -> Result<(), SymCryptError> {  
         unsafe {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptEcDsaVerify(
                 self.inner_key(),
-                hash_value.as_ptr(),
-                hash_value.len() as symcrypt_sys::SIZE_T,
+                hashed_message.as_ptr(),
+                hashed_message.len() as symcrypt_sys::SIZE_T,
                 signature.as_ptr(),
                 signature.len() as symcrypt_sys::SIZE_T,
                 curve_to_num_format(self.curve_type), // Derive number format from curve type
