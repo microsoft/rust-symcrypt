@@ -399,8 +399,14 @@ impl Sha256State {
         instance
     }
 
-    // Safe method to access the inner state mutably
-    pub(crate) fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA256_STATE {
+    /// Get a mutable pointer to the inner SymCrypt state
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    ///
+    /// ## Safety:
+    /// 
+    /// This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+    fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA256_STATE {
         unsafe { 
             // SAFETY: getting a mutable raw pointer to the inner state
             &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
