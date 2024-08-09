@@ -24,8 +24,9 @@ fn main() {
         .allowlist_function("SymCryptModuleInit")
         .allowlist_var("^(SYMCRYPT_CODE_VERSION.*)$")
         // HASH FUNCTIONS
-        .allowlist_function("^SymCrypt(?:Sha(?:256|384|512|1)|Md5)(?:Init|Append|Result|StateCopy)?$")
-        .allowlist_var("^(SYMCRYPT_(SHA256|SHA384|SHA512|SHA1|MD5)_RESULT_SIZE$)")
+        .allowlist_function("^SymCrypt(?:Sha3_(?:256|384|512)|Sha(?:256|384|512|1)|Md5)(?:Init|Append|Result|StateCopy)?$")
+        .allowlist_var("^(SYMCRYPT_(SHA3_256|SHA3_384|SHA3_512|SHA256|SHA384|SHA512|SHA1|MD5)_RESULT_SIZE$)")
+        .allowlist_var("^SymCrypt(?:Sha3_(?:256|384|512)|Sha(?:256|384|512|1)|Md5)Algorithm$")
         // HMAC FUNCTIONS
         .allowlist_function("^SymCryptHmac(?:Sha(?:256|384|512|1)|Md5)(?:ExpandKey|Init|Append|Result|StateCopy)?$")
         // GCM FUNCTIONS
@@ -40,19 +41,32 @@ fn main() {
         .allowlist_var("^SymCryptEcurveParams(NistP256|NistP384|Curve25519)$")
         .allowlist_function("^(SymCryptEckey(Allocate|Free|SizeofPublicKey|GetValue|SetRandom|SetValue|SetRandom|))$")
         .allowlist_var("SYMCRYPT_FLAG_ECKEY_ECDH")
+        .allowlist_var("SYMCRYPT_FLAG_ECKEY_ECDSA")
         .allowlist_function("SymCryptEcDhSecretAgreement")
         // RSA FUNCTIONS
-        .allowlist_function("^(SymCryptRsakey.*)$")
-        .allowlist_function("^(SymCryptRsaRaw.*)$")
+        .allowlist_function("^SymCryptRsa.*") // Must allow ALL SymCryptRsakey* before blocking the functions that are not needed.
+        .blocklist_function("SymCryptRsakeyCreate")
+        .blocklist_function("SymCryptRsakeySizeofRsakeyFromParams")
+        .blocklist_function("SymCryptRsakeyWipe")
+        .blocklist_function("SymCryptRsaSelftest")
+        .blocklist_function("^SymCryptRsaRaw.*$")
+        .allowlist_var("SYMCRYPT_FLAG_RSAKEY_ENCRYPT")
+        .allowlist_var("SYMCRYPT_FLAG_RSAKEY_SIGN")
         // ECDSA functions
         .allowlist_function("^(SymCryptEcDsa(Sign|Verify).*)")
         // RSA PKCS1 FUNCTIONS
         .allowlist_function("^(SymCryptRsaPkcs1(Sign|Verify|Encrypt|Decrypt).*)$")
+        .allowlist_var("SYMCRYPT_FLAG_RSA_PKCS1_NO_ASN1")
+        .allowlist_var("SYMCRYPT_FLAG_RSA_PKCS1_OPTIONAL_HASH_OID")
         // RSA PSS FUNCTIONS
         .allowlist_function("^(SymCryptRsaPss(Sign|Verify).*)$")
+        // OID LISTS
+        .allowlist_var("^SymCrypt(Sha(1|256|384|512|3_(256|384|512))|Md5)OidList$")
         // UTILITY FUNCTIONS
         .allowlist_function("SymCryptWipe")
         .allowlist_function("SymCryptRandom")
+        .allowlist_function("SymCryptLoadMsbFirstUint64")
+        .allowlist_function("SymCryptStoreMsbFirstUint64")    
         
         .generate_comments(true)
         .derive_default(true)
