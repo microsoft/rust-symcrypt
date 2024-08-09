@@ -51,7 +51,7 @@
 //!     17, 124, 191, 60, 163, 218, 149, 209, 207, 181,
 //! ];
 //!
-//! let pub_exp = [0, 0, 0, 0, 0, 1, 0, 1];
+//! let pub_exp = [1, 0, 1];
 //! let public_key = RsaKey::set_public_key(&modulus, &pub_exp, RsaKeyUsage::Sign).unwrap();
 //!    
 //! // public_key can now be used via pkcs1, pss, or oaep.
@@ -193,6 +193,7 @@ impl RsaKey {
     /// `set_key_pair()` sets both the public and private key information onto [`RsaKey`].
     ///
     /// `modulus_buffer` takes in a `&[u8]` reference to a byte array that contains the modulus of the Rsa key.
+    /// The modulus must be a big-endian byte array, with the leading 0 removed.
     ///
     /// `pub_exp` takes in a `&[u8]` that is the public exponent represented by an array of bytes.
     ///
@@ -206,7 +207,7 @@ impl RsaKey {
         q: &[u8],
         rsa_key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let n_bits_mod = (modulus_buffer.len() as symcrypt_sys::SIZE_T) * 8; // Convert the size from bytes to bits.
+        let n_bits_mod = (modulus_buffer.len() as symcrypt_sys::SIZE_T) * 8; // Convert the size from bytes to bits. Caller must remove leading 0 if set.
         let rsa_key = allocate_rsa(2, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
 
@@ -244,6 +245,7 @@ impl RsaKey {
     /// `set_public_key()` sets only the public key information onto the [`RsaKey`].
     ///
     /// `modulus_buffer` takes in a `&[u8]` reference to a byte array that contains the modulus of the Rsa key.
+    /// The modulus must be a big-endian byte array, with the leading 0 removed.
     ///
     /// `pub_exp` takes in a `&[u8]` that is an array of bytes representing the public exponent.
     ///
@@ -253,7 +255,7 @@ impl RsaKey {
         pub_exp: &[u8],
         rsa_key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let n_bits_mod = (modulus_buffer.len() as symcrypt_sys::SIZE_T) * 8; // Convert the size from bytes to bits
+        let n_bits_mod = (modulus_buffer.len() as symcrypt_sys::SIZE_T) * 8; // Convert the size from bytes to bits. Caller must remove leading 0 if set.
         let rsa_key = allocate_rsa(0, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
         unsafe {
@@ -628,8 +630,8 @@ mod test {
             239, 237, 129, 4, 165, 38, 112, 247, 253, 174, 21, 245, 71, 236, 229, 56, 123, 134, 45,
             17, 124, 191, 60, 163, 218, 149, 209, 207, 181,
         ];
-        let pub_exp: u64 = 65537;
-        let result = RsaKey::set_public_key(&modulus, &pub_exp.to_be_bytes(), RsaKeyUsage::Encrypt);
+        let pub_exp = [0, 0, 0, 0, 0, 1, 0, 1];
+        let result = RsaKey::set_public_key(&modulus, &pub_exp, RsaKeyUsage::Encrypt);
 
         assert!(result.is_ok());
         let pub_key = result.unwrap();
