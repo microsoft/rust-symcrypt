@@ -63,12 +63,12 @@
 //!
 use crate::block_ciphers::*;
 use crate::errors::SymCryptError;
-use std::marker::PhantomPinned;
-use std::pin::Pin;
-use symcrypt_sys;
 use core::ffi::c_void;
+use std::marker::PhantomPinned;
 use std::mem;
+use std::pin::Pin;
 use std::ptr;
+use symcrypt_sys;
 
 /// [`GcmExpandedKey`] is a struct that holds the Gcm expanded key from SymCrypt.
 pub struct GcmExpandedKey {
@@ -83,6 +83,7 @@ pub struct GcmExpandedKey {
     key_length: usize,
 }
 
+/// [`GcmInnerKey`] is a struct that holds the underlying SymCrypt state for GCM.
 struct GcmInnerKey {
     // inner represents the actual state of the hash from SymCrypt
     inner: symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY,
@@ -117,8 +118,10 @@ impl GcmInnerKey {
     /// Provides a mutable pointer to the inner SymCrypt state.
     ///
     /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    /// The pointer returned is pinned and cannot be moved
+    /// This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
     fn get_inner_mut(self: Pin<&mut Self>) -> *mut symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY {
-        // SAFETY: We are returning a pointer to the pinned data, and Rust guarantees that this data cannot be moved.
+        // SAFETY: Accessing the inner state of the pinned data
         unsafe { &mut self.get_unchecked_mut().inner as *mut _ }
     }
 
@@ -137,8 +140,12 @@ impl GcmExpandedKey {
     pub fn new(key: &[u8], cipher: BlockCipherType) -> Result<Self, SymCryptError> {
         let mut expanded_key = GcmInnerKey::new(); // Get expanded_key that is already Pin<Box<T>>'d
 
-        // Use as_mut() to get a Pin<&mut GcmInnerKey> and then call get_inner_mut to get *mut 
-        gcm_expand_key(key,  expanded_key.as_mut().get_inner_mut(), convert_cipher(cipher))?;
+        // Use as_mut() to get a Pin<&mut GcmInnerKey> and then call get_inner_mut to get *mut
+        gcm_expand_key(
+            key,
+            expanded_key.as_mut().get_inner_mut(),
+            convert_cipher(cipher),
+        )?;
         let gcm_expanded_key = GcmExpandedKey {
             expanded_key: expanded_key,
             key_length: key.len(),
