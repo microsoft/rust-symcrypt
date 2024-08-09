@@ -5303,6 +5303,9 @@ extern "C" {
     ) -> UINT32;
 }
 extern "C" {
+    pub fn SymCryptEckeySizeofPrivateKey(pkEckey: PCSYMCRYPT_ECKEY) -> UINT32;
+}
+extern "C" {
     pub fn SymCryptEckeySetValue(
         pbPrivateKey: PCBYTE,
         cbPrivateKey: SIZE_T,

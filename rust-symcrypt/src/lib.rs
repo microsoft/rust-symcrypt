@@ -39,8 +39,9 @@
 //! - Encryption ( in place )
 //! - Decryption ( in place )
 //!
-//! ECDH:
+//! ECC:
 //! - ECDH Secret Agreement
+//! - ECDSA (Sign / Verify)
 //!
 //! RSA:
 //! - PKCS1 ( Sign, Verify, Encrypt, Decrypt )
@@ -82,8 +83,7 @@ use std::sync::Once;
 
 pub mod block_ciphers;
 pub mod chacha;
-pub mod ecdh;
-pub mod eckey;
+pub mod ecc;
 pub mod errors;
 pub mod gcm;
 pub mod hash;
