@@ -63,8 +63,12 @@
 //!
 use crate::block_ciphers::*;
 use crate::errors::SymCryptError;
+use std::marker::PhantomPinned;
 use std::pin::Pin;
 use symcrypt_sys;
+use core::ffi::c_void;
+use std::mem;
+use std::ptr;
 
 /// [`GcmExpandedKey`] is a struct that holds the Gcm expanded key from SymCrypt.
 pub struct GcmExpandedKey {
@@ -75,8 +79,53 @@ pub struct GcmExpandedKey {
 
     // SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
     // doing so would lead to use-after-free and inconsistent states.
-    expanded_key: Pin<Box<symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY>>,
+    expanded_key: Pin<Box<GcmInnerKey>>,
     key_length: usize,
+}
+
+struct GcmInnerKey {
+    // inner represents the actual state of the hash from SymCrypt
+    inner: symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY,
+
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    // This prevents the struct from implementing the Unpin trait, enforcing that any
+    // references to this structure remain valid throughout its lifetime.
+    _pinned: PhantomPinned,
+}
+
+impl Drop for GcmInnerKey {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.inner) as *mut c_void, // Using addr_of_mut! so we don't access in the inner field
+                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T, // Using size_of_val! so we don't access in the inner field
+            );
+        }
+    }
+}
+
+impl GcmInnerKey {
+    /// Creates a new GcmInnerKey and returns a pinned Box<Self>
+    fn new() -> Pin<Box<Self>> {
+        Box::pin(GcmInnerKey {
+            inner: symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY::default(),
+            _pinned: PhantomPinned,
+        })
+    }
+
+    /// Provides a mutable pointer to the inner SymCrypt state.
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    fn get_inner_mut(self: Pin<&mut Self>) -> *mut symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY {
+        // SAFETY: We are returning a pointer to the pinned data, and Rust guarantees that this data cannot be moved.
+        unsafe { &mut self.get_unchecked_mut().inner as *mut _ }
+    }
+
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY {
+        &self.inner as *const _
+    }
 }
 
 /// `encrypt_in_place` and `decrypt_in_place` take in an allocated `buffer` as an in/out parameter for performance reasons.
@@ -86,8 +135,10 @@ impl GcmExpandedKey {
     /// This function can fail and will propagate the error back to the caller. This call will fail if the wrong key size is provided.
     /// The only accepted Cipher for GCM is [`BlockCipherType::AesBlock`]
     pub fn new(key: &[u8], cipher: BlockCipherType) -> Result<Self, SymCryptError> {
-        let mut expanded_key = Box::pin(symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY::default()); // boxing here so that the memory is not moved
-        gcm_expand_key(key, &mut expanded_key, convert_cipher(cipher))?;
+        let mut expanded_key = GcmInnerKey::new(); // Get expanded_key that is already Pin<Box<T>>'d
+
+        // Use as_mut() to get a Pin<&mut GcmInnerKey> and then call get_inner_mut to get *mut 
+        gcm_expand_key(key,  expanded_key.as_mut().get_inner_mut(), convert_cipher(cipher))?;
         let gcm_expanded_key = GcmExpandedKey {
             expanded_key: expanded_key,
             key_length: key.len(),
@@ -108,7 +159,7 @@ impl GcmExpandedKey {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptGcmEncrypt(
-                &*self.expanded_key,
+                self.expanded_key.get_inner(),
                 nonce.as_ptr(),
                 nonce.len() as symcrypt_sys::SIZE_T,
                 auth_data.as_ptr(),
@@ -136,7 +187,7 @@ impl GcmExpandedKey {
         unsafe {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptGcmDecrypt(
-                &*self.expanded_key,
+                self.expanded_key.get_inner(),
                 nonce.as_ptr(),
                 nonce.len() as symcrypt_sys::SIZE_T,
                 auth_data.as_ptr(),
@@ -170,7 +221,7 @@ unsafe impl Sync for GcmExpandedKey {
 // Internal function to expand the SymCrypt Gcm Key.
 fn gcm_expand_key(
     key: &[u8],
-    expanded_key: &mut symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY,
+    expanded_key: *mut symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY,
     cipher: *const symcrypt_sys::SYMCRYPT_BLOCKCIPHER,
 ) -> Result<(), SymCryptError> {
     unsafe {

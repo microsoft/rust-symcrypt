@@ -74,7 +74,6 @@ use core::ffi::c_void;
 use std::marker::PhantomPinned;
 use std::mem;
 use std::pin::Pin;
-use std::ptr;
 use symcrypt_sys;
 
 /// 16
@@ -187,7 +186,19 @@ pub trait HashState: Clone {
 
 /// [`Md5State`] is a struct that represents a stateful md5 hash and implements the [`HashState`] trait.
 #[cfg(feature = "md5")]
-pub struct Md5State(Pin<Box<symcrypt_sys::SYMCRYPT_MD5_STATE>>);
+pub struct Md5State(Pin<Box<Md5InnerState>>);
+
+#[cfg(feature = "md5")]
+struct Md5InnerState {
+    // inner represents the actual state of the hash from SymCrypt
+    inner: symcrypt_sys::SYMCRYPT_MD5_STATE,
+    
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    //  This prevents the struct from implementing the Unpin trait, enforcing that any
+    //  references to this structure remain valid throughout its lifetime.
+    _pinned: PhantomPinned,
+}
+
 // Md5State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Md5State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
@@ -196,12 +207,27 @@ pub struct Md5State(Pin<Box<symcrypt_sys::SYMCRYPT_MD5_STATE>>);
 #[cfg(feature = "md5")]
 impl Md5State {
     pub fn new() -> Self {
-        let mut instance = Md5State(Box::pin(symcrypt_sys::SYMCRYPT_MD5_STATE::default()));
+        let mut instance = Md5State(Box::pin(Md5InnerState { inner: symcrypt_sys::SYMCRYPT_MD5_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptMd5Init(&mut *instance.0);
+            symcrypt_sys::SymCryptMd5Init(instance.get_inner_mut());
         }
         instance
+    }
+
+    /// Get a mutable pointer to the inner SymCrypt state
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_MD5_STATE {
+        unsafe { 
+            // This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+            &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
+        }
+    }
+
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_MD5_STATE {
+        &self.0.as_ref().get_ref().inner as *const _
     }
 }
 
@@ -213,7 +239,7 @@ impl HashState for Md5State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptMd5Append(
-                &mut *self.0,
+                self.get_inner_mut(),
                 data.as_ptr(),
                 data.len() as symcrypt_sys::SIZE_T,
             );
@@ -224,7 +250,7 @@ impl HashState for Md5State {
         let mut result = [0u8; MD5_RESULT_SIZE];
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptMd5Result(&mut *self.0, result.as_mut_ptr());
+            symcrypt_sys::SymCryptMd5Result(self.get_inner_mut(), result.as_mut_ptr());
         }
         result
     }
@@ -237,10 +263,10 @@ impl HashState for Md5State {
 #[cfg(feature = "md5")]
 impl Clone for Md5State {
     fn clone(&self) -> Self {
-        let mut new_state = Md5State(Box::pin(symcrypt_sys::SYMCRYPT_MD5_STATE::default()));
+        let mut new_state = Md5State(Box::pin(Md5InnerState { inner: symcrypt_sys::SYMCRYPT_MD5_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptMd5StateCopy(&*self.0, &mut *new_state.0);
+            symcrypt_sys::SymCryptMd5StateCopy(self.get_inner(), new_state.get_inner_mut());
         }
         new_state
     }
@@ -252,9 +278,9 @@ impl Drop for Md5State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.0) as *mut c_void,
-                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
-            )
+                self.get_inner_mut() as *mut c_void,
+                mem::size_of_val(&*self.get_inner()) as symcrypt_sys::SIZE_T,
+            );
         }
     }
 }
@@ -280,7 +306,19 @@ pub fn md5(data: &[u8]) -> [u8; MD5_RESULT_SIZE] {
 
 /// [`Sha1State`] is a struct that represents a stateful sha1 hash and implements the [`HashState`] trait.
 #[cfg(feature = "sha1")]
-pub struct Sha1State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA1_STATE>>);
+pub struct Sha1State(Pin<Box<Sha1InnerState>>);
+
+#[cfg(feature = "sha1")]
+struct Sha1InnerState {
+    // inner represents the actual state of the hash from SymCrypt
+    inner: symcrypt_sys::SYMCRYPT_SHA1_STATE,
+    
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    //  This prevents the struct from implementing the Unpin trait, enforcing that any
+    //  references to this structure remain valid throughout its lifetime.
+    _pinned: PhantomPinned,
+}
+
 // Sha1State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha1State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
@@ -290,12 +328,27 @@ pub struct Sha1State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA1_STATE>>);
 #[cfg(feature = "sha1")]
 impl Sha1State {
     pub fn new() -> Self {
-        let mut instance = Sha1State(Box::pin(symcrypt_sys::SYMCRYPT_SHA1_STATE::default()));
+        let mut instance = Sha1State(Box::pin(Sha1InnerState { inner: symcrypt_sys::SYMCRYPT_SHA1_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha1Init(&mut *instance.0);
+            symcrypt_sys::SymCryptSha1Init(instance.get_inner_mut());
         }
         instance
+    }
+
+    /// Get a mutable pointer to the inner SymCrypt state
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA1_STATE {
+        unsafe { 
+            // This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+            &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
+        }
+    }
+
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA1_STATE {
+        &self.0.as_ref().get_ref().inner as *const _
     }
 }
 
@@ -307,7 +360,7 @@ impl HashState for Sha1State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha1Append(
-                &mut *self.0,
+                self.get_inner_mut(),
                 data.as_ptr(),
                 data.len() as symcrypt_sys::SIZE_T,
             );
@@ -318,7 +371,7 @@ impl HashState for Sha1State {
         let mut result = [0u8; SHA1_RESULT_SIZE];
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha1Result(&mut *self.0, result.as_mut_ptr());
+            symcrypt_sys::SymCryptSha1Result(self.get_inner_mut(), result.as_mut_ptr());
         }
         result
     }
@@ -331,10 +384,10 @@ impl HashState for Sha1State {
 #[cfg(feature = "sha1")]
 impl Clone for Sha1State {
     fn clone(&self) -> Self {
-        let mut new_state = Sha1State(Box::pin(symcrypt_sys::SYMCRYPT_SHA1_STATE::default()));
+        let mut new_state = Sha1State(Box::pin(Sha1InnerState { inner: symcrypt_sys::SYMCRYPT_SHA1_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha1StateCopy(&*self.0, &mut *new_state.0);
+            symcrypt_sys::SymCryptSha1StateCopy(self.get_inner(), new_state.get_inner_mut());
         }
         new_state
     }
@@ -346,9 +399,9 @@ impl Drop for Sha1State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.0) as *mut c_void,
-                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
-            )
+                self.get_inner_mut() as *mut c_void,
+                mem::size_of_val(&*self.get_inner()) as symcrypt_sys::SIZE_T,
+            );
         }
     }
 }
@@ -374,15 +427,17 @@ pub fn sha1(data: &[u8]) -> [u8; SHA1_RESULT_SIZE] {
 
 /// [`Sha256State`] is a struct that represents a stateful sha256 hash and implements the [`HashState`] trait.
 pub struct Sha256State(Pin<Box<Sha256InnerState>>);
-pub struct Sha256InnerState {
+
+struct Sha256InnerState {
     // inner represents the actual state of the hash from SymCrypt
     inner: symcrypt_sys::SYMCRYPT_SHA256_STATE,
     
     // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
     //  This prevents the struct from implementing the Unpin trait, enforcing that any
     //  references to this structure remain valid throughout its lifetime.
-        _pinned: PhantomPinned
+    _pinned: PhantomPinned
 }
+
 // Sha256State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha256State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
@@ -402,13 +457,9 @@ impl Sha256State {
     /// Get a mutable pointer to the inner SymCrypt state
     ///
     /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
-    ///
-    /// ## Safety:
-    /// 
-    /// This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
     fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA256_STATE {
         unsafe { 
-            // SAFETY: getting a mutable raw pointer to the inner state
+            // This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
             &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
         }
     }
@@ -463,9 +514,9 @@ impl Drop for Sha256State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                self.get_inner() as *mut c_void,
-                mem::size_of_val(&mut self.get_inner()) as symcrypt_sys::SIZE_T,
-            )
+                self.get_inner_mut() as *mut c_void,
+                mem::size_of_val(&*self.get_inner()) as symcrypt_sys::SIZE_T,
+            );
         }
     }
 }
@@ -489,7 +540,18 @@ pub fn sha256(data: &[u8]) -> [u8; SHA256_RESULT_SIZE] {
 }
 
 /// [`Sha384State`] is a struct that represents a stateful sha384 hash and implements the [`HashState`] trait.
-pub struct Sha384State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA384_STATE>>);
+pub struct Sha384State(Pin<Box<Sha384InnerState>>);
+
+struct Sha384InnerState {
+    // inner represents the actual state of the hash from SymCrypt
+    inner: symcrypt_sys::SYMCRYPT_SHA384_STATE,
+    
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    //  This prevents the struct from implementing the Unpin trait, enforcing that any
+    //  references to this structure remain valid throughout its lifetime.
+    _pinned: PhantomPinned,
+}
+
 // Sha384State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha384State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
@@ -498,12 +560,27 @@ pub struct Sha384State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA384_STATE>>);
 
 impl Sha384State {
     pub fn new() -> Self {
-        let mut instance = Sha384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA384_STATE::default()));
+        let mut instance = Sha384State(Box::pin(Sha384InnerState { inner: symcrypt_sys::SYMCRYPT_SHA384_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha384Init(&mut *instance.0);
+            symcrypt_sys::SymCryptSha384Init(instance.get_inner_mut());
         }
         instance
+    }
+
+    /// Get a mutable pointer to the inner SymCrypt state
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA384_STATE {
+        unsafe { 
+            // This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+            &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
+        }
+    }
+
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA384_STATE {
+        &self.0.as_ref().get_ref().inner as *const _
     }
 }
 
@@ -514,7 +591,7 @@ impl HashState for Sha384State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha384Append(
-                &mut *self.0,
+                self.get_inner_mut(),
                 data.as_ptr(),
                 data.len() as symcrypt_sys::SIZE_T,
             );
@@ -525,7 +602,7 @@ impl HashState for Sha384State {
         let mut result = [0u8; SHA384_RESULT_SIZE];
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha384Result(&mut *self.0, result.as_mut_ptr());
+            symcrypt_sys::SymCryptSha384Result(self.get_inner_mut(), result.as_mut_ptr());
         }
         result
     }
@@ -537,10 +614,10 @@ impl HashState for Sha384State {
 
 impl Clone for Sha384State {
     fn clone(&self) -> Self {
-        let mut new_state = Sha384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA384_STATE::default()));
+        let mut new_state = Sha384State(Box::pin(Sha384InnerState { inner: symcrypt_sys::SYMCRYPT_SHA384_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha384StateCopy(&*self.0, &mut *new_state.0);
+            symcrypt_sys::SymCryptSha384StateCopy(self.get_inner(), new_state.get_inner_mut());
         }
         new_state
     }
@@ -551,9 +628,9 @@ impl Drop for Sha384State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.0) as *mut c_void,
-                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
-            )
+                self.get_inner_mut() as *mut c_void, 
+                mem::size_of_val(&*self.get_inner()) as symcrypt_sys::SIZE_T, 
+            );
         }
     }
 }
@@ -577,7 +654,18 @@ pub fn sha384(data: &[u8]) -> [u8; SHA384_RESULT_SIZE] {
 }
 
 /// [`Sha512State`] is a struct that represents a stateful sha512 hash and implements the [`HashState`] trait.
-pub struct Sha512State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA512_STATE>>);
+pub struct Sha512State(Pin<Box<Sha512InnerState>>);
+
+struct Sha512InnerState {
+    // inner represents the actual state of the hash from SymCrypt
+    inner: symcrypt_sys::SYMCRYPT_SHA512_STATE,
+    
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    //  This prevents the struct from implementing the Unpin trait, enforcing that any
+    //  references to this structure remain valid throughout its lifetime.
+    _pinned: PhantomPinned,
+}
+
 // Sha512State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha512State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
@@ -586,12 +674,27 @@ pub struct Sha512State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA512_STATE>>);
 
 impl Sha512State {
     pub fn new() -> Self {
-        let mut instance = Sha512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA512_STATE::default()));
+        let mut instance = Sha512State(Box::pin(Sha512InnerState { inner: symcrypt_sys::SYMCRYPT_SHA512_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha512Init(&mut *instance.0);
+            symcrypt_sys::SymCryptSha512Init(instance.get_inner_mut());
         }
         instance
+    }
+
+    /// Get a mutable pointer to the inner SymCrypt state
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA512_STATE {
+        unsafe { 
+            // This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+            &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
+        }
+    }
+
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA512_STATE {
+        &self.0.as_ref().get_ref().inner as *const _
     }
 }
 
@@ -602,7 +705,7 @@ impl HashState for Sha512State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha512Append(
-                &mut *self.0,
+                self.get_inner_mut(),
                 data.as_ptr(),
                 data.len() as symcrypt_sys::SIZE_T,
             );
@@ -613,7 +716,7 @@ impl HashState for Sha512State {
         let mut result = [0u8; SHA512_RESULT_SIZE];
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha512Result(&mut *self.0, result.as_mut_ptr());
+            symcrypt_sys::SymCryptSha512Result(self.get_inner_mut(), result.as_mut_ptr());
         }
         result
     }
@@ -625,10 +728,10 @@ impl HashState for Sha512State {
 
 impl Clone for Sha512State {
     fn clone(&self) -> Self {
-        let mut new_state = Sha512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA512_STATE::default()));
+        let mut new_state = Sha512State(Box::pin(Sha512InnerState { inner: symcrypt_sys::SYMCRYPT_SHA512_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha512StateCopy(&*self.0, &mut *new_state.0);
+            symcrypt_sys::SymCryptSha512StateCopy(self.get_inner(), new_state.get_inner_mut());
         }
         new_state
     }
@@ -639,9 +742,9 @@ impl Drop for Sha512State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.0) as *mut c_void,
-                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
-            )
+                self.get_inner_mut() as *mut c_void, 
+                mem::size_of_val(&*self.get_inner()) as symcrypt_sys::SIZE_T, 
+            );
         }
     }
 }
@@ -665,7 +768,18 @@ pub fn sha512(data: &[u8]) -> [u8; SHA512_RESULT_SIZE] {
 }
 
 /// [`Sha3_256State`] is a struct that represents a stateful sha3_256 hash and implements the [`HashState`] trait.
-pub struct Sha3_256State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_256_STATE>>);
+pub struct Sha3_256State(Pin<Box<Sha3_256InnerState>>);
+
+struct Sha3_256InnerState {
+    // inner represents the actual state of the hash from SymCrypt
+    inner: symcrypt_sys::SYMCRYPT_SHA3_256_STATE,
+    
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    //  This prevents the struct from implementing the Unpin trait, enforcing that any
+    //  references to this structure remain valid throughout its lifetime.
+    _pinned: PhantomPinned,
+}
+
 // Sha3_256State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha3_256State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
@@ -674,13 +788,27 @@ pub struct Sha3_256State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_256_STATE>>);
 
 impl Sha3_256State {
     pub fn new() -> Self {
-        let mut instance =
-            Sha3_256State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default()));
+        let mut instance = Sha3_256State(Box::pin(Sha3_256InnerState { inner: symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_256Init(&mut *instance.0);
+            symcrypt_sys::SymCryptSha3_256Init(instance.get_inner_mut());
         }
         instance
+    }
+
+    /// Get a mutable pointer to the inner SymCrypt state
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA3_256_STATE {
+        unsafe { 
+            // This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+            &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
+        }
+    }
+
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA3_256_STATE {
+        &self.0.as_ref().get_ref().inner as *const _
     }
 }
 
@@ -691,7 +819,7 @@ impl HashState for Sha3_256State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_256Append(
-                &mut *self.0,
+                self.get_inner_mut(),
                 data.as_ptr(),
                 data.len() as symcrypt_sys::SIZE_T,
             );
@@ -702,7 +830,7 @@ impl HashState for Sha3_256State {
         let mut result = [0u8; SHA3_256_RESULT_SIZE];
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_256Result(&mut *self.0, result.as_mut_ptr());
+            symcrypt_sys::SymCryptSha3_256Result(self.get_inner_mut(), result.as_mut_ptr());
         }
         result
     }
@@ -714,11 +842,10 @@ impl HashState for Sha3_256State {
 
 impl Clone for Sha3_256State {
     fn clone(&self) -> Self {
-        let mut new_state =
-            Sha3_256State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default()));
+        let mut new_state = Sha3_256State(Box::pin(Sha3_256InnerState { inner: symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_256StateCopy(&*self.0, &mut *new_state.0);
+            symcrypt_sys::SymCryptSha3_256StateCopy(self.get_inner(), new_state.get_inner_mut());
         }
         new_state
     }
@@ -729,9 +856,9 @@ impl Drop for Sha3_256State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.0) as *mut c_void,
-                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
-            )
+                self.get_inner_mut() as *mut c_void,
+                mem::size_of_val(&*self.get_inner()) as symcrypt_sys::SIZE_T,
+            );
         }
     }
 }
@@ -755,7 +882,18 @@ pub fn sha3_256(data: &[u8]) -> [u8; SHA3_256_RESULT_SIZE] {
 }
 
 /// [`Sha3_384State`] is a struct that represents a stateful sha3_384 hash and implements the [`HashState`] trait.
-pub struct Sha3_384State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_384_STATE>>);
+pub struct Sha3_384State(Pin<Box<Sha3_384InnerState>>);
+
+struct Sha3_384InnerState {
+    // inner represents the actual state of the hash from SymCrypt
+    inner: symcrypt_sys::SYMCRYPT_SHA3_384_STATE,
+    
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    //  This prevents the struct from implementing the Unpin trait, enforcing that any
+    //  references to this structure remain valid throughout its lifetime.
+    _pinned: PhantomPinned,
+}
+
 // Sha3_384State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha3_384State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
@@ -764,13 +902,27 @@ pub struct Sha3_384State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_384_STATE>>);
 
 impl Sha3_384State {
     pub fn new() -> Self {
-        let mut instance =
-            Sha3_384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default()));
+        let mut instance = Sha3_384State(Box::pin(Sha3_384InnerState { inner: symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_384Init(&mut *instance.0);
+            symcrypt_sys::SymCryptSha3_384Init(instance.get_inner_mut());
         }
         instance
+    }
+
+    /// Get a mutable pointer to the inner SymCrypt state
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA3_384_STATE {
+        unsafe { 
+            // This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+            &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
+        }
+    }
+
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA3_384_STATE {
+        &self.0.as_ref().get_ref().inner as *const _
     }
 }
 
@@ -781,7 +933,7 @@ impl HashState for Sha3_384State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_384Append(
-                &mut *self.0,
+                self.get_inner_mut(),
                 data.as_ptr(),
                 data.len() as symcrypt_sys::SIZE_T,
             );
@@ -792,7 +944,7 @@ impl HashState for Sha3_384State {
         let mut result = [0u8; SHA3_384_RESULT_SIZE];
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_384Result(&mut *self.0, result.as_mut_ptr());
+            symcrypt_sys::SymCryptSha3_384Result(self.get_inner_mut(), result.as_mut_ptr());
         }
         result
     }
@@ -804,11 +956,10 @@ impl HashState for Sha3_384State {
 
 impl Clone for Sha3_384State {
     fn clone(&self) -> Self {
-        let mut new_state =
-            Sha3_384State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default()));
+        let mut new_state = Sha3_384State(Box::pin(Sha3_384InnerState { inner: symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_384StateCopy(&*self.0, &mut *new_state.0);
+            symcrypt_sys::SymCryptSha3_384StateCopy(self.get_inner(), new_state.get_inner_mut());
         }
         new_state
     }
@@ -819,9 +970,9 @@ impl Drop for Sha3_384State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.0) as *mut c_void,
-                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
-            )
+                self.get_inner_mut() as *mut c_void, 
+                mem::size_of_val(&*self.get_inner()) as symcrypt_sys::SIZE_T,
+            );
         }
     }
 }
@@ -845,7 +996,18 @@ pub fn sha3_384(data: &[u8]) -> [u8; SHA3_384_RESULT_SIZE] {
 }
 
 /// [`Sha3_512State`] is a struct that represents a stateful sha3_512 hash and implements the [`HashState`] trait.
-pub struct Sha3_512State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_512_STATE>>);
+pub struct Sha3_512State(Pin<Box<Sha3_512InnerState>>);
+
+struct Sha3_512InnerState {
+    // inner represents the actual state of the hash from SymCrypt
+    inner: symcrypt_sys::SYMCRYPT_SHA3_512_STATE,
+    
+    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+    //  This prevents the struct from implementing the Unpin trait, enforcing that any
+    //  references to this structure remain valid throughout its lifetime.
+    _pinned: PhantomPinned,
+}
+
 // Sha3_512State needs to have a heap allocated inner state that is Pin<Box<>>'d. Memory allocation is not handled by SymCrypt and Self is moved
 // around when returning from Sha3_512State::new(). Box<> heap allocates the memory and ensures that it does not move
 //
@@ -854,13 +1016,27 @@ pub struct Sha3_512State(Pin<Box<symcrypt_sys::SYMCRYPT_SHA3_512_STATE>>);
 
 impl Sha3_512State {
     pub fn new() -> Self {
-        let mut instance =
-            Sha3_512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default()));
+        let mut instance = Sha3_512State(Box::pin(Sha3_512InnerState { inner: symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_512Init(&mut *instance.0);
+            symcrypt_sys::SymCryptSha3_512Init(instance.get_inner_mut());
         }
         instance
+    }
+
+    /// Get a mutable pointer to the inner SymCrypt state
+    ///
+    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+    fn get_inner_mut(&mut self) -> *mut symcrypt_sys::SYMCRYPT_SHA3_512_STATE {
+        unsafe { 
+            // This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+            &mut self.0.as_mut().get_unchecked_mut().inner as *mut _
+        }
+    }
+
+    // Safe method to access the inner state immutably
+    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA3_512_STATE {
+        &self.0.as_ref().get_ref().inner as *const _
     }
 }
 
@@ -871,7 +1047,7 @@ impl HashState for Sha3_512State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptSha3_512Append(
-                &mut *self.0,
+                self.get_inner_mut(),
                 data.as_ptr(),
                 data.len() as symcrypt_sys::SIZE_T,
             );
@@ -882,7 +1058,7 @@ impl HashState for Sha3_512State {
         let mut result = [0u8; SHA3_512_RESULT_SIZE];
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_512Result(&mut *self.0, result.as_mut_ptr());
+            symcrypt_sys::SymCryptSha3_512Result(self.get_inner_mut(), result.as_mut_ptr());
         }
         result
     }
@@ -894,11 +1070,10 @@ impl HashState for Sha3_512State {
 
 impl Clone for Sha3_512State {
     fn clone(&self) -> Self {
-        let mut new_state =
-            Sha3_512State(Box::pin(symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default()));
+        let mut new_state = Sha3_512State(Box::pin(Sha3_512InnerState { inner: symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default(), _pinned: PhantomPinned }));
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptSha3_512StateCopy(&*self.0, &mut *new_state.0);
+            symcrypt_sys::SymCryptSha3_512StateCopy(self.get_inner(), new_state.get_inner_mut());
         }
         new_state
     }
@@ -909,9 +1084,9 @@ impl Drop for Sha3_512State {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.0) as *mut c_void,
-                mem::size_of_val(&mut self.0) as symcrypt_sys::SIZE_T,
-            )
+                self.get_inner_mut() as *mut c_void,
+                mem::size_of_val(&*self.get_inner()) as symcrypt_sys::SIZE_T,
+            );
         }
     }
 }
