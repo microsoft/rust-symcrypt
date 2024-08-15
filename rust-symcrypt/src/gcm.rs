@@ -67,7 +67,6 @@ use core::ffi::c_void;
 use std::marker::PhantomPinned;
 use std::mem;
 use std::pin::Pin;
-use std::ptr;
 use symcrypt_sys;
 
 /// [`GcmExpandedKey`] is a struct that holds the Gcm expanded key from SymCrypt.
@@ -83,6 +82,18 @@ pub struct GcmExpandedKey {
     key_length: usize,
 }
 
+impl Drop for GcmExpandedKey {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                self.expanded_key.as_mut().get_inner_mut() as *mut c_void,
+                mem::size_of_val(&*self.expanded_key.as_ref().get_inner()) as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
 /// [`GcmInnerKey`] is a struct that holds the underlying SymCrypt state for GCM.
 struct GcmInnerKey {
     // inner represents the actual state of the hash from SymCrypt
@@ -92,18 +103,6 @@ struct GcmInnerKey {
     // This prevents the struct from implementing the Unpin trait, enforcing that any
     // references to this structure remain valid throughout its lifetime.
     _pinned: PhantomPinned,
-}
-
-impl Drop for GcmInnerKey {
-    fn drop(&mut self) {
-        unsafe {
-            // SAFETY: FFI calls
-            symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.inner) as *mut c_void, // Using addr_of_mut! so we don't access in the inner field
-                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T, // Using size_of_val! so we don't access in the inner field
-            );
-        }
-    }
 }
 
 impl GcmInnerKey {
