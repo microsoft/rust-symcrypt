@@ -96,7 +96,7 @@ pub const SHA3_384_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA3_384_RESULT_S
 pub const SHA3_512_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA3_512_RESULT_SIZE as usize;
 
 /// Hashing Algorithms that are supported by SymCrypt
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum HashAlgorithm {
     #[cfg(feature = "md5")]
     Md5,

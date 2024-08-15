@@ -67,9 +67,14 @@ pub mod ecdsa;
 #[derive(Copy, Clone, PartialEq, Debug)]
 /// [`CurveType`] provides an enum of the curve types that can be used when creating a key(s)
 /// The current curve types supported is `NistP256`, `NistP384`, and `Curve25519`.
+/// 
+/// Note that Curve25519 is only supported for EcDh operations.
 pub enum CurveType {
+    /// NistP256 represents the NIST P-256 curve.
     NistP256,
+    // NistP384 represents the NIST P-384 curve.
     NistP384,
+    // Curve25519 represents the EC25519 curve. This curve is only supported for EcDh operations.
     Curve25519,
 }
 
