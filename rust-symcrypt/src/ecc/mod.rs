@@ -59,7 +59,7 @@
 use crate::NumberFormat;
 use crate::{errors::SymCryptError, symcrypt_init};
 use lazy_static::lazy_static;
-use std::ptr;
+use std::ptr::{self, null_mut};
 
 pub mod ecdh;
 pub mod ecdsa;
@@ -87,11 +87,14 @@ pub(crate) struct InnerEcKey(symcrypt_sys::PSYMCRYPT_ECKEY);
 impl Drop for InnerEcKey {
     fn drop(&mut self) {
         unsafe {
-            // SAFETY: FFI calls
-            symcrypt_sys::SymCryptEckeyFree(self.0);
+            // SAFETY: FFI calls to free the resource if it has been allocated.
+            if self.0 != null_mut() {
+                symcrypt_sys::SymCryptEckeyFree(self.0);
+            }
         }
     }
 }
+
 
 // InnerEcCurve is a wrapper around symcrypt_sys::PSYMCRYPT_ECURVE.
 pub(crate) struct InnerEcCurve(pub(crate) symcrypt_sys::PSYMCRYPT_ECURVE);
