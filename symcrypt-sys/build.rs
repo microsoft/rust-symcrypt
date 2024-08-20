@@ -10,7 +10,7 @@ fn main() {
         let lib_path = env::var("SYMCRYPT_LIB_PATH").unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set"));
         println!("cargo:rustc-link-search=native={}", lib_path);
 
-        println!("cargo:rustc-link-lib=dylib=symcrypt");
+        println!("cargo:rustc-link-lib=static=symcrypt");
 
         // During run time, the OS will handle finding the symcrypt.dll file. The places Windows will look will be:
         // 1. The folder from which the application loaded.
