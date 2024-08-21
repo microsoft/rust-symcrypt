@@ -112,7 +112,9 @@ impl Drop for InnerEcCurve {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptEcurveFree(self.0)
+            if self.0 != null_mut() {
+                symcrypt_sys::SymCryptEckeyFree(self.0);
+            }
         }
     }
 }
