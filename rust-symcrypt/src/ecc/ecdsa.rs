@@ -25,7 +25,7 @@
 //!
 //! ```
 //!
-use crate::ecc::{curve_to_num_format, EcKey, EcKeyUsage, CurveType};
+use crate::ecc::{curve_to_num_format, CurveType, EcKey, EcKeyUsage};
 use crate::errors::SymCryptError;
 use std::vec;
 use symcrypt_sys;
@@ -44,7 +44,7 @@ impl EcKey {
             return Err(SymCryptError::InvalidArgument);
         }
         // SymCrypt code AV's with SymCrypt Fatal Error for trying to sign with Curve25519 as it is not supported.
-        // Panic'ing is not normal here in Rust so we are handling the error instead and returning SymCryptError::InvalidArgument 
+        // Panic'ing is not normal here in Rust so we are handling the error instead and returning SymCryptError::InvalidArgument
         if self.get_curve_type() == CurveType::Curve25519 {
             return Err(SymCryptError::InvalidArgument);
         }
@@ -138,11 +138,11 @@ mod tests {
     fn test_ecsda_verify_with_25519_failure() {
         let key = EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDsa).unwrap();
         let hash_value = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
-        
-        let key2= EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+
+        let key2 = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
         let signature = key2.ecdsa_sign(&hash_value).unwrap();
 
-        let result = key.ecdsa_verify(&signature,&hash_value).unwrap_err();
+        let result = key.ecdsa_verify(&signature, &hash_value).unwrap_err();
         assert!(result == SymCryptError::InvalidArgument);
     }
 
