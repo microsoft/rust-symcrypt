@@ -67,7 +67,7 @@ pub mod ecdsa;
 #[derive(Copy, Clone, PartialEq, Debug)]
 /// [`CurveType`] provides an enum of the curve types that can be used when creating a key(s)
 /// The current curve types supported is `NistP256`, `NistP384`, and `Curve25519`.
-/// 
+///
 /// Note that Curve25519 is only supported for EcDh operations.
 pub enum CurveType {
     /// NistP256 represents the NIST P-256 curve.
@@ -95,7 +95,6 @@ impl Drop for InnerEcKey {
     }
 }
 
-
 // InnerEcCurve is a wrapper around symcrypt_sys::PSYMCRYPT_ECURVE.
 pub(crate) struct InnerEcCurve(pub(crate) symcrypt_sys::PSYMCRYPT_ECURVE);
 
@@ -113,7 +112,7 @@ impl Drop for InnerEcCurve {
         unsafe {
             // SAFETY: FFI calls
             if self.0 != null_mut() {
-                symcrypt_sys::SymCryptEckeyFree(self.0);
+                symcrypt_sys::SymCryptEcurveFree(self.0);
             }
         }
     }
