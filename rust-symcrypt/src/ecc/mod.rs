@@ -176,7 +176,7 @@ impl EcKey {
         curve_type: CurveType,
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let ec_curve = InnerEcCurve::new(curve_type); // Can fail here due to insufficient memory.
+        let ec_curve = InnerEcCurve::new(curve_type);
         unsafe {
             // SAFETY: FFI calls
             // Stack allocated since we will do SymCryptEckeyAllocate.
@@ -216,7 +216,7 @@ impl EcKey {
         public_key: Option<&[u8]>,
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let ec_curve = InnerEcCurve::new(curve_type); // Can fail here due to insufficient memory.
+        let ec_curve = InnerEcCurve::new(curve_type);
 
         unsafe {
             //SAFETY: FFI calls
@@ -270,7 +270,7 @@ impl EcKey {
         public_key: &[u8],
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let ec_curve = InnerEcCurve::new(curve_type); // Can fail here due to insufficient memory.
+        let ec_curve = InnerEcCurve::new(curve_type);
         unsafe {
             // SAFETY: FFI calls
             // Stack allocated since we will do SymCryptEckeyAllocate.
