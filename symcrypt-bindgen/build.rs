@@ -39,7 +39,7 @@ fn main() {
         // ECDH KEY AGREEMENT FUNCTIONS
         .allowlist_function("^SymCryptEcurve(Allocate|Free|SizeofFieldElement)$")
         .allowlist_var("^SymCryptEcurveParams(NistP256|NistP384|Curve25519)$")
-        .allowlist_function("^(SymCryptEckey(Allocate|Free|SizeofPublicKey|GetValue|SetRandom|SetValue|SetRandom|))$")
+        .allowlist_function("^(SymCryptEckey(Allocate|Free|SizeofPublicKey|SizeofPrivateKey|GetValue|SetRandom|SetValue|SetRandom|))$")
         .allowlist_var("SYMCRYPT_FLAG_ECKEY_ECDH")
         .allowlist_var("SYMCRYPT_FLAG_ECKEY_ECDSA")
         .allowlist_function("SymCryptEcDhSecretAgreement")

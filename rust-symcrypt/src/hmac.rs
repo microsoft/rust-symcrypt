@@ -165,7 +165,6 @@ impl Drop for HmacMd5ExpandedKey {
     }
 }
 
-
 #[cfg(feature = "md5")]
 /// `HmacMd5State` is a struct that represents a stateful HMAC using MD5 and implements the [`HmacState`] trait.
 pub struct HmacMd5State {
@@ -193,7 +192,6 @@ struct HmacMd5Inner {
     // references to this structure remain valid throughout its lifetime.
     _pinned: PhantomPinned,
 }
-
 
 #[cfg(feature = "md5")]
 impl HmacMd5Inner {
@@ -314,10 +312,7 @@ impl Drop for HmacMd5State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `MD5_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
-pub fn hmac_md5(
-    key: &[u8],
-    data: &[u8],
-) -> Result<[u8; MD5_HMAC_RESULT_SIZE], SymCryptError> {
+pub fn hmac_md5(key: &[u8], data: &[u8]) -> Result<[u8; MD5_HMAC_RESULT_SIZE], SymCryptError> {
     let mut result = [0u8; MD5_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -541,10 +536,7 @@ impl Drop for HmacSha1State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `SHA1_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
-pub fn hmac_sha1(
-    key: &[u8],
-    data: &[u8],
-) -> Result<[u8; SHA1_HMAC_RESULT_SIZE], SymCryptError> {
+pub fn hmac_sha1(key: &[u8], data: &[u8]) -> Result<[u8; SHA1_HMAC_RESULT_SIZE], SymCryptError> {
     let mut result = [0u8; SHA1_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
