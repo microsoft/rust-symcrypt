@@ -227,7 +227,7 @@ impl EcKey {
                 return Err(SymCryptError::MemoryAllocationFailure);
             }
 
-            let (public_key_ptr, public_key_count) = match public_key {
+            let (public_key_ptr, public_key_length) = match public_key {
                 Some(key) => (key.as_ptr(), key.len() as symcrypt_sys::SIZE_T),
                 None => (ptr::null(), 0),
             };
@@ -236,7 +236,7 @@ impl EcKey {
                 private_key.as_ptr(),
                 private_key.len() as symcrypt_sys::SIZE_T,
                 public_key_ptr,
-                public_key_count,
+                public_key_length,
                 curve_to_num_format(curve_type),
                 curve_to_ec_point_format(curve_type),
                 ec_key_usage.to_symcrypt_flag(),
@@ -325,6 +325,33 @@ impl EcKey {
                 0, // No flags allowed
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(pub_key_bytes),
+                err => Err(err.into()),
+            }
+        }
+    }
+
+    /// `export_public_key()` returns the public key associated with the [`EcKey`] as a `Vec<u8>`.
+    /// Returns a [`SymCryptError::InvalidBlob`] if there is no associated private key.
+    pub fn export_private_key(&self) -> Result<Vec<u8>, SymCryptError> {
+        let num_format = curve_to_num_format(self.get_curve_type());
+        let ec_point_format = curve_to_ec_point_format(self.get_curve_type());
+
+        unsafe {
+            // SAFETY: FFI calls
+            let pub_key_len = symcrypt_sys::SymCryptEckeySizeofPrivateKey(self.inner_key());
+
+            let mut private_key_bytes = vec![0u8; pub_key_len as usize];
+            match symcrypt_sys::SymCryptEckeyGetValue(
+                self.inner_key(),
+                private_key_bytes.as_mut_ptr(),
+                pub_key_len as symcrypt_sys::SIZE_T,
+                std::ptr::null_mut(), // setting private key to null since we will only access public key
+                0 as symcrypt_sys::SIZE_T,
+                num_format,
+                ec_point_format,
+                0, // No flags allowed
+            ) {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(private_key_bytes),
                 err => Err(err.into()),
             }
         }
@@ -571,6 +598,65 @@ mod test {
         // ensure both have the same public key
         let public_key2 = key2.export_public_key().unwrap();
         assert_eq!(public_key, public_key2);
+    }
+
+    #[test]
+    fn test_eckey_generate_and_set_private_key() {
+        let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+        let private_key = key.export_private_key().unwrap();
+        let key2 = EcKey::set_key_pair(CurveType::NistP256, &private_key, None, EcKeyUsage::EcDsa)
+            .unwrap();
+        assert_eq!(key.get_curve_type(), CurveType::NistP256);
+        assert_eq!(key2.get_curve_type(), CurveType::NistP256);
+        assert_eq!(key.has_private_key(), true);
+        assert_eq!(key2.has_private_key(), true);
+    }
+
+    #[test]
+    fn test_eckey_generate_and_set_public_and_private_key() {
+        let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+        let private_key = key.export_private_key().unwrap();
+        let public_key = key.export_public_key().unwrap();
+        let key2 = EcKey::set_key_pair(
+            CurveType::NistP256,
+            &private_key,
+            Some(public_key).as_deref(),
+            EcKeyUsage::EcDsa,
+        )
+        .unwrap();
+
+        assert_eq!(key.get_curve_type(), CurveType::NistP256);
+        assert_eq!(key2.get_curve_type(), CurveType::NistP256);
+        assert_eq!(key.has_private_key(), true);
+        assert_eq!(key2.has_private_key(), true);
+    }
+
+    #[test]
+    fn test_fail_eckey_generate_and_private_and_wrong_public_key() {
+        let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+        let private_key = key.export_private_key().unwrap();
+        let mut public_key = key.export_public_key().unwrap();
+
+        public_key[0] = 0x00;
+        let error = EcKey::set_key_pair(
+            CurveType::NistP256,
+            &private_key,
+            Some(public_key).as_deref(),
+            EcKeyUsage::EcDsa,
+        )
+        .unwrap_err();
+        assert_eq!(error, SymCryptError::InvalidArgument);
+    }
+
+    #[test]
+    fn test_fail_eckey_export_private_key_no_private_key() {
+        let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+        let public_key = key.export_public_key().unwrap();
+        let key2 =
+            EcKey::set_public_key(CurveType::NistP256, &public_key, EcKeyUsage::EcDsa).unwrap();
+
+        let error = key2.export_private_key().unwrap_err();
+        assert_eq!(error, SymCryptError::InvalidBlob);
     }
 
     #[test]

@@ -41,7 +41,7 @@ use symcrypt_sys;
 
 /// Impl for EcDh struct.
 impl EcKey {
-    /// `ecdh_secret_agreement()` returns a [`EcDhSecretAgreement`] that represents the secret agreement between the private key and the public key,
+    /// `ecdh_secret_agreement()` returns a `Vec<u8>` that represents the secret agreement between the private key and the public key,
     ///  or a [`SymCryptError`] if the operation failed.
     ///
     /// `public_key` is an [`EcKey`] that represents the public key that the secret agreement is being calculated with.
