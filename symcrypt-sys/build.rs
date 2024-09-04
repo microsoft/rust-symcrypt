@@ -9,8 +9,12 @@ fn main() {
 
         let lib_path = env::var("SYMCRYPT_LIB_PATH").unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set"));
         println!("cargo:rustc-link-search=native={}", lib_path);
+        println!("cargo:rustc-link-arg=static");
 
         println!("cargo:rustc-link-lib=static=symcrypt");
+        println!("cargo:rustc-link-lib=static=symcrypt_common");
+        println!("cargo:rustc-link-lib=static=symcrypt_usermodewin8_1");   
+
 
         // During run time, the OS will handle finding the symcrypt.dll file. The places Windows will look will be:
         // 1. The folder from which the application loaded.
@@ -32,7 +36,7 @@ fn main() {
         // Note: Linux support is based off of the Azure Linux distro.
         // This has been tested on Ubuntu 22.04.03 LTS on WSL and has confirmed working but support for other distros 
         // aside from Azure Linux is not guaranteed so YMMV. 
-        println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on Linux
+        println!("cargo:rustc-link-lib=static=symcrypt"); // the "lib" prefix for libsymcrypt is implied on Linux
 
         // You must put the included symcrypt.so files in your usr/lib/x86_64-linux-gnu/ path.
         // This is where the Linux ld linker will look for the symcrypt.so files.
