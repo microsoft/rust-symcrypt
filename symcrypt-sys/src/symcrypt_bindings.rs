@@ -4392,7 +4392,7 @@ extern "C" {
     pub fn SymCryptMd5StateCopy(pSrc: PCSYMCRYPT_MD5_STATE, pDst: PSYMCRYPT_MD5_STATE);
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptMd5Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4416,7 +4416,7 @@ extern "C" {
     pub fn SymCryptSha1StateCopy(pSrc: PCSYMCRYPT_SHA1_STATE, pDst: PSYMCRYPT_SHA1_STATE);
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha1Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4440,7 +4440,7 @@ extern "C" {
     pub fn SymCryptSha256StateCopy(pSrc: PCSYMCRYPT_SHA256_STATE, pDst: PSYMCRYPT_SHA256_STATE);
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha256Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4464,7 +4464,7 @@ extern "C" {
     pub fn SymCryptSha384StateCopy(pSrc: PCSYMCRYPT_SHA384_STATE, pDst: PSYMCRYPT_SHA384_STATE);
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha384Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4488,7 +4488,7 @@ extern "C" {
     pub fn SymCryptSha512StateCopy(pSrc: PCSYMCRYPT_SHA512_STATE, pDst: PSYMCRYPT_SHA512_STATE);
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4515,7 +4515,7 @@ extern "C" {
     );
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4542,7 +4542,7 @@ extern "C" {
     );
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4569,7 +4569,7 @@ extern "C" {
     );
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha3_512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4794,7 +4794,7 @@ extern "C" {
     ) -> SYMCRYPT_ERROR;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
 }
@@ -5270,7 +5270,7 @@ extern "C" {
     pub fn SymCryptEcurveSizeofFieldElement(pCurve: PCSYMCRYPT_ECURVE) -> UINT32;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -5279,7 +5279,7 @@ extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -5288,7 +5288,7 @@ extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -5439,7 +5439,7 @@ impl Default for _SYMCRYPT_OID {
 pub type SYMCRYPT_OID = _SYMCRYPT_OID;
 pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5448,7 +5448,7 @@ extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5457,7 +5457,7 @@ extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5466,7 +5466,7 @@ extern "C" {
     pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5475,7 +5475,7 @@ extern "C" {
     pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5484,7 +5484,7 @@ extern "C" {
     pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5493,7 +5493,7 @@ extern "C" {
     pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5502,7 +5502,7 @@ extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
 #[cfg(target_os = "windows")]
-#[link(name = "symcrypt", kind = "dylib")]
+
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
