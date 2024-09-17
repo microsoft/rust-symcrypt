@@ -1,9 +1,3 @@
-[submodule "symcrypt-sys/symcrypt"]
-	path = symcrypt-sys/symcrypt
-	url = https://github.com/microsoft/SymCrypt
-[submodule "symcrypt-sys/symcrypt-sys/SymCrypt"]
-	path = symcrypt-sys/symcrypt-sys/SymCrypt
-	url = https://github.com/microsoft/SymCrypt
 [submodule "symcrypt-sys/SymCrypt"]
 	path = symcrypt-sys/SymCrypt
 	url = https://github.com/microsoft/SymCrypt
