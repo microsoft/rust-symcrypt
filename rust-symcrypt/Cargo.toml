@@ -17,12 +17,15 @@ readme = "README.md"
 symcrypt-sys = {path = "../symcrypt-sys", version = "0.2.0"}
 libc = "0.2.0"
 lazy_static = "1.4.0"
+ctor = "0.2.8"
 
 [features]
 default = []
 md5 = []
 sha1 = []
 weak-crypto = ["md5","sha1"]
+dynamic = ["symcrypt-sys/dynamic"]
+static = ["symcrypt-sys/static"]
 
 [dev-dependencies]
 hex = "0.4.3"
