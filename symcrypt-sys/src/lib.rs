@@ -9,7 +9,14 @@ use ctor::ctor;
 mod symcrypt_bindings;
 
 // if "dynamic" use this:
+#[cfg(feature = "dynamic")]
 pub use symcrypt_bindings::*;
+
+
+
+// if static use the static bindings.
+#[cfg(feature = "static")] 
+include!(concat!(env!("OUT_DIR"), "/symcrypt_static_generated_bindings.rs"));
 
 // if "static": use this: 
 // pub use symcrypt_static_generated_bindings;

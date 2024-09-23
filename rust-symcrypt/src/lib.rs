@@ -91,31 +91,33 @@ pub mod hash;
 pub mod hmac;
 pub mod rsa;
 
-/// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
-///  all subsequent calls will be no-ops
-/// BREAKING CHANGE WILL REMOVE THIS AS A PUB, KEEP IT AS JUST A PRIVATE FUNCTION
-// #[ctor] // This will call symcrypt_init() at link time, need to verify that it works on all platforms as well as dynamic loading. rust version must be vesrion 1.31 atleast, B
-// fn symcrypt_init() {
-//     // Subsequent calls to `symcrypt_init()` after the first will not be invoked per .call_once docs https://doc.rust-lang.org/std/sync/struct.Once.html
-//     static INIT: Once = Once::new();
-//     static INIT_2: Once = Once::new();
-//     unsafe {
-//         println!("@@@@@@@@@@@@@@@@@@@@@@@ inside symcrypt_init()");
+// / `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
+// /  all subsequent calls will be no-ops
+// / BREAKING CHANGE WILL REMOVE THIS AS A PUB, KEEP IT AS JUST A PRIVATE FUNCTION
+//#[ctor] // This will call symcrypt_init() at link time, need to verify that it works on all platforms as well as dynamic loading. rust version must be vesrion 1.31 atleast, B
+fn symcrypt_init() {
+    // Subsequent calls to `symcrypt_init()` after the first will not be invoked per .call_once docs https://doc.rust-lang.org/std/sync/struct.Once.html
+    static INIT: Once = Once::new();
+    #[cfg(feature = "static")]
+    static INIT_2: Once = Once::new();
+    unsafe {
+        println!("@@@@@@@@@@@@@@@@@@@@@@@ inside symcrypt_init()");
 
-//         // SAFETY: FFI calls, blocking from being run again.
+        // SAFETY: FFI calls, blocking from being run again.
         
-//         INIT_2.call_once(|| {
-//             symcrypt_sys::SymCryptInit()
-//         });
+        #[cfg(feature = "static")]
+        INIT_2.call_once(|| {
+            symcrypt_sys::SymCryptInit()
+        });
         
-//         INIT.call_once(|| {
-//             symcrypt_sys::SymCryptModuleInit(
-//                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
-//                 symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
-//             )
-//         })
-//     }
-// }
+        INIT.call_once(|| {
+            symcrypt_sys::SymCryptModuleInit(
+                symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
+                symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
+            )
+        })
+    }
+}
 
 /// Takes in a a buffer called `buff` and fills it with random bytes. This function cannot fail.
 pub fn symcrypt_random(buff: &mut [u8]) {

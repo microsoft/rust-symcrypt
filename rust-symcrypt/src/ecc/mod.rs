@@ -57,7 +57,7 @@
 //! ```
 //!
 use crate::NumberFormat;
-//use crate::{errors::SymCryptError, symcrypt_init};
+use crate::symcrypt_init;
 use crate::errors::SymCryptError;
 use lazy_static::lazy_static;
 use std::ptr::{self, null_mut};
@@ -428,7 +428,7 @@ fn internal_new(curve: CurveType) -> Result<InnerEcCurve, SymCryptError> {
         // SAFETY: FFI calls
         // Will only init once, subsequent calls to symcrypt_init() will be no-ops.
         // Calling here incase user did not call symcrypt_init() earlier on.
-
+        symcrypt_init();
         // Stack allocated since SymCryptEcCurveAllocate is called.
         let curve_ptr = symcrypt_sys::SymCryptEcurveAllocate(to_symcrypt_curve(curve), 0);
         if curve_ptr.is_null() {
