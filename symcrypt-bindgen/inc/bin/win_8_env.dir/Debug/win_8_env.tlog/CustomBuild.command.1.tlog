@@ -1,0 +1,10 @@
+^C:\CODE\RUST-SYMCRYPT\SYMCRYPT-BINDGEN\INC\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Code/rust-symcrypt/symcrypt-bindgen/inc -BC:/Code/rust-symcrypt/symcrypt-bindgen/inc/bin --check-stamp-file C:/Code/rust-symcrypt/symcrypt-bindgen/inc/bin/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,3 @@
+C:/Code/rust-symcrypt/symcrypt-bindgen/inc/bin/CMakeFiles/win_8_env.dir
+C:/Code/rust-symcrypt/symcrypt-bindgen/inc/bin/CMakeFiles/ALL_BUILD.dir
+C:/Code/rust-symcrypt/symcrypt-bindgen/inc/bin/CMakeFiles/ZERO_CHECK.dir

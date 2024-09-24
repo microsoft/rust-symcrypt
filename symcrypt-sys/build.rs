@@ -1,6 +1,5 @@
 use std::env;
 extern crate cmake;
-use cmake::Config;
 use std::path::Path;
 use std::process::Command;
 mod generate_bindings;
@@ -41,45 +40,21 @@ fn main() {
             // check if the build exists, if not then build it.
 
             build_windows();
-            // also need to run bindgen to generate the bindings for the symcrypt.h file.
-            // println!("cargo:rustc-link-lib=static=symcrypt_common");
-            // println!("cargo:rustc-link-lib=static=symcrypt_usermodewin8_1");
-            // // println!("cargo:rustc-link-lib=static=win_8_env");
-            // println!("cargo:rustc-link-lib=dylib=bcrypt");
+            build_windows_static_lib_env();
+            generate_bindings::generate_bindings(); // generate the bindings for the static library.
 
-            // check if bindings exists, if not then generate them.
-            
-            generate_bindings::generate_bindings();
             let out_dir = env::var("OUT_DIR").unwrap();
-            let lib_path = Path::new(&out_dir).join("symcrypt_build/build/lib/");
-            let lib_path_2 = Path::new(&out_dir).join("windows_env_build/");
-
+            let lib_path = Path::new(&out_dir).join("symcrypt_build/lib/");
+            let lib_path_2 = Path::new(&out_dir).join("windows_env_build/lib/");
 
             println!("cargo:rustc-link-search=native={}", lib_path.display());
             println!("cargo:rustc-link-search=native={}", lib_path_2.display());
-
 
             println!("cargo:rustc-link-lib=static=symcrypt_common");
             println!("cargo:rustc-link-lib=static=symcrypt_usermodewin8_1");
             println!("cargo:rustc-link-lib=static=win_8_env");
             println!("cargo:rustc-link-lib=bcrypt");
-
-
         }
-
-        // During run time, the OS will handle finding the symcrypt.dll file. The places Windows will look will be:
-        // 1. The folder from which the application loaded.
-        // 2. The system folder. Use the GetSystemDirectory function to retrieve the path of this folder.
-        // 3. The Windows folder. Use the GetWindowsDirectory function to get the path of this folder.
-        // 4. The current folder.
-        // 5. The directories that are listed in the PATH environment variable. 
-
-        // For more info please see: https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order
-
-        // For the least invasive usage, we suggest putting the symcrypt.dll inside of same folder as the .exe file.
-
-        // Note: This process is a band-aid. Long-term SymCrypt will be shipped with Windows which will make this process much more
-        // streamlined. 
     }
 
     #[cfg(target_os = "linux")]
@@ -97,84 +72,78 @@ fn main() {
     }
 }
 
-// check if static lib exists already:
-// if not then build... 
-
-
-
 fn build_windows() { 
-    // Builds the project in the directory located in `libfoo`, installing it
-    // into $OUT_DIR
     let out_dir = env::var("OUT_DIR").unwrap();
-    let lib_path = Path::new(&out_dir).join("symcrypt_build/build/lib/");
+    let symcrypt_build_dir = Path::new(&out_dir).join("symcrypt_build");
 
-     // Set cargo to only rerun if specific files change
-    println!("cargo:rerun-if-changed=SymCrypt");
-    println!("cargo:rerun-if-changed=wrapper.h");
-
-    
-    if lib_path.exists() {
+    if symcrypt_build_dir.exists() {
         println!("SymCrypt library already built, skipping CMake build.");
-        println!("cargo:rustc-link-search=native={}", lib_path.display());
         return;
     }
     println!("inside build_windows()");
 
-     // Step 1: Configure and generate the build system for SymCrypt
-    let dst = Config::new("SymCrypt")
-        .out_dir(format!("{}/symcrypt_build", out_dir))  // Append 'symcrypt_build' to OUT_DIR
-        .define("CMAKE_INSTALL_PREFIX", env::var("OUT_DIR").unwrap())
-        .generator("Visual Studio 16 2019")
-        .define("CMAKE_BUILD_TYPE", "Debug")
-        .define("CMAKE_VERBOSE_MAKEFILE", "ON")
-        .define("CMAKE_C_FLAGS", "/WX- /EHsc /wd4530")
-        .define("CMAKE_CXX_FLAGS", "/EHsc /WX- /wd4530")
-        .define("CMAKE_ASM_FLAGS", "/WX- /EHsc /wd4530")
-        .very_verbose(true)
-        .no_build_target(true)  // Do not invoke any target automatically
-        .build();
 
- // Step 2: Manually invoke `cmake --build` to build the project
-    let build_result = Command::new("cmake")
-        .arg("--build")
-        .arg(dst.display().to_string())  // Specify the build directory
-        .arg("--config")
-        .arg("Debug")  // Build the Debug configuration
+    // Step 1: Run CMake configure
+    let cmake_configure = Command::new("cmake")
+        .arg("-S")
+        .arg("SymCrypt")  // Source directory
+        .arg("-B")
+        .arg(symcrypt_build_dir.display().to_string())  // Build directory
+        .arg("-DCMAKE_BUILD_TYPE=RelWithDebInfo")  // Build type
+        .arg("-A")
+        .arg("x64")  // Architecture
         .output()
-        .expect("Failed to execute cmake build");
+        .expect("Failed to run CMake configure");
 
- // Print any output from the build process (useful for debugging)
-    println!("Build output: {}", String::from_utf8_lossy(&build_result.stdout));
-    println!("Build error: {}", String::from_utf8_lossy(&build_result.stderr));
-//     let dst_2 = Config::new("windows_env")
-// //        .build_target("all")  // Use the default 'all' target instead of 'install'
-//         .out_dir(format!("{}/windows_env_build", out_dir))  // Append 'inc_build' to OUT_DIR
-//         .build();
+    // Output any stdout or stderr for debugging
+    println!("CMake Configure Output: {}", String::from_utf8_lossy(&cmake_configure.stdout));
+    println!("CMake Configure Error: {}", String::from_utf8_lossy(&cmake_configure.stderr));
 
-    let symcrypt_lib_dir = Path::new(&dst).join("build/lib");
-    println!("path: {:?}", symcrypt_lib_dir);
+    // Step 2: Run CMake build
+    let cmake_build = Command::new("cmake")
+        .arg("--build")
+        .arg(symcrypt_build_dir.display().to_string())  // Build directory
+        .arg("--config")
+        .arg("Release")  // Build configuration
+        .output()
+        .expect("Failed to run CMake build");
 
-    build_windows_static_lib_env();
-    println!("cargo:rustc-link-search=native={}", symcrypt_lib_dir.display());
-    // println!("cargo:rustc-link-search=native={}", dst_2.display());
-    
-
+    // Output any stdout or stderr for debugging
+    println!("CMake Build Output: {}", String::from_utf8_lossy(&cmake_build.stdout));
+    println!("CMake Build Error: {}", String::from_utf8_lossy(&cmake_build.stderr));
 }
 
 
 fn build_windows_static_lib_env() { 
     let out_dir = env::var("OUT_DIR").unwrap();
-    let lib_path = Path::new(&out_dir).join("windows_env_build/");
+    let windows_env_build_dir = Path::new(&out_dir).join("windows_env_build");
 
-    if lib_path.exists() {
-        println!("SymCrypt library already built, skipping CMake build.");
-        println!("cargo:rustc-link-search=native={}", lib_path.display());
+    if windows_env_build_dir.exists() {
+        println!("Windows Env library already built, skipping CMake build.");
         return;
     }
 
-    let dst_2 = Config::new("windows_env")
-        .out_dir(format!("{}/windows_env_build", out_dir))  // Append 'windows_env_build' to OUT_DIR
-        .build();
+    // Step 3: Run CMake configure for windows_env
+    let cmake_configure_windows_env = Command::new("cmake")
+        .arg("-S")
+        .arg("windows_env")  // Source directory
+        .arg("-B")
+        .arg(windows_env_build_dir.display().to_string())  // Build directory
+        .output()
+        .expect("Failed to run CMake configure for windows_env");
 
-    println!("cargo:rustc-link-search=native={}", dst_2.display());
+    // Output any stdout or stderr for debugging
+    println!("Windows Env Configure Output: {}", String::from_utf8_lossy(&cmake_configure_windows_env.stdout));
+    println!("Windows Env Configure Error: {}", String::from_utf8_lossy(&cmake_configure_windows_env.stderr));
+
+    // Step 4: Run CMake build for windows_env
+    let cmake_build_windows_env = Command::new("cmake")
+        .arg("--build")
+        .arg(windows_env_build_dir.display().to_string())  // Build directory
+        .output()
+        .expect("Failed to run CMake build for windows_env");
+
+    // Output any stdout or stderr for debugging
+    println!("Windows Env Build Output: {}", String::from_utf8_lossy(&cmake_build_windows_env.stdout));
+    println!("Windows Env Build Error: {}", String::from_utf8_lossy(&cmake_build_windows_env.stderr));
 }

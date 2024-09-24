@@ -1,0 +1,10 @@
+^C:\CODE\RUST-SYMCRYPT\SYMCRYPT-BINDGEN\INC\BIN\CMAKEFILES\80E6A34FDAE4ADB97A952BFEE0BEEEDA\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Code/rust-symcrypt/symcrypt-bindgen/inc -BC:/Code/rust-symcrypt/symcrypt-bindgen/inc/bin --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Code/rust-symcrypt/symcrypt-bindgen/inc/bin/Win8Env.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
