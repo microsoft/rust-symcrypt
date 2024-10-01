@@ -4373,7 +4373,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptStoreMsbFirstUint64(src: UINT64, pbDst: PBYTE, cbDst: SIZE_T) -> SYMCRYPT_ERROR;
 }
-#[cfg(features = ["static"])]
+#[cfg(feature = "static")]
 extern "C" {
     pub fn SymCryptInit();
 }

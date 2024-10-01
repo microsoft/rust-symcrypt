@@ -16,7 +16,9 @@ pub use symcrypt_bindings::*;
 
 // if static use the static bindings.
 #[cfg(feature = "static")] 
-include!(concat!(env!("OUT_DIR"), "/symcrypt_static_generated_bindings.rs"));
+// include!(concat!(env!("OUT_DIR"), "/symcrypt_static_generated_bindings.rs"));
+
+pub use symcrypt_bindings::*;
 
 // if "static": use this: 
 // pub use symcrypt_static_generated_bindings;
