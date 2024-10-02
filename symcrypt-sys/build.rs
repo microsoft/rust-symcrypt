@@ -13,6 +13,37 @@ use std::path::PathBuf;
 // linux arm64 aarch64-unknown-linux-gnu
 // linux amd64 x86_64-unknown-linux-gnu
 
+
+
+
+
+// Broken stuff:
+// have to update the dynamic dll to get the most recent version of symcrypt.h
+// need to check in a new dynamic bindgen each time we update the dll.
+// will need to do this for each OS.
+
+
+
+// on the static side, we must generate new bindings each time we build static. 
+// this fixes the gcm issue on windows. follow up with mitch on this.
+// possibiltiy of keeping generated bindings for static and dynamic? 
+
+// On linux we dont have issues with i32 and u32, might need to make a breaking change to fix over
+// dynamic on linux is working fine, with the versions that I have
+
+// static on linux is broken with i32 and u32 changes when i generate static bindings.
+// i get seg fault when i use the generated bindings
+
+// dynamic working fine
+
+/// Todo:
+/// - Update the bindings for dynamic for windows and linux 
+/// - Check that this is working on ARM windows and ARM Linux and ARM AL3 
+/// - Check both dynamic and static on all platforms 
+/// - run symcrypt unit tests on all platforms with the static build
+/// 
+
+
 // Convert cargo env variables to a String
 fn cargo_env<N: AsRef<str>>(name: N) -> String {
     let name = name.as_ref();
