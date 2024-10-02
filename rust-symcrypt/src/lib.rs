@@ -120,7 +120,7 @@ fn symcrypt_init() {
 pub fn symcrypt_random(buff: &mut [u8]) {
     unsafe {
         // SAFETY: FFI calls
-        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as u64);
+        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
     }
 }
 

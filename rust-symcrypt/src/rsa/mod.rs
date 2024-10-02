@@ -468,7 +468,7 @@ fn store_msb_first_u64(value: u64, size: u32) -> Result<Vec<u8>, SymCryptError> 
     let mut dst = vec![0u8; size as usize]; // Allocate tight size in bytes for storing public exponent
     unsafe {
         // SAFETY: FFI calls
-        match symcrypt_sys::SymCryptStoreMsbFirstUint64(value, dst.as_mut_ptr(), size as u64) {
+        match symcrypt_sys::SymCryptStoreMsbFirstUint64(value, dst.as_mut_ptr(), size as symcrypt_sys::SIZE_T) {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(dst),
             err => Err(SymCryptError::from(err)),
         }
@@ -482,7 +482,7 @@ fn load_msb_first_u64(src: &[u8]) -> Result<u64, SymCryptError> {
         // SAFETY: FFI calls
         match symcrypt_sys::SymCryptLoadMsbFirstUint64(
             src.as_ptr(),
-            src.len() as u64,
+            src.len() as symcrypt_sys::SIZE_T,
             &mut dst as *mut u64,
         ) {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(dst),

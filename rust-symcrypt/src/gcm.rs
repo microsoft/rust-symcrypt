@@ -270,7 +270,7 @@ pub fn validate_gcm_parameters(
             convert_cipher(cipher),
             nonce.len() as symcrypt_sys::SIZE_T,
             auth_data.len() as symcrypt_sys::UINT64,
-            data.len() as symcrypt_sys::SIZE_T,
+            data.len() as symcrypt_sys::UINT64,
             tag.len() as symcrypt_sys::SIZE_T,
         ) {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
