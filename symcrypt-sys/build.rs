@@ -71,13 +71,21 @@ enum LinkType {
     Dynamic,
 }
 
-fn get_link_type() -> LinkType {
-    if env::var("CARGO_FEATURE_STATIC").is_ok() {
+impl LinkType {
+    fn new() -> Self {
+        #[cfg(feature = "dynamic")]
+        {
+            return LinkType::Dynamic;
+        }
+        
+        #[cfg(feature = "static")]
+        {
+            return LinkType::Static;
+        }
+        
+        // Fallback if no feature is provided (you could choose a default or panic)
         LinkType::Static
-    } else if env::var("CARGO_FEATURE_DYNAMIC").is_ok() {
-        LinkType::Dynamic
-    } else {
-        panic!("Link type not specified. Please specify either 'static' or 'dynamic' feature.")}
+    }
 }
 
 #[derive(PartialEq)]
@@ -176,7 +184,7 @@ impl BuildConfig {
             target_arch: TargetArch::from_string(&target_arch()),
             target_os: TargetOS::from_string(&target_os()),
             target_env: TargetEnv::from_string(&target_env()),
-            link_type: get_link_type(),
+            link_type: LinkType::new(),
             host_arch: host_arch(),
         }
     }
@@ -343,7 +351,10 @@ fn symcrypt_static_build(build_config: &BuildConfig) {
 fn main() {
     let config = BuildConfig::new();
     config.print_build_config();
+    // let lib_path = env::var("SYMCRYPT_LIB_PATH").unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set"));
+    // println!("cargo:rustc-link-search=native={}", lib_path);
 
+    // println!("cargo:rustc-link-lib=dylib=symcrypt");
     match config.link_type {
         LinkType::Static => {
             println!("cargo:warning=Building static library");
@@ -353,9 +364,9 @@ fn main() {
             println!("cargo:warning=Linking to dynamic library");
             match config.target_os {
                 TargetOS::Windows => {
+                    println!("cargo:warning=blah");
                     let lib_path = env::var("SYMCRYPT_LIB_PATH").unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set"));
                     println!("cargo:rustc-link-search=native={}", lib_path);
-            
                     println!("cargo:rustc-link-lib=dylib=symcrypt");
                 }
                 TargetOS::Linux => {

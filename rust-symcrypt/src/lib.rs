@@ -101,10 +101,7 @@ fn symcrypt_init() {
     #[cfg(feature = "static")]
     static INIT_2: Once = Once::new();
     unsafe {
-        println!("@@@@@@@@@@@@@@@@@@@@@@@ inside symcrypt_init()");
-
         // SAFETY: FFI calls, blocking from being run again.
-        
         #[cfg(feature = "static")]
         INIT_2.call_once(|| {
             symcrypt_sys::SymCryptInit()
