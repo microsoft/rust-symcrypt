@@ -20,7 +20,7 @@ lazy_static = "1.4.0"
 ctor = "0.2.8"
 
 [features]
-default = []
+default = ["symcrypt-sys/static"]
 md5 = []
 sha1 = []
 weak-crypto = ["md5","sha1"]
