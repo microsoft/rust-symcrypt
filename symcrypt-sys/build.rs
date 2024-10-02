@@ -104,6 +104,12 @@ enum LinkType {
 
 impl LinkType {
     fn new() -> Self {
+        #[cfg(all(feature = "static", feature = "dynamic"))]
+        compile_error!("The features `static` and `dynamic` cannot be enabled at the same time. Please choose only one.");
+
+        #[cfg(not(any(feature = "static", feature = "dynamic")))]
+        compile_error!("You must enable either the `static` or `dynamic` feature.");
+
         #[cfg(feature = "dynamic")]
         {
             return LinkType::Dynamic;
@@ -113,9 +119,6 @@ impl LinkType {
         {
             return LinkType::Static;
         }
-        
-        // Fallback if no feature is provided (you could choose a default or panic)
-        LinkType::Static
     }
 }
 
@@ -382,10 +385,7 @@ fn symcrypt_static_build(build_config: &BuildConfig) {
 fn main() {
     let config = BuildConfig::new();
     config.print_build_config();
-    // let lib_path = env::var("SYMCRYPT_LIB_PATH").unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set"));
-    // println!("cargo:rustc-link-search=native={}", lib_path);
 
-    // println!("cargo:rustc-link-lib=dylib=symcrypt");
     match config.link_type {
         LinkType::Static => {
             println!("cargo:warning=Building static library");

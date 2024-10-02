@@ -6,34 +6,13 @@
 extern crate libc;
 use std::sync::Once;
 use ctor::ctor;
-mod symcrypt_bindings;
+// mod symcrypt_bindings;
 
 // if "dynamic" use this:
-#[cfg(feature = "dynamic")]
-pub use symcrypt_bindings::*;
+#[cfg(all(feature = "dynamic", target_os = "windows", target_arch = "x86_64"))]
+include!(concat!(env!("CARGO_MANIFEST_DIR"), "/bindings/windows_amd64_symcrypt_bindings.rs"));
 
 // if static use the static bindings.
 #[cfg(feature = "static")] 
 include!(concat!(env!("OUT_DIR"), "/symcrypt_static_generated_bindings.rs"));
 
-// pub use symcrypt_bindings::*;
-
-// if "static": use this: 
-// pub use symcrypt_static_generated_bindings;
-
-// #[ctor]
-// fn symcrypt_init() {
-//     static INIT: Once = Once::new();
-//     println!("################ running init()");
-//     unsafe { 
-//         INIT.call_once(|| {
-//             // Initialize SymCrypt
-//             symcrypt_bindings::SymCryptInit();
-//             // Initialize SymCrypt module
-//             symcrypt_bindings::SymCryptModuleInit(
-//                 SYMCRYPT_CODE_VERSION_API,
-//                 SYMCRYPT_CODE_VERSION_MINOR,
-//             );
-//         });
-//     }
-// }
