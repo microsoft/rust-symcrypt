@@ -53,7 +53,7 @@
 //! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
 //!
 //! ## Usage
-//! There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash. `symcrypt_init()` must be run before any other calls to the underlying symcrypt code.
+//! There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash.
 //!
 //! **Note:** This code snippet also uses the [hex](https://crates.io/crates/hex) crate.
 //!
@@ -67,10 +67,8 @@
 //!
 //! ```rust
 //! use symcrypt::hash::sha256;
-//! use symcrypt::symcrypt_init;
 //!
 //! fn  main() {
-//!     symcrypt_init();
 //!     let data = hex::decode("641ec2cf711e").unwrap();
 //!     let expected: &str = "cfdbd6c9acf9842ce04e8e6a0421838f858559cf22d2ea8a38bd07d5e4692233";
 //!
@@ -80,7 +78,6 @@
 //! ```
 
 use std::sync::Once;
-use ctor::ctor;
 
 pub mod block_ciphers;
 pub mod chacha;
@@ -91,23 +88,26 @@ pub mod hash;
 pub mod hmac;
 pub mod rsa;
 
-// / `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
-// /  all subsequent calls will be no-ops
-// / BREAKING CHANGE WILL REMOVE THIS AS A PUB, KEEP IT AS JUST A PRIVATE FUNCTION
-//#[ctor] // This will call symcrypt_init() at link time, need to verify that it works on all platforms as well as dynamic loading. rust version must be vesrion 1.31 atleast, B
+// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
+// BREAKING CHANGE WILL REMOVE THIS AS A PUB, KEEP IT AS JUST A PRIVATE FUNCTION
 fn symcrypt_init() {
     // Subsequent calls to `symcrypt_init()` after the first will not be invoked per .call_once docs https://doc.rust-lang.org/std/sync/struct.Once.html
-    static INIT: Once = Once::new();
+    static SYMCRYPT_MODULE_INIT: Once = Once::new();
+
     #[cfg(feature = "static")]
-    static INIT_2: Once = Once::new();
+    static SYMCRYPT_INIT: Once = Once::new();
+    
     unsafe {
         // SAFETY: FFI calls, blocking from being run again.
+        
+        // SymCryptInit() is called in the DllMain for dynamic libs, but needs to be implicitly
+        // called for the static scenario.
         #[cfg(feature = "static")]
-        INIT_2.call_once(|| {
+        SYMCRYPT_INIT.call_once(|| {
             symcrypt_sys::SymCryptInit()
         });
-        
-        INIT.call_once(|| {
+
+        SYMCRYPT_MODULE_INIT.call_once(|| {
             symcrypt_sys::SymCryptModuleInit(
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,

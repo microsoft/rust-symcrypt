@@ -66,7 +66,7 @@
 //! ```
 //!
 use crate::errors::SymCryptError;
-use crate::NumberFormat;
+use crate::{NumberFormat, symcrypt_init};
 use std::ptr;
 
 pub mod oaep;
@@ -162,6 +162,7 @@ impl RsaKey {
         pub_exp: Option<&[u8]>,
         rsa_key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let (pub_exp_ptr, pub_exp_count) = match pub_exp {
             Some(exp) => {
                 let u64_pub_exp = load_msb_first_u64(exp)?;
@@ -207,6 +208,7 @@ impl RsaKey {
         q: &[u8],
         rsa_key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let n_bits_mod = (modulus_buffer.len() as symcrypt_sys::SIZE_T) * 8; // Convert the size from bytes to bits. Caller must remove leading 0 if set.
         let rsa_key = allocate_rsa(2, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
@@ -255,6 +257,7 @@ impl RsaKey {
         pub_exp: &[u8],
         rsa_key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let n_bits_mod = (modulus_buffer.len() as symcrypt_sys::SIZE_T) * 8; // Convert the size from bytes to bits. Caller must remove leading 0 if set.
         let rsa_key = allocate_rsa(0, n_bits_mod)?;
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;

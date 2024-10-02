@@ -56,8 +56,7 @@
 //! let public_key = key.export_public_key().unwrap();
 //! ```
 //!
-use crate::NumberFormat;
-use crate::symcrypt_init;
+use crate::{NumberFormat, symcrypt_init};
 use crate::errors::SymCryptError;
 use lazy_static::lazy_static;
 use std::ptr::{self, null_mut};
@@ -177,6 +176,7 @@ impl EcKey {
         curve_type: CurveType,
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let ec_curve = InnerEcCurve::new(curve_type);
         unsafe {
             // SAFETY: FFI calls
@@ -217,6 +217,8 @@ impl EcKey {
         public_key: Option<&[u8]>,
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
+
         let ec_curve = InnerEcCurve::new(curve_type);
 
         unsafe {
@@ -271,6 +273,8 @@ impl EcKey {
         public_key: &[u8],
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
+        
         let ec_curve = InnerEcCurve::new(curve_type);
         unsafe {
             // SAFETY: FFI calls

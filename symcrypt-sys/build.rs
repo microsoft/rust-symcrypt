@@ -98,7 +98,10 @@ fn linux_env_lib_out_dir() -> PathBuf {
 
 #[derive(Debug, PartialEq)]
 enum LinkType {
+    #[allow(unused_variables)]
     Static,
+
+    #[allow(unused_variables)]
     Dynamic,
 }
 
@@ -143,17 +146,14 @@ impl TargetArch {
             _ => panic!("Unsupported target architecture: {}", arch),
         }
     }
-    fn to_symcrypt_arch(&self) -> String {
-        match self {
-            TargetArch::X86_64 => "AMD64".to_string(),
-            TargetArch::ARM64 => "ARM64".to_string(),
-        }
-    }
 }
 
 #[derive(PartialEq)]
 pub(crate) enum TargetOS {
+    #[allow(unused_variables)]
     Windows,
+
+    #[allow(unused_variables)]
     Linux,
 }
 
@@ -222,6 +222,7 @@ impl BuildConfig {
             host_arch: host_arch(),
         }
     }
+
     fn print_build_config(&self) {
         println!("cargo:warning=Target Arch: {}", self.target_arch.to_string());
         println!("cargo:warning=Target OS: {}", self.target_os.to_string());
@@ -371,7 +372,7 @@ fn symcrypt_static_build(build_config: &BuildConfig) {
     env_builder.link();  
 
     if build_config.target_os == TargetOS::Linux {
-        let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+        let manifest_dir = manifest_dir();
 
         let jitter_path = Path::new(&manifest_dir).join("SymCrypt/3rdparty/jitterentropy-library/");
         println!("cargo:rustc-link-search=native={}", jitter_path.display());
