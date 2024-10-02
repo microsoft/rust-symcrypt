@@ -41,7 +41,7 @@ use std::path::PathBuf;
 /// - Check that this is working on ARM windows and ARM Linux and ARM AL3 
 /// - Check both dynamic and static on all platforms 
 /// - run symcrypt unit tests on all platforms with the static build
-/// 
+/// - 
 
 
 // Convert cargo env variables to a String

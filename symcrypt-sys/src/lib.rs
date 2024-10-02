@@ -8,11 +8,9 @@ use std::sync::Once;
 use ctor::ctor;
 mod symcrypt_bindings;
 
-// // if "dynamic" use this:
-// #[cfg(feature = "dynamic")]
-// pub use symcrypt_bindings::*;
-
-
+// if "dynamic" use this:
+#[cfg(feature = "dynamic")]
+pub use symcrypt_bindings::*;
 
 // if static use the static bindings.
 #[cfg(feature = "static")] 
