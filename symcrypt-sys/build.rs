@@ -358,6 +358,7 @@ fn main() {
     match config.link_type {
         LinkType::Static => {
             println!("cargo:warning=Building static library");
+            generate_bindings::generate_bindings(); // generate the bindings for the static library.
             symcrypt_static_build(&config);
         },
         LinkType::Dynamic => {
