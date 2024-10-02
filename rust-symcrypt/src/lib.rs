@@ -115,7 +115,7 @@ fn symcrypt_init() {
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
             )
-        })
+        });
     }
 }
 
