@@ -21,6 +21,15 @@ extern crate libc;
 #[cfg(all(feature = "dynamic", target_os = "windows", target_arch = "x86_64"))]
 include!(concat!(env!("CARGO_MANIFEST_DIR"), "/bindings/windows_amd64_symcrypt_bindings.rs"));
 
+#[cfg(all(feature = "dynamic", target_os = "linux", target_arch = "x86_64"))]
+include!(concat!(env!("CARGO_MANIFEST_DIR"), "/bindings/linux_amd64_symcrypt_bindings.rs"));
+
+#[cfg(all(feature = "dynamic", target_os = "linux", target_arch = "aarch64"))]
+include!(concat!(env!("CARGO_MANIFEST_DIR"), "/bindings/linux_arm64_symcrypt_bindings.rs"));
+
+#[cfg(all(feature = "dynamic", target_os = "windows", target_arch = "aarch64"))]
+include!(concat!(env!("CARGO_MANIFEST_DIR"), "/bindings/windows_arm64_symcrypt_bindings.rs"));
+
 #[cfg(feature = "static")] 
 include!(concat!(env!("OUT_DIR"), "/symcrypt_static_generated_bindings.rs"));
 

@@ -22,18 +22,6 @@ use std::path::PathBuf;
 // need to check in a new dynamic bindgen each time we update the dll.
 // will need to do this for each OS.
 
-
-
-// on the static side, we must generate new bindings each time we build static. 
-// this fixes the gcm issue on windows. follow up with mitch on this.
-// possibiltiy of keeping generated bindings for static and dynamic? 
-
-// On linux we dont have issues with i32 and u32, might need to make a breaking change to fix over
-// dynamic on linux is working fine, with the versions that I have
-
-// static on linux is broken with i32 and u32 changes when i generate static bindings.
-// i get seg fault when i use the generated bindings
-
 // dynamic working fine
 
 /// Todo:
@@ -246,7 +234,7 @@ trait Builder {
 // Builder for Cmake, covers most cases, but having builder trait for option to add MSBuild at a later time
 struct CmakeBuilder {  
     build_manifest_dir: PathBuf,
-    output_lib_dir: PathBuf, // 
+    output_lib_dir: PathBuf, 
     config_flags: Option<Vec<String>>, // Config flags to pass to Cmake
     targets: Vec<String>, // Targets to link to
 }
