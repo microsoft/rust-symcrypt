@@ -107,12 +107,12 @@ fn symcrypt_init() {
             symcrypt_sys::SymCryptInit()
         });
 
-        SYMCRYPT_MODULE_INIT.call_once(|| {
-            symcrypt_sys::SymCryptModuleInit(
-                symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
-                symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
-            )
-        });
+        // SYMCRYPT_MODULE_INIT.call_once(|| {
+        //     symcrypt_sys::SymCryptModuleInit(
+        //         symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
+        //         symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
+        //     )
+        // });
     }
 }
 
