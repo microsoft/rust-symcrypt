@@ -16,7 +16,6 @@ readme = "README.md"
 libc = "0.2.0"
 
 [build-dependencies]
-cmake = "0.1.51"
 bindgen = "0.65.1"
 cc = { version = "1.0", features = ["parallel"] }
 

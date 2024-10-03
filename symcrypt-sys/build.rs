@@ -1,5 +1,4 @@
 use std::env;
-extern crate cmake;
 use std::path::Path;
 use std::process::Command;
 mod generate_bindings;
@@ -12,6 +11,9 @@ use std::path::PathBuf;
 
 // linux arm64 aarch64-unknown-linux-gnu
 // linux amd64 x86_64-unknown-linux-gnu
+
+// AL arm64
+// AL amd64
 
 
 
@@ -29,7 +31,10 @@ use std::path::PathBuf;
 /// - Check that this is working on ARM windows and ARM Linux and ARM AL3 
 /// - Check both dynamic and static on all platforms 
 /// - run symcrypt unit tests on all platforms with the static build
-/// - 
+/// - fix AL3 
+/// - documentation
+/// - Document deprecation of AL2
+/// - is there ARM al3? 
 
 
 // Convert cargo env variables to a String
@@ -364,6 +369,7 @@ fn symcrypt_static_build(build_config: &BuildConfig) {
 
         let jitter_path = Path::new(&manifest_dir).join("SymCrypt/3rdparty/jitterentropy-library/");
         println!("cargo:rustc-link-search=native={}", jitter_path.display());
+        // println!("cargo:rustc-link-lib=jitterentropy");
     }
 
     if build_config.target_os == TargetOS::Windows {
