@@ -6305,7 +6305,8 @@ pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
 extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg_attr(target_os = "windows", link(name = "symcrypt", kind = "dylib"))]
+#[cfg(target_os = "windows")]
+#[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -6336,6 +6337,10 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
+extern "C" {
+    pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
+}
+#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
