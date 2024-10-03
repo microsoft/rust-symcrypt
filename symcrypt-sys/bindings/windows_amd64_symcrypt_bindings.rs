@@ -6306,7 +6306,6 @@ extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
 #[cfg_attr(target_os = "windows", link(name = "symcrypt", kind = "dylib"))]
-#[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
