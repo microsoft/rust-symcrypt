@@ -61,123 +61,6 @@ pub type PCUINT64 = *const UINT64;
 pub type PVOID = *mut ::std::os::raw::c_void;
 pub type PCVOID = *const ::std::os::raw::c_void;
 pub type BOOLEAN = BYTE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Copy, Clone)]
-pub union __m128i {
-    pub m128i_i8: [::std::os::raw::c_char; 16usize],
-    pub m128i_i16: [::std::os::raw::c_short; 8usize],
-    pub m128i_i32: [::std::os::raw::c_int; 4usize],
-    pub m128i_i64: [::std::os::raw::c_longlong; 2usize],
-    pub m128i_u8: [::std::os::raw::c_uchar; 16usize],
-    pub m128i_u16: [::std::os::raw::c_ushort; 8usize],
-    pub m128i_u32: [::std::os::raw::c_uint; 4usize],
-    pub m128i_u64: [::std::os::raw::c_ulonglong; 2usize],
-}
-#[test]
-fn bindgen_test_layout___m128i() {
-    const UNINIT: ::std::mem::MaybeUninit<__m128i> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<__m128i>(),
-        16usize,
-        concat!("Size of: ", stringify!(__m128i))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<__m128i>(),
-        16usize,
-        concat!("Alignment of ", stringify!(__m128i))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i_i8) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(__m128i),
-            "::",
-            stringify!(m128i_i8)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i_i16) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(__m128i),
-            "::",
-            stringify!(m128i_i16)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i_i32) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(__m128i),
-            "::",
-            stringify!(m128i_i32)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i_i64) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(__m128i),
-            "::",
-            stringify!(m128i_i64)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i_u8) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(__m128i),
-            "::",
-            stringify!(m128i_u8)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i_u16) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(__m128i),
-            "::",
-            stringify!(m128i_u16)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i_u32) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(__m128i),
-            "::",
-            stringify!(m128i_u32)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i_u64) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(__m128i),
-            "::",
-            stringify!(m128i_u64)
-        )
-    );
-}
-impl Default for __m128i {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 pub type SYMCRYPT_BLOCKCIPHER = _SYMCRYPT_BLOCKCIPHER;
 pub type PCSYMCRYPT_BLOCKCIPHER = *const SYMCRYPT_BLOCKCIPHER;
 #[repr(C)]
@@ -3004,11 +2887,344 @@ impl Default for _SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS {
 }
 pub type SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS = _SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS;
 #[repr(C)]
+#[derive(Copy, Clone)]
+pub union __n64 {
+    pub n64_u64: [::std::os::raw::c_ulonglong; 1usize],
+    pub n64_u32: [::std::os::raw::c_uint; 2usize],
+    pub n64_u16: [::std::os::raw::c_ushort; 4usize],
+    pub n64_u8: [::std::os::raw::c_uchar; 8usize],
+    pub n64_i64: [::std::os::raw::c_longlong; 1usize],
+    pub n64_i32: [::std::os::raw::c_int; 2usize],
+    pub n64_i16: [::std::os::raw::c_short; 4usize],
+    pub n64_i8: [::std::os::raw::c_char; 8usize],
+    pub n64_f32: [f32; 2usize],
+    pub n64_f64: [f64; 1usize],
+}
+#[test]
+fn bindgen_test_layout___n64() {
+    const UNINIT: ::std::mem::MaybeUninit<__n64> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<__n64>(),
+        8usize,
+        concat!("Size of: ", stringify!(__n64))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<__n64>(),
+        8usize,
+        concat!("Alignment of ", stringify!(__n64))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_u64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_u64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_u32) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_u32)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_u16) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_u16)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_u8) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_u8)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_i64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_i64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_i32) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_i32)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_i16) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_i16)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_i8) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_i8)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_f32) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_f32)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n64_f64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n64),
+            "::",
+            stringify!(n64_f64)
+        )
+    );
+}
+impl Default for __n64 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Copy, Clone)]
+pub union __n128 {
+    pub n128_u64: [::std::os::raw::c_ulonglong; 2usize],
+    pub n128_u32: [::std::os::raw::c_uint; 4usize],
+    pub n128_u16: [::std::os::raw::c_ushort; 8usize],
+    pub n128_u8: [::std::os::raw::c_uchar; 16usize],
+    pub n128_i64: [::std::os::raw::c_longlong; 2usize],
+    pub n128_i32: [::std::os::raw::c_int; 4usize],
+    pub n128_i16: [::std::os::raw::c_short; 8usize],
+    pub n128_i8: [::std::os::raw::c_char; 16usize],
+    pub n128_f32: [f32; 4usize],
+    pub n128_f64: [f64; 2usize],
+    pub s: __n128__bindgen_ty_1,
+}
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct __n128__bindgen_ty_1 {
+    pub low64: __n64,
+    pub high64: __n64,
+}
+#[test]
+fn bindgen_test_layout___n128__bindgen_ty_1() {
+    const UNINIT: ::std::mem::MaybeUninit<__n128__bindgen_ty_1> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<__n128__bindgen_ty_1>(),
+        16usize,
+        concat!("Size of: ", stringify!(__n128__bindgen_ty_1))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<__n128__bindgen_ty_1>(),
+        8usize,
+        concat!("Alignment of ", stringify!(__n128__bindgen_ty_1))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).low64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128__bindgen_ty_1),
+            "::",
+            stringify!(low64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).high64) as usize - ptr as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128__bindgen_ty_1),
+            "::",
+            stringify!(high64)
+        )
+    );
+}
+impl Default for __n128__bindgen_ty_1 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[test]
+fn bindgen_test_layout___n128() {
+    const UNINIT: ::std::mem::MaybeUninit<__n128> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<__n128>(),
+        16usize,
+        concat!("Size of: ", stringify!(__n128))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<__n128>(),
+        16usize,
+        concat!("Alignment of ", stringify!(__n128))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_u64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_u64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_u32) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_u32)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_u16) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_u16)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_u8) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_u8)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_i64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_i64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_i32) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_i32)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_i16) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_i16)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_i8) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_i8)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_f32) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_f32)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).n128_f64) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(__n128),
+            "::",
+            stringify!(n128_f64)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).s) as usize - ptr as usize },
+        0usize,
+        concat!("Offset of field: ", stringify!(__n128), "::", stringify!(s))
+    );
+}
+impl Default for __n128 {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
 #[repr(align(16))]
 #[derive(Copy, Clone)]
 pub union _SYMCRYPT_GF128_ELEMENT {
     pub ull: [UINT64; 2usize],
-    pub m128i: __m128i,
+    pub n128: __n128,
     pub ul: [UINT32; 4usize],
 }
 #[test]
@@ -3037,13 +3253,13 @@ fn bindgen_test_layout__SYMCRYPT_GF128_ELEMENT() {
         )
     );
     assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).m128i) as usize - ptr as usize },
+        unsafe { ::std::ptr::addr_of!((*ptr).n128) as usize - ptr as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(_SYMCRYPT_GF128_ELEMENT),
             "::",
-            stringify!(m128i)
+            stringify!(n128)
         )
     );
     assert_eq!(
@@ -5306,10 +5522,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptMd5Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptMd5Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha1(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5327,10 +5539,6 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha1Algorithm: PCSYMCRYPT_HASH;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha1Algorithm: PCSYMCRYPT_HASH;
 }
@@ -5354,10 +5562,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha256Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha256Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha384(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5378,10 +5582,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha384Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha384Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha512(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5399,10 +5599,6 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -5429,10 +5625,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha3_384(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5456,10 +5648,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha3_512(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5480,10 +5668,6 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha3_512Algorithm: PCSYMCRYPT_HASH;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha3_512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -5705,10 +5889,6 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
 }
@@ -6184,25 +6364,13 @@ extern "C" {
 extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -6353,16 +6521,8 @@ pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
 extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -6371,16 +6531,8 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -6389,16 +6541,8 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -6407,16 +6551,8 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }

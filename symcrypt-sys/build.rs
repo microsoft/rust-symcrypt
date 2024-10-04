@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 // Currently supported triples: 
 // Cross compile not supported at the moment.
-// windows amd64 x86_64-pc-windows-msvc 
+// windows amd64 x86_64-pc-windows-msvc
 // windows arm64 aarch64-pc-windows-msvc
 
 // linux arm64 aarch64-unknown-linux-gnu
@@ -14,6 +14,19 @@ use std::path::PathBuf;
 
 // AL arm64
 // AL amd64
+
+
+/// Update bump for 0.3.0 to include: This version bump would be a STABLE version for dynamic linking 
+/// possibly downgrade version to 103.1 to match AL2 
+/// RSa
+/// ECC
+/// SymCrypt init() everywhere ( only dynamic version )
+/// fix typing u32 instead of proper type
+/// better error checking
+/// remove unwraps 
+/// test on all platforms
+/// update documentation S
+/// 
 
 
 
@@ -24,7 +37,6 @@ use std::path::PathBuf;
 // need to check in a new dynamic bindgen each time we update the dll.
 // will need to do this for each OS.
 
-// dynamic working fine
 
 /// Todo:
 /// - Update the bindings for dynamic for windows and linux 
