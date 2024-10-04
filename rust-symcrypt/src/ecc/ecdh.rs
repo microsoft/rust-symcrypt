@@ -72,6 +72,7 @@ mod test {
     use super::*;
     use crate::ecc::{CurveType, EcKeyUsage};
 
+   // symcrypt_init();
     // symcrypt_sys::SymCryptModuleInit() must be called via lib.rs in order to initialize the callbacks for
     // SymCryptEcurveAllocate, SymCryptEckeyAllocate, SymCryptCallbackAlloc, etc.
 

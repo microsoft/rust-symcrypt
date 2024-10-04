@@ -70,6 +70,7 @@
 //! ```
 
 use crate::errors::SymCryptError;
+use crate::symcrypt_init;
 use core::ffi::c_void;
 use std::marker::PhantomPinned;
 use std::mem;
@@ -127,6 +128,7 @@ struct HmacMd5ExpandedKey {
 #[cfg(feature = "md5")]
 impl HmacMd5ExpandedKey {
     fn new(key: &[u8]) -> Result<Pin<Box<Self>>, SymCryptError> {
+        symcrypt_init();
         let mut expanded_key = Box::pin(HmacMd5ExpandedKey {
             inner: symcrypt_sys::SYMCRYPT_HMAC_MD5_EXPANDED_KEY::default(),
             _pinned: PhantomPinned,
@@ -223,6 +225,7 @@ impl HmacMd5Inner {
 impl HmacMd5State {
     /// `new()` takes in a `&[u8]` reference to a key and can return a [`SymCryptError`] that is propagated back to the caller.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let expanded_key = HmacMd5ExpandedKey::new(key)?;
         let mut inner_state = HmacMd5Inner::new();
 
@@ -313,6 +316,7 @@ impl Drop for HmacMd5State {
 ///
 /// `result` is an array of size `MD5_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
 pub fn hmac_md5(key: &[u8], data: &[u8]) -> Result<[u8; MD5_HMAC_RESULT_SIZE], SymCryptError> {
+    symcrypt_init();
     let mut result = [0u8; MD5_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -352,6 +356,7 @@ struct HmacSha1ExpandedKey {
 #[cfg(feature = "sha1")]
 impl HmacSha1ExpandedKey {
     fn new(key: &[u8]) -> Result<Pin<Box<Self>>, SymCryptError> {
+        symcrypt_init();
         let mut expanded_key = Box::pin(HmacSha1ExpandedKey {
             inner: symcrypt_sys::SYMCRYPT_HMAC_SHA1_EXPANDED_KEY::default(),
             _pinned: PhantomPinned,
@@ -447,6 +452,7 @@ impl HmacSha1Inner {
 impl HmacSha1State {
     /// `new()` takes in a `&[u8]` reference to a key and can return a [`SymCryptError`] that is propagated back to the caller.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let expanded_key = HmacSha1ExpandedKey::new(key)?;
         let mut inner_state = HmacSha1Inner::new();
 
@@ -537,6 +543,7 @@ impl Drop for HmacSha1State {
 ///
 /// `result` is an array of size `SHA1_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
 pub fn hmac_sha1(key: &[u8], data: &[u8]) -> Result<[u8; SHA1_HMAC_RESULT_SIZE], SymCryptError> {
+    symcrypt_init();
     let mut result = [0u8; SHA1_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -574,6 +581,7 @@ struct HmacSha256ExpandedKey {
 
 impl HmacSha256ExpandedKey {
     fn new(key: &[u8]) -> Result<Pin<Box<Self>>, SymCryptError> {
+        symcrypt_init();
         let mut expanded_key = Box::pin(HmacSha256ExpandedKey {
             inner: symcrypt_sys::SYMCRYPT_HMAC_SHA256_EXPANDED_KEY::default(),
             _pinned: PhantomPinned,
@@ -671,6 +679,7 @@ unsafe impl Sync for HmacSha256Inner {
 impl HmacSha256State {
     /// `new()` takes in a `&[u8]` reference to a key and can return a [`SymCryptError`] that is propagated back to the caller.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let expanded_key = HmacSha256ExpandedKey::new(key)?;
         let mut inner_state = HmacSha256Inner::new();
 
@@ -760,6 +769,7 @@ pub fn hmac_sha256(
     key: &[u8],
     data: &[u8],
 ) -> Result<[u8; SHA256_HMAC_RESULT_SIZE], SymCryptError> {
+    symcrypt_init();
     let mut result = [0u8; SHA256_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -797,6 +807,7 @@ struct HmacSha384ExpandedKey {
 
 impl HmacSha384ExpandedKey {
     fn new(key: &[u8]) -> Result<Pin<Box<Self>>, SymCryptError> {
+        symcrypt_init();
         let mut expanded_key = Box::pin(HmacSha384ExpandedKey {
             inner: symcrypt_sys::SYMCRYPT_HMAC_SHA384_EXPANDED_KEY::default(),
             _pinned: PhantomPinned,
@@ -895,6 +906,7 @@ unsafe impl Sync for HmacSha384Inner {
 impl HmacSha384State {
     /// `new()` takes in a `&[u8]` reference to a key and can return a [`SymCryptError`] that is propagated back to the caller.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let expanded_key = HmacSha384ExpandedKey::new(key)?;
         let mut inner_state = HmacSha384Inner::new();
 
@@ -984,6 +996,7 @@ pub fn hmac_sha384(
     key: &[u8],
     data: &[u8],
 ) -> Result<[u8; SHA384_HMAC_RESULT_SIZE], SymCryptError> {
+    symcrypt_init();
     let mut result = [0u8; SHA384_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -1021,6 +1034,7 @@ struct HmacSha512ExpandedKey {
 
 impl HmacSha512ExpandedKey {
     fn new(key: &[u8]) -> Result<Pin<Box<Self>>, SymCryptError> {
+        symcrypt_init();
         let mut expanded_key = Box::pin(HmacSha512ExpandedKey {
             inner: symcrypt_sys::SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::default(),
             _pinned: PhantomPinned,
@@ -1111,6 +1125,7 @@ impl HmacSha512Inner {
 impl HmacSha512State {
     /// `new()` takes in a `&[u8]` reference to a key and can return a [`SymCryptError`] that is propagated back to the caller.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let expanded_key = HmacSha512ExpandedKey::new(key)?;
         let mut inner_state = HmacSha512Inner::new();
 
@@ -1200,6 +1215,7 @@ pub fn hmac_sha512(
     key: &[u8],
     data: &[u8],
 ) -> Result<[u8; SHA512_HMAC_RESULT_SIZE], SymCryptError> {
+    symcrypt_init();
     let mut result = [0u8; SHA512_HMAC_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls

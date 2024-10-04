@@ -76,6 +76,7 @@
 //!
 use crate::errors::SymCryptError;
 use symcrypt_sys;
+use crate::symcrypt_init;
 
 /// Stateless call to encrypt using ChaChaPoly1305.
 ///
@@ -101,6 +102,7 @@ pub fn chacha20_poly1305_encrypt_in_place(
     buffer: &mut [u8],
     tag: &mut [u8; 16], // ChaCha tag must be 16 bytes
 ) -> Result<(), SymCryptError> {
+    symcrypt_init();
     unsafe {
         // SAFETY: FFI calls
         match symcrypt_sys::SymCryptChaCha20Poly1305Encrypt(
@@ -146,6 +148,7 @@ pub fn chacha20_poly1305_decrypt_in_place(
     buffer: &mut [u8],
     tag: &[u8; 16], // ChaCha tag must be 16 bytes
 ) -> Result<(), SymCryptError> {
+    symcrypt_init();
     unsafe {
         // SAFETY: FFI calls
         match symcrypt_sys::SymCryptChaCha20Poly1305Decrypt(

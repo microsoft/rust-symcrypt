@@ -5,22 +5,24 @@ use std::path::PathBuf;
 
 
 /// This file is used to generate SymCrypt bindings. We have moved this over to a separate crate because it should only be 
-/// used by developers of the symcrypt, and symcrypt-sys crates. 
+/// used by developers of the symcrypt, and symcrypt-sys crates. Since bindings are maintained and directly checked into
+/// symcrypt-sys crate there is no need to have the bindgen bulk included in the symcrypt-sys crate. 
 
 
-/// Usage: 
-/// - Ensure you have the SymCrypt git submodule 
-/// - In the SymCrypt git submodule, run 'Cmake -S . -B bin' to generate the required .h files 
-/// 
-
-
-fn main() {
+pub(crate) fn generate_bindings() {
     println!("cargo:libdir=SymCrypt/inc"); // SymCrypt *.h files are needed for binding generation. If you are missing this,
     // try pulling SymCrypt as a git module 
-    println!("cargo:rerun-if-changed=inc/wrapper.h");
+    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let bindings_file = out_path.join("symcrypt_static_generated_bindings.rs");
+
+    if bindings_file.exists() {
+        println!("Bindings already generated, skipping bindgen.");
+        return;
+    }
+    println!("cargo:rerun-if-changed=wrapper.h");
 
     let bindings = bindgen::Builder::default()
-        .header("inc/wrapper.h")
+        .header("wrapper.h")
         .clang_arg("-v")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         // ALLOWLIST
@@ -28,6 +30,7 @@ fn main() {
         // INIT FUNCTIONS
         .allowlist_function("SymCryptModuleInit")
         .allowlist_var("^(SYMCRYPT_CODE_VERSION.*)$")
+        .allowlist_function("SymCryptInit")
         // HASH FUNCTIONS
         .allowlist_function("^SymCrypt(?:Sha3_(?:256|384|512)|Sha(?:256|384|512|1)|Md5)(?:Init|Append|Result|StateCopy)?$")
         .allowlist_var("^(SYMCRYPT_(SHA3_256|SHA3_384|SHA3_512|SHA256|SHA384|SHA512|SHA1|MD5)_RESULT_SIZE$)")
@@ -80,6 +83,6 @@ fn main() {
 
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
-        .write_to_file(out_path.join("raw_generated_bindings.rs"))
+        .write_to_file(out_path.join("symcrypt_static_generated_bindings.rs"))
         .expect("Couldn't write bindings!");
 }

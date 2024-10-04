@@ -53,7 +53,7 @@
 //! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
 //!
 //! ## Usage
-//! There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash. `symcrypt_init()` must be run before any other calls to the underlying symcrypt code.
+//! There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash.
 //!
 //! **Note:** This code snippet also uses the [hex](https://crates.io/crates/hex) crate.
 //!
@@ -67,10 +67,8 @@
 //!
 //! ```rust
 //! use symcrypt::hash::sha256;
-//! use symcrypt::symcrypt_init;
 //!
 //! fn  main() {
-//!     symcrypt_init();
 //!     let data = hex::decode("641ec2cf711e").unwrap();
 //!     let expected: &str = "cfdbd6c9acf9842ce04e8e6a0421838f858559cf22d2ea8a38bd07d5e4692233";
 //!
@@ -90,14 +88,26 @@ pub mod hash;
 pub mod hmac;
 pub mod rsa;
 
-/// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
-///  all subsequent calls will be no-ops
-pub fn symcrypt_init() {
+// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
+// BREAKING CHANGE WILL REMOVE THIS AS A PUB, KEEP IT AS JUST A PRIVATE FUNCTION
+fn symcrypt_init() {
     // Subsequent calls to `symcrypt_init()` after the first will not be invoked per .call_once docs https://doc.rust-lang.org/std/sync/struct.Once.html
-    static INIT: Once = Once::new();
+    static SYMCRYPT_MODULE_INIT: Once = Once::new();
+
+    #[cfg(feature = "static")]
+    static SYMCRYPT_INIT: Once = Once::new();
+    
     unsafe {
         // SAFETY: FFI calls, blocking from being run again.
-        INIT.call_once(|| {
+        
+        // SymCryptInit() is called in the DllMain for dynamic libs, but needs to be implicitly
+        // called for the static scenario.
+        #[cfg(feature = "static")]
+        SYMCRYPT_INIT.call_once(|| {
+            symcrypt_sys::SymCryptInit()
+        });
+
+        SYMCRYPT_MODULE_INIT.call_once(|| {
             symcrypt_sys::SymCryptModuleInit(
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
@@ -110,7 +120,7 @@ pub fn symcrypt_init() {
 pub fn symcrypt_random(buff: &mut [u8]) {
     unsafe {
         // SAFETY: FFI calls
-        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as u64);
+        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
     }
 }
 

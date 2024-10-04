@@ -56,8 +56,8 @@
 //! let public_key = key.export_public_key().unwrap();
 //! ```
 //!
-use crate::NumberFormat;
-use crate::{errors::SymCryptError, symcrypt_init};
+use crate::{NumberFormat, symcrypt_init};
+use crate::errors::SymCryptError;
 use lazy_static::lazy_static;
 use std::ptr::{self, null_mut};
 
@@ -176,6 +176,7 @@ impl EcKey {
         curve_type: CurveType,
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let ec_curve = InnerEcCurve::new(curve_type);
         unsafe {
             // SAFETY: FFI calls
@@ -216,6 +217,8 @@ impl EcKey {
         public_key: Option<&[u8]>,
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
+
         let ec_curve = InnerEcCurve::new(curve_type);
 
         unsafe {
@@ -270,6 +273,8 @@ impl EcKey {
         public_key: &[u8],
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
+        symcrypt_init();
+        
         let ec_curve = InnerEcCurve::new(curve_type);
         unsafe {
             // SAFETY: FFI calls
@@ -428,7 +433,6 @@ fn internal_new(curve: CurveType) -> Result<InnerEcCurve, SymCryptError> {
         // Will only init once, subsequent calls to symcrypt_init() will be no-ops.
         // Calling here incase user did not call symcrypt_init() earlier on.
         symcrypt_init();
-
         // Stack allocated since SymCryptEcCurveAllocate is called.
         let curve_ptr = symcrypt_sys::SymCryptEcurveAllocate(to_symcrypt_curve(curve), 0);
         if curve_ptr.is_null() {
@@ -461,16 +465,21 @@ pub(crate) fn to_symcrypt_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_EC
 }
 
 // curve_to_num_format() returns the correct number format needed for TLS interop since 25519 spec defines the use of Little Endian.
-pub(crate) fn curve_to_num_format(curve_type: CurveType) -> i32 {
+pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
     let num_format = match curve_type {
         CurveType::Curve25519 => NumberFormat::LSB.to_symcrypt_format(),
         CurveType::NistP256 | CurveType::NistP384 => NumberFormat::MSB.to_symcrypt_format(),
     };
+    // open issue about this on github:
+    // https://github.com/rust-lang/rust-bindgen/issues/1966
+    // bindgen can choose either c_uint or c_int for the default enum type 
+    // this causes a mismatch fof linux which defaults to c_uint and windows which defaults to c_int
+    // return type changed to symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT to avoid this issue
     num_format
 }
 
 // curve_to_ec_point_format() returns the X or XY format needed for TLS interop.
-pub(crate) fn curve_to_ec_point_format(curve_type: CurveType) -> i32 {
+pub(crate) fn curve_to_ec_point_format(curve_type: CurveType) -> symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT {
     // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
     let ec_point_format = match curve_type {
         CurveType::Curve25519 => symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_X,
@@ -478,6 +487,11 @@ pub(crate) fn curve_to_ec_point_format(curve_type: CurveType) -> i32 {
             symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY
         }
     };
+    // open issue about this on github:
+    // https://github.com/rust-lang/rust-bindgen/issues/1966
+    // bindgen can choose either c_uint or c_int for the default enum type 
+    // this causes a mismatch fof linux which defaults to c_uint and windows which defaults to c_int
+    // return type changed to symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT to avoid this issue
     ec_point_format
 }
 
