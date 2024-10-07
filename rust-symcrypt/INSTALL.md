@@ -1,6 +1,6 @@
 # Detailed Build and Install
 
-This page provides a more detailed installation instructions
+This page provides more detailed installation instructions
 
 ## Installation
 For ease of use, the recommended usage is to obtain these binaries from the official SymCrypt [Repo](https://github.com/microsoft/SymCrypt/releases/tag/v103.4.2).
@@ -40,11 +40,7 @@ Here are 2 recommended options to ensure your `symcrypt.dll` is found by Windows
 1. Put the `symcrypt.dll` in the same folder as your output `.exe` file. If you are doing development (not release), the common path will be: `C:\your-project\target\debug\`.
 2. Permanently add the `symcrypt.dll` path into your System PATH environment variable. Doing this will ensure that any project that uses the SymCrypt crate will be able to access `symcrypt.lib`
 
-### Azure Linux Install
 
-For Azure Linux 2.0 you can install the required SymCrypt binaries via: `tdnf install symcrypt`
-
-**Note:** SymCrypt will be included out the box with Azure Linux 3.0 which has not yet shipped.
 
 ### Linux Install
 
@@ -52,6 +48,5 @@ After installing and unzipping SymCrypt on a Linux distro, the required `libsymc
 `~/Your-Path-To-SymCrypt-Release-Download/lib/`
 
 The symcrypt crate needs to be able to link with these libs during build/run time. In order to mimic the installation path for other libraries, you must place the `libsymcrypt.so*` files into linker load path. The way that this is set will vary between distros. On most distros it set via the environment variable `$LD_LIBRARY_PATH`.
-
-**Note:** This process has been streamlined for `Azure Linux`, and there is no guarantee for compatibility on other Linux distros at the moment. 
+ 
 
