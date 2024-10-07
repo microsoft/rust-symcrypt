@@ -67,10 +67,8 @@
 //!
 //! ```rust
 //! use symcrypt::hash::sha256;
-//! use symcrypt::symcrypt_init;
 //!
 //! fn  main() {
-//!     symcrypt_init();
 //!     let data = hex::decode("641ec2cf711e").unwrap();
 //!     let expected: &str = "cfdbd6c9acf9842ce04e8e6a0421838f858559cf22d2ea8a38bd07d5e4692233";
 //!
@@ -90,9 +88,8 @@ pub mod hash;
 pub mod hmac;
 pub mod rsa;
 
-/// `symcrypt_init()` must be called before any other function in the library. `symcrypt_init()` can be called multiple times,
-///  all subsequent calls will be no-ops
-pub fn symcrypt_init() {
+// symcrypt_init must be called before any other API can be called. All subsequent calls to symcrypt_init will be no-ops
+fn symcrypt_init() {
     // Subsequent calls to `symcrypt_init()` after the first will not be invoked per .call_once docs https://doc.rust-lang.org/std/sync/struct.Once.html
     static INIT: Once = Once::new();
     unsafe {
@@ -108,9 +105,10 @@ pub fn symcrypt_init() {
 
 /// Takes in a a buffer called `buff` and fills it with random bytes. This function cannot fail.
 pub fn symcrypt_random(buff: &mut [u8]) {
+    symcrypt_init();
     unsafe {
         // SAFETY: FFI calls
-        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as u64);
+        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
     }
 }
 

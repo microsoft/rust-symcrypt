@@ -176,7 +176,8 @@ impl EcKey {
         curve_type: CurveType,
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let ec_curve = InnerEcCurve::new(curve_type);
+        symcrypt_init();
+        let ec_curve = InnerEcCurve::new(curve_type)?;
         unsafe {
             // SAFETY: FFI calls
             // Stack allocated since we will do SymCryptEckeyAllocate.
@@ -216,8 +217,8 @@ impl EcKey {
         public_key: Option<&[u8]>,
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let ec_curve = InnerEcCurve::new(curve_type);
-
+        symcrypt_init();
+        let ec_curve = InnerEcCurve::new(curve_type)?;
         unsafe {
             //SAFETY: FFI calls
             // Stack allocated since we will do SymCryptEckeyAllocate.
@@ -270,7 +271,8 @@ impl EcKey {
         public_key: &[u8],
         ec_key_usage: EcKeyUsage,
     ) -> Result<Self, SymCryptError> {
-        let ec_curve = InnerEcCurve::new(curve_type);
+        symcrypt_init();
+        let ec_curve = InnerEcCurve::new(curve_type)?;
         unsafe {
             // SAFETY: FFI calls
             // Stack allocated since we will do SymCryptEckeyAllocate.
@@ -382,12 +384,12 @@ impl EcKey {
     }
 
     /// `get_curve_size()` returns a `u32` that represents the size of the curve associated with the [`EcKey`].
-    /// This call cannot fail.
-    pub fn get_curve_size(&self) -> u32 {
+    /// This call can fail with `SymCryptError::MemoryAllocationFailure` if there is not enough memory to allocate the curve.
+    pub fn get_curve_size(&self) -> Result<u32, SymCryptError> {
         unsafe {
-            let ec_curve = InnerEcCurve::new(self.get_curve_type());
+            let ec_curve = InnerEcCurve::new(self.get_curve_type())?;
             let curve_size = symcrypt_sys::SymCryptEcurveSizeofFieldElement(ec_curve.0);
-            curve_size
+            Ok(curve_size)
         }
     }
 
@@ -414,21 +416,16 @@ impl EcKey {
 }
 
 // Curves can be re-used across EcKey calls, creating static references to save on allocations and increase perf.
-// unwraps used here since only way this could fail is via not enough memory.
 lazy_static! {
-    static ref NIST_P256: InnerEcCurve = internal_new(CurveType::NistP256).unwrap();
-    static ref NIST_P384: InnerEcCurve = internal_new(CurveType::NistP384).unwrap();
-    static ref CURVE_25519: InnerEcCurve = internal_new(CurveType::Curve25519).unwrap();
+    static ref NIST_P256: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP256);
+    static ref NIST_P384: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP384);
+    static ref CURVE_25519: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::Curve25519);
 }
 
 // SymCryptInit must be called before any EcDh operations are performed.
 fn internal_new(curve: CurveType) -> Result<InnerEcCurve, SymCryptError> {
     unsafe {
         // SAFETY: FFI calls
-        // Will only init once, subsequent calls to symcrypt_init() will be no-ops.
-        // Calling here incase user did not call symcrypt_init() earlier on.
-        symcrypt_init();
-
         // Stack allocated since SymCryptEcCurveAllocate is called.
         let curve_ptr = symcrypt_sys::SymCryptEcurveAllocate(to_symcrypt_curve(curve), 0);
         if curve_ptr.is_null() {
@@ -440,14 +437,26 @@ fn internal_new(curve: CurveType) -> Result<InnerEcCurve, SymCryptError> {
 }
 
 impl InnerEcCurve {
-    // new() returns a EcCurve associated with the provided CurveType.
-    pub(crate) fn new(curve: CurveType) -> &'static Self {
-        let ec_curve: &'static InnerEcCurve = match curve {
-            CurveType::NistP256 => &*NIST_P256,
-            CurveType::NistP384 => &*NIST_P384,
-            CurveType::Curve25519 => &*CURVE_25519,
-        };
-        ec_curve
+    // new() returns an `InnerEcCurve` associated with the provided CurveType.
+    pub(crate) fn new(curve: CurveType) -> Result<&'static Self, SymCryptError> {
+        // Match the provided curve type and access the corresponding static `Result`.
+        match curve {
+            // Returning the lazy_static reference to the curve.
+            // Casting back our own MemoryAllocation error instead of getting the error from the static reference.
+            // This is done to avoid the need to clone the error.
+            CurveType::NistP256 => match &*NIST_P256 {
+                Ok(curve) => Ok(curve),
+                Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
+            },
+            CurveType::NistP384 => match &*NIST_P384 {
+                Ok(curve) => Ok(curve),
+                Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
+            },
+            CurveType::Curve25519 => match &*CURVE_25519 {
+                Ok(curve) => Ok(curve),
+                Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
+            },
+        }
     }
 }
 
@@ -461,7 +470,7 @@ pub(crate) fn to_symcrypt_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_EC
 }
 
 // curve_to_num_format() returns the correct number format needed for TLS interop since 25519 spec defines the use of Little Endian.
-pub(crate) fn curve_to_num_format(curve_type: CurveType) -> i32 {
+pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
     let num_format = match curve_type {
         CurveType::Curve25519 => NumberFormat::LSB.to_symcrypt_format(),
         CurveType::NistP256 | CurveType::NistP384 => NumberFormat::MSB.to_symcrypt_format(),
@@ -470,7 +479,7 @@ pub(crate) fn curve_to_num_format(curve_type: CurveType) -> i32 {
 }
 
 // curve_to_ec_point_format() returns the X or XY format needed for TLS interop.
-pub(crate) fn curve_to_ec_point_format(curve_type: CurveType) -> i32 {
+pub(crate) fn curve_to_ec_point_format(curve_type: CurveType) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
     // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
     let ec_point_format = match curve_type {
         CurveType::Curve25519 => symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_X,
