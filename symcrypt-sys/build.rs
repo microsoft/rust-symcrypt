@@ -5,8 +5,7 @@ fn main() {
     {
         // Look for the .lib file during link time. We are searching the Windows/System32 path which is set as a current default to match
         // the long term placement of a Windows shipped symcrypt.dll 
-        // println!("cargo:rustc-link-search=native=C:/Windows/System32/"); 
-
+        
         let lib_path = env::var("SYMCRYPT_LIB_PATH").unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set"));
         println!("cargo:rustc-link-search=native={}", lib_path);
 

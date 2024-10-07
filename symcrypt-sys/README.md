@@ -18,7 +18,7 @@ However, If you want to access the bindings directly, you can add `symcrypt-sys`
 
 In your `Cargo.toml`
 ```Rust
-symcrypt-sys = "0.2.0"
+symcrypt-sys = "0.3.0"
 ```
 Then you can call the underlying SymCrypt code directly via the FFIs.
 ```Rust
