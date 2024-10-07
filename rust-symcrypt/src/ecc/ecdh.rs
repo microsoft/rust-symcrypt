@@ -39,6 +39,7 @@ use crate::errors::SymCryptError;
 use std::vec;
 use symcrypt_sys;
 
+#[allow(rustdoc::broken_intra_doc_links)]
 /// Impl for EcDh struct.
 impl EcKey {
     /// `ecdh_secret_agreement()` returns a `Vec<u8>` that represents the secret agreement, or a [`SymCryptError`] if the operation failed.
