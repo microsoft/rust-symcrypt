@@ -74,8 +74,8 @@
 //! ```
 //! }
 //!
-use crate::symcrypt_init;
 use crate::errors::SymCryptError;
+use crate::symcrypt_init;
 use symcrypt_sys;
 
 /// Stateless call to encrypt using ChaChaPoly1305.

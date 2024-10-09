@@ -419,7 +419,8 @@ impl EcKey {
 lazy_static! {
     static ref NIST_P256: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP256);
     static ref NIST_P384: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP384);
-    static ref CURVE_25519: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::Curve25519);
+    static ref CURVE_25519: Result<InnerEcCurve, SymCryptError> =
+        internal_new(CurveType::Curve25519);
 }
 
 // SymCryptInit must be called before any EcDh operations are performed.
@@ -479,7 +480,9 @@ pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::_SYMCR
 }
 
 // curve_to_ec_point_format() returns the X or XY format needed for TLS interop.
-pub(crate) fn curve_to_ec_point_format(curve_type: CurveType) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
+pub(crate) fn curve_to_ec_point_format(
+    curve_type: CurveType,
+) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
     // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
     let ec_point_format = match curve_type {
         CurveType::Curve25519 => symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_X,
