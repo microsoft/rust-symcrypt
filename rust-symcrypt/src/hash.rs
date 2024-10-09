@@ -70,12 +70,12 @@
 //! let mut result = sha256_state.result();
 //! assert_eq!(hex::encode(result), expected);
 //! ```
+use crate::symcrypt_init;
 use core::ffi::c_void;
 use std::marker::PhantomPinned;
 use std::mem;
 use std::pin::Pin;
 use symcrypt_sys;
-use crate::symcrypt_init;
 
 /// 16
 #[cfg(feature = "md5")]
