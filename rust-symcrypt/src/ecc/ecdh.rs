@@ -39,6 +39,7 @@ use crate::errors::SymCryptError;
 use std::vec;
 use symcrypt_sys;
 
+#[allow(rustdoc::broken_intra_doc_links)]
 /// Impl for EcDh struct.
 impl EcKey {
     /// `ecdh_secret_agreement()` returns a `Vec<u8>` that represents the secret agreement, or a [`SymCryptError`] if the operation failed.
@@ -48,7 +49,7 @@ impl EcKey {
     /// If the key usage is not [`EcKeyUsage::EcDhAndEcDsa`], or [`EcKeyUsage::EcDh`], the function will return a [`SymCryptError::InvalidArgument`].
     pub fn ecdh_secret_agreement(&self, public_key: EcKey) -> Result<Vec<u8>, SymCryptError> {
         let num_format = curve_to_num_format(self.get_curve_type());
-        let secret_length = self.get_curve_size();
+        let secret_length = self.get_curve_size()?;
         let mut secret = vec![0u8; secret_length as usize];
         unsafe {
             // SAFETY: FFI calls
@@ -71,9 +72,6 @@ impl EcKey {
 mod test {
     use super::*;
     use crate::ecc::{CurveType, EcKeyUsage};
-
-    // symcrypt_sys::SymCryptModuleInit() must be called via lib.rs in order to initialize the callbacks for
-    // SymCryptEcurveAllocate, SymCryptEckeyAllocate, SymCryptCallbackAlloc, etc.
 
     #[test]
     fn test_ecdh_nist_p256() {
