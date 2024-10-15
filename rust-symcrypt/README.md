@@ -47,8 +47,8 @@ ChaCha:
 - Decryption ( in place )
 
 ECC:
-- ECDH Secret Agreement ( NistP256, NistP384, Curve25519)
-- ECDSA Sign / Verify ( NistP256, NistP384, Curve25519)
+- ECDH Secret Agreement ( NistP256, NistP384, NistP521, Curve25519)
+- ECDSA Sign / Verify ( NistP256, NistP384 )
 
 RSA: 
 - PKCS1 ( Sign, Verify, Encrypt, Decrypt )

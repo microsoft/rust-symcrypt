@@ -482,7 +482,9 @@ pub(crate) fn to_symcrypt_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_EC
 pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
     let num_format = match curve_type {
         CurveType::Curve25519 => NumberFormat::LSB.to_symcrypt_format(),
-        CurveType::NistP256 | CurveType::NistP384 | CurveType::NistP521 => NumberFormat::MSB.to_symcrypt_format(),
+        CurveType::NistP256 | CurveType::NistP384 | CurveType::NistP521 => {
+            NumberFormat::MSB.to_symcrypt_format()
+        }
     };
     num_format
 }
@@ -717,7 +719,7 @@ mod test {
     }
 
     #[test]
-    fn test_eckey_set_public_key_wrong_curve_nist_521() { 
+    fn test_eckey_set_public_key_wrong_curve_nist_521() {
         let public_key = hex::decode("8bcfe2a721ca6d753968f564ec4315be4857e28bef1908f61a366b1f03c974790f67576a30b8e20d4232d8530b52fb4c89cbc589ede291e499ddd15fe870ab96").unwrap();
 
         let result =
