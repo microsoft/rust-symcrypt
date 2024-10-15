@@ -133,6 +133,36 @@ mod test {
     }
 
     #[test]
+    fn test_ecdh_nist_p521() {
+        let ecdh_1_private =
+            EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDh).unwrap();
+        let ecdh_2_private =
+            EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDh).unwrap();
+
+        let public_bytes_1 = ecdh_1_private.export_public_key().unwrap();
+        let public_bytes_2 = ecdh_2_private.export_public_key().unwrap();
+
+        let ecdh_1_public = EcKey::set_public_key(
+            CurveType::NistP521,
+            &public_bytes_1.as_slice(),
+            EcKeyUsage::EcDh,
+        )
+        .unwrap();
+
+        let ecdh_2_public = EcKey::set_public_key(
+            CurveType::NistP521,
+            &public_bytes_2.as_slice(),
+            EcKeyUsage::EcDh,
+        )
+        .unwrap();
+
+        let secret_agreement_1 = ecdh_1_private.ecdh_secret_agreement(ecdh_2_public).unwrap();
+        let secret_agreement_2 = ecdh_2_private.ecdh_secret_agreement(ecdh_1_public).unwrap();
+
+        assert_eq!(secret_agreement_1, secret_agreement_2);
+    }
+
+    #[test]
     fn test_ecdh_curve_25519() {
         let ecdh_1_private =
             EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDh).unwrap();

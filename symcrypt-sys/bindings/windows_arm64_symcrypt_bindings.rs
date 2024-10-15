@@ -6372,6 +6372,11 @@ extern "C" {
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
+    pub static SymCryptEcurveParamsNistP521: PCSYMCRYPT_ECURVE_PARAMS;
+}
+#[cfg(target_os = "windows")]
+#[link(name = "symcrypt", kind = "dylib")]
+extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
 extern "C" {
