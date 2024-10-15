@@ -5306,10 +5306,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptMd5Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptMd5Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha1(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5327,10 +5323,6 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha1Algorithm: PCSYMCRYPT_HASH;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha1Algorithm: PCSYMCRYPT_HASH;
 }
@@ -5354,10 +5346,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha256Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha256Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha384(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5378,10 +5366,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha384Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha384Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha512(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5399,10 +5383,6 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -5429,10 +5409,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha3_384(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5456,10 +5432,6 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
-}
 extern "C" {
     pub fn SymCryptSha3_512(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
@@ -5480,10 +5452,6 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha3_512Algorithm: PCSYMCRYPT_HASH;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha3_512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -5705,10 +5673,6 @@ extern "C" {
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
 }
@@ -6184,25 +6148,18 @@ extern "C" {
 extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
-    pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
+    pub static SymCryptEcurveParamsNistP521: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[cfg(target_os = "linux")]
+#[cfg(target_os = "windows")]
+#[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -6353,16 +6310,8 @@ pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
 extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -6371,16 +6320,8 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -6389,16 +6330,8 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -6407,16 +6340,8 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
-#[cfg(target_os = "linux")]
-extern "C" {
-    pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
-}
 #[cfg(target_os = "windows")]
 #[link(name = "symcrypt", kind = "dylib")]
-extern "C" {
-    pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg(target_os = "linux")]
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }

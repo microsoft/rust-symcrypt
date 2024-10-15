@@ -72,9 +72,11 @@ pub mod ecdsa;
 pub enum CurveType {
     /// NistP256 represents the NIST P-256 curve.
     NistP256,
-    // NistP384 represents the NIST P-384 curve.
+    /// NistP384 represents the NIST P-384 curve.
     NistP384,
-    // Curve25519 represents the EC25519 curve. This curve is only supported for EcDh operations.
+    /// NistP521 represents the NIST P-521 curve.
+    NistP521,
+    /// Curve25519 represents the EC25519 curve. This curve is only supported for EcDh operations.
     Curve25519,
 }
 
@@ -332,7 +334,7 @@ impl EcKey {
         }
     }
 
-    /// `export_public_key()` returns the public key associated with the [`EcKey`] as a `Vec<u8>`.
+    /// `export_private_key()` returns the private key associated with the [`EcKey`] as a `Vec<u8>`.
     /// Returns a [`SymCryptError::InvalidBlob`] if there is no associated private key.
     pub fn export_private_key(&self) -> Result<Vec<u8>, SymCryptError> {
         let num_format = curve_to_num_format(self.get_curve_type());
@@ -347,7 +349,7 @@ impl EcKey {
                 self.inner_key(),
                 private_key_bytes.as_mut_ptr(),
                 pub_key_len as symcrypt_sys::SIZE_T,
-                std::ptr::null_mut(), // setting private key to null since we will only access public key
+                std::ptr::null_mut(), // setting public key to null since we will only access private key
                 0 as symcrypt_sys::SIZE_T,
                 num_format,
                 ec_point_format,
@@ -419,6 +421,7 @@ impl EcKey {
 lazy_static! {
     static ref NIST_P256: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP256);
     static ref NIST_P384: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP384);
+    static ref NIST_P521: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP521);
     static ref CURVE_25519: Result<InnerEcCurve, SymCryptError> =
         internal_new(CurveType::Curve25519);
 }
@@ -453,6 +456,10 @@ impl InnerEcCurve {
                 Ok(curve) => Ok(curve),
                 Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
             },
+            CurveType::NistP521 => match &*NIST_P521 {
+                Ok(curve) => Ok(curve),
+                Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
+            },
             CurveType::Curve25519 => match &*CURVE_25519 {
                 Ok(curve) => Ok(curve),
                 Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
@@ -466,6 +473,7 @@ pub(crate) fn to_symcrypt_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_EC
     match curve {
         CurveType::NistP256 => unsafe { symcrypt_sys::SymCryptEcurveParamsNistP256 }, // SAFETY: FFI calls
         CurveType::NistP384 => unsafe { symcrypt_sys::SymCryptEcurveParamsNistP384 }, // SAFETY: FFI calls
+        CurveType::NistP521 => unsafe { symcrypt_sys::SymCryptEcurveParamsNistP521 }, // SAFETY: FFI calls
         CurveType::Curve25519 => unsafe { symcrypt_sys::SymCryptEcurveParamsCurve25519 }, // SAFETY: FFI calls
     }
 }
@@ -474,7 +482,7 @@ pub(crate) fn to_symcrypt_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_EC
 pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
     let num_format = match curve_type {
         CurveType::Curve25519 => NumberFormat::LSB.to_symcrypt_format(),
-        CurveType::NistP256 | CurveType::NistP384 => NumberFormat::MSB.to_symcrypt_format(),
+        CurveType::NistP256 | CurveType::NistP384 | CurveType::NistP521 => NumberFormat::MSB.to_symcrypt_format(),
     };
     num_format
 }
@@ -486,7 +494,7 @@ pub(crate) fn curve_to_ec_point_format(
     // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
     let ec_point_format = match curve_type {
         CurveType::Curve25519 => symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_X,
-        CurveType::NistP256 | CurveType::NistP384 => {
+        CurveType::NistP256 | CurveType::NistP384 | CurveType::NistP521 => {
             symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY
         }
     };
@@ -626,19 +634,19 @@ mod test {
 
     #[test]
     fn test_eckey_generate_and_set_public_and_private_key() {
-        let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+        let key = EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDsa).unwrap();
         let private_key = key.export_private_key().unwrap();
         let public_key = key.export_public_key().unwrap();
         let key2 = EcKey::set_key_pair(
-            CurveType::NistP256,
+            CurveType::NistP521,
             &private_key,
             Some(public_key).as_deref(),
             EcKeyUsage::EcDsa,
         )
         .unwrap();
 
-        assert_eq!(key.get_curve_type(), CurveType::NistP256);
-        assert_eq!(key2.get_curve_type(), CurveType::NistP256);
+        assert_eq!(key.get_curve_type(), CurveType::NistP521);
+        assert_eq!(key2.get_curve_type(), CurveType::NistP521);
         assert_eq!(key.has_private_key(), true);
         assert_eq!(key2.has_private_key(), true);
     }
@@ -709,6 +717,15 @@ mod test {
     }
 
     #[test]
+    fn test_eckey_set_public_key_wrong_curve_nist_521() { 
+        let public_key = hex::decode("8bcfe2a721ca6d753968f564ec4315be4857e28bef1908f61a366b1f03c974790f67576a30b8e20d4232d8530b52fb4c89cbc589ede291e499ddd15fe870ab96").unwrap();
+
+        let result =
+            EcKey::set_public_key(CurveType::NistP521, &public_key, EcKeyUsage::EcDsa).unwrap_err();
+        assert_eq!(result, SymCryptError::InvalidArgument);
+    }
+
+    #[test]
     fn test_eckey_size_of_private_key() {
         let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
         let key_size = key.get_size_of_private_key();
@@ -718,8 +735,31 @@ mod test {
         let key_size = key.get_size_of_private_key();
         assert_eq!(key_size, 48);
 
+        let key = EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDsa).unwrap();
+        let key_size = key.get_size_of_private_key();
+        assert_eq!(key_size, 66);
+
         let key = EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDsa).unwrap();
         let key_size = key.get_size_of_private_key();
+        assert_eq!(key_size, 32);
+    }
+
+    #[test]
+    fn test_eckey_size_of_public_key() {
+        let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+        let key_size = key.get_size_of_public_key();
+        assert_eq!(key_size, 64);
+
+        let key = EcKey::generate_key_pair(CurveType::NistP384, EcKeyUsage::EcDsa).unwrap();
+        let key_size = key.get_size_of_public_key();
+        assert_eq!(key_size, 96);
+
+        let key = EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDsa).unwrap();
+        let key_size = key.get_size_of_public_key();
+        assert_eq!(key_size, 132);
+
+        let key = EcKey::generate_key_pair(CurveType::Curve25519, EcKeyUsage::EcDsa).unwrap();
+        let key_size = key.get_size_of_public_key();
         assert_eq!(key_size, 32);
     }
 }

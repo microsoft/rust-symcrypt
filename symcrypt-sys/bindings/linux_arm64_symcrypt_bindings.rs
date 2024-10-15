@@ -6014,6 +6014,9 @@ extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
 extern "C" {
+    pub static SymCryptEcurveParamsNistP521: PCSYMCRYPT_ECURVE_PARAMS;
+}
+extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
 extern "C" {
