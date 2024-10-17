@@ -114,8 +114,32 @@ mod tests {
     use crate::ecc::EcKeyUsage;
 
     #[test]
-    fn test_ecdsa_sign_and_verify_same_key() {
+    fn test_ecdsa_sign_and_verify_same_key_p256() {
         let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
+
+        let hash_value = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
+
+        let signature = key.ecdsa_sign(&hash_value).unwrap();
+
+        let verify_result = key.ecdsa_verify(&signature, &hash_value);
+        assert!(verify_result.is_ok());
+    }
+
+    #[test]
+    fn test_ecdsa_sign_and_verify_same_key_p384() {
+        let key = EcKey::generate_key_pair(CurveType::NistP384, EcKeyUsage::EcDsa).unwrap();
+
+        let hash_value = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
+
+        let signature = key.ecdsa_sign(&hash_value).unwrap();
+
+        let verify_result = key.ecdsa_verify(&signature, &hash_value);
+        assert!(verify_result.is_ok());
+    }
+
+    #[test]
+    fn test_ecdsa_sign_and_verify_same_key_p521() {
+        let key = EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDsa).unwrap();
 
         let hash_value = hex::decode("4d55c99ef6bd54621662c3d110c3cb627c03d6311393b264ab97b90a4b15214a5593ba2510a53d63fb34be251facb697c973e11b665cb7920f1684b0031b4dd370cb927ca7168b0bf8ad285e05e9e31e34bc24024739fdc10b78586f29eff94412034e3b606ed850ec2c1900e8e68151fc4aee5adebb066eb6da4eaa5681378e").unwrap();
 

@@ -39,6 +39,7 @@ use crate::errors::SymCryptError;
 use std::vec;
 use symcrypt_sys;
 
+#[allow(rustdoc::broken_intra_doc_links)]
 /// Impl for EcDh struct.
 impl EcKey {
     /// `ecdh_secret_agreement()` returns a `Vec<u8>` that represents the secret agreement, or a [`SymCryptError`] if the operation failed.
@@ -48,7 +49,7 @@ impl EcKey {
     /// If the key usage is not [`EcKeyUsage::EcDhAndEcDsa`], or [`EcKeyUsage::EcDh`], the function will return a [`SymCryptError::InvalidArgument`].
     pub fn ecdh_secret_agreement(&self, public_key: EcKey) -> Result<Vec<u8>, SymCryptError> {
         let num_format = curve_to_num_format(self.get_curve_type());
-        let secret_length = self.get_curve_size();
+        let secret_length = self.get_curve_size()?;
         let mut secret = vec![0u8; secret_length as usize];
         unsafe {
             // SAFETY: FFI calls
@@ -71,9 +72,6 @@ impl EcKey {
 mod test {
     use super::*;
     use crate::ecc::{CurveType, EcKeyUsage};
-
-    // symcrypt_sys::SymCryptModuleInit() must be called via lib.rs in order to initialize the callbacks for
-    // SymCryptEcurveAllocate, SymCryptEckeyAllocate, SymCryptCallbackAlloc, etc.
 
     #[test]
     fn test_ecdh_nist_p256() {
@@ -123,6 +121,36 @@ mod test {
 
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::NistP384,
+            &public_bytes_2.as_slice(),
+            EcKeyUsage::EcDh,
+        )
+        .unwrap();
+
+        let secret_agreement_1 = ecdh_1_private.ecdh_secret_agreement(ecdh_2_public).unwrap();
+        let secret_agreement_2 = ecdh_2_private.ecdh_secret_agreement(ecdh_1_public).unwrap();
+
+        assert_eq!(secret_agreement_1, secret_agreement_2);
+    }
+
+    #[test]
+    fn test_ecdh_nist_p521() {
+        let ecdh_1_private =
+            EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDh).unwrap();
+        let ecdh_2_private =
+            EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDh).unwrap();
+
+        let public_bytes_1 = ecdh_1_private.export_public_key().unwrap();
+        let public_bytes_2 = ecdh_2_private.export_public_key().unwrap();
+
+        let ecdh_1_public = EcKey::set_public_key(
+            CurveType::NistP521,
+            &public_bytes_1.as_slice(),
+            EcKeyUsage::EcDh,
+        )
+        .unwrap();
+
+        let ecdh_2_public = EcKey::set_public_key(
+            CurveType::NistP521,
             &public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )

@@ -29,7 +29,7 @@ pub enum SymCryptError {
     IncompatibleFormat,
     ValueTooLarge,
     SessionReplayFailure,
-    UnknownError(i32), // Catch-all for unknown error codes
+    UnknownError(symcrypt_sys::SYMCRYPT_ERROR), // Catch-all for unknown error codes
 }
 
 /// Matches raw `SymCrypt` error to the [`SymCryptError`] enum.
