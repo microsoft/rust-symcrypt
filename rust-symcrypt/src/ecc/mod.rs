@@ -80,6 +80,17 @@ pub enum CurveType {
     Curve25519,
 }
 
+impl CurveType { 
+    pub fn get_size(&self) -> usize {
+        match self {
+            CurveType::NistP256 => 32 as usize,
+            CurveType::NistP384 => 48 as usize,
+            CurveType::NistP521 => 66 as usize,
+            CurveType::Curve25519 => 32 as usize,
+        }
+    }
+}
+
 #[derive(Debug)]
 // EcKey is a wrapper around symcrypt_sys::PSYMCRYPT_ECKEY.
 pub(crate) struct InnerEcKey(symcrypt_sys::PSYMCRYPT_ECKEY);
@@ -506,6 +517,14 @@ pub(crate) fn curve_to_ec_point_format(
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_curve_enum_size() {
+        assert_eq!(CurveType::NistP256.get_size(), 32);
+        assert_eq!(CurveType::NistP384.get_size(), 48);
+        assert_eq!(CurveType::NistP521.get_size(), 66);
+        assert_eq!(CurveType::Curve25519.get_size(), 32);
+    }
 
     #[test]
     fn test_eckey_generate_key_pair() {
