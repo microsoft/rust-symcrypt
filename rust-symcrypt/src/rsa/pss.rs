@@ -106,7 +106,10 @@ impl RsaKey {
                 0, // flags must be 0
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
-                err => Err(err.into()),
+                err => Err(match err.into() {
+                        SymCryptError::InvalidArgument => SymCryptError::SignatureVerificationFailure,
+                        other => other,
+                        }),
             }
         }
     }
@@ -210,7 +213,7 @@ mod test {
             .pss_verify(&hashed_message, &signature, hash_algorithm, salt_length)
             .unwrap_err();
 
-        assert_eq!(verify_result, SymCryptError::InvalidArgument);
+        assert_eq!(verify_result, SymCryptError::SignatureVerificationFailure);
     }
 
     #[test]
