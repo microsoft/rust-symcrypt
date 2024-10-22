@@ -4,7 +4,7 @@ This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https:/
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**`symcrypt` version `0.3.0` is based off of `SymCrypt v103.5.0.1`.**
+**`symcrypt` version `0.3.0` is based off of `SymCrypt v103.4.2`.**. You must use a version that is greater than or equal to `SymCrypt v103.4.2`. 
 
 To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
 
@@ -14,10 +14,8 @@ To view a detailed list of changes please see the [releases page](https://github
 | Operating Environment | Architecture      | Dynamic Linking |
 | --------------------- | ----------------- | ----------- |
 | Windows user mode     | AMD64, ARM64      | ✅          | 
-| Ubuntu (Tested via WSL)       | AMD64, ARM64      | ✅          | 
+| Ubuntu       | AMD64, ARM64      | ✅          | 
 | Azure Linux 3         | AMD64, ARM64      | ✅          |
-| Azure Linux 2         | AMD64, ARM64      | ❌          |
-
 
 ## Supported APIs
 
@@ -64,10 +62,10 @@ To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.t
 
 ## Quick Start Guide
 
-`symcrypt` requires the `SymCrypt` library to be present during build, and subsequently run time. The configuration of this dynamic link will differ from Windows/Linux.
+`symcrypt` requires the `SymCrypt` library to be present at both build time and run time.
 
 ### Windows:
-Download the latest `symcrypt.dll` and `symcrypt.lib` for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
+Download the latest `symcrypt.dll` and `symcrypt.lib` for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
 
 Set the required `SYMCRYPT_LIB_PATH` environment variable. You can do this by using the following command:
 
@@ -75,22 +73,24 @@ Set the required `SYMCRYPT_LIB_PATH` environment variable. You can do this by us
 
 You will need to restart `terminal` / `cmd` after setting the environment variable.
 
-For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
+For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page.
 
 ### Linux:
 
 #### Azure Linux 3:
-SymCrypt is pre-installed on Azure Linux 3 machines. Please ensure that you have the most up to date version of SymCrypt by updating via `tdnf`
+SymCrypt is pre-installed on Azure Linux 3 machines. Please ensure that you have the most up to date version of SymCrypt by updating via `tdnf`.
 
 
 #### Other distros:
 
-Download the latest `libsymcrypt.so*` files for you corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them in your machines `$LD_LIBRARY_PATH`.
+For Ubuntu, you can install SymCrypt via package manager by connecting to PMC. 
 
+1. [Connect to PMC](https://learn.microsoft.com/en-us/linux/packages)
+2. `sudo apt-get install symcrypt`
 
-Support for `Debian` and `Ubuntu` via package manager is in the works, for now you must place the `libsymcrypt.so*` files into linker load path. The way that this is set will vary between distros. On most distros it set via the environment variable `$LD_LIBRARY_PATH`. 
+Alternatively, you can manually install the lib files: 
 
-
+Download the latest `libsymcrypt.so*` files for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them in your machines `$LD_LIBRARY_PATH`.
 
 For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
 
@@ -107,7 +107,7 @@ There are unit tests attached to each file that show how to use each function. I
 
 add symcrypt to your `Cargo.toml` file.
 
-```rust
+```cargo
 [dependencies]
 symcrypt = "0.3.0"
 hex = "0.4.3"

@@ -17,12 +17,20 @@ extern crate libc;
 // linux amd64 x86_64-unknown-linux-gnu
 // linux arm64 aarch64-unknown-linux-gnu
 
+// Windows:
 #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/bindings/windows_amd64_symcrypt_bindings.rs"
 ));
 
+#[cfg(all(target_os = "windows", target_arch = "aarch64"))]
+include!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/bindings/windows_arm64_symcrypt_bindings.rs"
+));
+
+// Linux:
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
@@ -33,10 +41,4 @@ include!(concat!(
 include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/bindings/linux_arm64_symcrypt_bindings.rs"
-));
-
-#[cfg(all(target_os = "windows", target_arch = "aarch64"))]
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/bindings/windows_arm64_symcrypt_bindings.rs"
 ));

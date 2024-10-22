@@ -81,12 +81,12 @@ pub enum CurveType {
 }
 
 impl CurveType { 
-    pub fn get_size(&self) -> usize {
+    pub fn get_size(&self) -> u32 {
         match self {
-            CurveType::NistP256 => 32 as usize,
-            CurveType::NistP384 => 48 as usize,
-            CurveType::NistP521 => 66 as usize,
-            CurveType::Curve25519 => 32 as usize,
+            CurveType::NistP256 => 32,
+            CurveType::NistP384 => 48,
+            CurveType::NistP521 => 66,
+            CurveType::Curve25519 => 32,
         }
     }
 }
@@ -397,13 +397,9 @@ impl EcKey {
     }
 
     /// `get_curve_size()` returns a `u32` that represents the size of the curve associated with the [`EcKey`].
-    /// This call can fail with `SymCryptError::MemoryAllocationFailure` if there is not enough memory to allocate the curve.
-    pub fn get_curve_size(&self) -> Result<u32, SymCryptError> {
-        unsafe {
-            let ec_curve = InnerEcCurve::new(self.get_curve_type())?;
-            let curve_size = symcrypt_sys::SymCryptEcurveSizeofFieldElement(ec_curve.0);
-            Ok(curve_size)
-        }
+    /// This call cannot fail.
+    pub fn get_curve_size(&self) -> u32 {
+        self.get_curve_type().get_size()
     }
 
     /// `get_size_of_private_key()` returns `u32` that represents the size of the private key associated with the [`EcKey`].
@@ -456,25 +452,10 @@ impl InnerEcCurve {
     pub(crate) fn new(curve: CurveType) -> Result<&'static Self, SymCryptError> {
         // Match the provided curve type and access the corresponding static `Result`.
         match curve {
-            // Returning the lazy_static reference to the curve.
-            // Casting back our own MemoryAllocation error instead of getting the error from the static reference.
-            // This is done to avoid the need to clone the error.
-            CurveType::NistP256 => match &*NIST_P256 {
-                Ok(curve) => Ok(curve),
-                Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
-            },
-            CurveType::NistP384 => match &*NIST_P384 {
-                Ok(curve) => Ok(curve),
-                Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
-            },
-            CurveType::NistP521 => match &*NIST_P521 {
-                Ok(curve) => Ok(curve),
-                Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
-            },
-            CurveType::Curve25519 => match &*CURVE_25519 {
-                Ok(curve) => Ok(curve),
-                Err(_e) => Err(SymCryptError::MemoryAllocationFailure),
-            },
+            CurveType::NistP256 => NIST_P256.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::NistP384 => NIST_P384.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::NistP521 => NIST_P521.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::Curve25519 => CURVE_25519.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
         }
     }
 }
@@ -490,7 +471,7 @@ pub(crate) fn to_symcrypt_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_EC
 }
 
 // curve_to_num_format() returns the correct number format needed for TLS interop since 25519 spec defines the use of Little Endian.
-pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
+pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {
     let num_format = match curve_type {
         CurveType::Curve25519 => NumberFormat::LSB.to_symcrypt_format(),
         CurveType::NistP256 | CurveType::NistP384 | CurveType::NistP521 => {
