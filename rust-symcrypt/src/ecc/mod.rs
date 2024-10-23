@@ -80,7 +80,7 @@ pub enum CurveType {
     Curve25519,
 }
 
-impl CurveType { 
+impl CurveType {
     pub fn get_size(&self) -> u32 {
         match self {
             CurveType::NistP256 => 32,
@@ -452,10 +452,18 @@ impl InnerEcCurve {
     pub(crate) fn new(curve: CurveType) -> Result<&'static Self, SymCryptError> {
         // Match the provided curve type and access the corresponding static `Result`.
         match curve {
-            CurveType::NistP256 => NIST_P256.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
-            CurveType::NistP384 => NIST_P384.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
-            CurveType::NistP521 => NIST_P521.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
-            CurveType::Curve25519 => CURVE_25519.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::NistP256 => NIST_P256
+                .as_ref()
+                .map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::NistP384 => NIST_P384
+                .as_ref()
+                .map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::NistP521 => NIST_P521
+                .as_ref()
+                .map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::Curve25519 => CURVE_25519
+                .as_ref()
+                .map_err(|_| SymCryptError::MemoryAllocationFailure),
         }
     }
 }

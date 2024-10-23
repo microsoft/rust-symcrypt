@@ -157,7 +157,7 @@ impl RsaKey {
                 err => Err(match err.into() {
                     SymCryptError::InvalidArgument => SymCryptError::SignatureVerificationFailure,
                     other => other,
-                    }),
+                }),
             }
         }
     }
