@@ -63,6 +63,7 @@
 //!
 use crate::block_ciphers::*;
 use crate::errors::SymCryptError;
+use crate::symcrypt_init;
 use core::ffi::c_void;
 use std::marker::PhantomPinned;
 use std::mem;
@@ -138,6 +139,7 @@ impl GcmExpandedKey {
     /// This function can fail and will propagate the error back to the caller. This call will fail if the wrong key size is provided.
     /// The only accepted Cipher for GCM is [`BlockCipherType::AesBlock`]
     pub fn new(key: &[u8], cipher: BlockCipherType) -> Result<Self, SymCryptError> {
+        symcrypt_init();
         let mut expanded_key = GcmInnerKey::new(); // Get expanded_key that is already Pin<Box<T>>'d
 
         // Use as_mut() to get a Pin<&mut GcmInnerKey> and then call get_inner_mut to get *mut
@@ -163,6 +165,7 @@ impl GcmExpandedKey {
         buffer: &mut [u8],
         tag: &mut [u8],
     ) {
+        symcrypt_init();
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptGcmEncrypt(
@@ -191,6 +194,7 @@ impl GcmExpandedKey {
         buffer: &mut [u8],
         tag: &[u8],
     ) -> Result<(), SymCryptError> {
+        symcrypt_init();
         unsafe {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptGcmDecrypt(
@@ -270,7 +274,7 @@ pub fn validate_gcm_parameters(
             convert_cipher(cipher),
             nonce.len() as symcrypt_sys::SIZE_T,
             auth_data.len() as symcrypt_sys::UINT64,
-            data.len() as symcrypt_sys::SIZE_T,
+            data.len() as symcrypt_sys::UINT64,
             tag.len() as symcrypt_sys::SIZE_T,
         ) {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),

@@ -72,9 +72,6 @@ mod test {
     use super::*;
     use crate::ecc::{CurveType, EcKeyUsage};
 
-    // symcrypt_sys::SymCryptModuleInit() must be called via lib.rs in order to initialize the callbacks for
-    // SymCryptEcurveAllocate, SymCryptEckeyAllocate, SymCryptCallbackAlloc, etc.
-
     #[test]
     fn test_ecdh_nist_p256() {
         let ecdh_1_private =
@@ -123,6 +120,36 @@ mod test {
 
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::NistP384,
+            &public_bytes_2.as_slice(),
+            EcKeyUsage::EcDh,
+        )
+        .unwrap();
+
+        let secret_agreement_1 = ecdh_1_private.ecdh_secret_agreement(ecdh_2_public).unwrap();
+        let secret_agreement_2 = ecdh_2_private.ecdh_secret_agreement(ecdh_1_public).unwrap();
+
+        assert_eq!(secret_agreement_1, secret_agreement_2);
+    }
+
+    #[test]
+    fn test_ecdh_nist_p521() {
+        let ecdh_1_private =
+            EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDh).unwrap();
+        let ecdh_2_private =
+            EcKey::generate_key_pair(CurveType::NistP521, EcKeyUsage::EcDh).unwrap();
+
+        let public_bytes_1 = ecdh_1_private.export_public_key().unwrap();
+        let public_bytes_2 = ecdh_2_private.export_public_key().unwrap();
+
+        let ecdh_1_public = EcKey::set_public_key(
+            CurveType::NistP521,
+            &public_bytes_1.as_slice(),
+            EcKeyUsage::EcDh,
+        )
+        .unwrap();
+
+        let ecdh_2_public = EcKey::set_public_key(
+            CurveType::NistP521,
             &public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )

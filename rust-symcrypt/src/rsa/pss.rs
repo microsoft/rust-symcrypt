@@ -107,9 +107,9 @@ impl RsaKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
                 err => Err(match err.into() {
-                        SymCryptError::InvalidArgument => SymCryptError::SignatureVerificationFailure,
-                        other => other,
-                        }),
+                    SymCryptError::InvalidArgument => SymCryptError::SignatureVerificationFailure,
+                    other => other,
+                }),
             }
         }
     }
