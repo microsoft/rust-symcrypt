@@ -80,8 +80,9 @@ pub enum CurveType {
     Curve25519,
 }
 
+
 impl CurveType {
-    pub fn get_size(&self) -> u32 {
+        pub fn get_size(&self) -> u32 {
         match self {
             CurveType::NistP256 => 32,
             CurveType::NistP384 => 48,
@@ -452,18 +453,10 @@ impl InnerEcCurve {
     pub(crate) fn new(curve: CurveType) -> Result<&'static Self, SymCryptError> {
         // Match the provided curve type and access the corresponding static `Result`.
         match curve {
-            CurveType::NistP256 => NIST_P256
-                .as_ref()
-                .map_err(|_| SymCryptError::MemoryAllocationFailure),
-            CurveType::NistP384 => NIST_P384
-                .as_ref()
-                .map_err(|_| SymCryptError::MemoryAllocationFailure),
-            CurveType::NistP521 => NIST_P521
-                .as_ref()
-                .map_err(|_| SymCryptError::MemoryAllocationFailure),
-            CurveType::Curve25519 => CURVE_25519
-                .as_ref()
-                .map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::NistP256 => NIST_P256.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::NistP384 => NIST_P384.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::NistP521 => NIST_P521.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
+            CurveType::Curve25519 => CURVE_25519.as_ref().map_err(|_| SymCryptError::MemoryAllocationFailure),
         }
     }
 }
@@ -492,7 +485,7 @@ pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::SYMCRY
 // curve_to_ec_point_format() returns the X or XY format needed for TLS interop.
 pub(crate) fn curve_to_ec_point_format(
     curve_type: CurveType,
-) -> symcrypt_sys::_SYMCRYPT_NUMBER_FORMAT {
+) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {
     // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
     let ec_point_format = match curve_type {
         CurveType::Curve25519 => symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_X,
