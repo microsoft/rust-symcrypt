@@ -154,10 +154,7 @@ impl RsaKey {
                 0,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
-                err => Err(match err.into() {
-                    SymCryptError::InvalidArgument => SymCryptError::SignatureVerificationFailure,
-                    other => other,
-                }),
+                err => Err(err.into()),
             }
         }
     }
@@ -270,6 +267,35 @@ mod tests {
             RsaKeyUsage::SignAndEncrypt,
         )
         .unwrap();
+
+        let verify_result = public_key
+            .pkcs1_verify(&hashed_message, &signature, hash_algorithm)
+            .unwrap_err();
+
+        assert!(matches!(verify_result, SymCryptError::SignatureVerificationFailure | SymCryptError::InvalidArgument));    
+    }
+
+    #[test]
+    fn test_pkcs1_verify_with_tampered_message() {
+        let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+
+        let public_key_blob = key_pair.export_public_key_blob().unwrap();
+        let public_key = RsaKey::set_public_key(
+            &public_key_blob.modulus,
+            &public_key_blob.pub_exp,
+            RsaKeyUsage::SignAndEncrypt,
+        )
+        .unwrap();
+
+        let mut hashed_message = sha256(b"hello world");
+        let hash_algorithm = HashAlgorithm::Sha256;
+
+        let signature = key_pair
+            .pkcs1_sign(&hashed_message, hash_algorithm)
+            .unwrap();
+
+        // tamper with message
+        hashed_message[0] = 0xFF;
 
         let verify_result = public_key
             .pkcs1_verify(&hashed_message, &signature, hash_algorithm)
