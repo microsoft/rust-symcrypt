@@ -1,6 +1,6 @@
 //! OAEP functions for [`RsaKey`]. For more info please refer to symcrypt.h
 //!
-//! #Example
+//! # Example
 //!
 //! ## Encrypt and Decrypt with [`RsaKey`].
 //! ```rust

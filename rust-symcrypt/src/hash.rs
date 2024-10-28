@@ -15,11 +15,10 @@
 //!
 //! `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
 //! To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
-//! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
 //!
 //! In your `Cargo.toml`
 //!
-//! `symcrypt = {version = "0.2.0", features = ["weak-crypto"]}`
+//! `symcrypt = {version = "0.3.0", features = ["md5", "sha1"]}`
 //!
 //!
 //! # Examples
@@ -70,6 +69,7 @@
 //! let mut result = sha256_state.result();
 //! assert_eq!(hex::encode(result), expected);
 //! ```
+use crate::symcrypt_init;
 use core::ffi::c_void;
 use std::marker::PhantomPinned;
 use std::mem;
@@ -207,6 +207,7 @@ struct Md5InnerState {
 #[cfg(feature = "md5")]
 impl Md5State {
     pub fn new() -> Self {
+        symcrypt_init();
         let mut instance = Md5State(Box::pin(Md5InnerState {
             inner: symcrypt_sys::SYMCRYPT_MD5_STATE::default(),
             _pinned: PhantomPinned,
@@ -296,6 +297,7 @@ impl Drop for Md5State {
 /// `result` is an array of size `MD5_RESULT_SIZE`, which is 16 bytes. This call cannot fail.
 #[cfg(feature = "md5")]
 pub fn md5(data: &[u8]) -> [u8; MD5_RESULT_SIZE] {
+    symcrypt_init();
     let mut result = [0; MD5_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -332,6 +334,7 @@ struct Sha1InnerState {
 #[cfg(feature = "sha1")]
 impl Sha1State {
     pub fn new() -> Self {
+        symcrypt_init();
         let mut instance = Sha1State(Box::pin(Sha1InnerState {
             inner: symcrypt_sys::SYMCRYPT_SHA1_STATE::default(),
             _pinned: PhantomPinned,
@@ -421,6 +424,7 @@ impl Drop for Sha1State {
 /// `result` is an array of size `SHA1_RESULT_SIZE`, which is 20 bytes. This call cannot fail.
 #[cfg(feature = "sha1")]
 pub fn sha1(data: &[u8]) -> [u8; SHA1_RESULT_SIZE] {
+    symcrypt_init();
     let mut result = [0; SHA1_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -454,6 +458,7 @@ struct Sha256InnerState {
 
 impl Sha256State {
     pub fn new() -> Self {
+        symcrypt_init();
         let mut instance = Sha256State(Box::pin(Sha256InnerState {
             inner: symcrypt_sys::SYMCRYPT_SHA256_STATE::default(),
             _pinned: PhantomPinned,
@@ -539,6 +544,7 @@ impl Drop for Sha256State {
 ///
 /// `result` is an array of size `SHA256_RESULT_SIZE`, which is 32 bytes. This call cannot fail.
 pub fn sha256(data: &[u8]) -> [u8; SHA256_RESULT_SIZE] {
+    symcrypt_init();
     let mut result = [0; SHA256_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -572,6 +578,7 @@ struct Sha384InnerState {
 
 impl Sha384State {
     pub fn new() -> Self {
+        symcrypt_init();
         let mut instance = Sha384State(Box::pin(Sha384InnerState {
             inner: symcrypt_sys::SYMCRYPT_SHA384_STATE::default(),
             _pinned: PhantomPinned,
@@ -657,6 +664,7 @@ impl Drop for Sha384State {
 ///
 /// `result` is an array of size `SHA384_RESULT_SIZE`, which is 48 bytes. This call cannot fail.
 pub fn sha384(data: &[u8]) -> [u8; SHA384_RESULT_SIZE] {
+    symcrypt_init();
     let mut result = [0; SHA384_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -690,6 +698,7 @@ struct Sha512InnerState {
 
 impl Sha512State {
     pub fn new() -> Self {
+        symcrypt_init();
         let mut instance = Sha512State(Box::pin(Sha512InnerState {
             inner: symcrypt_sys::SYMCRYPT_SHA512_STATE::default(),
             _pinned: PhantomPinned,
@@ -775,6 +784,7 @@ impl Drop for Sha512State {
 ///
 /// `result` is an array of size `SHA512_RESULT_SIZE`, which is 64 bytes. This call cannot fail.
 pub fn sha512(data: &[u8]) -> [u8; SHA512_RESULT_SIZE] {
+    symcrypt_init();
     let mut result = [0; SHA512_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -808,6 +818,7 @@ struct Sha3_256InnerState {
 
 impl Sha3_256State {
     pub fn new() -> Self {
+        symcrypt_init();
         let mut instance = Sha3_256State(Box::pin(Sha3_256InnerState {
             inner: symcrypt_sys::SYMCRYPT_SHA3_256_STATE::default(),
             _pinned: PhantomPinned,
@@ -893,6 +904,7 @@ impl Drop for Sha3_256State {
 ///
 /// `result` is an array of size `SHA3_256_RESULT_SIZE`, which is 32 bytes. This call cannot fail.
 pub fn sha3_256(data: &[u8]) -> [u8; SHA3_256_RESULT_SIZE] {
+    symcrypt_init();
     let mut result = [0; SHA3_256_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -926,6 +938,7 @@ struct Sha3_384InnerState {
 
 impl Sha3_384State {
     pub fn new() -> Self {
+        symcrypt_init();
         let mut instance = Sha3_384State(Box::pin(Sha3_384InnerState {
             inner: symcrypt_sys::SYMCRYPT_SHA3_384_STATE::default(),
             _pinned: PhantomPinned,
@@ -1011,6 +1024,7 @@ impl Drop for Sha3_384State {
 ///
 /// `result` is an array of size `SHA3_384_RESULT_SIZE`, which is 48 bytes. This call cannot fail.
 pub fn sha3_384(data: &[u8]) -> [u8; SHA3_384_RESULT_SIZE] {
+    symcrypt_init();
     let mut result = [0; SHA3_384_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls
@@ -1044,6 +1058,7 @@ struct Sha3_512InnerState {
 
 impl Sha3_512State {
     pub fn new() -> Self {
+        symcrypt_init();
         let mut instance = Sha3_512State(Box::pin(Sha3_512InnerState {
             inner: symcrypt_sys::SYMCRYPT_SHA3_512_STATE::default(),
             _pinned: PhantomPinned,
@@ -1129,6 +1144,7 @@ impl Drop for Sha3_512State {
 ///
 /// `result` is an array of size `SHA3_512_RESULT_SIZE`, which is 64 bytes. This call cannot fail.
 pub fn sha3_512(data: &[u8]) -> [u8; SHA3_512_RESULT_SIZE] {
+    symcrypt_init();
     let mut result = [0; SHA3_512_RESULT_SIZE];
     unsafe {
         // SAFETY: FFI calls

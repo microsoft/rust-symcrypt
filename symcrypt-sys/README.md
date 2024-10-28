@@ -1,7 +1,7 @@
 # SymCrypt Rust/C FFI Bindings
 symcrypt-sys provides Rust/C FFI bindings for the [SymCrypt](https://github.com/microsoft/SymCrypt) library. 
 
-This crate is supplementary to the `symcrypt`crate.
+This crate is supplementary to the `symcrypt` crate.
 
 The bindings are checked into this crate in order to have better control over the binding generation as well as the exposed APIs from SymCrypt. To speed up the common case build process, the binding generation has been separated to `symcrypt-bindgen`
 
@@ -16,9 +16,11 @@ Recommended usage is to take advantage of the `symcrypt` crate, which provides s
 
 However, If you want to access the bindings directly, you can add `symcrypt-sys` as a dependency in your rust project.
 
+You must also configure your system to pick up the SymCrypt lib on your machine, please see: [INSTALL.md](https://github.com/microsoft/rust-symcrypt/blob/main/rust-symcrypt/INSTALL.md) for more info.
+
 In your `Cargo.toml`
 ```Rust
-symcrypt-sys = "0.2.0"
+symcrypt-sys = "0.3.0"
 ```
 Then you can call the underlying SymCrypt code directly via the FFIs.
 ```Rust
