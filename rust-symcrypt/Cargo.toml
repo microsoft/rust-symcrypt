@@ -22,7 +22,7 @@ lazy_static = "1.4.0"
 default = []
 md5 = []
 sha1 = []
-weak-crypto = ["md5","sha1"]
+pkcs1-encrypt-decrypt = []
 
 [dev-dependencies]
 hex = "0.4.3"

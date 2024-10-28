@@ -45,7 +45,7 @@ impl EcKey {
     ///
     /// `public_key` is an [`EcKey`] that represents the public key that the secret agreement is being calculated with.
     ///
-    /// If the key usage is not [`EcKeyUsage::EcDhAndEcDsa`], or [`EcKeyUsage::EcDh`], the function will return a [`SymCryptError::InvalidArgument`].
+    /// If the key usage is not `EcKeyUsage::EcDhAndEcDsa`, or `EcKeyUsage::EcDh`, the function will return a [`SymCryptError::InvalidArgument`].
     pub fn ecdh_secret_agreement(&self, public_key: EcKey) -> Result<Vec<u8>, SymCryptError> {
         let num_format = curve_to_num_format(self.get_curve_type());
         let secret_length = self.get_curve_size();

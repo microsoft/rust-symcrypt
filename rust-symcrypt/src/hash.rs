@@ -15,11 +15,10 @@
 //!
 //! `Md5` and `Sha1` are considered weak crypto, and are only added for interop purposes.
 //! To enable either `Md5` or `Sha1` pass the `md5` or `sha1` flag into your `Cargo.toml`
-//! To enable all weak crypto, you can instead pass `weak-crypto` into your `Cargo.toml` instead.
 //!
 //! In your `Cargo.toml`
 //!
-//! `symcrypt = {version = "0.2.0", features = ["weak-crypto"]}`
+//! `symcrypt = {version = "0.3.0", features = ["md5", "sha1"]}`
 //!
 //!
 //! # Examples

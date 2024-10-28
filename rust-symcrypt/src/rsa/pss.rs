@@ -180,7 +180,10 @@ mod test {
             .pss_verify(&hashed_message, &signature, hash_algorithm, salt_length)
             .unwrap_err();
 
-        assert!(matches!(verify_result, SymCryptError::SignatureVerificationFailure | SymCryptError::InvalidArgument));
+        assert!(matches!(
+            verify_result,
+            SymCryptError::SignatureVerificationFailure | SymCryptError::InvalidArgument
+        ));
     }
 
     #[test]
