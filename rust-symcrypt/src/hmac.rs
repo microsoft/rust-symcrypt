@@ -92,6 +92,32 @@ pub const SHA384_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA384_RESULT_
 /// 64
 pub const SHA512_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA512_RESULT_SIZE as usize;
 
+
+pub enum HmacAlgorithm {
+    HmacSha256,
+    HmacSha384,
+    HmacSha512,
+}
+
+impl HmacAlgorithm { 
+    pub(crate) fn to_symcrypt_hmac_algorithm(&self) -> symcrypt_sys::PCSYMCRYPT_MAC {
+        match self {
+            HmacAlgorithm::HmacSha256 => unsafe { symcrypt_sys::SymCryptHmacSha256Algorithm }, // UNSAFE FFI calls
+            HmacAlgorithm::HmacSha384 => unsafe { symcrypt_sys::SymCryptHmacSha384Algorithm }, // UNSAFE FFI calls
+            HmacAlgorithm::HmacSha512 => unsafe { symcrypt_sys::SymCryptHmacSha512Algorithm }, // UNSAFE FFI calls
+        }
+    }
+
+    pub fn get_size(&self) -> u32 {
+        match self {
+            HmacAlgorithm::HmacSha256 => SHA256_HMAC_RESULT_SIZE as u32,
+            HmacAlgorithm::HmacSha384 => SHA384_HMAC_RESULT_SIZE as u32,
+            HmacAlgorithm::HmacSha512 => SHA512_HMAC_RESULT_SIZE as u32,
+        }
+    }
+}
+
+
 /// Generic trait for stateful Hmac functions
 ///
 /// `Result` will depend on what HmacState is used.

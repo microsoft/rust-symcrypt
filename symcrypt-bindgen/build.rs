@@ -33,9 +33,13 @@ fn main() {
         .allowlist_function("^(SymCryptGcm(?:ValidateParameters|ExpandKey|Encrypt|Decrypt|Init|StateCopy|AuthPart|DecryptPart|EncryptPart|EncryptFinal|DecryptFinal)?)$")
         .allowlist_function("SymCryptChaCha20Poly1305(Encrypt|Decrypt)")
         .allowlist_function("^SymCryptTlsPrf1_2(?:ExpandKey|Derive)?$")
+        // CBC FUNCTIONS
+        .allowlist_function("^SymCryptCbc(Encrypt|Decrypt)?$")
+        // BLOCK CIPHERS
         .allowlist_var("SymCryptAesBlockCipher")
         // HKDF FUNCTIONS
         .allowlist_function("^(SymCryptHkdf.*)$") // TODO: Tighten bindgen after implementation is complete.
+        .allowlist_var("^(SymCryptHmacSha(256|384|512)Algorithm)$")
         // ECDH KEY AGREEMENT FUNCTIONS
         .allowlist_function("^SymCryptEcurve(Allocate|Free|SizeofFieldElement)$")
         .allowlist_var("^SymCryptEcurveParams(NistP256|NistP384|NistP521|Curve25519)$")
