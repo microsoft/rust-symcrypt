@@ -5432,6 +5432,9 @@ extern "C" {
     pub fn SymCryptHmacSha256Result(pState: PSYMCRYPT_HMAC_SHA256_STATE, pbResult: PBYTE);
 }
 extern "C" {
+    pub static SymCryptHmacSha256Algorithm: PCSYMCRYPT_MAC;
+}
+extern "C" {
     pub fn SymCryptHmacSha384ExpandKey(
         pExpandedKey: PSYMCRYPT_HMAC_SHA384_EXPANDED_KEY,
         pbKey: PCBYTE,
@@ -5468,6 +5471,9 @@ extern "C" {
 }
 extern "C" {
     pub fn SymCryptHmacSha384Result(pState: PSYMCRYPT_HMAC_SHA384_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub static SymCryptHmacSha384Algorithm: PCSYMCRYPT_MAC;
 }
 extern "C" {
     pub fn SymCryptHmacSha512ExpandKey(
@@ -5508,6 +5514,9 @@ extern "C" {
     pub fn SymCryptHmacSha512Result(pState: PSYMCRYPT_HMAC_SHA512_STATE, pbResult: PBYTE);
 }
 extern "C" {
+    pub static SymCryptHmacSha512Algorithm: PCSYMCRYPT_MAC;
+}
+extern "C" {
     pub fn SymCryptChaCha20Poly1305Encrypt(
         pbKey: PCBYTE,
         cbKey: SIZE_T,
@@ -5539,6 +5548,26 @@ extern "C" {
 }
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
+}
+extern "C" {
+    pub fn SymCryptCbcEncrypt(
+        pBlockCipher: PCSYMCRYPT_BLOCKCIPHER,
+        pExpandedKey: PCVOID,
+        pbChainingValue: PBYTE,
+        pbSrc: PCBYTE,
+        pbDst: PBYTE,
+        cbData: SIZE_T,
+    );
+}
+extern "C" {
+    pub fn SymCryptCbcDecrypt(
+        pBlockCipher: PCSYMCRYPT_BLOCKCIPHER,
+        pExpandedKey: PCVOID,
+        pbChainingValue: PBYTE,
+        pbSrc: PCBYTE,
+        pbDst: PBYTE,
+        cbData: SIZE_T,
+    );
 }
 extern "C" {
     pub fn SymCryptGcmValidateParameters(

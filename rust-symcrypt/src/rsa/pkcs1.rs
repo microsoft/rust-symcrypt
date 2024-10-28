@@ -208,6 +208,9 @@ impl RsaKey {
     }
 }
 
+
+// TODO: add tests for Sha1 Pkcs1 Verify / Sign
+
 #[cfg(test)]
 mod tests {
     use super::*;
