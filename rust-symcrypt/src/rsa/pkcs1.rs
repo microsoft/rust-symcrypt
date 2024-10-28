@@ -367,7 +367,7 @@ mod tests {
             .unwrap();
 
         // tamper with message
-        hashed_message[0] = 0xFF;
+        hashed_message[0] ^= 0xFF;
 
         let verify_result = public_key
             .pkcs1_verify(&hashed_message, &signature, hash_algorithm)

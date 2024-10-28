@@ -207,7 +207,7 @@ mod test {
             .unwrap();
 
         // tamper with signature
-        signature[1] = 0xFF; // modifying second element, If we modify the first we will get InvalidArgument error instead.
+        signature[1] ^= 0xFF; // modifying second element, If we modify the first we will get InvalidArgument error instead.
 
         let verify_result = public_key
             .pss_verify(&hashed_message, &signature, hash_algorithm, salt_length)
