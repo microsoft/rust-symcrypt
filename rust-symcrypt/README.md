@@ -97,47 +97,6 @@ For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](h
 
 ---
 
----
-
-
-## Quick Start Guide
-
-`symcrypt` requires the `SymCrypt` library to be present at both build time and run time.
-
-### Windows:
-Download the latest `symcrypt.dll` and `symcrypt.lib` for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
-
-Set the required `SYMCRYPT_LIB_PATH` environment variable. You can do this by using the following command:
-
-`setx SYMCRYPT_LIB_PATH "<your-path-to-symcrypt-lib-folder>"`
-
-You will need to restart `terminal` / `cmd` after setting the environment variable.
-
-For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page.
-
-### Linux:
-
-#### Azure Linux 3:
-SymCrypt is pre-installed on Azure Linux 3 machines. Please ensure that you have the most up to date version of SymCrypt by updating via `tdnf`.
-
-
-#### Other distros:
-
-For Ubuntu, you can install SymCrypt via package manager by connecting to PMC. 
-
-1. [Connect to PMC](https://learn.microsoft.com/en-us/linux/packages)
-2. `sudo apt-get install symcrypt`
-
-Alternatively, you can manually install the lib files: 
-
-Download the latest `libsymcrypt.so*` files for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them in your machines `$LD_LIBRARY_PATH`.
-
-For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
-
-**Note:** This path may be different depending on your flavour of Linux, and architecture. The goal is to place the `libsymcrypt.so*` files in a location where the your Linux distro can find the required libs at build/run time.
-
----
-
 ## Usage
 There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash. 
 
