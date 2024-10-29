@@ -7,9 +7,9 @@ pub mod ecc;
 pub mod errors;
 pub mod gcm;
 pub mod hash;
+pub mod hkdf;
 pub mod hmac;
 pub mod rsa;
-pub mod hkdf;
 
 // symcrypt_init must be called before any other API can be called. All subsequent calls to symcrypt_init will be no-ops
 fn symcrypt_init() {

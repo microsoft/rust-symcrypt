@@ -29,17 +29,17 @@ fn main() {
         .allowlist_var("^SymCrypt(?:Sha3_(?:256|384|512)|Sha(?:256|384|512|1)|Md5)Algorithm$")
         // HMAC FUNCTIONS
         .allowlist_function("^SymCryptHmac(?:Sha(?:256|384|512|1)|Md5)(?:ExpandKey|Init|Append|Result|StateCopy)?$")
+        .allowlist_var("^(SymCryptHmac(Sha256|Sha384|Sha512|Sha1|Md5)Algorithm)$")
         // GCM FUNCTIONS
         .allowlist_function("^(SymCryptGcm(?:ValidateParameters|ExpandKey|Encrypt|Decrypt|Init|StateCopy|AuthPart|DecryptPart|EncryptPart|EncryptFinal|DecryptFinal)?)$")
         .allowlist_function("SymCryptChaCha20Poly1305(Encrypt|Decrypt)")
         .allowlist_function("^SymCryptTlsPrf1_2(?:ExpandKey|Derive)?$")
         // CBC FUNCTIONS
-        .allowlist_function("^SymCryptCbc(Encrypt|Decrypt)?$")
+        .allowlist_function("^SymCryptAesCbc(Encrypt|Decrypt)?$")
         // BLOCK CIPHERS
         .allowlist_var("SymCryptAesBlockCipher")
         // HKDF FUNCTIONS
-        .allowlist_function("^(SymCryptHkdf.*)$") // TODO: Tighten bindgen after implementation is complete.
-        .allowlist_var("^(SymCryptHmacSha(256|384|512)Algorithm)$")
+        .allowlist_function("SymCryptHkdf") 
         // ECDH KEY AGREEMENT FUNCTIONS
         .allowlist_function("^SymCryptEcurve(Allocate|Free|SizeofFieldElement)$")
         .allowlist_var("^SymCryptEcurveParams(NistP256|NistP384|NistP521|Curve25519)$")
