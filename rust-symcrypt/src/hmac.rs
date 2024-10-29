@@ -105,6 +105,7 @@ pub enum HmacAlgorithm {
 }
 
 impl HmacAlgorithm {
+    /// Returns the symcrypt_sys::PCSYMCRYPT_MAC for calling underlying SymCrypt functions, hidden from the user.   
     pub(crate) fn to_symcrypt_hmac_algorithm(&self) -> symcrypt_sys::PCSYMCRYPT_MAC {
         match self {
             #[cfg(feature = "md5")]
@@ -117,7 +118,7 @@ impl HmacAlgorithm {
         }
     }
 
-    /// Returns the result size as a `usize`. This is the size of the hmac result in bytes.
+    /// Returns the result size as a `usize`. This is the size of the Hmac result in bytes.
     pub fn get_result_size(&self) -> usize {
         match self {
             #[cfg(feature = "md5")]
