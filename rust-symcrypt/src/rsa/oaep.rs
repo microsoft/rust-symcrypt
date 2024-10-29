@@ -116,8 +116,6 @@ impl RsaKey {
     }
 }
 
-// Todo: Add tests for Oeap for sha1 
-
 #[cfg(test)]
 mod tests {
     use crate::errors::SymCryptError;
