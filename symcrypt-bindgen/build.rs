@@ -39,7 +39,7 @@ fn main() {
         // BLOCK CIPHERS
         .allowlist_var("SymCryptAesBlockCipher")
         // HKDF FUNCTIONS
-        .allowlist_function("SymCryptHkdf") 
+        .allowlist_function("^(SymCryptHkdf.*)$") 
         // ECDH KEY AGREEMENT FUNCTIONS
         .allowlist_function("^SymCryptEcurve(Allocate|Free|SizeofFieldElement)$")
         .allowlist_var("^SymCryptEcurveParams(NistP256|NistP384|NistP521|Curve25519)$")

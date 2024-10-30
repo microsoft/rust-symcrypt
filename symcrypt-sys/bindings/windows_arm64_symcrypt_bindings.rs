@@ -6058,6 +6058,44 @@ extern "C" {
     ) -> SYMCRYPT_ERROR;
 }
 extern "C" {
+    pub fn SymCryptHkdfExpandKey(
+        pExpandedKey: PSYMCRYPT_HKDF_EXPANDED_KEY,
+        macAlgorithm: PCSYMCRYPT_MAC,
+        pbIkm: PCBYTE,
+        cbIkm: SIZE_T,
+        pbSalt: PCBYTE,
+        cbSalt: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptHkdfExtractPrk(
+        macAlgorithm: PCSYMCRYPT_MAC,
+        pbIkm: PCBYTE,
+        cbIkm: SIZE_T,
+        pbSalt: PCBYTE,
+        cbSalt: SIZE_T,
+        pbPrk: PBYTE,
+        cbPrk: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptHkdfPrkExpandKey(
+        pExpandedKey: PSYMCRYPT_HKDF_EXPANDED_KEY,
+        macAlgorithm: PCSYMCRYPT_MAC,
+        pbPrk: PCBYTE,
+        cbPrk: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptHkdfDerive(
+        pExpandedKey: PCSYMCRYPT_HKDF_EXPANDED_KEY,
+        pbInfo: PCBYTE,
+        cbInfo: SIZE_T,
+        pbResult: PBYTE,
+        cbResult: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
     pub fn SymCryptHkdf(
         macAlgorithm: PCSYMCRYPT_MAC,
         pbIkm: PCBYTE,
