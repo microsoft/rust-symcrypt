@@ -61,8 +61,9 @@
 //! assert_eq!(hex::encode(buffer), expected_result);
 //! ```
 //!
-use crate::block_ciphers::*;
+// use crate::block_ciphers::*;
 use crate::errors::SymCryptError;
+use crate::cipher::{BlockCipherType, convert_cipher};
 use crate::symcrypt_init;
 use core::ffi::c_void;
 use std::marker::PhantomPinned;
