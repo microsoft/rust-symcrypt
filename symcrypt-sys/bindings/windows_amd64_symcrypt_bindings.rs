@@ -8,6 +8,7 @@ pub const SYMCRYPT_SHA1_RESULT_SIZE: u32 = 20;
 pub const SYMCRYPT_SHA256_RESULT_SIZE: u32 = 32;
 pub const SYMCRYPT_SHA384_RESULT_SIZE: u32 = 48;
 pub const SYMCRYPT_SHA512_RESULT_SIZE: u32 = 64;
+pub const SYMCRYPT_AES_BLOCK_SIZE: u32 = 16;
 pub const SYMCRYPT_SHA3_256_RESULT_SIZE: u32 = 32;
 pub const SYMCRYPT_SHA3_384_RESULT_SIZE: u32 = 48;
 pub const SYMCRYPT_SHA3_512_RESULT_SIZE: u32 = 64;
@@ -2590,6 +2591,7 @@ impl Default for _SYMCRYPT_AES_EXPANDED_KEY {
     }
 }
 pub type SYMCRYPT_AES_EXPANDED_KEY = _SYMCRYPT_AES_EXPANDED_KEY;
+pub type PSYMCRYPT_AES_EXPANDED_KEY = *mut _SYMCRYPT_AES_EXPANDED_KEY;
 pub type PCSYMCRYPT_AES_EXPANDED_KEY = *const SYMCRYPT_AES_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
@@ -5695,6 +5697,13 @@ extern "C" {
         cbData: SIZE_T,
         pbTag: PCBYTE,
         cbTag: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptAesExpandKey(
+        pExpandedKey: PSYMCRYPT_AES_EXPANDED_KEY,
+        pbKey: PCBYTE,
+        cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
 extern "C" {
