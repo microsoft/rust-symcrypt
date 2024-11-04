@@ -1,5 +1,41 @@
 //! # Examples
 //!
+//! PKCS1 functions for [`RsaKey`]. For more info please refer to symcrypt.h
+//!
+//! # Examples
+//!
+//! ## Sign and Verify using RsaKey
+//!
+//! ```rust
+//! use symcrypt::rsa::{RsaKey, RsaKeyUsage};
+//! use symcrypt::hash::{sha256, HashAlgorithm};
+//!
+//! // Generate key pair.
+//! let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
+//!
+//! // Set up message.
+//! let hashed_message = sha256(b"hello world");
+//! let hash_algorithm = HashAlgorithm::Sha256;
+//!
+//! // Create signature.
+//! let signature = key_pair.pkcs1_sign(&hashed_message, hash_algorithm).unwrap();
+//!
+//! // Create Public Key to verify signature.
+//! let public_key_blob = key_pair.export_public_key_blob().unwrap();
+//! let public_key = RsaKey::set_public_key(&public_key_blob.modulus, &public_key_blob.pub_exp, RsaKeyUsage::SignAndEncrypt).unwrap();
+//!
+//! // Verify signature.
+//! let verify_result = public_key.pkcs1_verify(&hashed_message, &signature, hash_algorithm);
+//! assert!(verify_result.is_ok());
+//! ```
+//!
+//! ## Encrypt and Decrypt using RsaKey
+//! Pkcs1 Encrypt and Decrypt functions are considered weak crypto and are only available when the `pkcs1-encrypt-decrypt` feature is enabled.
+//!
+//! In your `Cargo.toml`
+//!
+//! `symcrypt = {version = "0.4.0", features = ["pkcs1-encrypt-decrypt"]}`
+//!
 //! ## Encrypt and Decrypt using RsaKey
 //! 
 //! ```rust
