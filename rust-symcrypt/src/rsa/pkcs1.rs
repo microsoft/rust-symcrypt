@@ -1,5 +1,3 @@
-//! # Examples
-//!
 //! PKCS1 functions for [`RsaKey`]. For more info please refer to symcrypt.h
 //!
 //! # Examples
@@ -35,8 +33,6 @@
 //! In your `Cargo.toml`
 //!
 //! `symcrypt = {version = "0.4.0", features = ["pkcs1-encrypt-decrypt"]}`
-//!
-//! ## Encrypt and Decrypt using RsaKey
 //! 
 //! ```rust
 //! #[cfg(feature = "pkcs1-encrypt-decrypt")]
