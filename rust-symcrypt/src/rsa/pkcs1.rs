@@ -120,7 +120,7 @@ impl RsaKey {
     /// This buffer will be randomized before `pcks1_decrypt` is called, you must extract your result from the buffer via the `result_size` parameter if the operation is successful.
     /// The size of the buffer should should be large enough to store the result of the decrypted message, if the buffer is to small, this function will return a [`SymCryptError::BufferTooSmall`].
     ///
-    /// `result_size` is a `&mut u64` representing the size of the decrypted message. This value will be set to the size of the decrypted message if the operation is successful.
+    /// `result_size` is a `&mut usize` representing the size of the decrypted message. This value will be set to the size of the decrypted message if the operation is successful.
     ///
     /// This function will always return a `SymCryptError`, caller must check the return value to determine if the decryption was successful before using the `plaintext_buffer` or `result_size`.
     #[cfg(feature = "pkcs1-encrypt-decrypt")]
@@ -128,11 +128,15 @@ impl RsaKey {
         &self,
         encrypted_message: &[u8],
         plaintext_buffer: &mut [u8],
-        result_size: &mut u64,
+        result_size: &mut usize,
     ) -> SymCryptError {
         symcrypt_random(plaintext_buffer);
-        unsafe {
-            // SAFETY: FFI calls
+
+        // Create a local SIZE_T variable to hold the result size
+        let mut internal_result_size: symcrypt_sys::SIZE_T = 0;
+
+        let error = unsafe {
+            // SAFETY: FFI call with appropriate type casting
             symcrypt_sys::SymCryptRsaPkcs1Decrypt(
                 self.inner(),
                 encrypted_message.as_ptr(),
@@ -141,10 +145,13 @@ impl RsaKey {
                 0, // No flags can be set
                 plaintext_buffer.as_mut_ptr(),
                 plaintext_buffer.len() as symcrypt_sys::SIZE_T,
-                result_size,
+                &mut internal_result_size as *mut symcrypt_sys::SIZE_T,
             )
-            .into()
-        }
+        };
+        // Convert internal_result_size to usize and assign it to result_size
+        *result_size = internal_result_size as usize;
+
+        error.into()
     }
 
     /// `pkcs1_verify()` returns a [`SymCryptError`] if the signature verification fails and `Ok(())` if the verification is successful.
@@ -271,7 +278,7 @@ mod tests {
         let res =
             key_pair.pkcs1_decrypt(&encrypted_message, &mut plaintext_buffer, &mut result_size);
         assert_eq!(res, SymCryptError::NoError);
-        assert_eq!(result_size, message.len() as u64);
+        assert_eq!(result_size, message.len() as usize);
         assert_eq!(plaintext_buffer.len(), 100);
         plaintext_buffer.truncate(result_size as usize);
         assert_eq!(plaintext_buffer, message);
