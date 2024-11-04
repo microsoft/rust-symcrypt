@@ -5,7 +5,7 @@
 //! ## Hkdf with Sha256 and with no salt or info
 //!
 //!  ```rust
-//! use symcrypt::hkdf::hkdf
+//! use symcrypt::hkdf::hkdf;
 //! use symcrypt::hmac::HmacAlgorithm;
 //! use hex::*;
 //!
@@ -22,7 +22,7 @@
 //! ## Hkdf with Sha384 and with salt and info
 //!
 //! ```rust
-//! use symcrypt::hkdf::hkdf
+//! use symcrypt::hkdf::hkdf;
 //! use symcrypt::hmac::HmacAlgorithm;
 //! use hex::*;
 //!

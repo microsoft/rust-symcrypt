@@ -34,7 +34,7 @@
 //!
 //! ## Decrypt in place
 //! ```rust
-//! use symcrypt::block_ciphers::BlockCipherType;
+//! use symcrypt::cipher::BlockCipherType;
 //! use symcrypt::gcm::GcmExpandedKey;
 //!
 //! // Set up input
@@ -71,6 +71,8 @@ use std::mem;
 use std::pin::Pin;
 use std::ptr;
 use symcrypt_sys;
+
+
 
 /// [`GcmExpandedKey`] is a struct that holds the Gcm expanded key from SymCrypt.
 pub struct GcmExpandedKey {
