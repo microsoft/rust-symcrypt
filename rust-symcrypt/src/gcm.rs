@@ -72,8 +72,6 @@ use std::pin::Pin;
 use std::ptr;
 use symcrypt_sys;
 
-
-
 /// [`GcmExpandedKey`] is a struct that holds the Gcm expanded key from SymCrypt.
 pub struct GcmExpandedKey {
     // expanded_key holds the key from SymCrypt which is Pin<Box<>>'d since the memory address for Self is moved around when

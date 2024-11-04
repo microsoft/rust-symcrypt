@@ -1,22 +1,22 @@
 //! Block Cipher functions related to creating expanded keys. For further information please see symcrypt.h for more info
-//! 
+//!
 //! This module provides a way to create and use Block Ciphers. Currently only AES is supported.
 //! Once an ExpandedKey is created you are able to call Encrypt or Decrypt functions depending on your desired mode
-//! 
+//!
 //! # Examples
-//! 
+//!
 //! ## AES Expanded Key Creation
 //! ```rust
-//! 
+//!
 //! use symcrypt::cipher::AesExpandedKey;
 //! use hex::*;
-//! 
+//!
 //! let key = hex::decode("00000000000000000000000000000000").unwrap();
 //! let aes_key = AesExpandedKey::new(&key).unwrap();
-//! 
+//!
 //! let aes_key_clone = aes_key.clone();
 //! ```
-//! 
+//!
 use crate::errors::SymCryptError;
 use crate::symcrypt_init;
 use symcrypt_sys;
@@ -97,7 +97,7 @@ impl AesExpandedKey {
             }
         }
     }
-    
+
     pub fn get_block_size() -> u32 {
         AES_BLOCK_SIZE
     }
@@ -140,8 +140,8 @@ mod tests {
 
     #[test]
     fn test_invalid_block_size() {
-        let plain_text = vec![0u8; 15]; 
-        let cipher_text = vec![0u8; 15]; 
+        let plain_text = vec![0u8; 15];
+        let cipher_text = vec![0u8; 15];
 
         let result = validate_block_size(&plain_text, &cipher_text).unwrap_err();
         assert_eq!(result, SymCryptError::WrongBlockSize);
@@ -177,11 +177,14 @@ mod tests {
     #[test]
     fn test_aes_expanded_key_creation_invalid_key() {
         let key = vec![0u8; 10]; // Invalid length for AES key
-    
+
         let result = AesExpandedKey::new(&key);
-        assert!(matches!(result, Err(SymCryptError::WrongKeySize)), "Expected WrongKeySize error");
+        assert!(
+            matches!(result, Err(SymCryptError::WrongKeySize)),
+            "Expected WrongKeySize error"
+        );
     }
-    
+
     #[test]
     fn test_get_block_size() {
         assert_eq!(AesExpandedKey::get_block_size(), AES_BLOCK_SIZE);
