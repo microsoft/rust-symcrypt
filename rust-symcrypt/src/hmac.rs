@@ -122,9 +122,9 @@ impl HmacAlgorithm {
     pub fn get_result_size(&self) -> usize {
         match self {
             #[cfg(feature = "md5")]
-            HmacAlgorithm::HmacMd5 => MD5_HMAC_RESULT_SIZE ,
+            HmacAlgorithm::HmacMd5 => MD5_HMAC_RESULT_SIZE,
             #[cfg(feature = "sha1")]
-            HmacAlgorithm::HmacSha1 => SHA1_HMAC_RESULT_SIZE ,
+            HmacAlgorithm::HmacSha1 => SHA1_HMAC_RESULT_SIZE,
             HmacAlgorithm::HmacSha256 => SHA256_HMAC_RESULT_SIZE,
             HmacAlgorithm::HmacSha384 => SHA384_HMAC_RESULT_SIZE,
             HmacAlgorithm::HmacSha512 => SHA512_HMAC_RESULT_SIZE,
