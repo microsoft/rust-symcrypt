@@ -11,7 +11,7 @@
 //! use symcrypt::cipher::AesExpandedKey;
 //! use hex::*;
 //!
-//! let key = hex::decode("00000000000000000000000000000000").unwrap();
+//! let key = hex::decode("5d98398b5e3b98d87e07ecf1332df4ac").unwrap();
 //! let aes_key = AesExpandedKey::new(&key).unwrap();
 //!
 //! let aes_key_clone = aes_key.clone();

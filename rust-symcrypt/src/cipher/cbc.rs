@@ -13,11 +13,15 @@
 //!
 //! // Set up the key, chaining value, and plaintext
 //! let key = hex::decode("9bceab233f4d2edc9220935664284525").unwrap();
-//! let aes_cbc = AesExpandedKey::new(&key).unwrap();
-//! let mut chaining_value: [u8; 16] = hex::decode("db5063420e5f843d457f0a3118405fb2").unwrap().try_into().unwrap();
+//!
+//! let mut iv = hex::decode("db5063420e5f843d457f0a3118405fb2").unwrap();
 //! let mut plain_text = hex::decode("08d6fc05e8f7977fde2afc9508a6d55e").unwrap();
 //! let mut cipher_text = vec![0u8; plain_text.len()];
 //!
+//! // Initialize AES key and IV
+//! let mut chaining_value: [u8; 16] = iv.try_into().expect("IV should be 16 bytes long");
+//! let aes_cbc = AesExpandedKey::new(&key).unwrap();
+//! 
 //! // Encrypt the plaintext
 //! aes_cbc.aes_cbc_encrypt(&mut chaining_value, &plain_text, &mut cipher_text).unwrap();
 //!
@@ -26,38 +30,37 @@
 //!
 //! ## AES-CBC Encryption block by block
 //!
-//! ```rust
-/// use symcrypt::cipher::AesExpandedKey;
-/// use hex;
-/// use std::convert::TryInto;
-/// use symcrypt::cipher::AES_BLOCK_SIZE;
-///
-/// // Set up key, IV (chaining value), plaintext, and expected ciphertext
-/// let key = hex::decode("5d98398b5e3b98d87e07ecf1332df4ac").unwrap();
-/// let iv = hex::decode("db22065fb9302c4445151adc91310797").unwrap();
-/// let plaintext = hex::decode("4831f8d1a92cf167a444ccae8d90158dfc55c9a0742019e642116bbaa87aa205").unwrap();
-/// let expected_ciphertext = hex::decode("f03f86e1a6f1e23e70af3f3ab3b777fd43103f2e7a6fc245a3656799176a2611").unwrap();
-///
-/// // Initialize AES key and IV
-/// let aes_cbc = AesExpandedKey::new(&key).unwrap();
-/// let mut chaining_value: [u8; 16] = iv.try_into().expect("IV should be 16 bytes long");
-///
-/// // Prepare the buffer for in-place encryption
-/// let mut buffer = plaintext.clone();
-/// let block_size = AES_BLOCK_SIZE as usize;
-///
-/// // Encrypt the plaintext block by block in-place
-/// for i in (0..buffer.len()).step_by(block_size) {
-///     let block = i + block_size;
-///     aes_cbc
-///         .aes_cbc_encrypt_in_place(&mut chaining_value, &mut buffer[i..block])
-///         .unwrap();
-/// }
-///
-/// // Verify the ciphertext matches the expected output
-/// assert_eq!(buffer, expected_ciphertext);
-/// ```
-///
+//! ```rust 
+//! use symcrypt::cipher::AesExpandedKey;
+//! use hex;
+//! use std::convert::TryInto;
+//! use symcrypt::cipher::AES_BLOCK_SIZE;
+//!
+//! // Set up key, IV (chaining value), plaintext, and expected ciphertext
+//! let key = hex::decode("5d98398b5e3b98d87e07ecf1332df4ac").unwrap();
+//! let iv = hex::decode("db22065fb9302c4445151adc91310797").unwrap();
+//! let plaintext = hex::decode("4831f8d1a92cf167a444ccae8d90158dfc55c9a0742019e642116bbaa87aa205").unwrap();
+//! let expected_ciphertext = hex::decode("f03f86e1a6f1e23e70af3f3ab3b777fd43103f2e7a6fc245a3656799176a2611").unwrap();
+//!
+//! // Initialize AES key and IV
+//! let aes_cbc = AesExpandedKey::new(&key).unwrap();
+//! let mut chaining_value: [u8; 16] = iv.try_into().expect("IV should be 16 bytes long");
+//!
+//! // Prepare the buffer for in-place encryption
+//! let mut buffer = plaintext.clone();
+//! let block_size = AES_BLOCK_SIZE as usize;
+//!
+//! // Encrypt the plaintext block by block in-place
+//! for i in (0..buffer.len()).step_by(block_size) {
+//!     let block = i + block_size;
+//!     aes_cbc
+//!         .aes_cbc_encrypt_in_place(&mut chaining_value, &mut buffer[i..block])
+//!         .unwrap();
+//! }
+//!
+//! assert_eq!(buffer, expected_ciphertext);
+//! ```
+//! 
 use crate::cipher::{validate_block_size, AesExpandedKey};
 use crate::errors::SymCryptError;
 use symcrypt_sys;
