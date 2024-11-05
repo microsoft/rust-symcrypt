@@ -34,7 +34,7 @@
 //!
 //! ## Decrypt in place
 //! ```rust
-//! use symcrypt::block_ciphers::BlockCipherType;
+//! use symcrypt::cipher::BlockCipherType;
 //! use symcrypt::gcm::GcmExpandedKey;
 //!
 //! // Set up input
