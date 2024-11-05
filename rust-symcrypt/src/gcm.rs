@@ -61,7 +61,6 @@
 //! assert_eq!(hex::encode(buffer), expected_result);
 //! ```
 //!
-// use crate::block_ciphers::*;
 use crate::cipher::{convert_cipher, BlockCipherType};
 use crate::errors::SymCryptError;
 use crate::symcrypt_init;
