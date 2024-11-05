@@ -14,11 +14,11 @@
 //! let key = hex::decode("00000000000000000000000000000000").unwrap();
 //! let aes_cbc = AesExpandedKey::new(&key).unwrap();
 //! let mut chaining_value = hex::decode("00000000000000000000000000000000").unwrap();
-//! let mut plain_text = hex::decode("f34481ec3cc627bacd5dc3fb08f273e6").unwrap(); // mutable
+//! let mut plain_text = hex::decode("f34481ec3cc627bacd5dc3fb08f273e6").unwrap();
 //! let mut cipher_text = vec![0u8; plain_text.len()];
 //!
 //! // Encrypt the plaintext
-//! aes_cbc.aes_cbc_encrypt(&mut chaining_value, &plain_text, &mut cipher_text).unwrap(); // Encrypt instead of decrypt
+//! aes_cbc.aes_cbc_encrypt(&mut chaining_value, &plain_text, &mut cipher_text).unwrap();
 //!
 //! assert_eq!(hex::encode(cipher_text), "0336763e966d92595a567cc9ce537f5e");
 //! ```
@@ -62,11 +62,11 @@ impl AesExpandedKey {
     /// `chaining_value` is a `mut &[u8]` that represents the `IV` on the first call, and will be filled with the chaining value after the encryption is complete.
     /// If doing a piecewise encryption, you will need to keep track of the `chaining_value` and pass it in on the next block for encryption.
     ///
-    /// `plain_text` is a `&[u8]`  that represents the data to be encrypted.
+    /// `plain_text` is a `&[u8]` that represents the data to be encrypted.
     ///
     /// `cipher_text` is a `mut &[u8]` that will be filled with the encrypted data. The length of this buffer must be equal to the length of the `plain_text` buffer.
     ///
-    /// This function will return an Error if the length of the `plain_text` and `cipher_text` buffers are not equal, or if they are not multiples of 16 bytes.
+    /// This function will return a [`SymCryptError`] if the length of the `plain_text` and `cipher_text` buffers are not equal, or if they are not multiples of 16 bytes.
     pub fn aes_cbc_encrypt(
         &self,
         chaining_value: &mut [u8],
@@ -92,7 +92,7 @@ impl AesExpandedKey {
     /// `chaining_value` is a `mut &[u8]` that represents the `IV` on the first call, and will be filled with the chaining value after the decryption is complete.
     /// If doing a piecewise decryption, you will need to keep track of the `chaining_value` and pass it in on the next block for decryption.
     ///
-    /// `cipher_text` is a `&[u8]`  that represents the data to be decrypted.
+    /// `cipher_text` is a `&[u8]` that represents the data to be decrypted.
     ///
     /// `plain_text` is a `mut &[u8]` that will be filled with the decrypted data. The length of this buffer must be equal to the length of the `cipher_text` buffer.
     ///
