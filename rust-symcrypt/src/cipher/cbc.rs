@@ -61,7 +61,7 @@
 //! assert_eq!(buffer, expected_ciphertext);
 //! ```
 //! 
-use crate::cipher::{validate_block_size, AesExpandedKey};
+use crate::cipher::{validate_block_size, AesExpandedKey, AES_BLOCK_SIZE};
 use crate::errors::SymCryptError;
 use symcrypt_sys;
 
@@ -79,7 +79,7 @@ impl AesExpandedKey {
     /// This function will return a [`SymCryptError`] if the length of the `plain_text` and `cipher_text` buffers are not equal, or if they are not multiples of 16 bytes.
     pub fn aes_cbc_encrypt(
         &self,
-        chaining_value: &mut [u8; 16],
+        chaining_value: &mut [u8; AES_BLOCK_SIZE as usize],
         plain_text: &[u8],
         cipher_text: &mut [u8],
     ) -> Result<(), SymCryptError> {
@@ -107,7 +107,7 @@ impl AesExpandedKey {
     /// This function will return a [`SymCryptError`] if the length of the `buffer` is not a multiple of 16 bytes.
     pub fn aes_cbc_encrypt_in_place(
         &self,
-        chaining_value: &mut [u8; 16],
+        chaining_value: &mut [u8; AES_BLOCK_SIZE as usize],
         buffer: &mut [u8],
     ) -> Result<(), SymCryptError> {
         validate_block_size(buffer, buffer)?;
@@ -136,7 +136,7 @@ impl AesExpandedKey {
     /// This function will return an Error if the length of the `plain_text` and `cipher_text` buffers are not equal, or if they are not multiples of 16 bytes.
     pub fn aes_cbc_decrypt(
         &self,
-        chaining_value: &mut [u8; 16],
+        chaining_value: &mut [u8; AES_BLOCK_SIZE as usize],
         cipher_text: &[u8],
         plain_text: &mut [u8],
     ) -> Result<(), SymCryptError> {
@@ -164,7 +164,7 @@ impl AesExpandedKey {
     /// This function will return a [`SymCryptError`] if the length of the `buffer` is not a multiple of 16 bytes.
     pub fn aes_cbc_decrypt_in_place(
         &self,
-        chaining_value: &mut [u8; 16],
+        chaining_value: &mut [u8; AES_BLOCK_SIZE as usize],
         buffer: &mut [u8],
     ) -> Result<(), SymCryptError> {
         validate_block_size(buffer, buffer)?;
