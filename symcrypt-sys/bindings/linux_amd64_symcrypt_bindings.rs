@@ -2473,6 +2473,7 @@ impl Default for _SYMCRYPT_AES_EXPANDED_KEY {
     }
 }
 pub type SYMCRYPT_AES_EXPANDED_KEY = _SYMCRYPT_AES_EXPANDED_KEY;
+pub type PCSYMCRYPT_AES_EXPANDED_KEY = *const SYMCRYPT_AES_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Copy, Clone)]
@@ -5356,6 +5357,9 @@ extern "C" {
     pub fn SymCryptHmacMd5Result(pState: PSYMCRYPT_HMAC_MD5_STATE, pbResult: PBYTE);
 }
 extern "C" {
+    pub static SymCryptHmacMd5Algorithm: PCSYMCRYPT_MAC;
+}
+extern "C" {
     pub fn SymCryptHmacSha1ExpandKey(
         pExpandedKey: PSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
         pbKey: PCBYTE,
@@ -5392,6 +5396,9 @@ extern "C" {
 }
 extern "C" {
     pub fn SymCryptHmacSha1Result(pState: PSYMCRYPT_HMAC_SHA1_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub static SymCryptHmacSha1Algorithm: PCSYMCRYPT_MAC;
 }
 extern "C" {
     pub fn SymCryptHmacSha256ExpandKey(
@@ -5432,6 +5439,9 @@ extern "C" {
     pub fn SymCryptHmacSha256Result(pState: PSYMCRYPT_HMAC_SHA256_STATE, pbResult: PBYTE);
 }
 extern "C" {
+    pub static SymCryptHmacSha256Algorithm: PCSYMCRYPT_MAC;
+}
+extern "C" {
     pub fn SymCryptHmacSha384ExpandKey(
         pExpandedKey: PSYMCRYPT_HMAC_SHA384_EXPANDED_KEY,
         pbKey: PCBYTE,
@@ -5468,6 +5478,9 @@ extern "C" {
 }
 extern "C" {
     pub fn SymCryptHmacSha384Result(pState: PSYMCRYPT_HMAC_SHA384_STATE, pbResult: PBYTE);
+}
+extern "C" {
+    pub static SymCryptHmacSha384Algorithm: PCSYMCRYPT_MAC;
 }
 extern "C" {
     pub fn SymCryptHmacSha512ExpandKey(
@@ -5508,6 +5521,9 @@ extern "C" {
     pub fn SymCryptHmacSha512Result(pState: PSYMCRYPT_HMAC_SHA512_STATE, pbResult: PBYTE);
 }
 extern "C" {
+    pub static SymCryptHmacSha512Algorithm: PCSYMCRYPT_MAC;
+}
+extern "C" {
     pub fn SymCryptChaCha20Poly1305Encrypt(
         pbKey: PCBYTE,
         cbKey: SIZE_T,
@@ -5536,6 +5552,24 @@ extern "C" {
         pbTag: PCBYTE,
         cbTag: SIZE_T,
     ) -> SYMCRYPT_ERROR;
+}
+extern "C" {
+    pub fn SymCryptAesCbcEncrypt(
+        pExpandedKey: PCSYMCRYPT_AES_EXPANDED_KEY,
+        pbChainingValue: PBYTE,
+        pbSrc: PCBYTE,
+        pbDst: PBYTE,
+        cbData: SIZE_T,
+    );
+}
+extern "C" {
+    pub fn SymCryptAesCbcDecrypt(
+        pExpandedKey: PCSYMCRYPT_AES_EXPANDED_KEY,
+        pbChainingValue: PBYTE,
+        pbSrc: PCBYTE,
+        pbDst: PBYTE,
+        cbData: SIZE_T,
+    );
 }
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
@@ -5711,9 +5745,6 @@ extern "C" {
         pbResult: PBYTE,
         cbResult: SIZE_T,
     ) -> SYMCRYPT_ERROR;
-}
-extern "C" {
-    pub fn SymCryptHkdfSelfTest();
 }
 extern "C" {
     pub fn SymCryptRandom(pbRandom: PBYTE, cbRandom: SIZE_T);

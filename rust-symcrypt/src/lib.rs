@@ -7,6 +7,7 @@ pub mod ecc;
 pub mod errors;
 pub mod gcm;
 pub mod hash;
+pub mod hkdf;
 pub mod hmac;
 pub mod rsa;
 

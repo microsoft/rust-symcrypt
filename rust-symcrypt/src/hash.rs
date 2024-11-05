@@ -1160,7 +1160,7 @@ pub fn sha3_512(data: &[u8]) -> [u8; SHA3_512_RESULT_SIZE] {
 #[cfg(test)]
 mod test {
     // Note: by default sha1 and md5 are turned off, to enable for testing you can use:
-    // cargo test --features "weak-crypto"
+    // cargo test --features sha1,md5
     use super::*;
 
     fn test_generic_hash_state<H: HashState>(mut hash_state: H, data: &[u8], expected: &str)

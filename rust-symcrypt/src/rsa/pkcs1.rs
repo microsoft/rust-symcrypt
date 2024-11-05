@@ -32,12 +32,14 @@
 //!
 //! In your `Cargo.toml`
 //!
-//! `symcrypt = {version = "0.3.0", features = ["pkcs1-encrypt-decrypt"]}`
+//! `symcrypt = {version = "0.4.0", features = ["pkcs1-encrypt-decrypt"]}`
 //!
 //! ```rust
+//! #[cfg(feature = "pkcs1-encrypt-decrypt")]
+//! {
 //! use symcrypt::rsa::{RsaKey, RsaKeyUsage};
 //! use symcrypt::errors::SymCryptError;
-//! 
+//!
 //! // Generate key pair.
 //! let key_pair = RsaKey::generate_key_pair(2048, None, RsaKeyUsage::SignAndEncrypt).unwrap();
 //!
@@ -58,6 +60,7 @@
 //! // Truncate buffer to the size of the decrypted message.
 //! plaintext_buffer.truncate(result_size as usize);
 //! assert_eq!(plaintext_buffer, message);
+//! }
 //! ```
 //!
 use crate::errors::SymCryptError;

@@ -92,6 +92,46 @@ pub const SHA384_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA384_RESULT_
 /// 64
 pub const SHA512_HMAC_RESULT_SIZE: usize = symcrypt_sys::SYMCRYPT_SHA512_RESULT_SIZE as usize;
 
+/// Hmac Algorithms that are supported by SymCrypt
+#[derive(Copy, Clone, Debug)]
+pub enum HmacAlgorithm {
+    #[cfg(feature = "md5")]
+    HmacMd5,
+    #[cfg(feature = "sha1")]
+    HmacSha1,
+    HmacSha256,
+    HmacSha384,
+    HmacSha512,
+}
+
+impl HmacAlgorithm {
+    /// Returns the symcrypt_sys::PCSYMCRYPT_MAC for calling underlying SymCrypt functions, hidden from the user.   
+    pub(crate) fn to_symcrypt_hmac_algorithm(&self) -> symcrypt_sys::PCSYMCRYPT_MAC {
+        match self {
+            #[cfg(feature = "md5")]
+            HmacAlgorithm::HmacMd5 => unsafe { symcrypt_sys::SymCryptHmacMd5Algorithm }, // UNSAFE FFI calls
+            #[cfg(feature = "sha1")]
+            HmacAlgorithm::HmacSha1 => unsafe { symcrypt_sys::SymCryptHmacSha1Algorithm }, // UNSAFE FFI calls
+            HmacAlgorithm::HmacSha256 => unsafe { symcrypt_sys::SymCryptHmacSha256Algorithm }, // UNSAFE FFI calls
+            HmacAlgorithm::HmacSha384 => unsafe { symcrypt_sys::SymCryptHmacSha384Algorithm }, // UNSAFE FFI calls
+            HmacAlgorithm::HmacSha512 => unsafe { symcrypt_sys::SymCryptHmacSha512Algorithm }, // UNSAFE FFI calls
+        }
+    }
+
+    /// Returns the result size as a `usize`. This is the size of the Hmac result in bytes.
+    pub fn get_result_size(&self) -> usize {
+        match self {
+            #[cfg(feature = "md5")]
+            HmacAlgorithm::HmacMd5 => MD5_HMAC_RESULT_SIZE,
+            #[cfg(feature = "sha1")]
+            HmacAlgorithm::HmacSha1 => SHA1_HMAC_RESULT_SIZE,
+            HmacAlgorithm::HmacSha256 => SHA256_HMAC_RESULT_SIZE,
+            HmacAlgorithm::HmacSha384 => SHA384_HMAC_RESULT_SIZE,
+            HmacAlgorithm::HmacSha512 => SHA512_HMAC_RESULT_SIZE,
+        }
+    }
+}
+
 /// Generic trait for stateful Hmac functions
 ///
 /// `Result` will depend on what HmacState is used.
@@ -1237,7 +1277,7 @@ pub fn hmac_sha512(
 #[cfg(test)]
 mod test {
     // Note: by default sha1 and md5 are turned off, to enable for testing you can use:
-    // cargo test --features "weak-crypto"
+    // cargo test --features sha1,md5
     use super::*;
 
     fn test_generic_hmac_state<H: HmacState>(mut hmac_state: H, data: &[u8], expected: &str)
