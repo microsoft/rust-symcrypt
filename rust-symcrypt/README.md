@@ -44,9 +44,9 @@ HKDF:
 - HmacSha512
 
 Encryption: 
-- Gcm Encrypt/Decrypt
-- ChaCha Encrypt/Decrypt
-- Aes CBC Encrypt/Decrypt
+- AES-GCM Encrypt/Decrypt
+- ChaCha20-Poly1305 Encrypt/Decrypt
+- AES-CBC Encrypt/Decrypt
 
 ECC:
 - ECDH Secret Agreement ( NistP256, NistP384, NistP521, Curve25519)

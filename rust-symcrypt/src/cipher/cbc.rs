@@ -21,7 +21,7 @@
 //! // Initialize AES key and IV
 //! let mut chaining_value: [u8; 16] = iv.try_into().expect("IV should be 16 bytes long");
 //! let aes_cbc = AesExpandedKey::new(&key).unwrap();
-//! 
+//!
 //! // Encrypt the plaintext
 //! aes_cbc.aes_cbc_encrypt(&mut chaining_value, &plain_text, &mut cipher_text).unwrap();
 //!
@@ -30,7 +30,7 @@
 //!
 //! ## AES-CBC Encryption block by block
 //!
-//! ```rust 
+//! ```rust
 //! use symcrypt::cipher::AesExpandedKey;
 //! use hex;
 //! use std::convert::TryInto;
@@ -60,8 +60,8 @@
 //!
 //! assert_eq!(buffer, expected_ciphertext);
 //! ```
-//! 
-use crate::cipher::{validate_block_size, AesExpandedKey, AES_BLOCK_SIZE};
+//!
+use crate::cipher::{AesExpandedKey, AES_BLOCK_SIZE};
 use crate::errors::SymCryptError;
 use symcrypt_sys;
 
@@ -83,7 +83,7 @@ impl AesExpandedKey {
         plain_text: &[u8],
         cipher_text: &mut [u8],
     ) -> Result<(), SymCryptError> {
-        validate_block_size(plain_text, cipher_text)?;
+        validate_aes_cbc_inputs(plain_text, cipher_text)?;
         unsafe {
             symcrypt_sys::SymCryptAesCbcEncrypt(
                 self.expanded_key.get_inner(),
@@ -110,7 +110,7 @@ impl AesExpandedKey {
         chaining_value: &mut [u8; AES_BLOCK_SIZE as usize],
         buffer: &mut [u8],
     ) -> Result<(), SymCryptError> {
-        validate_block_size(buffer, buffer)?;
+        validate_aes_cbc_inputs(buffer, buffer)?;
         unsafe {
             symcrypt_sys::SymCryptAesCbcEncrypt(
                 self.expanded_key.get_inner(),
@@ -140,7 +140,7 @@ impl AesExpandedKey {
         cipher_text: &[u8],
         plain_text: &mut [u8],
     ) -> Result<(), SymCryptError> {
-        validate_block_size(plain_text, cipher_text)?;
+        validate_aes_cbc_inputs(plain_text, cipher_text)?;
         unsafe {
             symcrypt_sys::SymCryptAesCbcDecrypt(
                 self.expanded_key.get_inner(),
@@ -167,7 +167,7 @@ impl AesExpandedKey {
         chaining_value: &mut [u8; AES_BLOCK_SIZE as usize],
         buffer: &mut [u8],
     ) -> Result<(), SymCryptError> {
-        validate_block_size(buffer, buffer)?;
+        validate_aes_cbc_inputs(buffer, buffer)?;
         unsafe {
             symcrypt_sys::SymCryptAesCbcDecrypt(
                 self.expanded_key.get_inner(),
@@ -181,12 +181,52 @@ impl AesExpandedKey {
     }
 }
 
+fn validate_aes_cbc_inputs(plain_text: &[u8], cipher_text: &[u8]) -> Result<(), SymCryptError> {
+    if plain_text.len() != cipher_text.len() {
+        return Err(SymCryptError::WrongDataSize);
+    }
+
+    // length of plain_text and cipher_text must be equal at this point.
+    if plain_text.len() % AES_BLOCK_SIZE as usize != 0 {
+        return Err(SymCryptError::WrongBlockSize);
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 pub mod test {
     use super::*;
     use crate::cipher::AES_BLOCK_SIZE;
     use hex;
     use std::convert::TryInto;
+
+    #[test]
+    fn test_invalid_block_size() {
+        let plain_text = vec![0u8; 15];
+        let cipher_text = vec![0u8; 15];
+
+        let result = validate_aes_cbc_inputs(&plain_text, &cipher_text).unwrap_err();
+        assert_eq!(result, SymCryptError::WrongBlockSize);
+    }
+
+    #[test]
+    fn test_mismatched_text_length() {
+        let plain_text = vec![0u8; 32];
+        let cipher_text = vec![0u8; 16];
+
+        let result = validate_aes_cbc_inputs(&plain_text, &cipher_text).unwrap_err();
+        assert_eq!(result, SymCryptError::WrongDataSize);
+    }
+
+    #[test]
+    fn test_valid_block_size_and_length() {
+        let plain_text = vec![0u8; 32];
+        let cipher_text = vec![0u8; 32];
+
+        let result = validate_aes_cbc_inputs(&plain_text, &cipher_text);
+        assert!(result.is_ok());
+    }
 
     #[test]
     fn test_aes_cbc_encrypt() {
@@ -251,6 +291,96 @@ pub mod test {
 
         assert_eq!(piecewise_encrypted, expected_ciphertext);
         assert_eq!(single_encrypted, piecewise_encrypted);
+    }
+
+    #[test]
+    fn test_aes_cbc_decrypt_single_and_block_by_block() {
+        let key_hex = "5d98398b5e3b98d87e07ecf1332df4ac";
+        let iv_hex = "db22065fb9302c4445151adc91310797";
+        let plaintext_hex = "4831f8d1a92cf167a444ccae8d90158dfc55c9a0742019e642116bbaa87aa205";
+        let ciphertext_hex = "f03f86e1a6f1e23e70af3f3ab3b777fd43103f2e7a6fc245a3656799176a2611";
+
+        let key = hex::decode(key_hex).unwrap();
+        let iv: [u8; 16] = hex::decode(iv_hex).unwrap().try_into().unwrap();
+        let expected_plaintext = hex::decode(plaintext_hex).unwrap();
+        let ciphertext = hex::decode(ciphertext_hex).unwrap();
+
+        let aes_cbc = AesExpandedKey::new(&key).unwrap();
+        let mut chaining_value = iv.clone();
+
+        // Single decryption
+        let mut single_decrypted = vec![0u8; ciphertext.len()];
+        aes_cbc
+            .aes_cbc_decrypt(&mut chaining_value, &ciphertext, &mut single_decrypted)
+            .unwrap();
+        assert_eq!(single_decrypted, expected_plaintext);
+
+        chaining_value = iv.clone();
+        let mut block_by_block_decrypted = vec![0u8; ciphertext.len()];
+        let block_size = AES_BLOCK_SIZE as usize;
+
+        // Decrypt block by block
+        for i in (0..ciphertext.len()).step_by(block_size) {
+            let end = i + block_size;
+            aes_cbc
+                .aes_cbc_decrypt(
+                    &mut chaining_value,
+                    &ciphertext[i..end],
+                    &mut block_by_block_decrypted[i..end],
+                )
+                .unwrap();
+        }
+
+        assert_eq!(block_by_block_decrypted, expected_plaintext);
+        assert_eq!(single_decrypted, block_by_block_decrypted);
+    }
+
+    #[test]
+    fn test_aes_cbc_decrypt_single_and_piecewise() {
+        let key_hex = "5d98398b5e3b98d87e07ecf1332df4ac";
+        let iv_hex = "db22065fb9302c4445151adc91310797";
+        let plaintext_hex = "4831f8d1a92cf167a444ccae8d90158dfc55c9a0742019e642116bbaa87aa205";
+        let ciphertext_hex = "f03f86e1a6f1e23e70af3f3ab3b777fd43103f2e7a6fc245a3656799176a2611";
+
+        let key = hex::decode(key_hex).unwrap();
+        let iv: [u8; 16] = hex::decode(iv_hex).unwrap().try_into().unwrap();
+        let expected_plaintext = hex::decode(plaintext_hex).unwrap();
+        let ciphertext = hex::decode(ciphertext_hex).unwrap();
+
+        let aes_cbc = AesExpandedKey::new(&key).unwrap();
+        let mut chaining_value = iv.clone();
+
+        // Single decryption
+        let mut single_decrypted = vec![0u8; ciphertext.len()];
+        aes_cbc
+            .aes_cbc_decrypt(&mut chaining_value, &ciphertext, &mut single_decrypted)
+            .unwrap();
+        assert_eq!(single_decrypted, expected_plaintext);
+
+        chaining_value = iv.clone();
+        let mut piecewise_decrypted = vec![0u8; ciphertext.len()];
+        let mid = ciphertext.len() / 2;
+
+        // First half
+        aes_cbc
+            .aes_cbc_decrypt(
+                &mut chaining_value,
+                &ciphertext[..mid],
+                &mut piecewise_decrypted[..mid],
+            )
+            .unwrap();
+
+        // Second half
+        aes_cbc
+            .aes_cbc_decrypt(
+                &mut chaining_value,
+                &ciphertext[mid..],
+                &mut piecewise_decrypted[mid..],
+            )
+            .unwrap();
+
+        assert_eq!(piecewise_decrypted, expected_plaintext);
+        assert_eq!(single_decrypted, piecewise_decrypted);
     }
 
     #[test]

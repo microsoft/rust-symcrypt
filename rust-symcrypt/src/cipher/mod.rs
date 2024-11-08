@@ -103,22 +103,6 @@ impl AesExpandedKey {
     }
 }
 
-pub(crate) fn validate_block_size(
-    plain_text: &[u8],
-    cipher_text: &[u8],
-) -> Result<(), SymCryptError> {
-    if plain_text.len() != cipher_text.len() {
-        return Err(SymCryptError::WrongDataSize);
-    }
-
-    // length of plain_text and cipher_text must be equal at this point.
-    if plain_text.len() % AES_BLOCK_SIZE as usize != 0 {
-        return Err(SymCryptError::WrongBlockSize);
-    }
-
-    Ok(())
-}
-
 unsafe impl Send for BlockCipherType {
     // TODO: discuss send/sync implementation for rustls.
 }
@@ -137,34 +121,6 @@ pub(crate) fn convert_cipher(cipher: BlockCipherType) -> symcrypt_sys::PCSYMCRYP
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_invalid_block_size() {
-        let plain_text = vec![0u8; 15];
-        let cipher_text = vec![0u8; 15];
-
-        let result = validate_block_size(&plain_text, &cipher_text).unwrap_err();
-        assert_eq!(result, SymCryptError::WrongBlockSize);
-    }
-
-    #[test]
-    fn test_mismatched_text_length() {
-        let plain_text = vec![0u8; 32];
-        let cipher_text = vec![0u8; 16];
-
-        let result = validate_block_size(&plain_text, &cipher_text).unwrap_err();
-        assert_eq!(result, SymCryptError::WrongDataSize);
-    }
-
-    #[test]
-    fn test_valid_block_size_and_length() {
-        let plain_text = vec![0u8; 32];
-        let cipher_text = vec![0u8; 32];
-
-        let result = validate_block_size(&plain_text, &cipher_text);
-        assert!(result.is_ok());
-    }
-
     #[test]
     fn test_aes_expanded_key_creation_valid_key() {
         let key_hex = "00112233445566778899aabbccddeeff";
