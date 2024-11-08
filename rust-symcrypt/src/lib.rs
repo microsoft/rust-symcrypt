@@ -1,8 +1,8 @@
 #![doc = include_str!("../README.md")]
 use std::sync::Once;
 
-pub mod block_ciphers;
 pub mod chacha;
+pub mod cipher;
 pub mod ecc;
 pub mod errors;
 pub mod gcm;

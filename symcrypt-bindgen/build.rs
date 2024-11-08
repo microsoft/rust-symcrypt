@@ -38,6 +38,8 @@ fn main() {
         .allowlist_function("^SymCryptAesCbc(Encrypt|Decrypt)?$")
         // BLOCK CIPHERS
         .allowlist_var("SymCryptAesBlockCipher")
+        .allowlist_function("^SymCryptAesExpandKey$")
+        .allowlist_var("SYMCRYPT_AES_BLOCK_SIZE")
         // HKDF FUNCTIONS
         .allowlist_function("^(SymCryptHkdf.*)$") 
         // ECDH KEY AGREEMENT FUNCTIONS

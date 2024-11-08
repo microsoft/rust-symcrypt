@@ -5,7 +5,7 @@
 //! ## Encrypt in place
 //!
 //! ```rust
-//! use symcrypt::block_ciphers::BlockCipherType;
+//! use symcrypt::cipher::BlockCipherType;
 //! use symcrypt::gcm::GcmExpandedKey;
 //!
 //! // Set up input
@@ -34,7 +34,7 @@
 //!
 //! ## Decrypt in place
 //! ```rust
-//! use symcrypt::block_ciphers::BlockCipherType;
+//! use symcrypt::cipher::BlockCipherType;
 //! use symcrypt::gcm::GcmExpandedKey;
 //!
 //! // Set up input
@@ -61,7 +61,7 @@
 //! assert_eq!(hex::encode(buffer), expected_result);
 //! ```
 //!
-use crate::block_ciphers::*;
+use crate::cipher::{convert_cipher, BlockCipherType};
 use crate::errors::SymCryptError;
 use crate::symcrypt_init;
 use core::ffi::c_void;
@@ -286,7 +286,7 @@ pub fn validate_gcm_parameters(
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::block_ciphers::BlockCipherType;
+    use crate::cipher::BlockCipherType;
 
     #[test]
     fn test_gcm_expand_key_will_fail_wrong_key_size() {

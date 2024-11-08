@@ -43,13 +43,10 @@ HKDF:
 - HmacSha384
 - HmacSha512
 
-GCM:
-- Encryption ( in place )
-- Decryption ( in place )
-
-ChaCha:
-- Encryption ( in place )
-- Decryption ( in place )
+Encryption: 
+- AES-GCM Encrypt/Decrypt
+- ChaCha20-Poly1305 Encrypt/Decrypt
+- AES-CBC Encrypt/Decrypt
 
 ECC:
 - ECDH Secret Agreement ( NistP256, NistP384, NistP521, Curve25519)
