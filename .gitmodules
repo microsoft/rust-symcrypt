@@ -1,0 +1,3 @@
+[submodule "SymCrypt"]
+  path = symcrypt-bindgen/SymCrypt
+  url = https://github.com/microsoft/SymCrypt
