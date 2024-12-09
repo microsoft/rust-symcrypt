@@ -77,6 +77,10 @@ pub mod pss;
 #[derive(Debug)]
 pub(crate) struct InnerRsaKey(pub(crate) symcrypt_sys::PSYMCRYPT_RSAKEY);
 
+// TODO: Discuss Send/Sync implementation for rustls.
+unsafe impl Send for InnerRsaKey {}
+unsafe impl Sync for InnerRsaKey {}
+
 // Must free inner key rather than the outer struct.
 impl Drop for InnerRsaKey {
     fn drop(&mut self) {
@@ -103,7 +107,7 @@ pub enum RsaKeyUsage {
 
 // to_symcrypt_flag converts the RsaKeyUsage to the corresponding SymCrypt flag and only needed internally.
 impl RsaKeyUsage {
-    pub(crate) fn to_symcrypt_flag(&self) -> symcrypt_sys::UINT32 {
+    pub(crate) fn to_symcrypt_flag(self) -> symcrypt_sys::UINT32 {
         match self {
             RsaKeyUsage::Sign => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_SIGN,
             RsaKeyUsage::Encrypt => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_ENCRYPT,
@@ -185,7 +189,7 @@ impl RsaKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
                     inner: rsa_key,
-                    rsa_key_usage: rsa_key_usage,
+                    rsa_key_usage,
                     has_private_key: true,
                 }),
                 err => Err(err.into()),
@@ -240,7 +244,7 @@ impl RsaKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
                     inner: rsa_key,
-                    rsa_key_usage: rsa_key_usage,
+                    rsa_key_usage,
                     has_private_key: true,
                 }),
                 err => Err(err.into()),
@@ -284,7 +288,7 @@ impl RsaKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
                     inner: rsa_key,
-                    rsa_key_usage: rsa_key_usage,
+                    rsa_key_usage,
                     has_private_key: false,
                 }),
                 err => Err(err.into()),
@@ -451,6 +455,10 @@ impl RsaKey {
     }
 }
 
+// TODO: Discuss Send/Sync implementation for rustls.
+unsafe impl Send for RsaKey {}
+unsafe impl Sync for RsaKey {}
+
 // Utility function to reduce common RSA allocation call
 fn allocate_rsa(
     n_primes: u32,
@@ -465,7 +473,7 @@ fn allocate_rsa(
     unsafe {
         // SAFETY: FFI calls
         let result = symcrypt_sys::SymCryptRsakeyAllocate(&rsa_params, 0);
-        if result == ptr::null_mut() {
+        if result.is_null() {
             return Err(SymCryptError::MemoryAllocationFailure);
         }
         Ok(InnerRsaKey(result))

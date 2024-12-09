@@ -75,8 +75,8 @@ impl RsaKey {
     /// `pcks1_sign()` signs a hashed message using the private key of [`RsaKey`] and returns a `Vec<u8>` representing the signature,
     /// or a [`SymCryptError`] if the operation fails.
     ///
-    /// `hashed_message` is a `&[u8]` representing the hashed message to be signed.
-    ///
+    /// `hashed_message` is a `&[u8]` that represents the message that has been hashed using the hash algorithm specified in `hash_algorithm`.
+    /// 
     /// `hash_algorithm` is a [`HashAlgorithm`] representing the hash algorithm used to hash the message.
     ///
     /// This function will fail with [`SymCryptError::InvalidArgument`] if [`RsaKey`] does not have a private key attached.
@@ -158,8 +158,8 @@ impl RsaKey {
     ///
     /// Caller must check the return value to determine if the signature is valid before continuing.
     ///
-    /// `hashed_message` is a `&[u8]` representing the hashed message to be verified.
-    ///
+    /// `hashed_message` is a `&[u8]` that represents the message that has been hashed using the hash algorithm specified in `hash_algorithm`.
+    /// 
     /// `signature` is a `&[u8]` representing the signature to be verified.
     ///
     /// `hash_algorithm` is a [`HashAlgorithm`] representing the hash algorithm used to hash the message.
