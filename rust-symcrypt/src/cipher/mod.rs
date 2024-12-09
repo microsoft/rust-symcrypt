@@ -77,6 +77,7 @@ impl Clone for AesExpandedKey {
     }
 }
 
+#[allow(clippy::arc_with_non_send_sync)]
 impl AesExpandedKey {
     /// `new()` returns an `AesExpandedKey` or a [`SymCryptError`] if the operation fails.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {

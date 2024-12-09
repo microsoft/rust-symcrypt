@@ -149,7 +149,7 @@ impl GcmExpandedKey {
             convert_cipher(cipher),
         )?;
         let gcm_expanded_key = GcmExpandedKey {
-            expanded_key: expanded_key,
+            expanded_key,
             key_length: key.len(),
         };
         Ok(gcm_expanded_key)

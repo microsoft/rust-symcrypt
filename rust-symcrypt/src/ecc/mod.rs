@@ -59,7 +59,7 @@
 use crate::NumberFormat;
 use crate::{errors::SymCryptError, symcrypt_init};
 use lazy_static::lazy_static;
-use std::ptr::{self, null_mut};
+use std::ptr;
 
 pub mod ecdh;
 pub mod ecdsa;
@@ -101,7 +101,7 @@ impl Drop for InnerEcKey {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls to free the resource if it has been allocated.
-            if self.0 != null_mut() {
+            if !self.0.is_null() {
                 symcrypt_sys::SymCryptEckeyFree(self.0);
             }
         }
@@ -124,7 +124,7 @@ impl Drop for InnerEcCurve {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls
-            if self.0 != null_mut() {
+            if !self.0.is_null() {
                 symcrypt_sys::SymCryptEcurveFree(self.0);
             }
         }
@@ -146,7 +146,7 @@ pub enum EcKeyUsage {
 
 // to_symcrypt_flag converts the EcKeyUsage enum to the corresponding SymCrypt flag and is only needed internally.
 impl EcKeyUsage {
-    pub(crate) fn to_symcrypt_flag(&self) -> u32 {
+    pub(crate) fn to_symcrypt_flag(self) -> u32 {
         match self {
             EcKeyUsage::EcDsa => symcrypt_sys::SYMCRYPT_FLAG_ECKEY_ECDSA,
             EcKeyUsage::EcDh => symcrypt_sys::SYMCRYPT_FLAG_ECKEY_ECDH,
@@ -203,7 +203,7 @@ impl EcKey {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     let key = EcKey {
                         inner_key: key_ptr,
-                        curve_type: curve_type,
+                        curve_type,
                         ec_key_usage,
                         has_private_key: true,
                     };
@@ -259,7 +259,7 @@ impl EcKey {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     let key = EcKey {
                         inner_key: key_ptr,
-                        curve_type: curve_type,
+                        curve_type,
                         ec_key_usage,
                         has_private_key: true,
                     };
@@ -307,7 +307,7 @@ impl EcKey {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     let key = EcKey {
                         inner_key: key_ptr,
-                        curve_type: curve_type,
+                        curve_type,
                         ec_key_usage,
                         has_private_key: false,
                     };
@@ -480,13 +480,12 @@ pub(crate) fn to_symcrypt_curve(curve: CurveType) -> symcrypt_sys::PCSYMCRYPT_EC
 
 // curve_to_num_format() returns the correct number format needed for TLS interop since 25519 spec defines the use of Little Endian.
 pub(crate) fn curve_to_num_format(curve_type: CurveType) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {
-    let num_format = match curve_type {
+    match curve_type {
         CurveType::Curve25519 => NumberFormat::LSB.to_symcrypt_format(),
         CurveType::NistP256 | CurveType::NistP384 | CurveType::NistP521 => {
             NumberFormat::MSB.to_symcrypt_format()
         }
-    };
-    num_format
+    }
 }
 
 // curve_to_ec_point_format() returns the X or XY format needed for TLS interop.
@@ -494,13 +493,12 @@ pub(crate) fn curve_to_ec_point_format(
     curve_type: CurveType,
 ) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {
     // Curve25519 has only X coord, where as Nistp256 and NistP384 have X and Y coord
-    let ec_point_format = match curve_type {
+    match curve_type {
         CurveType::Curve25519 => symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_X,
         CurveType::NistP256 | CurveType::NistP384 | CurveType::NistP521 => {
             symcrypt_sys::_SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY
         }
-    };
-    ec_point_format
+    }
 }
 
 #[cfg(test)]

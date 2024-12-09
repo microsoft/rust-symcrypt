@@ -106,7 +106,7 @@ pub enum HmacAlgorithm {
 
 impl HmacAlgorithm {
     /// Returns the symcrypt_sys::PCSYMCRYPT_MAC for calling underlying SymCrypt functions, hidden from the user.   
-    pub(crate) fn to_symcrypt_hmac_algorithm(&self) -> symcrypt_sys::PCSYMCRYPT_MAC {
+    pub(crate) fn to_symcrypt_hmac_algorithm(self) -> symcrypt_sys::PCSYMCRYPT_MAC {
         match self {
             #[cfg(feature = "md5")]
             HmacAlgorithm::HmacMd5 => unsafe { symcrypt_sys::SymCryptHmacMd5Algorithm }, // UNSAFE FFI calls
@@ -200,7 +200,7 @@ impl Drop for HmacMd5ExpandedKey {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 ptr::addr_of_mut!(self.inner) as *mut c_void,
-                mem::size_of_val(&mut self.inner) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -340,12 +340,13 @@ impl Drop for HmacMd5State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&mut self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
             );
         }
     }
 }
 
+#[allow(clippy::unnecessary_mut_passed)]
 #[cfg(feature = "md5")]
 /// Stateless HMAC function for HmacMd5.
 ///
@@ -427,7 +428,7 @@ impl Drop for HmacSha1ExpandedKey {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 ptr::addr_of_mut!(self.inner) as *mut c_void,
-                mem::size_of_val(&mut self.inner) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -566,13 +567,14 @@ impl Drop for HmacSha1State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&mut self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
             );
         }
     }
 }
 
 #[cfg(feature = "sha1")]
+#[allow(clippy::unnecessary_mut_passed)]
 /// Stateless HMAC function for HmacSha1.
 ///
 /// `key` is a reference to a key.
@@ -650,7 +652,7 @@ impl Drop for HmacSha256ExpandedKey {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 ptr::addr_of_mut!(self.inner) as *mut c_void,
-                mem::size_of_val(&mut self.inner) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -789,12 +791,13 @@ impl Drop for HmacSha256State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&mut self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
             );
         }
     }
 }
 
+#[allow(clippy::unnecessary_mut_passed)]
 /// Stateless HMAC function for HmacSha256.
 ///
 /// `key` is a reference to a key.
@@ -875,7 +878,7 @@ impl Drop for HmacSha384ExpandedKey {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 ptr::addr_of_mut!(self.inner) as *mut c_void,
-                mem::size_of_val(&mut self.inner) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -1015,12 +1018,13 @@ impl Drop for HmacSha384State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&mut self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
             );
         }
     }
 }
 
+#[allow(clippy::unnecessary_mut_passed)]
 /// Stateless HMAC function for HmacSha384.
 ///
 /// `key` is a reference to a key.
@@ -1101,7 +1105,7 @@ impl Drop for HmacSha512ExpandedKey {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 ptr::addr_of_mut!(self.inner) as *mut c_void,
-                mem::size_of_val(&mut self.inner) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -1233,12 +1237,13 @@ impl Drop for HmacSha512State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&mut self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
             );
         }
     }
 }
 
+#[allow(clippy::unnecessary_mut_passed)]
 /// Stateless HMAC function for HmacSha512.
 ///
 /// `key` is a reference to a key.
