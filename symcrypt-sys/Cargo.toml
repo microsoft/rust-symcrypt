@@ -1,7 +1,7 @@
 [package]
 name = "symcrypt-sys"
 authors = ["Microsoft"]
-version = "0.3.0"
+version = "0.4.0"
 license = "MIT OR Apache-2.0"
 description = "Rust/C Bindings for SymCrypt"
 edition = "2021"

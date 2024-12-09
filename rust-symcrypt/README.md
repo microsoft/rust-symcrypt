@@ -4,7 +4,7 @@ This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https:/
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**`symcrypt` version `0.4.0` is based off of `SymCrypt v103.4.2`.**. You must use a version that is greater than or equal to `SymCrypt v103.4.2`. 
+**`symcrypt` version `0.5.0` is based off of `SymCrypt v103.4.2`.**. You must use a version that is greater than or equal to `SymCrypt v103.4.2`. 
 
 To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
 
@@ -50,7 +50,7 @@ Encryption:
 
 ECC:
 - ECDH Secret Agreement ( NistP256, NistP384, NistP521, Curve25519)
-- ECDSA Sign / Verify ( NistP256, NistP384 )
+- ECDSA Sign / Verify ( NistP256, NistP384, NistP521 )
 
 RSA: 
 - PKCS1 ( Sign, Verify, Encrypt, Decrypt )
@@ -112,7 +112,7 @@ add symcrypt to your `Cargo.toml` file.
 
 ```cargo
 [dependencies]
-symcrypt = "0.4.0"
+symcrypt = "0.5.0"
 hex = "0.4.3"
 ```
 

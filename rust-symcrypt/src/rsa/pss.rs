@@ -33,8 +33,8 @@ impl RsaKey {
     ///
     /// `hashed_message` is a `&[u8]` that represents the message that has been hashed using the hash algorithm specified in `hash_algorithm`.
     ///  
-    /// `hash_algorithm` is a [`HashAlgorithm`] that represents the hash algorithm used to hash the message.
-    ///
+    /// `hash_algorithm` is a [`HashAlgorithm`] representing the algorithm used to hash the message.
+    /// 
     /// `salt_length` is a `usize` that represents the length of the salt to be used in the PSS signature, this value is typically the length of the hash output.
     ///
     /// This function will fail with [`SymCryptError::InvalidArgument`] if [`RsaKey`] does not have a private key attached.
