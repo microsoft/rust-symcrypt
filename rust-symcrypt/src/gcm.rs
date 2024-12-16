@@ -221,13 +221,10 @@ impl GcmExpandedKey {
     }
 }
 
-unsafe impl Send for GcmExpandedKey {
-    // TODO: Configure send/sync traits
-}
-
-unsafe impl Sync for GcmExpandedKey {
-    // TODO: Configure send/sync traits
-}
+// No custom Send / Sync impl. needed for GcmExpandedKey and GcmExpandedKey since the 
+// underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
+unsafe impl Send for GcmExpandedKey {}
+unsafe impl Sync for GcmExpandedKey {}
 
 // Internal function to expand the SymCrypt Gcm Key.
 fn gcm_expand_key(

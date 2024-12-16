@@ -111,14 +111,6 @@ impl Drop for InnerEcKey {
 // InnerEcCurve is a wrapper around symcrypt_sys::PSYMCRYPT_ECURVE.
 pub(crate) struct InnerEcCurve(pub(crate) symcrypt_sys::PSYMCRYPT_ECURVE);
 
-unsafe impl Send for InnerEcCurve {
-    // TODO: Discuss send/sync for rustls
-}
-
-unsafe impl Sync for InnerEcCurve {
-    // TODO: Discuss send/sync for rustls
-}
-
 // Must drop EcCurve after EcKey is dropped, will always be the case since EcCurve is static.
 impl Drop for InnerEcCurve {
     fn drop(&mut self) {
@@ -167,14 +159,6 @@ pub struct EcKey {
     curve_type: CurveType,
     ec_key_usage: EcKeyUsage,
     has_private_key: bool,
-}
-
-unsafe impl Send for EcKey {
-    // TODO: Discuss send/sync for rustls
-}
-
-unsafe impl Sync for EcKey {
-    // TODO: Discuss send/sync for rustls
 }
 
 impl EcKey {
@@ -423,6 +407,13 @@ impl EcKey {
         }
     }
 }
+
+// No custom Send / Sync impl. needed for EcKey and InnerEcCurve since the 
+// underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
+unsafe impl Send for InnerEcCurve {}
+unsafe impl Sync for InnerEcCurve {}
+unsafe impl Send for EcKey {}
+unsafe impl Sync for EcKey {}
 
 // Curves can be re-used across EcKey calls, creating static references to save on allocations and increase perf.
 lazy_static! {

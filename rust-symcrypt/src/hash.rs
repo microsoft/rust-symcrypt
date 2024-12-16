@@ -110,10 +110,9 @@ pub enum HashAlgorithm {
     Sha3_512,
 }
 
-#[allow(clippy::wrong_self_convention)]
 impl HashAlgorithm {
     // Returns the symcrypt_sys::_SYMCRYPT_OID for calling underlying SymCrypt functions, hidden from the user.
-    pub(crate) fn to_oid_list(&self) -> &[symcrypt_sys::_SYMCRYPT_OID] {
+    pub(crate) fn get_oid_list(&self) -> &[symcrypt_sys::_SYMCRYPT_OID] {
         unsafe {
             match self {
                 #[cfg(feature = "md5")]
@@ -131,7 +130,7 @@ impl HashAlgorithm {
     }
 
     /// Returns the symcrypt_sys::PCSYMCRYPT_HASH for calling underlying SymCrypt functions, hidden from the user.
-    pub(crate) fn to_symcrypt_hash(&self) -> symcrypt_sys::PCSYMCRYPT_HASH {
+    pub(crate) fn get_symcrypt_hash(&self) -> symcrypt_sys::PCSYMCRYPT_HASH {
         unsafe {
             match self {
                 #[cfg(feature = "md5")]

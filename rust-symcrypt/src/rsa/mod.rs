@@ -77,10 +77,6 @@ pub mod pss;
 #[derive(Debug)]
 pub(crate) struct InnerRsaKey(pub(crate) symcrypt_sys::PSYMCRYPT_RSAKEY);
 
-// TODO: Discuss Send/Sync implementation for rustls.
-unsafe impl Send for InnerRsaKey {}
-unsafe impl Sync for InnerRsaKey {}
-
 // Must free inner key rather than the outer struct.
 impl Drop for InnerRsaKey {
     fn drop(&mut self) {
@@ -455,9 +451,12 @@ impl RsaKey {
     }
 }
 
-// TODO: Discuss Send/Sync implementation for rustls.
+// No custom Send / Sync impl. needed for RsaKey and RsaKeyInner since the 
+// underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
 unsafe impl Send for RsaKey {}
 unsafe impl Sync for RsaKey {}
+unsafe impl Send for InnerRsaKey {}
+unsafe impl Sync for InnerRsaKey {}
 
 // Utility function to reduce common RSA allocation call
 fn allocate_rsa(
