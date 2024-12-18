@@ -75,7 +75,7 @@ impl RsaKey {
     /// `pcks1_sign()` signs a hashed message using the private key of [`RsaKey`] and returns a `Vec<u8>` representing the signature,
     /// or a [`SymCryptError`] if the operation fails.
     ///
-    /// `hashed_message` is a `&[u8]` representing the hashed message to be signed.
+    /// `hashed_message` is a `&[u8]` that represents the message that has been hashed using the hash algorithm specified in `hash_algorithm`.
     ///
     /// `hash_algorithm` is a [`HashAlgorithm`] representing the hash algorithm used to hash the message.
     ///
@@ -88,7 +88,7 @@ impl RsaKey {
         let mut result_size = 0;
         let modulus_size = self.get_size_of_modulus();
         let mut signature = vec![0u8; modulus_size as usize];
-        let converted_hash_oids = hash_algorithm.to_oid_list();
+        let converted_hash_oids = hash_algorithm.get_oid_list();
         unsafe {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptRsaPkcs1Sign(
@@ -158,7 +158,7 @@ impl RsaKey {
     ///
     /// Caller must check the return value to determine if the signature is valid before continuing.
     ///
-    /// `hashed_message` is a `&[u8]` representing the hashed message to be verified.
+    /// `hashed_message` is a `&[u8]` that represents the message that has been hashed using the hash algorithm specified in `hash_algorithm`.
     ///
     /// `signature` is a `&[u8]` representing the signature to be verified.
     ///
@@ -169,7 +169,7 @@ impl RsaKey {
         signature: &[u8],
         hash_algorithm: HashAlgorithm,
     ) -> Result<(), SymCryptError> {
-        let converted_hash_oids = hash_algorithm.to_oid_list();
+        let converted_hash_oids = hash_algorithm.get_oid_list();
         unsafe {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptRsaPkcs1Verify(
