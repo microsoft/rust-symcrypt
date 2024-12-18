@@ -707,13 +707,10 @@ impl HmacSha256Inner {
     }
 }
 
-unsafe impl Send for HmacSha256Inner {
-    // TODO: discuss send/sync implementation for rustls
-}
-
-unsafe impl Sync for HmacSha256Inner {
-    // TODO: discuss send/sync implementation for rustls
-}
+// No custom Send / Sync impl. needed for HmacSha256Inner since the
+// underlying data is a pointer to an owned SymCrypt HmacState that is follows Rust's ownership rules
+unsafe impl Send for HmacSha256Inner {}
+unsafe impl Sync for HmacSha256Inner {}
 
 impl HmacSha256State {
     /// `new()` takes in a `&[u8]` reference to a key and can return a [`SymCryptError`] that is propagated back to the caller.
@@ -934,13 +931,10 @@ impl HmacSha384Inner {
     }
 }
 
-unsafe impl Send for HmacSha384Inner {
-    // TODO: discuss send/sync implementation for rustls
-}
-
-unsafe impl Sync for HmacSha384Inner {
-    // TODO: discuss send/sync implementation for rustls
-}
+// No custom Send / Sync impl. needed for HmacSha384Inner since the
+// underlying data is a pointer to an owned SymCrypt HmacState that is follows Rust's ownership rules
+unsafe impl Send for HmacSha384Inner {}
+unsafe impl Sync for HmacSha384Inner {}
 
 impl HmacSha384State {
     /// `new()` takes in a `&[u8]` reference to a key and can return a [`SymCryptError`] that is propagated back to the caller.

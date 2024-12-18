@@ -80,9 +80,9 @@ impl AesExpandedKey {
                 key.as_ptr(),
                 key.len() as symcrypt_sys::SIZE_T,
             ) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(AesExpandedKey {
-                    expanded_key,
-                }),
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                    Ok(AesExpandedKey { expanded_key })
+                }
                 err => Err(err.into()),
             }
         }
@@ -93,7 +93,7 @@ impl AesExpandedKey {
     }
 }
 
-// No custom Send / Sync impl. needed for AesInnerKey and AesExpandedKey and BlockCipherType since the 
+// No custom Send / Sync impl. needed for AesInnerKey and AesExpandedKey and BlockCipherType since the
 // underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
 unsafe impl Send for AesInnerKey {}
 unsafe impl Sync for AesInnerKey {}

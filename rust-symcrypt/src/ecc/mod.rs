@@ -408,7 +408,7 @@ impl EcKey {
     }
 }
 
-// No custom Send / Sync impl. needed for EcKey and InnerEcCurve since the 
+// No custom Send / Sync impl. needed for EcKey and InnerEcCurve since the
 // underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
 unsafe impl Send for InnerEcCurve {}
 unsafe impl Sync for InnerEcCurve {}

@@ -221,7 +221,7 @@ impl GcmExpandedKey {
     }
 }
 
-// No custom Send / Sync impl. needed for GcmExpandedKey and GcmExpandedKey since the 
+// No custom Send / Sync impl. needed for GcmExpandedKey since the
 // underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
 unsafe impl Send for GcmExpandedKey {}
 unsafe impl Sync for GcmExpandedKey {}

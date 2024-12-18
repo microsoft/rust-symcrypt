@@ -459,7 +459,7 @@ pub mod test {
 
         assert_eq!(buffer, expected_ciphertext);
     }
-    
+
     #[test]
     fn test_aes_expanded_key_multithreaded_encryption() {
         // AES key and IV

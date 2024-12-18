@@ -82,7 +82,9 @@ impl Drop for InnerRsaKey {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptRsakeyFree(self.0);
+            if !self.0.is_null() {
+                symcrypt_sys::SymCryptRsakeyFree(self.0);
+            }
         }
     }
 }
@@ -451,7 +453,7 @@ impl RsaKey {
     }
 }
 
-// No custom Send / Sync impl. needed for RsaKey and RsaKeyInner since the 
+// No custom Send / Sync impl. needed for RsaKey and RsaKeyInner since the
 // underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
 unsafe impl Send for RsaKey {}
 unsafe impl Sync for RsaKey {}
