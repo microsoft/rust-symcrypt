@@ -346,6 +346,7 @@ impl Drop for HmacMd5State {
     }
 }
 
+// Ignoring Clippy: Mutability is required for internal operations on the expanded key
 #[allow(clippy::unnecessary_mut_passed)]
 #[cfg(feature = "md5")]
 /// Stateless HMAC function for HmacMd5.
@@ -573,6 +574,7 @@ impl Drop for HmacSha1State {
     }
 }
 
+// Ignoring Clippy: Mutability is required for internal operations on the expanded key
 #[cfg(feature = "sha1")]
 #[allow(clippy::unnecessary_mut_passed)]
 /// Stateless HMAC function for HmacSha1.
@@ -794,6 +796,7 @@ impl Drop for HmacSha256State {
     }
 }
 
+// Ignoring Clippy: Mutability is required for internal operations on the expanded key
 #[allow(clippy::unnecessary_mut_passed)]
 /// Stateless HMAC function for HmacSha256.
 ///
@@ -1018,6 +1021,7 @@ impl Drop for HmacSha384State {
     }
 }
 
+// Ignoring Clippy: Mutability is required for internal operations on the expanded key
 #[allow(clippy::unnecessary_mut_passed)]
 /// Stateless HMAC function for HmacSha384.
 ///
@@ -1237,6 +1241,7 @@ impl Drop for HmacSha512State {
     }
 }
 
+// Ignoring Clippy: Mutability is required for internal operations on the expanded key
 #[allow(clippy::unnecessary_mut_passed)]
 /// Stateless HMAC function for HmacSha512.
 ///
