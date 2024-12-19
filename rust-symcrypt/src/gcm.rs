@@ -166,7 +166,8 @@ impl GcmExpandedKey {
     /// `buffer` is a `&mut [u8]` that contains the plain text data to be encrypted. After the encryption has been completed,
     /// `buffer` will be over-written to contain the cipher text data.
     ///
-    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to.
+    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to. Tag size must be 12, 13, 14, 15, 16 per SP800-38D.
+    /// Tag sizes of 4 and 8 are not supported.
     pub fn encrypt_in_place(
         &self,
         nonce: &[u8; 12],
@@ -269,12 +270,13 @@ fn gcm_expand_key(
 ///
 /// `nonce` is a `&[u8; 12]`  that represents a nonce array.
 ///
-/// `auth_data` is an optional `$[u8]` that can be provided, if you do not wish to provide
+/// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide
 /// any auth data, input an empty array.
 ///
 /// `data` is a `&[u8]` that represents the data array to be encrypted
 ///
-/// `tag` is a `&[u8]`that represents the tag buffer, the size of the tag buffer will be checked.
+/// `tag` is a `&[u8]` that represents the tag buffer, the size of the tag buffer will be checked and must be 12, 13, 14, 15, 16 per SP800-38D.
+/// Tag sizes of 4 and 8 are not supported.
 pub fn validate_gcm_parameters(
     cipher: BlockCipherType,
     nonce: &[u8; 12], // GCM nonce length must be 12 bytes
