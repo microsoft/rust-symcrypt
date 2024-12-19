@@ -136,7 +136,9 @@ impl Drop for GcmInnerKey {
 /// This is for scenarios such as encrypting over a stream of data; allocating and copying data from a return will be costly performance wise.
 impl GcmExpandedKey {
     /// `new` takes in a reference to a key and a [`BlockCipherType`] and returns an expanded key that is Pin<Box<>>'d.
+    ///
     /// This function can fail and will propagate the error back to the caller. This call will fail if the wrong key size is provided.
+    ///
     /// The only accepted Cipher for GCM is [`BlockCipherType::AesBlock`]
     pub fn new(key: &[u8], cipher: BlockCipherType) -> Result<Self, SymCryptError> {
         symcrypt_init();
@@ -149,15 +151,23 @@ impl GcmExpandedKey {
             convert_cipher(cipher),
         )?;
         let gcm_expanded_key = GcmExpandedKey {
-            expanded_key: expanded_key,
+            expanded_key,
             key_length: key.len(),
         };
         Ok(gcm_expanded_key)
     }
 
-    /// `encrypt_in_place` takes in a `&mut buffer` that has the plain text data to be encrypted. After the encryption has been completed,
-    /// the `buffer` will be over-written to contain the cipher text data. `encrypt_in_place` will also take in `tag` which is
-    /// a `&mut buffer` where the resulting tag will be written to.
+    /// `encrypt_in_place` performs an in-place encryption on the `&mut buffer` that is passed. This call cannot fail.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `buffer` is a `&mut [u8]` that contains the plain text data to be encrypted. After the encryption has been completed,
+    /// `buffer` will be over-written to contain the cipher text data.
+    ///
+    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to. Tag size must be 12, 13, 14, 15, 16 per SP800-38D.
+    /// Tag sizes of 4 and 8 are not supported.
     pub fn encrypt_in_place(
         &self,
         nonce: &[u8; 12],
@@ -183,10 +193,18 @@ impl GcmExpandedKey {
         }
     }
 
-    /// `decrypt_in_place` takes in a `&mut buffer` that has the cipher text to be decrypted. After the decryption has been completed,
-    /// the `buffer` will be over-written to contain the plain text data. `decrypt_in_place` will also take in a `tag` which will
-    /// verify the cipher text has not been tampered with. `decrypt_in_place` can fail and you must check the result before using the
-    /// value stored in `buffer`.
+    /// `decrypt_in_place` performs an in-place decryption on the `&mut buffer` that is passed. This call can fail and the caller must check the result.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the decryption. It must match the nonce used during encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided. If you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `buffer` is a `&mut [u8]` that contains the cipher text data to be decrypted. After the decryption has been completed,
+    /// `buffer` will be over-written to contain the plain text data.
+    ///
+    /// `tag` is a `&[u8]` that contains the authentication tag generated during encryption. This is used to verify the integrity of the cipher text.
+    ///
+    /// If decryption succeeds, the function will return `Ok(())`, and `buffer` will contain the plain text. If it fails, an error of type `SymCryptError` will be returned.
     pub fn decrypt_in_place(
         &self,
         nonce: &[u8; 12],
@@ -221,13 +239,10 @@ impl GcmExpandedKey {
     }
 }
 
-unsafe impl Send for GcmExpandedKey {
-    // TODO: Configure send/sync traits
-}
-
-unsafe impl Sync for GcmExpandedKey {
-    // TODO: Configure send/sync traits
-}
+// No custom Send / Sync impl. needed for GcmExpandedKey since the
+// underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
+unsafe impl Send for GcmExpandedKey {}
+unsafe impl Sync for GcmExpandedKey {}
 
 // Internal function to expand the SymCrypt Gcm Key.
 fn gcm_expand_key(
@@ -253,14 +268,15 @@ fn gcm_expand_key(
 ///
 /// `cipher` will only accept [`BlockCipherType::AesBlock`]
 ///
-/// `nonce` is a reference to a nonce array that must be 12 bytes.
+/// `nonce` is a `&[u8; 12]`  that represents a nonce array.
 ///
-/// `auth_data` is an optional parameter that can be provided, if you do not wish to provide
+/// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide
 /// any auth data, input an empty array.
 ///
-/// `data` is a reference to a data array to be encrypted
+/// `data` is a `&[u8]` that represents the data array to be encrypted
 ///
-/// `tag` is a reference to your tag buffer, the size of the tag buffer will be checked.
+/// `tag` is a `&[u8]` that represents the tag buffer, the size of the tag buffer will be checked and must be 12, 13, 14, 15, 16 per SP800-38D.
+/// Tag sizes of 4 and 8 are not supported.
 pub fn validate_gcm_parameters(
     cipher: BlockCipherType,
     nonce: &[u8; 12], // GCM nonce length must be 12 bytes

@@ -82,7 +82,9 @@ impl Drop for InnerRsaKey {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls
-            symcrypt_sys::SymCryptRsakeyFree(self.0);
+            if !self.0.is_null() {
+                symcrypt_sys::SymCryptRsakeyFree(self.0);
+            }
         }
     }
 }
@@ -103,7 +105,7 @@ pub enum RsaKeyUsage {
 
 // to_symcrypt_flag converts the RsaKeyUsage to the corresponding SymCrypt flag and only needed internally.
 impl RsaKeyUsage {
-    pub(crate) fn to_symcrypt_flag(&self) -> symcrypt_sys::UINT32 {
+    pub(crate) fn to_symcrypt_flag(self) -> symcrypt_sys::UINT32 {
         match self {
             RsaKeyUsage::Sign => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_SIGN,
             RsaKeyUsage::Encrypt => symcrypt_sys::SYMCRYPT_FLAG_RSAKEY_ENCRYPT,
@@ -185,7 +187,7 @@ impl RsaKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
                     inner: rsa_key,
-                    rsa_key_usage: rsa_key_usage,
+                    rsa_key_usage,
                     has_private_key: true,
                 }),
                 err => Err(err.into()),
@@ -240,7 +242,7 @@ impl RsaKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
                     inner: rsa_key,
-                    rsa_key_usage: rsa_key_usage,
+                    rsa_key_usage,
                     has_private_key: true,
                 }),
                 err => Err(err.into()),
@@ -284,7 +286,7 @@ impl RsaKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
                     inner: rsa_key,
-                    rsa_key_usage: rsa_key_usage,
+                    rsa_key_usage,
                     has_private_key: false,
                 }),
                 err => Err(err.into()),
@@ -451,6 +453,13 @@ impl RsaKey {
     }
 }
 
+// No custom Send / Sync impl. needed for RsaKey and RsaKeyInner since the
+// underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
+unsafe impl Send for RsaKey {}
+unsafe impl Sync for RsaKey {}
+unsafe impl Send for InnerRsaKey {}
+unsafe impl Sync for InnerRsaKey {}
+
 // Utility function to reduce common RSA allocation call
 fn allocate_rsa(
     n_primes: u32,
@@ -465,7 +474,7 @@ fn allocate_rsa(
     unsafe {
         // SAFETY: FFI calls
         let result = symcrypt_sys::SymCryptRsakeyAllocate(&rsa_params, 0);
-        if result == ptr::null_mut() {
+        if result.is_null() {
             return Err(SymCryptError::MemoryAllocationFailure);
         }
         Ok(InnerRsaKey(result))

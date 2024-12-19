@@ -14,7 +14,6 @@
 //! let key = hex::decode("5d98398b5e3b98d87e07ecf1332df4ac").unwrap();
 //! let aes_key = AesExpandedKey::new(&key).unwrap();
 //!
-//! let aes_key_clone = aes_key.clone();
 //! ```
 //!
 use crate::errors::SymCryptError;
@@ -23,7 +22,6 @@ use symcrypt_sys;
 
 use std::marker::PhantomPinned;
 use std::pin::Pin;
-use std::sync::Arc;
 
 // export ciphers
 pub mod cbc;
@@ -66,15 +64,7 @@ impl AesInnerKey {
 /// `AesExpandedKey` is a struct that represents an expanded AES key. This struct holds no state and is used to encrypt and decrypt data.
 pub struct AesExpandedKey {
     // Owned expanded key, this has no state, other calls will take reference to this key.
-    expanded_key: Arc<Pin<Box<AesInnerKey>>>,
-}
-
-impl Clone for AesExpandedKey {
-    fn clone(&self) -> Self {
-        AesExpandedKey {
-            expanded_key: Arc::clone(&self.expanded_key),
-        }
-    }
+    expanded_key: Pin<Box<AesInnerKey>>,
 }
 
 impl AesExpandedKey {
@@ -90,9 +80,9 @@ impl AesExpandedKey {
                 key.as_ptr(),
                 key.len() as symcrypt_sys::SIZE_T,
             ) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(AesExpandedKey {
-                    expanded_key: Arc::new(expanded_key),
-                }),
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                    Ok(AesExpandedKey { expanded_key })
+                }
                 err => Err(err.into()),
             }
         }
@@ -103,13 +93,14 @@ impl AesExpandedKey {
     }
 }
 
-unsafe impl Send for BlockCipherType {
-    // TODO: discuss send/sync implementation for rustls.
-}
-
-unsafe impl Sync for BlockCipherType {
-    // TODO: discuss send/sync implementation for rustls.
-}
+// No custom Send / Sync impl. needed for AesInnerKey and AesExpandedKey and BlockCipherType since the
+// underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
+unsafe impl Send for AesInnerKey {}
+unsafe impl Sync for AesInnerKey {}
+unsafe impl Send for AesExpandedKey {}
+unsafe impl Sync for AesExpandedKey {}
+unsafe impl Send for BlockCipherType {}
+unsafe impl Sync for BlockCipherType {}
 
 pub(crate) fn convert_cipher(cipher: BlockCipherType) -> symcrypt_sys::PCSYMCRYPT_BLOCKCIPHER {
     match cipher {

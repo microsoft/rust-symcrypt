@@ -112,7 +112,7 @@ pub enum HashAlgorithm {
 
 impl HashAlgorithm {
     // Returns the symcrypt_sys::_SYMCRYPT_OID for calling underlying SymCrypt functions, hidden from the user.
-    pub(crate) fn to_oid_list(&self) -> &[symcrypt_sys::_SYMCRYPT_OID] {
+    pub(crate) fn get_oid_list(&self) -> &[symcrypt_sys::_SYMCRYPT_OID] {
         unsafe {
             match self {
                 #[cfg(feature = "md5")]
@@ -130,7 +130,7 @@ impl HashAlgorithm {
     }
 
     /// Returns the symcrypt_sys::PCSYMCRYPT_HASH for calling underlying SymCrypt functions, hidden from the user.
-    pub(crate) fn to_symcrypt_hash(&self) -> symcrypt_sys::PCSYMCRYPT_HASH {
+    pub(crate) fn get_symcrypt_hash(&self) -> symcrypt_sys::PCSYMCRYPT_HASH {
         unsafe {
             match self {
                 #[cfg(feature = "md5")]
@@ -230,6 +230,13 @@ impl Md5State {
     // Safe method to access the inner state immutably
     pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_MD5_STATE {
         &self.0.as_ref().get_ref().inner as *const _
+    }
+}
+
+#[cfg(feature = "md5")]
+impl Default for Md5State {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -361,6 +368,13 @@ impl Sha1State {
 }
 
 #[cfg(feature = "sha1")]
+impl Default for Sha1State {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(feature = "sha1")]
 impl HashState for Sha1State {
     type Result = [u8; SHA1_RESULT_SIZE];
 
@@ -484,6 +498,12 @@ impl Sha256State {
     }
 }
 
+impl Default for Sha256State {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HashState for Sha256State {
     type Result = [u8; SHA256_RESULT_SIZE];
 
@@ -601,6 +621,12 @@ impl Sha384State {
     // Safe method to access the inner state immutably
     pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA384_STATE {
         &self.0.as_ref().get_ref().inner as *const _
+    }
+}
+
+impl Default for Sha384State {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -724,6 +750,12 @@ impl Sha512State {
     }
 }
 
+impl Default for Sha512State {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HashState for Sha512State {
     type Result = [u8; SHA512_RESULT_SIZE];
 
@@ -841,6 +873,12 @@ impl Sha3_256State {
     // Safe method to access the inner state immutably
     pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA3_256_STATE {
         &self.0.as_ref().get_ref().inner as *const _
+    }
+}
+
+impl Default for Sha3_256State {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -964,6 +1002,12 @@ impl Sha3_384State {
     }
 }
 
+impl Default for Sha3_384State {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HashState for Sha3_384State {
     type Result = [u8; SHA3_384_RESULT_SIZE];
 
@@ -1081,6 +1125,12 @@ impl Sha3_512State {
     // Safe method to access the inner state immutably
     pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_SHA3_512_STATE {
         &self.0.as_ref().get_ref().inner as *const _
+    }
+}
+
+impl Default for Sha3_512State {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
