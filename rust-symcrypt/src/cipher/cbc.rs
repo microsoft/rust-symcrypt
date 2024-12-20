@@ -200,6 +200,8 @@ pub mod test {
     use crate::cipher::AES_BLOCK_SIZE;
     use hex;
     use std::convert::TryInto;
+    use std::sync::Arc;
+    use std::thread;
 
     #[test]
     fn test_invalid_block_size() {
@@ -456,5 +458,59 @@ pub mod test {
         }
 
         assert_eq!(buffer, expected_ciphertext);
+    }
+
+    #[test]
+    fn test_aes_expanded_key_multithreaded_encryption() {
+        // AES key and IV
+        let key_hex = "5d98398b5e3b98d87e07ecf1332df4ac";
+        let iv_hex = "db22065fb9302c4445151adc91310797";
+
+        // Plaintext and expected ciphertext
+        let plaintext_hex = "4831f8d1a92cf167a444ccae8d90158dfc55c9a0742019e642116bbaa87aa205";
+        let expected_ciphertext_hex =
+            "f03f86e1a6f1e23e70af3f3ab3b777fd43103f2e7a6fc245a3656799176a2611";
+
+        // Decode hex data into byte arrays
+        let key = hex::decode(key_hex).unwrap();
+        let iv: [u8; 16] = hex::decode(iv_hex).unwrap().try_into().unwrap();
+        let plaintext = hex::decode(plaintext_hex).unwrap();
+        let expected_ciphertext = hex::decode(expected_ciphertext_hex).unwrap();
+
+        // Create an AES expanded key and wrap it in Arc for thread-safe sharing
+        let aes_cbc = Arc::new(AesExpandedKey::new(&key).unwrap());
+
+        // Spawn two threads to perform encryption
+        let mut handles = vec![];
+        for i in 0..2 {
+            let aes_cbc = Arc::clone(&aes_cbc);
+            let iv = iv.clone();
+            let plaintext = plaintext.clone();
+            let expected_ciphertext = expected_ciphertext.clone();
+
+            let handle = thread::spawn(move || {
+                let mut chaining_value = iv;
+                let mut ciphertext = vec![0u8; plaintext.len()];
+
+                // Perform encryption
+                aes_cbc
+                    .aes_cbc_encrypt(&mut chaining_value, &plaintext, &mut ciphertext)
+                    .unwrap();
+
+                // Check that the encryption result matches the expected ciphertext
+                assert_eq!(
+                    ciphertext, expected_ciphertext,
+                    "Thread {}: Encryption did not match expected output.",
+                    i
+                );
+            });
+
+            handles.push(handle);
+        }
+
+        // Wait for both threads to complete
+        for handle in handles {
+            handle.join().expect("Thread panicked");
+        }
     }
 }

@@ -77,7 +77,7 @@ pub fn hkdf(
             hmac_res.len() as symcrypt_sys::SIZE_T,
         ) {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(hmac_res),
-            err => return Err(SymCryptError::from(err)),
+            err => Err(SymCryptError::from(err)),
         }
     }
 }

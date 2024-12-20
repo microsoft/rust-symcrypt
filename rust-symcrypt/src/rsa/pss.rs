@@ -47,7 +47,7 @@ impl RsaKey {
         let mut result_size = 0;
         let modulus_size = self.get_size_of_modulus();
         let mut signature = vec![0u8; modulus_size as usize];
-        let hash_algorithm_ptr = hash_algorithm.to_symcrypt_hash();
+        let hash_algorithm_ptr = hash_algorithm.get_symcrypt_hash();
 
         unsafe {
             // SAFETY: FFI calls
@@ -90,7 +90,7 @@ impl RsaKey {
         hash_algorithm: HashAlgorithm,
         salt_length: usize,
     ) -> Result<(), SymCryptError> {
-        let hash_algorithm_ptr = hash_algorithm.to_symcrypt_hash();
+        let hash_algorithm_ptr = hash_algorithm.get_symcrypt_hash();
 
         unsafe {
             // SAFETY: FFI calls
