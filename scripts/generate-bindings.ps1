@@ -16,11 +16,6 @@ $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $True
 
 # Init variables
-$outDir = "$PSScriptRoot/../symcrypt-sys/src/bindings"
-if (-not (Test-Path $outDir)) {
-    New-Item -ItemType Directory -Path $outDir | Out-Null
-}
-
 $supportedTargets = @(
     "x86_64-pc-windows-msvc",
     "aarch64-pc-windows-msvc",
@@ -121,6 +116,11 @@ $clangParams = @(
 )
 
 # Generate bindings
+$outDir = "$PSScriptRoot/../symcrypt-sys/src/bindings"
+if (-not (Test-Path $outDir)) {
+    New-Item -ItemType Directory -Path $outDir | Out-Null
+}
+
 $targetName = $triple.Replace("-", "_")
 
 bindgen `
