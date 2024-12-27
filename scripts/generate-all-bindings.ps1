@@ -29,8 +29,8 @@ Remove-Item -Recurse -Force "$PSScriptRoot/../symcrypt-sys/src/bindings"
 & "$PSScriptRoot/generate-bindings.ps1" $header "aarch64-pc-windows-msvc"
 
 wsl --shutdown # force WSL to reload the environment
-wsl exec pwsh "scripts/generate-bindings.ps1" $header "x86_64-unknown-linux-gnu" "~/.cargo/bin/bindgen"
-wsl exec pwsh "scripts/generate-bindings.ps1" $header "aarch64-unknown-linux-gnu" "~/.cargo/bin/bindgen"
+wsl exec bash "./scripts/generate-bindings.sh" $header "x86_64-unknown-linux-gnu"
+wsl exec bash "./scripts/generate-bindings.sh" $header "aarch64-unknown-linux-gnu"
 
 Remove-Item $header
 

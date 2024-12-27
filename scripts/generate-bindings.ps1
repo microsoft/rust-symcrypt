@@ -13,8 +13,7 @@
 param(
     [string]$SymCryptHeader = "$PSScriptRoot/../../SymCrypt/inc/symcrypt.h",
     [Parameter(HelpMessage="Current triple can be found by running 'clang -print-target-triple'")]
-    [string]$triple,
-    [string]$bindgenPath = "bindgen"
+    [string]$triple
 )
 
 $ErrorActionPreference = "Stop"
@@ -91,11 +90,9 @@ $importRules = @(
 @("allowlist_function", "SymCryptStoreMsbFirstUint64")
 )
 
-$moduleCode = '
-pub mod consts;
+$moduleCode = 'pub mod consts;
 pub mod fns_source;
-pub mod types;
-'
+pub mod types;'
 
 
 $generateVarsParams = @()
@@ -141,14 +138,14 @@ mkdir $targetFolder
 $moduleCode > $outDir/$targetName.rs
 
 
-& $bindgenPath `
+bindgen `
     $SymCryptHeader `
     @bindgenParams `
     --generate types `
     -o "$targetFolder/types.rs" `
     -- @clangParams
 
-& $bindgenPath `
+bindgen `
     $SymCryptHeader `
     @bindgenParams `
     --raw-line "use super::types::*;" `
@@ -157,7 +154,7 @@ $moduleCode > $outDir/$targetName.rs
     -o "$targetFolder/consts.rs" `
     -- @clangParams
 
-& $bindgenPath `
+bindgen `
     $SymCryptHeader `
     @bindgenParams `
     --raw-line "use super::types::*;" `
