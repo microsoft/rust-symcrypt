@@ -11,17 +11,16 @@
 
 [CmdletBinding()]
 param(
-    [string]$SymCryptRoot = "$PSScriptRoot/../../SymCrypt",
+    [string]$SymCryptHeader = "$PSScriptRoot/../../SymCrypt/inc/symcrypt.h",
     [Parameter(HelpMessage="Current triple can be found by running 'clang -print-target-triple'")]
-    [string]$triple
+    [string]$triple,
+    [string]$bindgenPath = "bindgen"
 )
 
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $True
 
 # Init variables
-
-$header = "$SymCryptRoot/inc/wrapper.h"
 $outDir = "$PSScriptRoot/../symcrypt-sys/src/bindings"
 
 $supportedTargets = @(
@@ -35,16 +34,6 @@ if ($supportedTargets -notcontains $triple) {
     Write-Error "Unsupported target: $triple. Supported targets: $supportedTargets"
     exit 1
 }
-
-$wrapperHeader = '
-#ifdef __linux__
-#include <stddef.h>
-#endif
-
-#include "symcrypt.h"
-'
-$wrapperHeader | Out-File -Encoding utf8 -Force -FilePath $header
-
 
 $importRules = @(
 # INIT FUNCTIONS
@@ -104,8 +93,8 @@ $importRules = @(
 
 $moduleCode = '
 pub mod consts;
-pub mod types;
 pub mod fns_source;
+pub mod types;
 '
 
 
@@ -149,18 +138,18 @@ if (Test-Path $targetFolder) {
 }
 mkdir $targetFolder
 
-$moduleCode | Out-File -Encoding utf8 -Force -FilePath $outDir/$targetName.rs
+$moduleCode > $outDir/$targetName.rs
 
 
-bindgen `
-    $header `
+& $bindgenPath `
+    $SymCryptHeader `
     @bindgenParams `
     --generate types `
     -o "$targetFolder/types.rs" `
     -- @clangParams
 
-bindgen `
-    $header `
+& $bindgenPath `
+    $SymCryptHeader `
     @bindgenParams `
     --raw-line "use super::types::*;" `
     --generate vars `
@@ -168,8 +157,8 @@ bindgen `
     -o "$targetFolder/consts.rs" `
     -- @clangParams
 
-bindgen `
-    $header `
+& $bindgenPath `
+    $SymCryptHeader `
     @bindgenParams `
     --raw-line "use super::types::*;" `
     --generate functions `
@@ -180,7 +169,7 @@ bindgen `
 <#
 Dynamic loading is not yet supported
 bindgen `
-    $header `
+    $SymCryptHeader `
     @bindgenParams `
     --raw-line "use super::types::*;" `
     --dynamic-loading APILoader `
@@ -189,5 +178,3 @@ bindgen `
     -o "$targetFolder/fns_libloading.rs" `
     -- @clangParams
 #>
-
-Remove-Item $header -Force

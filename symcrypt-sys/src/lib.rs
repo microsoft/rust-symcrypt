@@ -19,33 +19,5 @@ extern crate libc;
 pub(crate) mod bindings;
 
 pub use bindings::consts::*;
-pub use bindings::types::*;
 pub use bindings::fns_source::*;
-
-/*
-// Windows:
-#[cfg(all(target_os = "windows", target_arch = "x86_64"))]
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/bindings/windows_amd64_symcrypt_bindings.rs"
-));
-
-#[cfg(all(target_os = "windows", target_arch = "aarch64"))]
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/bindings/windows_arm64_symcrypt_bindings.rs"
-));
-
-// Linux:
-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/bindings/linux_amd64_symcrypt_bindings.rs"
-));
-
-#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
-include!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/bindings/linux_arm64_symcrypt_bindings.rs"
-));
-*/
+pub use bindings::types::*;
