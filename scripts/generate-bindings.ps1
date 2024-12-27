@@ -5,13 +5,15 @@
 #    winget install LLVM.LLVM
 #    cargo install bindgen-cli
 # Ubuntu:
-#    sudo apt install libclang-dev
+#    sudo apt install pwsh clang libclang-dev
+#    sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for crosscompilation
 #    cargo install bindgen-cli
 
 [CmdletBinding()]
 param(
     [string]$SymCryptRoot = "$PSScriptRoot/../../SymCrypt",
-    [string]$tripple
+    [Parameter(HelpMessage="Current triple can be found by running 'clang -print-target-triple'")]
+    [string]$triple
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,8 +31,8 @@ $supportedTargets = @(
     "aarch64-unknown-linux-gnu"
 )
 
-if ($supportedTargets -notcontains $tripple) {
-    Write-Error "Unsupported target: $tripple. Supported targets: $supportedTargets"
+if ($supportedTargets -notcontains $triple) {
+    Write-Error "Unsupported target: $triple. Supported targets: $supportedTargets"
     exit 1
 }
 
@@ -124,17 +126,6 @@ foreach ($rule in $importRules) {
     }
 }
 
-# Generate bindings
-
-$targetName = $tripple.Replace("-", "_")
-$targetFolder = "$outDir/$targetName"
-if (Test-Path $targetFolder) {
-    Remove-Item $targetFolder -Recurse -Force
-}
-mkdir $targetFolder
-
-$moduleCode | Out-File -Encoding utf8 -Force -FilePath $outDir/$targetName.rs
-
 $bindgenParams = @(
     "--generate-block",
     "--no-layout-tests",
@@ -146,8 +137,20 @@ $bindgenParams = @(
 )
 $clangParams = @(
     "-v",
-    "-target", $tripple
+    "-target", $triple
 )
+
+# Generate bindings
+
+$targetName = $triple.Replace("-", "_")
+$targetFolder = "$outDir/$targetName"
+if (Test-Path $targetFolder) {
+    Remove-Item $targetFolder -Recurse -Force
+}
+mkdir $targetFolder
+
+$moduleCode | Out-File -Encoding utf8 -Force -FilePath $outDir/$targetName.rs
+
 
 bindgen `
     $header `

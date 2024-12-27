@@ -16,7 +16,13 @@ extern crate libc;
 // Linux:
 // linux amd64 x86_64-unknown-linux-gnu
 // linux arm64 aarch64-unknown-linux-gnu
+pub(crate) mod bindings;
 
+pub use bindings::consts::*;
+pub use bindings::types::*;
+pub use bindings::fns_source::*;
+
+/*
 // Windows:
 #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
 include!(concat!(
@@ -42,3 +48,4 @@ include!(concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/bindings/linux_arm64_symcrypt_bindings.rs"
 ));
+*/
