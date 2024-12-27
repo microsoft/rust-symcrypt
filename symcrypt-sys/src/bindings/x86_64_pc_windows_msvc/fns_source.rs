@@ -634,18 +634,6 @@ unsafe extern "C" {
     ) -> SYMCRYPT_ERROR;
 }
 unsafe extern "C" {
-    pub fn SymCryptRsakeySetValueFromPrivateExponent(
-        pbModulus: PCBYTE,
-        cbModulus: SIZE_T,
-        u64PubExp: UINT64,
-        pbPrivateExponent: PCBYTE,
-        cbPrivateExponent: SIZE_T,
-        numFormat: SYMCRYPT_NUMBER_FORMAT,
-        flags: UINT32,
-        pkRsakey: PSYMCRYPT_RSAKEY,
-    ) -> SYMCRYPT_ERROR;
-}
-unsafe extern "C" {
     pub fn SymCryptRsakeyGetValue(
         pkRsakey: PCSYMCRYPT_RSAKEY,
         pbModulus: PBYTE,

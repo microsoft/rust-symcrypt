@@ -109,13 +109,13 @@ foreach ($rule in $importRules) {
 }
 
 $bindgenParams = @(
-    "--generate-block",
-    "--no-layout-tests",
-    "--with-derive-eq",
-    "--with-derive-default",
-    "--with-derive-hash",
-    "--with-derive-ord",
-    "--use-array-pointers-in-arguments"
+    #"--generate-block",
+    #"--no-layout-tests",
+    #"--with-derive-eq",
+    "--with-derive-default"
+    #"--with-derive-hash",
+    #"--with-derive-ord",
+    #"--use-array-pointers-in-arguments"
 )
 $clangParams = @(
     "-v",

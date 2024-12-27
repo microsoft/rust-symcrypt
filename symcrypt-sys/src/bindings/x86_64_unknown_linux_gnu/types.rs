@@ -6,12 +6,21 @@ pub struct __BindgenFloat16(pub u16);
 pub type wchar_t = ::std::os::raw::c_int;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, PartialOrd, PartialEq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct max_align_t {
     pub __clang_max_align_nonce1: ::std::os::raw::c_longlong,
     pub __bindgen_padding_0: u64,
     pub __clang_max_align_nonce2: u128,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of max_align_t"][::std::mem::size_of::<max_align_t>() - 32usize];
+    ["Alignment of max_align_t"][::std::mem::align_of::<max_align_t>() - 16usize];
+    ["Offset of field: max_align_t::__clang_max_align_nonce1"]
+        [::std::mem::offset_of!(max_align_t, __clang_max_align_nonce1) - 0usize];
+    ["Offset of field: max_align_t::__clang_max_align_nonce2"]
+        [::std::mem::offset_of!(max_align_t, __clang_max_align_nonce2) - 16usize];
+};
 pub const SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR: SYMCRYPT_ERROR = 0;
 pub const SYMCRYPT_ERROR_SYMCRYPT_UNUSED: SYMCRYPT_ERROR = 32768;
 pub const SYMCRYPT_ERROR_SYMCRYPT_WRONG_KEY_SIZE: SYMCRYPT_ERROR = 32769;
@@ -33,8 +42,6 @@ pub const SYMCRYPT_ERROR_SYMCRYPT_SIGNATURE_VERIFICATION_FAILURE: SYMCRYPT_ERROR
 pub const SYMCRYPT_ERROR_SYMCRYPT_INCOMPATIBLE_FORMAT: SYMCRYPT_ERROR = 32785;
 pub const SYMCRYPT_ERROR_SYMCRYPT_VALUE_TOO_LARGE: SYMCRYPT_ERROR = 32786;
 pub const SYMCRYPT_ERROR_SYMCRYPT_SESSION_REPLAY_FAILURE: SYMCRYPT_ERROR = 32787;
-pub const SYMCRYPT_ERROR_SYMCRYPT_HBS_NO_OTS_KEYS_LEFT: SYMCRYPT_ERROR = 32788;
-pub const SYMCRYPT_ERROR_SYMCRYPT_HBS_PUBLIC_ROOT_MISMATCH: SYMCRYPT_ERROR = 32789;
 pub type SYMCRYPT_ERROR = ::std::os::raw::c_uint;
 pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_NULL: _SYMCRYPT_ECURVE_TYPE = 0;
 pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_SHORT_WEIERSTRASS: _SYMCRYPT_ECURVE_TYPE = 1;
@@ -90,10 +97,16 @@ pub type __off_t = ::std::os::raw::c_long;
 pub type __off64_t = ::std::os::raw::c_long;
 pub type __pid_t = ::std::os::raw::c_int;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __fsid_t {
     pub __val: [::std::os::raw::c_int; 2usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __fsid_t"][::std::mem::size_of::<__fsid_t>() - 8usize];
+    ["Alignment of __fsid_t"][::std::mem::align_of::<__fsid_t>() - 4usize];
+    ["Offset of field: __fsid_t::__val"][::std::mem::offset_of!(__fsid_t, __val) - 0usize];
+};
 pub type __clock_t = ::std::os::raw::c_long;
 pub type __rlim_t = ::std::os::raw::c_ulong;
 pub type __rlim64_t = ::std::os::raw::c_ulong;
@@ -196,23 +209,44 @@ pub type _Float64 = f64;
 pub type _Float32x = f64;
 pub type _Float64x = u128;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct div_t {
     pub quot: ::std::os::raw::c_int,
     pub rem: ::std::os::raw::c_int,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of div_t"][::std::mem::size_of::<div_t>() - 8usize];
+    ["Alignment of div_t"][::std::mem::align_of::<div_t>() - 4usize];
+    ["Offset of field: div_t::quot"][::std::mem::offset_of!(div_t, quot) - 0usize];
+    ["Offset of field: div_t::rem"][::std::mem::offset_of!(div_t, rem) - 4usize];
+};
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct ldiv_t {
     pub quot: ::std::os::raw::c_long,
     pub rem: ::std::os::raw::c_long,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of ldiv_t"][::std::mem::size_of::<ldiv_t>() - 16usize];
+    ["Alignment of ldiv_t"][::std::mem::align_of::<ldiv_t>() - 8usize];
+    ["Offset of field: ldiv_t::quot"][::std::mem::offset_of!(ldiv_t, quot) - 0usize];
+    ["Offset of field: ldiv_t::rem"][::std::mem::offset_of!(ldiv_t, rem) - 8usize];
+};
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct lldiv_t {
     pub quot: ::std::os::raw::c_longlong,
     pub rem: ::std::os::raw::c_longlong,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of lldiv_t"][::std::mem::size_of::<lldiv_t>() - 16usize];
+    ["Alignment of lldiv_t"][::std::mem::align_of::<lldiv_t>() - 8usize];
+    ["Offset of field: lldiv_t::quot"][::std::mem::offset_of!(lldiv_t, quot) - 0usize];
+    ["Offset of field: lldiv_t::rem"][::std::mem::offset_of!(lldiv_t, rem) - 8usize];
+};
 pub type u_char = __u_char;
 pub type u_short = __u_short;
 pub type u_int = __u_int;
@@ -246,30 +280,56 @@ pub type u_int32_t = __uint32_t;
 pub type u_int64_t = __uint64_t;
 pub type register_t = ::std::os::raw::c_long;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __sigset_t {
     pub __val: [::std::os::raw::c_ulong; 16usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __sigset_t"][::std::mem::size_of::<__sigset_t>() - 128usize];
+    ["Alignment of __sigset_t"][::std::mem::align_of::<__sigset_t>() - 8usize];
+    ["Offset of field: __sigset_t::__val"][::std::mem::offset_of!(__sigset_t, __val) - 0usize];
+};
 pub type sigset_t = __sigset_t;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct timeval {
     pub tv_sec: __time_t,
     pub tv_usec: __suseconds_t,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of timeval"][::std::mem::size_of::<timeval>() - 16usize];
+    ["Alignment of timeval"][::std::mem::align_of::<timeval>() - 8usize];
+    ["Offset of field: timeval::tv_sec"][::std::mem::offset_of!(timeval, tv_sec) - 0usize];
+    ["Offset of field: timeval::tv_usec"][::std::mem::offset_of!(timeval, tv_usec) - 8usize];
+};
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct timespec {
     pub tv_sec: __time_t,
     pub tv_nsec: __syscall_slong_t,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of timespec"][::std::mem::size_of::<timespec>() - 16usize];
+    ["Alignment of timespec"][::std::mem::align_of::<timespec>() - 8usize];
+    ["Offset of field: timespec::tv_sec"][::std::mem::offset_of!(timespec, tv_sec) - 0usize];
+    ["Offset of field: timespec::tv_nsec"][::std::mem::offset_of!(timespec, tv_nsec) - 8usize];
+};
 pub type suseconds_t = __suseconds_t;
 pub type __fd_mask = ::std::os::raw::c_long;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct fd_set {
     pub __fds_bits: [__fd_mask; 16usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of fd_set"][::std::mem::size_of::<fd_set>() - 128usize];
+    ["Alignment of fd_set"][::std::mem::align_of::<fd_set>() - 8usize];
+    ["Offset of field: fd_set::__fds_bits"][::std::mem::offset_of!(fd_set, __fds_bits) - 0usize];
+};
 pub type fd_mask = __fd_mask;
 pub type blksize_t = __blksize_t;
 pub type blkcnt_t = __blkcnt_t;
@@ -282,11 +342,32 @@ pub union __atomic_wide_counter {
     pub __value32: __atomic_wide_counter__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __atomic_wide_counter__bindgen_ty_1 {
     pub __low: ::std::os::raw::c_uint,
     pub __high: ::std::os::raw::c_uint,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __atomic_wide_counter__bindgen_ty_1"]
+        [::std::mem::size_of::<__atomic_wide_counter__bindgen_ty_1>() - 8usize];
+    ["Alignment of __atomic_wide_counter__bindgen_ty_1"]
+        [::std::mem::align_of::<__atomic_wide_counter__bindgen_ty_1>() - 4usize];
+    ["Offset of field: __atomic_wide_counter__bindgen_ty_1::__low"]
+        [::std::mem::offset_of!(__atomic_wide_counter__bindgen_ty_1, __low) - 0usize];
+    ["Offset of field: __atomic_wide_counter__bindgen_ty_1::__high"]
+        [::std::mem::offset_of!(__atomic_wide_counter__bindgen_ty_1, __high) - 4usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __atomic_wide_counter"][::std::mem::size_of::<__atomic_wide_counter>() - 8usize];
+    ["Alignment of __atomic_wide_counter"]
+        [::std::mem::align_of::<__atomic_wide_counter>() - 8usize];
+    ["Offset of field: __atomic_wide_counter::__value64"]
+        [::std::mem::offset_of!(__atomic_wide_counter, __value64) - 0usize];
+    ["Offset of field: __atomic_wide_counter::__value32"]
+        [::std::mem::offset_of!(__atomic_wide_counter, __value32) - 0usize];
+};
 impl Default for __atomic_wide_counter {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -297,11 +378,21 @@ impl Default for __atomic_wide_counter {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct __pthread_internal_list {
     pub __prev: *mut __pthread_internal_list,
     pub __next: *mut __pthread_internal_list,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __pthread_internal_list"][::std::mem::size_of::<__pthread_internal_list>() - 16usize];
+    ["Alignment of __pthread_internal_list"]
+        [::std::mem::align_of::<__pthread_internal_list>() - 8usize];
+    ["Offset of field: __pthread_internal_list::__prev"]
+        [::std::mem::offset_of!(__pthread_internal_list, __prev) - 0usize];
+    ["Offset of field: __pthread_internal_list::__next"]
+        [::std::mem::offset_of!(__pthread_internal_list, __next) - 8usize];
+};
 impl Default for __pthread_internal_list {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -313,10 +404,19 @@ impl Default for __pthread_internal_list {
 }
 pub type __pthread_list_t = __pthread_internal_list;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct __pthread_internal_slist {
     pub __next: *mut __pthread_internal_slist,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __pthread_internal_slist"]
+        [::std::mem::size_of::<__pthread_internal_slist>() - 8usize];
+    ["Alignment of __pthread_internal_slist"]
+        [::std::mem::align_of::<__pthread_internal_slist>() - 8usize];
+    ["Offset of field: __pthread_internal_slist::__next"]
+        [::std::mem::offset_of!(__pthread_internal_slist, __next) - 0usize];
+};
 impl Default for __pthread_internal_slist {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -328,7 +428,7 @@ impl Default for __pthread_internal_slist {
 }
 pub type __pthread_slist_t = __pthread_internal_slist;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct __pthread_mutex_s {
     pub __lock: ::std::os::raw::c_int,
     pub __count: ::std::os::raw::c_uint,
@@ -339,6 +439,27 @@ pub struct __pthread_mutex_s {
     pub __elision: ::std::os::raw::c_short,
     pub __list: __pthread_list_t,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __pthread_mutex_s"][::std::mem::size_of::<__pthread_mutex_s>() - 40usize];
+    ["Alignment of __pthread_mutex_s"][::std::mem::align_of::<__pthread_mutex_s>() - 8usize];
+    ["Offset of field: __pthread_mutex_s::__lock"]
+        [::std::mem::offset_of!(__pthread_mutex_s, __lock) - 0usize];
+    ["Offset of field: __pthread_mutex_s::__count"]
+        [::std::mem::offset_of!(__pthread_mutex_s, __count) - 4usize];
+    ["Offset of field: __pthread_mutex_s::__owner"]
+        [::std::mem::offset_of!(__pthread_mutex_s, __owner) - 8usize];
+    ["Offset of field: __pthread_mutex_s::__nusers"]
+        [::std::mem::offset_of!(__pthread_mutex_s, __nusers) - 12usize];
+    ["Offset of field: __pthread_mutex_s::__kind"]
+        [::std::mem::offset_of!(__pthread_mutex_s, __kind) - 16usize];
+    ["Offset of field: __pthread_mutex_s::__spins"]
+        [::std::mem::offset_of!(__pthread_mutex_s, __spins) - 20usize];
+    ["Offset of field: __pthread_mutex_s::__elision"]
+        [::std::mem::offset_of!(__pthread_mutex_s, __elision) - 22usize];
+    ["Offset of field: __pthread_mutex_s::__list"]
+        [::std::mem::offset_of!(__pthread_mutex_s, __list) - 24usize];
+};
 impl Default for __pthread_mutex_s {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -349,7 +470,7 @@ impl Default for __pthread_mutex_s {
     }
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __pthread_rwlock_arch_t {
     pub __readers: ::std::os::raw::c_uint,
     pub __writers: ::std::os::raw::c_uint,
@@ -364,6 +485,36 @@ pub struct __pthread_rwlock_arch_t {
     pub __pad2: ::std::os::raw::c_ulong,
     pub __flags: ::std::os::raw::c_uint,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __pthread_rwlock_arch_t"][::std::mem::size_of::<__pthread_rwlock_arch_t>() - 56usize];
+    ["Alignment of __pthread_rwlock_arch_t"]
+        [::std::mem::align_of::<__pthread_rwlock_arch_t>() - 8usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__readers"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __readers) - 0usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__writers"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __writers) - 4usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__wrphase_futex"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __wrphase_futex) - 8usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__writers_futex"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __writers_futex) - 12usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__pad3"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __pad3) - 16usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__pad4"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __pad4) - 20usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__cur_writer"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __cur_writer) - 24usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__shared"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __shared) - 28usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__rwelision"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __rwelision) - 32usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__pad1"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __pad1) - 33usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__pad2"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __pad2) - 40usize];
+    ["Offset of field: __pthread_rwlock_arch_t::__flags"]
+        [::std::mem::offset_of!(__pthread_rwlock_arch_t, __flags) - 48usize];
+};
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct __pthread_cond_s {
@@ -375,6 +526,25 @@ pub struct __pthread_cond_s {
     pub __wrefs: ::std::os::raw::c_uint,
     pub __g_signals: [::std::os::raw::c_uint; 2usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __pthread_cond_s"][::std::mem::size_of::<__pthread_cond_s>() - 48usize];
+    ["Alignment of __pthread_cond_s"][::std::mem::align_of::<__pthread_cond_s>() - 8usize];
+    ["Offset of field: __pthread_cond_s::__wseq"]
+        [::std::mem::offset_of!(__pthread_cond_s, __wseq) - 0usize];
+    ["Offset of field: __pthread_cond_s::__g1_start"]
+        [::std::mem::offset_of!(__pthread_cond_s, __g1_start) - 8usize];
+    ["Offset of field: __pthread_cond_s::__g_refs"]
+        [::std::mem::offset_of!(__pthread_cond_s, __g_refs) - 16usize];
+    ["Offset of field: __pthread_cond_s::__g_size"]
+        [::std::mem::offset_of!(__pthread_cond_s, __g_size) - 24usize];
+    ["Offset of field: __pthread_cond_s::__g1_orig_size"]
+        [::std::mem::offset_of!(__pthread_cond_s, __g1_orig_size) - 32usize];
+    ["Offset of field: __pthread_cond_s::__wrefs"]
+        [::std::mem::offset_of!(__pthread_cond_s, __wrefs) - 36usize];
+    ["Offset of field: __pthread_cond_s::__g_signals"]
+        [::std::mem::offset_of!(__pthread_cond_s, __g_signals) - 40usize];
+};
 impl Default for __pthread_cond_s {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -387,10 +557,16 @@ impl Default for __pthread_cond_s {
 pub type __tss_t = ::std::os::raw::c_uint;
 pub type __thrd_t = ::std::os::raw::c_ulong;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __once_flag {
     pub __data: ::std::os::raw::c_int,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of __once_flag"][::std::mem::size_of::<__once_flag>() - 4usize];
+    ["Alignment of __once_flag"][::std::mem::align_of::<__once_flag>() - 4usize];
+    ["Offset of field: __once_flag::__data"][::std::mem::offset_of!(__once_flag, __data) - 0usize];
+};
 pub type pthread_t = ::std::os::raw::c_ulong;
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -398,6 +574,15 @@ pub union pthread_mutexattr_t {
     pub __size: [::std::os::raw::c_char; 4usize],
     pub __align: ::std::os::raw::c_int,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_mutexattr_t"][::std::mem::size_of::<pthread_mutexattr_t>() - 4usize];
+    ["Alignment of pthread_mutexattr_t"][::std::mem::align_of::<pthread_mutexattr_t>() - 4usize];
+    ["Offset of field: pthread_mutexattr_t::__size"]
+        [::std::mem::offset_of!(pthread_mutexattr_t, __size) - 0usize];
+    ["Offset of field: pthread_mutexattr_t::__align"]
+        [::std::mem::offset_of!(pthread_mutexattr_t, __align) - 0usize];
+};
 impl Default for pthread_mutexattr_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -413,6 +598,15 @@ pub union pthread_condattr_t {
     pub __size: [::std::os::raw::c_char; 4usize],
     pub __align: ::std::os::raw::c_int,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_condattr_t"][::std::mem::size_of::<pthread_condattr_t>() - 4usize];
+    ["Alignment of pthread_condattr_t"][::std::mem::align_of::<pthread_condattr_t>() - 4usize];
+    ["Offset of field: pthread_condattr_t::__size"]
+        [::std::mem::offset_of!(pthread_condattr_t, __size) - 0usize];
+    ["Offset of field: pthread_condattr_t::__align"]
+        [::std::mem::offset_of!(pthread_condattr_t, __align) - 0usize];
+};
 impl Default for pthread_condattr_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -430,6 +624,15 @@ pub union pthread_attr_t {
     pub __size: [::std::os::raw::c_char; 56usize],
     pub __align: ::std::os::raw::c_long,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_attr_t"][::std::mem::size_of::<pthread_attr_t>() - 56usize];
+    ["Alignment of pthread_attr_t"][::std::mem::align_of::<pthread_attr_t>() - 8usize];
+    ["Offset of field: pthread_attr_t::__size"]
+        [::std::mem::offset_of!(pthread_attr_t, __size) - 0usize];
+    ["Offset of field: pthread_attr_t::__align"]
+        [::std::mem::offset_of!(pthread_attr_t, __align) - 0usize];
+};
 impl Default for pthread_attr_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -446,6 +649,17 @@ pub union pthread_mutex_t {
     pub __size: [::std::os::raw::c_char; 40usize],
     pub __align: ::std::os::raw::c_long,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_mutex_t"][::std::mem::size_of::<pthread_mutex_t>() - 40usize];
+    ["Alignment of pthread_mutex_t"][::std::mem::align_of::<pthread_mutex_t>() - 8usize];
+    ["Offset of field: pthread_mutex_t::__data"]
+        [::std::mem::offset_of!(pthread_mutex_t, __data) - 0usize];
+    ["Offset of field: pthread_mutex_t::__size"]
+        [::std::mem::offset_of!(pthread_mutex_t, __size) - 0usize];
+    ["Offset of field: pthread_mutex_t::__align"]
+        [::std::mem::offset_of!(pthread_mutex_t, __align) - 0usize];
+};
 impl Default for pthread_mutex_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -462,6 +676,17 @@ pub union pthread_cond_t {
     pub __size: [::std::os::raw::c_char; 48usize],
     pub __align: ::std::os::raw::c_longlong,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_cond_t"][::std::mem::size_of::<pthread_cond_t>() - 48usize];
+    ["Alignment of pthread_cond_t"][::std::mem::align_of::<pthread_cond_t>() - 8usize];
+    ["Offset of field: pthread_cond_t::__data"]
+        [::std::mem::offset_of!(pthread_cond_t, __data) - 0usize];
+    ["Offset of field: pthread_cond_t::__size"]
+        [::std::mem::offset_of!(pthread_cond_t, __size) - 0usize];
+    ["Offset of field: pthread_cond_t::__align"]
+        [::std::mem::offset_of!(pthread_cond_t, __align) - 0usize];
+};
 impl Default for pthread_cond_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -478,6 +703,17 @@ pub union pthread_rwlock_t {
     pub __size: [::std::os::raw::c_char; 56usize],
     pub __align: ::std::os::raw::c_long,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_rwlock_t"][::std::mem::size_of::<pthread_rwlock_t>() - 56usize];
+    ["Alignment of pthread_rwlock_t"][::std::mem::align_of::<pthread_rwlock_t>() - 8usize];
+    ["Offset of field: pthread_rwlock_t::__data"]
+        [::std::mem::offset_of!(pthread_rwlock_t, __data) - 0usize];
+    ["Offset of field: pthread_rwlock_t::__size"]
+        [::std::mem::offset_of!(pthread_rwlock_t, __size) - 0usize];
+    ["Offset of field: pthread_rwlock_t::__align"]
+        [::std::mem::offset_of!(pthread_rwlock_t, __align) - 0usize];
+};
 impl Default for pthread_rwlock_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -493,6 +729,15 @@ pub union pthread_rwlockattr_t {
     pub __size: [::std::os::raw::c_char; 8usize],
     pub __align: ::std::os::raw::c_long,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_rwlockattr_t"][::std::mem::size_of::<pthread_rwlockattr_t>() - 8usize];
+    ["Alignment of pthread_rwlockattr_t"][::std::mem::align_of::<pthread_rwlockattr_t>() - 8usize];
+    ["Offset of field: pthread_rwlockattr_t::__size"]
+        [::std::mem::offset_of!(pthread_rwlockattr_t, __size) - 0usize];
+    ["Offset of field: pthread_rwlockattr_t::__align"]
+        [::std::mem::offset_of!(pthread_rwlockattr_t, __align) - 0usize];
+};
 impl Default for pthread_rwlockattr_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -509,6 +754,15 @@ pub union pthread_barrier_t {
     pub __size: [::std::os::raw::c_char; 32usize],
     pub __align: ::std::os::raw::c_long,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_barrier_t"][::std::mem::size_of::<pthread_barrier_t>() - 32usize];
+    ["Alignment of pthread_barrier_t"][::std::mem::align_of::<pthread_barrier_t>() - 8usize];
+    ["Offset of field: pthread_barrier_t::__size"]
+        [::std::mem::offset_of!(pthread_barrier_t, __size) - 0usize];
+    ["Offset of field: pthread_barrier_t::__align"]
+        [::std::mem::offset_of!(pthread_barrier_t, __align) - 0usize];
+};
 impl Default for pthread_barrier_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -524,6 +778,16 @@ pub union pthread_barrierattr_t {
     pub __size: [::std::os::raw::c_char; 4usize],
     pub __align: ::std::os::raw::c_int,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of pthread_barrierattr_t"][::std::mem::size_of::<pthread_barrierattr_t>() - 4usize];
+    ["Alignment of pthread_barrierattr_t"]
+        [::std::mem::align_of::<pthread_barrierattr_t>() - 4usize];
+    ["Offset of field: pthread_barrierattr_t::__size"]
+        [::std::mem::offset_of!(pthread_barrierattr_t, __size) - 0usize];
+    ["Offset of field: pthread_barrierattr_t::__align"]
+        [::std::mem::offset_of!(pthread_barrierattr_t, __align) - 0usize];
+};
 impl Default for pthread_barrierattr_t {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -534,7 +798,7 @@ impl Default for pthread_barrierattr_t {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct random_data {
     pub fptr: *mut i32,
     pub rptr: *mut i32,
@@ -544,6 +808,22 @@ pub struct random_data {
     pub rand_sep: ::std::os::raw::c_int,
     pub end_ptr: *mut i32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of random_data"][::std::mem::size_of::<random_data>() - 48usize];
+    ["Alignment of random_data"][::std::mem::align_of::<random_data>() - 8usize];
+    ["Offset of field: random_data::fptr"][::std::mem::offset_of!(random_data, fptr) - 0usize];
+    ["Offset of field: random_data::rptr"][::std::mem::offset_of!(random_data, rptr) - 8usize];
+    ["Offset of field: random_data::state"][::std::mem::offset_of!(random_data, state) - 16usize];
+    ["Offset of field: random_data::rand_type"]
+        [::std::mem::offset_of!(random_data, rand_type) - 24usize];
+    ["Offset of field: random_data::rand_deg"]
+        [::std::mem::offset_of!(random_data, rand_deg) - 28usize];
+    ["Offset of field: random_data::rand_sep"]
+        [::std::mem::offset_of!(random_data, rand_sep) - 32usize];
+    ["Offset of field: random_data::end_ptr"]
+        [::std::mem::offset_of!(random_data, end_ptr) - 40usize];
+};
 impl Default for random_data {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -554,7 +834,7 @@ impl Default for random_data {
     }
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct drand48_data {
     pub __x: [::std::os::raw::c_ushort; 3usize],
     pub __old_x: [::std::os::raw::c_ushort; 3usize],
@@ -562,6 +842,18 @@ pub struct drand48_data {
     pub __init: ::std::os::raw::c_ushort,
     pub __a: ::std::os::raw::c_ulonglong,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of drand48_data"][::std::mem::size_of::<drand48_data>() - 24usize];
+    ["Alignment of drand48_data"][::std::mem::align_of::<drand48_data>() - 8usize];
+    ["Offset of field: drand48_data::__x"][::std::mem::offset_of!(drand48_data, __x) - 0usize];
+    ["Offset of field: drand48_data::__old_x"]
+        [::std::mem::offset_of!(drand48_data, __old_x) - 6usize];
+    ["Offset of field: drand48_data::__c"][::std::mem::offset_of!(drand48_data, __c) - 12usize];
+    ["Offset of field: drand48_data::__init"]
+        [::std::mem::offset_of!(drand48_data, __init) - 14usize];
+    ["Offset of field: drand48_data::__a"][::std::mem::offset_of!(drand48_data, __a) - 16usize];
+};
 pub type __compar_fn_t = ::std::option::Option<
     unsafe extern "C" fn(
         arg1: *const ::std::os::raw::c_void,
@@ -591,7 +883,7 @@ pub type PSYMCRYPT_BLOCKCIPHER = *mut _SYMCRYPT_BLOCKCIPHER;
 pub type PCSYMCRYPT_BLOCKCIPHER = *const SYMCRYPT_BLOCKCIPHER;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_COMMON_HASH_STATE {
     pub bytesInBuffer: UINT32,
     pub magic: SIZE_T,
@@ -599,15 +891,43 @@ pub struct _SYMCRYPT_COMMON_HASH_STATE {
     pub dataLengthH: UINT64,
     pub buffer: [BYTE; 1usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_COMMON_HASH_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_COMMON_HASH_STATE>() - 48usize];
+    ["Alignment of _SYMCRYPT_COMMON_HASH_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_COMMON_HASH_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_COMMON_HASH_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_COMMON_HASH_STATE, bytesInBuffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_COMMON_HASH_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_COMMON_HASH_STATE, magic) - 8usize];
+    ["Offset of field: _SYMCRYPT_COMMON_HASH_STATE::dataLengthL"]
+        [::std::mem::offset_of!(_SYMCRYPT_COMMON_HASH_STATE, dataLengthL) - 16usize];
+    ["Offset of field: _SYMCRYPT_COMMON_HASH_STATE::dataLengthH"]
+        [::std::mem::offset_of!(_SYMCRYPT_COMMON_HASH_STATE, dataLengthH) - 24usize];
+    ["Offset of field: _SYMCRYPT_COMMON_HASH_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_COMMON_HASH_STATE, buffer) - 32usize];
+};
 pub type SYMCRYPT_COMMON_HASH_STATE = _SYMCRYPT_COMMON_HASH_STATE;
 pub type PSYMCRYPT_COMMON_HASH_STATE = *mut _SYMCRYPT_COMMON_HASH_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MD2_CHAINING_STATE {
     pub C: [BYTE; 16usize],
     pub X: [BYTE; 48usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MD2_CHAINING_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_MD2_CHAINING_STATE>() - 64usize];
+    ["Alignment of _SYMCRYPT_MD2_CHAINING_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_MD2_CHAINING_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MD2_CHAINING_STATE::C"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD2_CHAINING_STATE, C) - 0usize];
+    ["Offset of field: _SYMCRYPT_MD2_CHAINING_STATE::X"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD2_CHAINING_STATE, X) - 16usize];
+};
 impl Default for _SYMCRYPT_MD2_CHAINING_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -621,7 +941,7 @@ pub type SYMCRYPT_MD2_CHAINING_STATE = _SYMCRYPT_MD2_CHAINING_STATE;
 pub type PSYMCRYPT_MD2_CHAINING_STATE = *mut _SYMCRYPT_MD2_CHAINING_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MD2_STATE {
     pub bytesInBuffer: UINT32,
     pub magic: SIZE_T,
@@ -630,6 +950,23 @@ pub struct _SYMCRYPT_MD2_STATE {
     pub buffer: [BYTE; 16usize],
     pub chain: SYMCRYPT_MD2_CHAINING_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MD2_STATE"][::std::mem::size_of::<_SYMCRYPT_MD2_STATE>() - 112usize];
+    ["Alignment of _SYMCRYPT_MD2_STATE"][::std::mem::align_of::<_SYMCRYPT_MD2_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MD2_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD2_STATE, bytesInBuffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_MD2_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD2_STATE, magic) - 8usize];
+    ["Offset of field: _SYMCRYPT_MD2_STATE::dataLengthL"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD2_STATE, dataLengthL) - 16usize];
+    ["Offset of field: _SYMCRYPT_MD2_STATE::dataLengthH"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD2_STATE, dataLengthH) - 24usize];
+    ["Offset of field: _SYMCRYPT_MD2_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD2_STATE, buffer) - 32usize];
+    ["Offset of field: _SYMCRYPT_MD2_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD2_STATE, chain) - 48usize];
+};
 impl Default for _SYMCRYPT_MD2_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -644,15 +981,24 @@ pub type PSYMCRYPT_MD2_STATE = *mut _SYMCRYPT_MD2_STATE;
 pub type PCSYMCRYPT_MD2_STATE = *const SYMCRYPT_MD2_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_MD4_CHAINING_STATE {
     pub H: [UINT32; 4usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MD4_CHAINING_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_MD4_CHAINING_STATE>() - 16usize];
+    ["Alignment of _SYMCRYPT_MD4_CHAINING_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_MD4_CHAINING_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MD4_CHAINING_STATE::H"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD4_CHAINING_STATE, H) - 0usize];
+};
 pub type SYMCRYPT_MD4_CHAINING_STATE = _SYMCRYPT_MD4_CHAINING_STATE;
 pub type PSYMCRYPT_MD4_CHAINING_STATE = *mut _SYMCRYPT_MD4_CHAINING_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MD4_STATE {
     pub bytesInBuffer: UINT32,
     pub magic: SIZE_T,
@@ -661,6 +1007,23 @@ pub struct _SYMCRYPT_MD4_STATE {
     pub buffer: [BYTE; 64usize],
     pub chain: SYMCRYPT_MD4_CHAINING_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MD4_STATE"][::std::mem::size_of::<_SYMCRYPT_MD4_STATE>() - 112usize];
+    ["Alignment of _SYMCRYPT_MD4_STATE"][::std::mem::align_of::<_SYMCRYPT_MD4_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MD4_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD4_STATE, bytesInBuffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_MD4_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD4_STATE, magic) - 8usize];
+    ["Offset of field: _SYMCRYPT_MD4_STATE::dataLengthL"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD4_STATE, dataLengthL) - 16usize];
+    ["Offset of field: _SYMCRYPT_MD4_STATE::dataLengthH"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD4_STATE, dataLengthH) - 24usize];
+    ["Offset of field: _SYMCRYPT_MD4_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD4_STATE, buffer) - 32usize];
+    ["Offset of field: _SYMCRYPT_MD4_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD4_STATE, chain) - 96usize];
+};
 impl Default for _SYMCRYPT_MD4_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -675,15 +1038,24 @@ pub type PSYMCRYPT_MD4_STATE = *mut _SYMCRYPT_MD4_STATE;
 pub type PCSYMCRYPT_MD4_STATE = *const SYMCRYPT_MD4_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_MD5_CHAINING_STATE {
     pub H: [UINT32; 4usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MD5_CHAINING_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_MD5_CHAINING_STATE>() - 16usize];
+    ["Alignment of _SYMCRYPT_MD5_CHAINING_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_MD5_CHAINING_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MD5_CHAINING_STATE::H"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD5_CHAINING_STATE, H) - 0usize];
+};
 pub type SYMCRYPT_MD5_CHAINING_STATE = _SYMCRYPT_MD5_CHAINING_STATE;
 pub type PSYMCRYPT_MD5_CHAINING_STATE = *mut _SYMCRYPT_MD5_CHAINING_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MD5_STATE {
     pub bytesInBuffer: UINT32,
     pub magic: SIZE_T,
@@ -692,6 +1064,23 @@ pub struct _SYMCRYPT_MD5_STATE {
     pub buffer: [BYTE; 64usize],
     pub chain: SYMCRYPT_MD5_CHAINING_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MD5_STATE"][::std::mem::size_of::<_SYMCRYPT_MD5_STATE>() - 112usize];
+    ["Alignment of _SYMCRYPT_MD5_STATE"][::std::mem::align_of::<_SYMCRYPT_MD5_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MD5_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD5_STATE, bytesInBuffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_MD5_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD5_STATE, magic) - 8usize];
+    ["Offset of field: _SYMCRYPT_MD5_STATE::dataLengthL"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD5_STATE, dataLengthL) - 16usize];
+    ["Offset of field: _SYMCRYPT_MD5_STATE::dataLengthH"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD5_STATE, dataLengthH) - 24usize];
+    ["Offset of field: _SYMCRYPT_MD5_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD5_STATE, buffer) - 32usize];
+    ["Offset of field: _SYMCRYPT_MD5_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_MD5_STATE, chain) - 96usize];
+};
 impl Default for _SYMCRYPT_MD5_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -706,15 +1095,24 @@ pub type PSYMCRYPT_MD5_STATE = *mut _SYMCRYPT_MD5_STATE;
 pub type PCSYMCRYPT_MD5_STATE = *const SYMCRYPT_MD5_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHA1_CHAINING_STATE {
     pub H: [UINT32; 5usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA1_CHAINING_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SHA1_CHAINING_STATE>() - 32usize];
+    ["Alignment of _SYMCRYPT_SHA1_CHAINING_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA1_CHAINING_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA1_CHAINING_STATE::H"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA1_CHAINING_STATE, H) - 0usize];
+};
 pub type SYMCRYPT_SHA1_CHAINING_STATE = _SYMCRYPT_SHA1_CHAINING_STATE;
 pub type PSYMCRYPT_SHA1_CHAINING_STATE = *mut _SYMCRYPT_SHA1_CHAINING_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_SHA1_STATE {
     pub bytesInBuffer: UINT32,
     pub magic: SIZE_T,
@@ -723,6 +1121,23 @@ pub struct _SYMCRYPT_SHA1_STATE {
     pub buffer: [BYTE; 64usize],
     pub chain: SYMCRYPT_SHA1_CHAINING_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA1_STATE"][::std::mem::size_of::<_SYMCRYPT_SHA1_STATE>() - 128usize];
+    ["Alignment of _SYMCRYPT_SHA1_STATE"][::std::mem::align_of::<_SYMCRYPT_SHA1_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA1_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA1_STATE, bytesInBuffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHA1_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA1_STATE, magic) - 8usize];
+    ["Offset of field: _SYMCRYPT_SHA1_STATE::dataLengthL"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA1_STATE, dataLengthL) - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA1_STATE::dataLengthH"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA1_STATE, dataLengthH) - 24usize];
+    ["Offset of field: _SYMCRYPT_SHA1_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA1_STATE, buffer) - 32usize];
+    ["Offset of field: _SYMCRYPT_SHA1_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA1_STATE, chain) - 96usize];
+};
 impl Default for _SYMCRYPT_SHA1_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -737,15 +1152,24 @@ pub type PSYMCRYPT_SHA1_STATE = *mut _SYMCRYPT_SHA1_STATE;
 pub type PCSYMCRYPT_SHA1_STATE = *const SYMCRYPT_SHA1_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHA256_CHAINING_STATE {
     pub H: [UINT32; 8usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA256_CHAINING_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SHA256_CHAINING_STATE>() - 32usize];
+    ["Alignment of _SYMCRYPT_SHA256_CHAINING_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA256_CHAINING_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA256_CHAINING_STATE::H"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA256_CHAINING_STATE, H) - 0usize];
+};
 pub type SYMCRYPT_SHA256_CHAINING_STATE = _SYMCRYPT_SHA256_CHAINING_STATE;
 pub type PSYMCRYPT_SHA256_CHAINING_STATE = *mut _SYMCRYPT_SHA256_CHAINING_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_SHA256_STATE {
     pub bytesInBuffer: UINT32,
     pub magic: SIZE_T,
@@ -754,6 +1178,24 @@ pub struct _SYMCRYPT_SHA256_STATE {
     pub buffer: [BYTE; 64usize],
     pub chain: SYMCRYPT_SHA256_CHAINING_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA256_STATE"][::std::mem::size_of::<_SYMCRYPT_SHA256_STATE>() - 128usize];
+    ["Alignment of _SYMCRYPT_SHA256_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA256_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA256_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA256_STATE, bytesInBuffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHA256_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA256_STATE, magic) - 8usize];
+    ["Offset of field: _SYMCRYPT_SHA256_STATE::dataLengthL"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA256_STATE, dataLengthL) - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA256_STATE::dataLengthH"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA256_STATE, dataLengthH) - 24usize];
+    ["Offset of field: _SYMCRYPT_SHA256_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA256_STATE, buffer) - 32usize];
+    ["Offset of field: _SYMCRYPT_SHA256_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA256_STATE, chain) - 96usize];
+};
 impl Default for _SYMCRYPT_SHA256_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -768,38 +1210,24 @@ pub type PSYMCRYPT_SHA256_STATE = *mut _SYMCRYPT_SHA256_STATE;
 pub type PCSYMCRYPT_SHA256_STATE = *const SYMCRYPT_SHA256_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_SHA224_STATE {
-    pub bytesInBuffer: UINT32,
-    pub magic: SIZE_T,
-    pub dataLengthL: UINT64,
-    pub dataLengthH: UINT64,
-    pub buffer: [BYTE; 64usize],
-    pub chain: SYMCRYPT_SHA256_CHAINING_STATE,
-}
-impl Default for _SYMCRYPT_SHA224_STATE {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_SHA224_STATE = _SYMCRYPT_SHA224_STATE;
-pub type PSYMCRYPT_SHA224_STATE = *mut _SYMCRYPT_SHA224_STATE;
-pub type PCSYMCRYPT_SHA224_STATE = *const SYMCRYPT_SHA224_STATE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHA512_CHAINING_STATE {
     pub H: [UINT64; 8usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA512_CHAINING_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SHA512_CHAINING_STATE>() - 64usize];
+    ["Alignment of _SYMCRYPT_SHA512_CHAINING_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA512_CHAINING_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA512_CHAINING_STATE::H"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA512_CHAINING_STATE, H) - 0usize];
+};
 pub type SYMCRYPT_SHA512_CHAINING_STATE = _SYMCRYPT_SHA512_CHAINING_STATE;
 pub type PSYMCRYPT_SHA512_CHAINING_STATE = *mut _SYMCRYPT_SHA512_CHAINING_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_SHA512_STATE {
     pub bytesInBuffer: UINT32,
     pub magic: SIZE_T,
@@ -808,6 +1236,24 @@ pub struct _SYMCRYPT_SHA512_STATE {
     pub buffer: [BYTE; 128usize],
     pub chain: SYMCRYPT_SHA512_CHAINING_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA512_STATE"][::std::mem::size_of::<_SYMCRYPT_SHA512_STATE>() - 224usize];
+    ["Alignment of _SYMCRYPT_SHA512_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA512_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA512_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA512_STATE, bytesInBuffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHA512_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA512_STATE, magic) - 8usize];
+    ["Offset of field: _SYMCRYPT_SHA512_STATE::dataLengthL"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA512_STATE, dataLengthL) - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA512_STATE::dataLengthH"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA512_STATE, dataLengthH) - 24usize];
+    ["Offset of field: _SYMCRYPT_SHA512_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA512_STATE, buffer) - 32usize];
+    ["Offset of field: _SYMCRYPT_SHA512_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA512_STATE, chain) - 160usize];
+};
 impl Default for _SYMCRYPT_SHA512_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -822,7 +1268,7 @@ pub type PSYMCRYPT_SHA512_STATE = *mut _SYMCRYPT_SHA512_STATE;
 pub type PCSYMCRYPT_SHA512_STATE = *const SYMCRYPT_SHA512_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_SHA384_STATE {
     pub bytesInBuffer: UINT32,
     pub magic: SIZE_T,
@@ -831,6 +1277,24 @@ pub struct _SYMCRYPT_SHA384_STATE {
     pub buffer: [BYTE; 128usize],
     pub chain: SYMCRYPT_SHA512_CHAINING_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA384_STATE"][::std::mem::size_of::<_SYMCRYPT_SHA384_STATE>() - 224usize];
+    ["Alignment of _SYMCRYPT_SHA384_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA384_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA384_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA384_STATE, bytesInBuffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHA384_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA384_STATE, magic) - 8usize];
+    ["Offset of field: _SYMCRYPT_SHA384_STATE::dataLengthL"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA384_STATE, dataLengthL) - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA384_STATE::dataLengthH"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA384_STATE, dataLengthH) - 24usize];
+    ["Offset of field: _SYMCRYPT_SHA384_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA384_STATE, buffer) - 32usize];
+    ["Offset of field: _SYMCRYPT_SHA384_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA384_STATE, chain) - 160usize];
+};
 impl Default for _SYMCRYPT_SHA384_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -845,53 +1309,7 @@ pub type PSYMCRYPT_SHA384_STATE = *mut _SYMCRYPT_SHA384_STATE;
 pub type PCSYMCRYPT_SHA384_STATE = *const SYMCRYPT_SHA384_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_SHA512_224_STATE {
-    pub bytesInBuffer: UINT32,
-    pub magic: SIZE_T,
-    pub dataLengthL: UINT64,
-    pub dataLengthH: UINT64,
-    pub buffer: [BYTE; 128usize],
-    pub chain: SYMCRYPT_SHA512_CHAINING_STATE,
-}
-impl Default for _SYMCRYPT_SHA512_224_STATE {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_SHA512_224_STATE = _SYMCRYPT_SHA512_224_STATE;
-pub type PSYMCRYPT_SHA512_224_STATE = *mut _SYMCRYPT_SHA512_224_STATE;
-pub type PCSYMCRYPT_SHA512_224_STATE = *const SYMCRYPT_SHA512_224_STATE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_SHA512_256_STATE {
-    pub bytesInBuffer: UINT32,
-    pub magic: SIZE_T,
-    pub dataLengthL: UINT64,
-    pub dataLengthH: UINT64,
-    pub buffer: [BYTE; 128usize],
-    pub chain: SYMCRYPT_SHA512_CHAINING_STATE,
-}
-impl Default for _SYMCRYPT_SHA512_256_STATE {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_SHA512_256_STATE = _SYMCRYPT_SHA512_256_STATE;
-pub type PSYMCRYPT_SHA512_256_STATE = *mut _SYMCRYPT_SHA512_256_STATE;
-pub type PCSYMCRYPT_SHA512_256_STATE = *const SYMCRYPT_SHA512_256_STATE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_KECCAK_STATE {
     pub state: [UINT64; 25usize],
     pub inputBlockSize: UINT32,
@@ -899,126 +1317,253 @@ pub struct _SYMCRYPT_KECCAK_STATE {
     pub paddingValue: UINT8,
     pub squeezeMode: BOOLEAN,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_KECCAK_STATE"][::std::mem::size_of::<_SYMCRYPT_KECCAK_STATE>() - 224usize];
+    ["Alignment of _SYMCRYPT_KECCAK_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_KECCAK_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_KECCAK_STATE::state"]
+        [::std::mem::offset_of!(_SYMCRYPT_KECCAK_STATE, state) - 0usize];
+    ["Offset of field: _SYMCRYPT_KECCAK_STATE::inputBlockSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_KECCAK_STATE, inputBlockSize) - 200usize];
+    ["Offset of field: _SYMCRYPT_KECCAK_STATE::stateIndex"]
+        [::std::mem::offset_of!(_SYMCRYPT_KECCAK_STATE, stateIndex) - 204usize];
+    ["Offset of field: _SYMCRYPT_KECCAK_STATE::paddingValue"]
+        [::std::mem::offset_of!(_SYMCRYPT_KECCAK_STATE, paddingValue) - 208usize];
+    ["Offset of field: _SYMCRYPT_KECCAK_STATE::squeezeMode"]
+        [::std::mem::offset_of!(_SYMCRYPT_KECCAK_STATE, squeezeMode) - 209usize];
+};
 pub type SYMCRYPT_KECCAK_STATE = _SYMCRYPT_KECCAK_STATE;
 pub type PSYMCRYPT_KECCAK_STATE = *mut _SYMCRYPT_KECCAK_STATE;
 pub type PCSYMCRYPT_KECCAK_STATE = *const SYMCRYPT_KECCAK_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_SHA3_224_STATE {
-    pub ks: SYMCRYPT_KECCAK_STATE,
-    pub magic: SIZE_T,
-}
-pub type SYMCRYPT_SHA3_224_STATE = _SYMCRYPT_SHA3_224_STATE;
-pub type PSYMCRYPT_SHA3_224_STATE = *mut _SYMCRYPT_SHA3_224_STATE;
-pub type PCSYMCRYPT_SHA3_224_STATE = *const SYMCRYPT_SHA3_224_STATE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHA3_256_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA3_256_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SHA3_256_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_SHA3_256_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA3_256_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA3_256_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA3_256_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHA3_256_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA3_256_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_SHA3_256_STATE = _SYMCRYPT_SHA3_256_STATE;
 pub type PSYMCRYPT_SHA3_256_STATE = *mut _SYMCRYPT_SHA3_256_STATE;
 pub type PCSYMCRYPT_SHA3_256_STATE = *const SYMCRYPT_SHA3_256_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHA3_384_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA3_384_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SHA3_384_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_SHA3_384_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA3_384_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA3_384_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA3_384_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHA3_384_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA3_384_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_SHA3_384_STATE = _SYMCRYPT_SHA3_384_STATE;
 pub type PSYMCRYPT_SHA3_384_STATE = *mut _SYMCRYPT_SHA3_384_STATE;
 pub type PCSYMCRYPT_SHA3_384_STATE = *const SYMCRYPT_SHA3_384_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHA3_512_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHA3_512_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SHA3_512_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_SHA3_512_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHA3_512_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHA3_512_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA3_512_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHA3_512_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHA3_512_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_SHA3_512_STATE = _SYMCRYPT_SHA3_512_STATE;
 pub type PSYMCRYPT_SHA3_512_STATE = *mut _SYMCRYPT_SHA3_512_STATE;
 pub type PCSYMCRYPT_SHA3_512_STATE = *const SYMCRYPT_SHA3_512_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHAKE128_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHAKE128_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SHAKE128_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_SHAKE128_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHAKE128_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHAKE128_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHAKE128_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHAKE128_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHAKE128_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_SHAKE128_STATE = _SYMCRYPT_SHAKE128_STATE;
 pub type PSYMCRYPT_SHAKE128_STATE = *mut _SYMCRYPT_SHAKE128_STATE;
 pub type PCSYMCRYPT_SHAKE128_STATE = *const SYMCRYPT_SHAKE128_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SHAKE256_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SHAKE256_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SHAKE256_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_SHAKE256_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SHAKE256_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SHAKE256_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHAKE256_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_SHAKE256_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_SHAKE256_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_SHAKE256_STATE = _SYMCRYPT_SHAKE256_STATE;
 pub type PSYMCRYPT_SHAKE256_STATE = *mut _SYMCRYPT_SHAKE256_STATE;
 pub type PCSYMCRYPT_SHAKE256_STATE = *const SYMCRYPT_SHAKE256_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_CSHAKE128_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_CSHAKE128_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_CSHAKE128_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_CSHAKE128_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_CSHAKE128_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_CSHAKE128_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_CSHAKE128_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_CSHAKE128_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_CSHAKE128_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_CSHAKE128_STATE = _SYMCRYPT_CSHAKE128_STATE;
 pub type PSYMCRYPT_CSHAKE128_STATE = *mut _SYMCRYPT_CSHAKE128_STATE;
 pub type PCSYMCRYPT_CSHAKE128_STATE = *const SYMCRYPT_CSHAKE128_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_CSHAKE256_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_CSHAKE256_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_CSHAKE256_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_CSHAKE256_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_CSHAKE256_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_CSHAKE256_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_CSHAKE256_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_CSHAKE256_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_CSHAKE256_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_CSHAKE256_STATE = _SYMCRYPT_CSHAKE256_STATE;
 pub type PSYMCRYPT_CSHAKE256_STATE = *mut _SYMCRYPT_CSHAKE256_STATE;
 pub type PCSYMCRYPT_CSHAKE256_STATE = *const SYMCRYPT_CSHAKE256_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_KMAC128_EXPANDED_KEY {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_KMAC128_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_KMAC128_EXPANDED_KEY>() - 240usize];
+    ["Alignment of _SYMCRYPT_KMAC128_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_KMAC128_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_KMAC128_EXPANDED_KEY::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_KMAC128_EXPANDED_KEY, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_KMAC128_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_KMAC128_EXPANDED_KEY, magic) - 224usize];
+};
 pub type SYMCRYPT_KMAC128_EXPANDED_KEY = _SYMCRYPT_KMAC128_EXPANDED_KEY;
 pub type PSYMCRYPT_KMAC128_EXPANDED_KEY = *mut _SYMCRYPT_KMAC128_EXPANDED_KEY;
 pub type PCSYMCRYPT_KMAC128_EXPANDED_KEY = *const SYMCRYPT_KMAC128_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_KMAC128_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_KMAC128_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_KMAC128_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_KMAC128_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_KMAC128_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_KMAC128_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_KMAC128_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_KMAC128_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_KMAC128_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_KMAC128_STATE = _SYMCRYPT_KMAC128_STATE;
 pub type PSYMCRYPT_KMAC128_STATE = *mut _SYMCRYPT_KMAC128_STATE;
 pub type PCSYMCRYPT_KMAC128_STATE = *const SYMCRYPT_KMAC128_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_KMAC256_EXPANDED_KEY {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_KMAC256_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_KMAC256_EXPANDED_KEY>() - 240usize];
+    ["Alignment of _SYMCRYPT_KMAC256_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_KMAC256_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_KMAC256_EXPANDED_KEY::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_KMAC256_EXPANDED_KEY, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_KMAC256_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_KMAC256_EXPANDED_KEY, magic) - 224usize];
+};
 pub type SYMCRYPT_KMAC256_EXPANDED_KEY = _SYMCRYPT_KMAC256_EXPANDED_KEY;
 pub type PSYMCRYPT_KMAC256_EXPANDED_KEY = *mut _SYMCRYPT_KMAC256_EXPANDED_KEY;
 pub type PCSYMCRYPT_KMAC256_EXPANDED_KEY = *const SYMCRYPT_KMAC256_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_KMAC256_STATE {
     pub ks: SYMCRYPT_KECCAK_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_KMAC256_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_KMAC256_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_KMAC256_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_KMAC256_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_KMAC256_STATE::ks"]
+        [::std::mem::offset_of!(_SYMCRYPT_KMAC256_STATE, ks) - 0usize];
+    ["Offset of field: _SYMCRYPT_KMAC256_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_KMAC256_STATE, magic) - 224usize];
+};
 pub type SYMCRYPT_KMAC256_STATE = _SYMCRYPT_KMAC256_STATE;
 pub type PSYMCRYPT_KMAC256_STATE = *mut _SYMCRYPT_KMAC256_STATE;
 pub type PCSYMCRYPT_KMAC256_STATE = *const SYMCRYPT_KMAC256_STATE;
@@ -1030,17 +1575,38 @@ pub union _SYMCRYPT_HASH_STATE {
     pub md4State: SYMCRYPT_MD4_STATE,
     pub md5State: SYMCRYPT_MD5_STATE,
     pub sha1State: SYMCRYPT_SHA1_STATE,
-    pub sha224State: SYMCRYPT_SHA224_STATE,
     pub sha256State: SYMCRYPT_SHA256_STATE,
     pub sha384State: SYMCRYPT_SHA384_STATE,
     pub sha512State: SYMCRYPT_SHA512_STATE,
-    pub sha512_224State: SYMCRYPT_SHA512_224_STATE,
-    pub sha512_256State: SYMCRYPT_SHA512_256_STATE,
-    pub sha3_224State: SYMCRYPT_SHA3_224_STATE,
     pub sha3_256State: SYMCRYPT_SHA3_256_STATE,
     pub sha3_384State: SYMCRYPT_SHA3_384_STATE,
     pub sha3_512State: SYMCRYPT_SHA3_512_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HASH_STATE"][::std::mem::size_of::<_SYMCRYPT_HASH_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_HASH_STATE"][::std::mem::align_of::<_SYMCRYPT_HASH_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::md2State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, md2State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::md4State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, md4State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::md5State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, md5State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::sha1State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, sha1State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::sha256State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, sha256State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::sha384State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, sha384State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::sha512State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, sha512State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::sha3_256State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, sha3_256State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::sha3_384State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, sha3_384State) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH_STATE::sha3_512State"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH_STATE, sha3_512State) - 0usize];
+};
 impl Default for _SYMCRYPT_HASH_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1071,7 +1637,7 @@ pub type PSYMCRYPT_HASH_STATE_COPY_FUNC =
     ::std::option::Option<unsafe extern "C" fn(pStateSrc: PCVOID, pStateDst: PVOID)>;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_HASH {
     pub initFunc: PSYMCRYPT_HASH_INIT_FUNC,
     pub appendFunc: PSYMCRYPT_HASH_APPEND_FUNC,
@@ -1084,6 +1650,31 @@ pub struct _SYMCRYPT_HASH {
     pub chainOffset: UINT32,
     pub chainSize: UINT32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HASH"][::std::mem::size_of::<_SYMCRYPT_HASH>() - 64usize];
+    ["Alignment of _SYMCRYPT_HASH"][::std::mem::align_of::<_SYMCRYPT_HASH>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HASH::initFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, initFunc) - 0usize];
+    ["Offset of field: _SYMCRYPT_HASH::appendFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, appendFunc) - 8usize];
+    ["Offset of field: _SYMCRYPT_HASH::resultFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, resultFunc) - 16usize];
+    ["Offset of field: _SYMCRYPT_HASH::appendBlockFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, appendBlockFunc) - 24usize];
+    ["Offset of field: _SYMCRYPT_HASH::stateCopyFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, stateCopyFunc) - 32usize];
+    ["Offset of field: _SYMCRYPT_HASH::stateSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, stateSize) - 40usize];
+    ["Offset of field: _SYMCRYPT_HASH::resultSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, resultSize) - 44usize];
+    ["Offset of field: _SYMCRYPT_HASH::inputBlockSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, inputBlockSize) - 48usize];
+    ["Offset of field: _SYMCRYPT_HASH::chainOffset"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, chainOffset) - 52usize];
+    ["Offset of field: _SYMCRYPT_HASH::chainSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_HASH, chainSize) - 56usize];
+};
 pub const _SYMCRYPT_HASH_OPERATION_TYPE_SYMCRYPT_HASH_OPERATION_APPEND:
     _SYMCRYPT_HASH_OPERATION_TYPE = 1;
 pub const _SYMCRYPT_HASH_OPERATION_TYPE_SYMCRYPT_HASH_OPERATION_RESULT:
@@ -1094,7 +1685,7 @@ pub type SYMCRYPT_PARALLEL_HASH_OPERATION = _SYMCRYPT_PARALLEL_HASH_OPERATION;
 pub type PSYMCRYPT_PARALLEL_HASH_OPERATION = *mut _SYMCRYPT_PARALLEL_HASH_OPERATION;
 pub type PCSYMRYPT_PARALLEL_HASH_OPERATION = *const SYMCRYPT_PARALLEL_HASH_OPERATION;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_PARALLEL_HASH_OPERATION {
     pub iHash: SIZE_T,
     pub hashOperation: SYMCRYPT_HASH_OPERATION_TYPE,
@@ -1102,6 +1693,23 @@ pub struct _SYMCRYPT_PARALLEL_HASH_OPERATION {
     pub cbBuffer: SIZE_T,
     pub next: PSYMCRYPT_PARALLEL_HASH_OPERATION,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_PARALLEL_HASH_OPERATION"]
+        [::std::mem::size_of::<_SYMCRYPT_PARALLEL_HASH_OPERATION>() - 40usize];
+    ["Alignment of _SYMCRYPT_PARALLEL_HASH_OPERATION"]
+        [::std::mem::align_of::<_SYMCRYPT_PARALLEL_HASH_OPERATION>() - 8usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_OPERATION::iHash"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_OPERATION, iHash) - 0usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_OPERATION::hashOperation"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_OPERATION, hashOperation) - 8usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_OPERATION::pbBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_OPERATION, pbBuffer) - 16usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_OPERATION::cbBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_OPERATION, cbBuffer) - 24usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_OPERATION::next"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_OPERATION, next) - 32usize];
+};
 impl Default for _SYMCRYPT_PARALLEL_HASH_OPERATION {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1120,7 +1728,7 @@ pub type SYMCRYPT_PARALLEL_HASH_SCRATCH_OPERATION = _SYMCRYPT_PARALLEL_HASH_SCRA
 pub type PSYMCRYPT_PARALLEL_HASH_SCRATCH_OPERATION = *mut _SYMCRYPT_PARALLEL_HASH_SCRATCH_OPERATION;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE {
     pub hashState: PVOID,
     pub processingState: BYTE,
@@ -1130,6 +1738,29 @@ pub struct _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE {
     pub pbData: PCBYTE,
     pub cbData: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE>() - 48usize];
+    ["Alignment of _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE::hashState"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE, hashState) - 0usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE::processingState"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE, processingState) - 8usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE::bytesAlreadyProcessed"][::std::mem::offset_of!(
+        _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE,
+        bytesAlreadyProcessed
+    ) - 9usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE::bytes"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE, bytes) - 16usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE::next"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE, next) - 24usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE::pbData"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE, pbData) - 32usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE::cbData"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE, cbData) - 40usize];
+};
 impl Default for _SYMCRYPT_PARALLEL_HASH_SCRATCH_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1167,7 +1798,7 @@ pub type PSYMCRYPT_PARALLEL_APPEND_FUNC = ::std::option::Option<
 >;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_PARALLEL_HASH {
     pub pHash: PCSYMCRYPT_HASH,
     pub parScratchFixed: UINT32,
@@ -1176,6 +1807,24 @@ pub struct _SYMCRYPT_PARALLEL_HASH {
     pub parResultDoneFunc: PSYMCRYPT_PARALLEL_HASH_RESULT_DONE_FUNC,
     pub parAppendFunc: PSYMCRYPT_PARALLEL_APPEND_FUNC,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_PARALLEL_HASH"][::std::mem::size_of::<_SYMCRYPT_PARALLEL_HASH>() - 48usize];
+    ["Alignment of _SYMCRYPT_PARALLEL_HASH"]
+        [::std::mem::align_of::<_SYMCRYPT_PARALLEL_HASH>() - 16usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH::pHash"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH, pHash) - 0usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH::parScratchFixed"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH, parScratchFixed) - 8usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH::parResult1Func"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH, parResult1Func) - 16usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH::parResult2Func"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH, parResult2Func) - 24usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH::parResultDoneFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH, parResultDoneFunc) - 32usize];
+    ["Offset of field: _SYMCRYPT_PARALLEL_HASH::parAppendFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_PARALLEL_HASH, parAppendFunc) - 40usize];
+};
 impl Default for _SYMCRYPT_PARALLEL_HASH {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1187,23 +1836,49 @@ impl Default for _SYMCRYPT_PARALLEL_HASH {
 }
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_MD5_EXPANDED_KEY {
     pub innerState: SYMCRYPT_MD5_CHAINING_STATE,
     pub outerState: SYMCRYPT_MD5_CHAINING_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_MD5_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_MD5_EXPANDED_KEY>() - 48usize];
+    ["Alignment of _SYMCRYPT_HMAC_MD5_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_MD5_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_MD5_EXPANDED_KEY::innerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_MD5_EXPANDED_KEY, innerState) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_MD5_EXPANDED_KEY::outerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_MD5_EXPANDED_KEY, outerState) - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_MD5_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_MD5_EXPANDED_KEY, magic) - 32usize];
+};
 pub type SYMCRYPT_HMAC_MD5_EXPANDED_KEY = _SYMCRYPT_HMAC_MD5_EXPANDED_KEY;
 pub type PSYMCRYPT_HMAC_MD5_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_MD5_EXPANDED_KEY;
 pub type PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY = *const SYMCRYPT_HMAC_MD5_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_MD5_STATE {
     pub hash: SYMCRYPT_MD5_STATE,
     pub pKey: PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_MD5_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_MD5_STATE>() - 128usize];
+    ["Alignment of _SYMCRYPT_HMAC_MD5_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_MD5_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_MD5_STATE::hash"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_MD5_STATE, hash) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_MD5_STATE::pKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_MD5_STATE, pKey) - 112usize];
+    ["Offset of field: _SYMCRYPT_HMAC_MD5_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_MD5_STATE, magic) - 120usize];
+};
 impl Default for _SYMCRYPT_HMAC_MD5_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1218,23 +1893,49 @@ pub type PSYMCRYPT_HMAC_MD5_STATE = *mut _SYMCRYPT_HMAC_MD5_STATE;
 pub type PCSYMCRYPT_HMAC_MD5_STATE = *const SYMCRYPT_HMAC_MD5_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY {
     pub innerState: SYMCRYPT_SHA1_CHAINING_STATE,
     pub outerState: SYMCRYPT_SHA1_CHAINING_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA1_EXPANDED_KEY>() - 80usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA1_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY::innerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA1_EXPANDED_KEY, innerState) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY::outerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA1_EXPANDED_KEY, outerState) - 32usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA1_EXPANDED_KEY, magic) - 64usize];
+};
 pub type SYMCRYPT_HMAC_SHA1_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY;
 pub type PSYMCRYPT_HMAC_SHA1_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA1_EXPANDED_KEY;
 pub type PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA1_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA1_STATE {
     pub hash: SYMCRYPT_SHA1_STATE,
     pub pKey: PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA1_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA1_STATE>() - 144usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA1_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA1_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA1_STATE::hash"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA1_STATE, hash) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA1_STATE::pKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA1_STATE, pKey) - 128usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA1_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA1_STATE, magic) - 136usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA1_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1249,54 +1950,49 @@ pub type PSYMCRYPT_HMAC_SHA1_STATE = *mut _SYMCRYPT_HMAC_SHA1_STATE;
 pub type PCSYMCRYPT_HMAC_SHA1_STATE = *const SYMCRYPT_HMAC_SHA1_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_HMAC_SHA224_EXPANDED_KEY {
-    pub innerState: SYMCRYPT_SHA256_CHAINING_STATE,
-    pub outerState: SYMCRYPT_SHA256_CHAINING_STATE,
-    pub magic: SIZE_T,
-}
-pub type SYMCRYPT_HMAC_SHA224_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA224_EXPANDED_KEY;
-pub type PSYMCRYPT_HMAC_SHA224_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA224_EXPANDED_KEY;
-pub type PCSYMCRYPT_HMAC_SHA224_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA224_EXPANDED_KEY;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_HMAC_SHA224_STATE {
-    pub hash: SYMCRYPT_SHA224_STATE,
-    pub pKey: PCSYMCRYPT_HMAC_SHA224_EXPANDED_KEY,
-    pub magic: SIZE_T,
-}
-impl Default for _SYMCRYPT_HMAC_SHA224_STATE {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_HMAC_SHA224_STATE = _SYMCRYPT_HMAC_SHA224_STATE;
-pub type PSYMCRYPT_HMAC_SHA224_STATE = *mut _SYMCRYPT_HMAC_SHA224_STATE;
-pub type PCSYMCRYPT_HMAC_SHA224_STATE = *const SYMCRYPT_HMAC_SHA224_STATE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA256_EXPANDED_KEY {
     pub innerState: SYMCRYPT_SHA256_CHAINING_STATE,
     pub outerState: SYMCRYPT_SHA256_CHAINING_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA256_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA256_EXPANDED_KEY>() - 80usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA256_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA256_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA256_EXPANDED_KEY::innerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA256_EXPANDED_KEY, innerState) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA256_EXPANDED_KEY::outerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA256_EXPANDED_KEY, outerState) - 32usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA256_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA256_EXPANDED_KEY, magic) - 64usize];
+};
 pub type SYMCRYPT_HMAC_SHA256_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA256_EXPANDED_KEY;
 pub type PSYMCRYPT_HMAC_SHA256_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA256_EXPANDED_KEY;
 pub type PCSYMCRYPT_HMAC_SHA256_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA256_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA256_STATE {
     pub hash: SYMCRYPT_SHA256_STATE,
     pub pKey: PCSYMCRYPT_HMAC_SHA256_EXPANDED_KEY,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA256_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA256_STATE>() - 144usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA256_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA256_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA256_STATE::hash"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA256_STATE, hash) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA256_STATE::pKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA256_STATE, pKey) - 128usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA256_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA256_STATE, magic) - 136usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA256_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1311,23 +2007,49 @@ pub type PSYMCRYPT_HMAC_SHA256_STATE = *mut _SYMCRYPT_HMAC_SHA256_STATE;
 pub type PCSYMCRYPT_HMAC_SHA256_STATE = *const SYMCRYPT_HMAC_SHA256_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY {
     pub innerState: SYMCRYPT_SHA512_CHAINING_STATE,
     pub outerState: SYMCRYPT_SHA512_CHAINING_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA384_EXPANDED_KEY>() - 144usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA384_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY::innerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA384_EXPANDED_KEY, innerState) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY::outerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA384_EXPANDED_KEY, outerState) - 64usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA384_EXPANDED_KEY, magic) - 128usize];
+};
 pub type SYMCRYPT_HMAC_SHA384_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY;
 pub type PSYMCRYPT_HMAC_SHA384_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY;
 pub type PCSYMCRYPT_HMAC_SHA384_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA384_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA384_STATE {
     pub hash: SYMCRYPT_SHA384_STATE,
     pub pKey: PCSYMCRYPT_HMAC_SHA384_EXPANDED_KEY,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA384_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA384_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA384_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA384_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA384_STATE::hash"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA384_STATE, hash) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA384_STATE::pKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA384_STATE, pKey) - 224usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA384_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA384_STATE, magic) - 232usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA384_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1342,23 +2064,49 @@ pub type PSYMCRYPT_HMAC_SHA384_STATE = *mut _SYMCRYPT_HMAC_SHA384_STATE;
 pub type PCSYMCRYPT_HMAC_SHA384_STATE = *const SYMCRYPT_HMAC_SHA384_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY {
     pub innerState: SYMCRYPT_SHA512_CHAINING_STATE,
     pub outerState: SYMCRYPT_SHA512_CHAINING_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA512_EXPANDED_KEY>() - 144usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA512_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::innerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA512_EXPANDED_KEY, innerState) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::outerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA512_EXPANDED_KEY, outerState) - 64usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA512_EXPANDED_KEY, magic) - 128usize];
+};
 pub type SYMCRYPT_HMAC_SHA512_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
 pub type PSYMCRYPT_HMAC_SHA512_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
 pub type PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA512_STATE {
     pub hash: SYMCRYPT_SHA512_STATE,
     pub pKey: PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA512_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA512_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA512_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA512_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA512_STATE::hash"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA512_STATE, hash) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA512_STATE::pKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA512_STATE, pKey) - 224usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA512_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA512_STATE, magic) - 232usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA512_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1373,68 +2121,6 @@ pub type PSYMCRYPT_HMAC_SHA512_STATE = *mut _SYMCRYPT_HMAC_SHA512_STATE;
 pub type PCSYMCRYPT_HMAC_SHA512_STATE = *const SYMCRYPT_HMAC_SHA512_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY {
-    pub innerState: SYMCRYPT_SHA512_CHAINING_STATE,
-    pub outerState: SYMCRYPT_SHA512_CHAINING_STATE,
-    pub magic: SIZE_T,
-}
-pub type SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY;
-pub type PSYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY;
-pub type PCSYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_HMAC_SHA512_224_STATE {
-    pub hash: SYMCRYPT_SHA512_224_STATE,
-    pub pKey: PCSYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY,
-    pub magic: SIZE_T,
-}
-impl Default for _SYMCRYPT_HMAC_SHA512_224_STATE {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_HMAC_SHA512_224_STATE = _SYMCRYPT_HMAC_SHA512_224_STATE;
-pub type PSYMCRYPT_HMAC_SHA512_224_STATE = *mut _SYMCRYPT_HMAC_SHA512_224_STATE;
-pub type PCSYMCRYPT_HMAC_SHA512_224_STATE = *const SYMCRYPT_HMAC_SHA512_224_STATE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY {
-    pub innerState: SYMCRYPT_SHA512_CHAINING_STATE,
-    pub outerState: SYMCRYPT_SHA512_CHAINING_STATE,
-    pub magic: SIZE_T,
-}
-pub type SYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY;
-pub type PSYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY;
-pub type PCSYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_HMAC_SHA512_256_STATE {
-    pub hash: SYMCRYPT_SHA512_256_STATE,
-    pub pKey: PCSYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY,
-    pub magic: SIZE_T,
-}
-impl Default for _SYMCRYPT_HMAC_SHA512_256_STATE {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_HMAC_SHA512_256_STATE = _SYMCRYPT_HMAC_SHA512_256_STATE;
-pub type PSYMCRYPT_HMAC_SHA512_256_STATE = *mut _SYMCRYPT_HMAC_SHA512_256_STATE;
-pub type PCSYMCRYPT_HMAC_SHA512_256_STATE = *const SYMCRYPT_HMAC_SHA512_256_STATE;
-#[repr(C)]
-#[repr(align(16))]
 #[derive(Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_EXPANDED_KEY {
     pub pHash: PCSYMCRYPT_HASH,
@@ -1443,6 +2129,21 @@ pub struct _SYMCRYPT_HMAC_EXPANDED_KEY {
     pub outerState: SYMCRYPT_HASH_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_EXPANDED_KEY>() - 512usize];
+    ["Alignment of _SYMCRYPT_HMAC_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_EXPANDED_KEY::pHash"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_EXPANDED_KEY, pHash) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_EXPANDED_KEY::innerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_EXPANDED_KEY, innerState) - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_EXPANDED_KEY::outerState"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_EXPANDED_KEY, outerState) - 256usize];
+    ["Offset of field: _SYMCRYPT_HMAC_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_EXPANDED_KEY, magic) - 496usize];
+};
 impl Default for _SYMCRYPT_HMAC_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1464,6 +2165,17 @@ pub struct _SYMCRYPT_HMAC_STATE {
     pub hash: SYMCRYPT_HASH_STATE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_STATE"][::std::mem::size_of::<_SYMCRYPT_HMAC_STATE>() - 272usize];
+    ["Alignment of _SYMCRYPT_HMAC_STATE"][::std::mem::align_of::<_SYMCRYPT_HMAC_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_STATE::pKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_STATE, pKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_HMAC_STATE::hash"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_STATE, hash) - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_STATE, magic) - 256usize];
+};
 impl Default for _SYMCRYPT_HMAC_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1479,45 +2191,18 @@ pub type PCSYMCRYPT_HMAC_STATE = *const SYMCRYPT_HMAC_STATE;
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Copy, Clone)]
-pub struct _SYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY {
-    pub generic: SYMCRYPT_HMAC_EXPANDED_KEY,
-}
-impl Default for _SYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY;
-pub type PSYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY;
-pub type PCSYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Copy, Clone)]
-pub struct _SYMCRYPT_HMAC_SHA3_224_STATE {
-    pub generic: SYMCRYPT_HMAC_STATE,
-}
-impl Default for _SYMCRYPT_HMAC_SHA3_224_STATE {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_HMAC_SHA3_224_STATE = _SYMCRYPT_HMAC_SHA3_224_STATE;
-pub type PSYMCRYPT_HMAC_SHA3_224_STATE = *mut _SYMCRYPT_HMAC_SHA3_224_STATE;
-pub type PCSYMCRYPT_HMAC_SHA3_224_STATE = *const SYMCRYPT_HMAC_SHA3_224_STATE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY {
     pub generic: SYMCRYPT_HMAC_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY>() - 512usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY::generic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY, generic) - 0usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1536,6 +2221,15 @@ pub type PCSYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA3_256_E
 pub struct _SYMCRYPT_HMAC_SHA3_256_STATE {
     pub generic: SYMCRYPT_HMAC_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA3_256_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA3_256_STATE>() - 272usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA3_256_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA3_256_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA3_256_STATE::generic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA3_256_STATE, generic) - 0usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA3_256_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1554,6 +2248,15 @@ pub type PCSYMCRYPT_HMAC_SHA3_256_STATE = *const SYMCRYPT_HMAC_SHA3_256_STATE;
 pub struct _SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY {
     pub generic: SYMCRYPT_HMAC_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY>() - 512usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY::generic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY, generic) - 0usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1572,6 +2275,15 @@ pub type PCSYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA3_384_E
 pub struct _SYMCRYPT_HMAC_SHA3_384_STATE {
     pub generic: SYMCRYPT_HMAC_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA3_384_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA3_384_STATE>() - 272usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA3_384_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA3_384_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA3_384_STATE::generic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA3_384_STATE, generic) - 0usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA3_384_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1590,6 +2302,15 @@ pub type PCSYMCRYPT_HMAC_SHA3_384_STATE = *const SYMCRYPT_HMAC_SHA3_384_STATE;
 pub struct _SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY {
     pub generic: SYMCRYPT_HMAC_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY>() - 512usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY::generic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY, generic) - 0usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1608,6 +2329,15 @@ pub type PCSYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA3_512_E
 pub struct _SYMCRYPT_HMAC_SHA3_512_STATE {
     pub generic: SYMCRYPT_HMAC_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HMAC_SHA3_512_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_HMAC_SHA3_512_STATE>() - 272usize];
+    ["Alignment of _SYMCRYPT_HMAC_SHA3_512_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_HMAC_SHA3_512_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HMAC_SHA3_512_STATE::generic"]
+        [::std::mem::offset_of!(_SYMCRYPT_HMAC_SHA3_512_STATE, generic) - 0usize];
+};
 impl Default for _SYMCRYPT_HMAC_SHA3_512_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1622,13 +2352,28 @@ pub type PSYMCRYPT_HMAC_SHA3_512_STATE = *mut _SYMCRYPT_HMAC_SHA3_512_STATE;
 pub type PCSYMCRYPT_HMAC_SHA3_512_STATE = *const SYMCRYPT_HMAC_SHA3_512_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_AES_EXPANDED_KEY {
     pub RoundKey: [[[BYTE; 4usize]; 4usize]; 29usize],
     pub lastEncRoundKey: *mut [[BYTE; 4usize]; 4usize],
     pub lastDecRoundKey: *mut [[BYTE; 4usize]; 4usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_AES_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_AES_EXPANDED_KEY>() - 496usize];
+    ["Alignment of _SYMCRYPT_AES_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_AES_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_AES_EXPANDED_KEY::RoundKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_EXPANDED_KEY, RoundKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_AES_EXPANDED_KEY::lastEncRoundKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_EXPANDED_KEY, lastEncRoundKey) - 464usize];
+    ["Offset of field: _SYMCRYPT_AES_EXPANDED_KEY::lastDecRoundKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_EXPANDED_KEY, lastDecRoundKey) - 472usize];
+    ["Offset of field: _SYMCRYPT_AES_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_EXPANDED_KEY, magic) - 480usize];
+};
 impl Default for _SYMCRYPT_AES_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1643,13 +2388,28 @@ pub type PSYMCRYPT_AES_EXPANDED_KEY = *mut _SYMCRYPT_AES_EXPANDED_KEY;
 pub type PCSYMCRYPT_AES_EXPANDED_KEY = *const SYMCRYPT_AES_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_AES_CMAC_EXPANDED_KEY {
     pub aesKey: SYMCRYPT_AES_EXPANDED_KEY,
     pub K1: [BYTE; 16usize],
     pub K2: [BYTE; 16usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_AES_CMAC_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_AES_CMAC_EXPANDED_KEY>() - 544usize];
+    ["Alignment of _SYMCRYPT_AES_CMAC_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_AES_CMAC_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_EXPANDED_KEY::aesKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_EXPANDED_KEY, aesKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_EXPANDED_KEY::K1"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_EXPANDED_KEY, K1) - 496usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_EXPANDED_KEY::K2"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_EXPANDED_KEY, K2) - 512usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_EXPANDED_KEY, magic) - 528usize];
+};
 impl Default for _SYMCRYPT_AES_CMAC_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1664,7 +2424,7 @@ pub type PSYMCRYPT_AES_CMAC_EXPANDED_KEY = *mut _SYMCRYPT_AES_CMAC_EXPANDED_KEY;
 pub type PCSYMCRYPT_AES_CMAC_EXPANDED_KEY = *const SYMCRYPT_AES_CMAC_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_AES_CMAC_STATE {
     pub chain: [BYTE; 16usize],
     pub buf: [BYTE; 16usize],
@@ -1672,6 +2432,23 @@ pub struct _SYMCRYPT_AES_CMAC_STATE {
     pub pKey: PCSYMCRYPT_AES_CMAC_EXPANDED_KEY,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_AES_CMAC_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_AES_CMAC_STATE>() - 64usize];
+    ["Alignment of _SYMCRYPT_AES_CMAC_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_AES_CMAC_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_STATE, chain) - 0usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_STATE::buf"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_STATE, buf) - 16usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_STATE::bytesInBuf"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_STATE, bytesInBuf) - 32usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_STATE::pKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_STATE, pKey) - 40usize];
+    ["Offset of field: _SYMCRYPT_AES_CMAC_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_AES_CMAC_STATE, magic) - 48usize];
+};
 impl Default for _SYMCRYPT_AES_CMAC_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1686,7 +2463,7 @@ pub type PSYMCRYPT_AES_CMAC_STATE = *mut _SYMCRYPT_AES_CMAC_STATE;
 pub type PCSYMCRYPT_AES_CMAC_STATE = *const SYMCRYPT_AES_CMAC_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_POLY1305_STATE {
     pub r: [UINT32; 4usize],
     pub s: [UINT32; 4usize],
@@ -1695,15 +2472,45 @@ pub struct _SYMCRYPT_POLY1305_STATE {
     pub buf: [BYTE; 16usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_POLY1305_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_POLY1305_STATE>() - 96usize];
+    ["Alignment of _SYMCRYPT_POLY1305_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_POLY1305_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_POLY1305_STATE::r"]
+        [::std::mem::offset_of!(_SYMCRYPT_POLY1305_STATE, r) - 0usize];
+    ["Offset of field: _SYMCRYPT_POLY1305_STATE::s"]
+        [::std::mem::offset_of!(_SYMCRYPT_POLY1305_STATE, s) - 16usize];
+    ["Offset of field: _SYMCRYPT_POLY1305_STATE::a"]
+        [::std::mem::offset_of!(_SYMCRYPT_POLY1305_STATE, a) - 32usize];
+    ["Offset of field: _SYMCRYPT_POLY1305_STATE::bytesInBuffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_POLY1305_STATE, bytesInBuffer) - 56usize];
+    ["Offset of field: _SYMCRYPT_POLY1305_STATE::buf"]
+        [::std::mem::offset_of!(_SYMCRYPT_POLY1305_STATE, buf) - 64usize];
+    ["Offset of field: _SYMCRYPT_POLY1305_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_POLY1305_STATE, magic) - 80usize];
+};
 pub type SYMCRYPT_POLY1305_STATE = _SYMCRYPT_POLY1305_STATE;
 pub type PSYMCRYPT_POLY1305_STATE = *mut _SYMCRYPT_POLY1305_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_XTS_AES_EXPANDED_KEY {
     pub key1: SYMCRYPT_AES_EXPANDED_KEY,
     pub key2: SYMCRYPT_AES_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_XTS_AES_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_XTS_AES_EXPANDED_KEY>() - 992usize];
+    ["Alignment of _SYMCRYPT_XTS_AES_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_XTS_AES_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_XTS_AES_EXPANDED_KEY::key1"]
+        [::std::mem::offset_of!(_SYMCRYPT_XTS_AES_EXPANDED_KEY, key1) - 0usize];
+    ["Offset of field: _SYMCRYPT_XTS_AES_EXPANDED_KEY::key2"]
+        [::std::mem::offset_of!(_SYMCRYPT_XTS_AES_EXPANDED_KEY, key2) - 496usize];
+};
 impl Default for _SYMCRYPT_XTS_AES_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1722,20 +2529,28 @@ pub type PCSYMCRYPT_XTS_AES_EXPANDED_KEY = *const SYMCRYPT_XTS_AES_EXPANDED_KEY;
 pub union _SYMCRYPT_MAC_STATE {
     pub md5State: SYMCRYPT_HMAC_MD5_STATE,
     pub sha1State: SYMCRYPT_HMAC_SHA1_STATE,
-    pub sha224State: SYMCRYPT_HMAC_SHA224_STATE,
     pub sha256State: SYMCRYPT_HMAC_SHA256_STATE,
     pub sha384State: SYMCRYPT_HMAC_SHA384_STATE,
     pub sha512State: SYMCRYPT_HMAC_SHA512_STATE,
-    pub sha512_224State: SYMCRYPT_HMAC_SHA512_224_STATE,
-    pub sha512_256State: SYMCRYPT_HMAC_SHA512_256_STATE,
-    pub sha3_224State: SYMCRYPT_HMAC_SHA3_224_STATE,
-    pub sha3_256State: SYMCRYPT_HMAC_SHA3_256_STATE,
-    pub sha3_384State: SYMCRYPT_HMAC_SHA3_384_STATE,
-    pub sha3_512State: SYMCRYPT_HMAC_SHA3_512_STATE,
     pub aescmacState: SYMCRYPT_AES_CMAC_STATE,
-    pub kmac128State: SYMCRYPT_KMAC128_STATE,
-    pub kmac256State: SYMCRYPT_KMAC256_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MAC_STATE"][::std::mem::size_of::<_SYMCRYPT_MAC_STATE>() - 240usize];
+    ["Alignment of _SYMCRYPT_MAC_STATE"][::std::mem::align_of::<_SYMCRYPT_MAC_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MAC_STATE::md5State"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_STATE, md5State) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_STATE::sha1State"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_STATE, sha1State) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_STATE::sha256State"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_STATE, sha256State) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_STATE::sha384State"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_STATE, sha384State) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_STATE::sha512State"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_STATE, sha512State) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_STATE::aescmacState"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_STATE, aescmacState) - 0usize];
+};
 impl Default for _SYMCRYPT_MAC_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1754,20 +2569,30 @@ pub type PCSYMCRYPT_MAC_STATE = *const SYMCRYPT_MAC_STATE;
 pub union _SYMCRYPT_MAC_EXPANDED_KEY {
     pub md5Key: SYMCRYPT_HMAC_MD5_EXPANDED_KEY,
     pub sha1Key: SYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
-    pub sha224Key: SYMCRYPT_HMAC_SHA224_EXPANDED_KEY,
     pub sha256Key: SYMCRYPT_HMAC_SHA256_EXPANDED_KEY,
     pub sha384Key: SYMCRYPT_HMAC_SHA384_EXPANDED_KEY,
     pub sha512Key: SYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
-    pub sha512_224Key: SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY,
-    pub sha512_256Key: SYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY,
-    pub sha3_224Key: SYMCRYPT_HMAC_SHA3_224_EXPANDED_KEY,
-    pub sha3_256Key: SYMCRYPT_HMAC_SHA3_256_EXPANDED_KEY,
-    pub sha3_384Key: SYMCRYPT_HMAC_SHA3_384_EXPANDED_KEY,
-    pub sha3_512Key: SYMCRYPT_HMAC_SHA3_512_EXPANDED_KEY,
     pub aescmacKey: SYMCRYPT_AES_CMAC_EXPANDED_KEY,
-    pub kmac128Key: SYMCRYPT_KMAC128_EXPANDED_KEY,
-    pub kmac256Key: SYMCRYPT_KMAC256_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MAC_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_MAC_EXPANDED_KEY>() - 544usize];
+    ["Alignment of _SYMCRYPT_MAC_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_MAC_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MAC_EXPANDED_KEY::md5Key"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_EXPANDED_KEY, md5Key) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_EXPANDED_KEY::sha1Key"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_EXPANDED_KEY, sha1Key) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_EXPANDED_KEY::sha256Key"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_EXPANDED_KEY, sha256Key) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_EXPANDED_KEY::sha384Key"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_EXPANDED_KEY, sha384Key) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_EXPANDED_KEY::sha512Key"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_EXPANDED_KEY, sha512Key) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC_EXPANDED_KEY::aescmacKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC_EXPANDED_KEY, aescmacKey) - 0usize];
+};
 impl Default for _SYMCRYPT_MAC_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1789,10 +2614,8 @@ pub type PSYMCRYPT_MAC_APPEND =
     ::std::option::Option<unsafe extern "C" fn(pState: PVOID, pbData: PCBYTE, cbData: SIZE_T)>;
 pub type PSYMCRYPT_MAC_RESULT =
     ::std::option::Option<unsafe extern "C" fn(pState: PVOID, pbResult: PVOID)>;
-pub type PSYMCRYPT_MAC_RESULT_EX =
-    ::std::option::Option<unsafe extern "C" fn(pState: PVOID, pbResult: PVOID, cbResult: SIZE_T)>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MAC {
     pub expandKeyFunc: PSYMCRYPT_MAC_EXPAND_KEY,
     pub initFunc: PSYMCRYPT_MAC_INIT,
@@ -1804,6 +2627,29 @@ pub struct _SYMCRYPT_MAC {
     pub ppHashAlgorithm: *const PCSYMCRYPT_HASH,
     pub outerChainingStateOffset: UINT32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MAC"][::std::mem::size_of::<_SYMCRYPT_MAC>() - 72usize];
+    ["Alignment of _SYMCRYPT_MAC"][::std::mem::align_of::<_SYMCRYPT_MAC>() - 8usize];
+    ["Offset of field: _SYMCRYPT_MAC::expandKeyFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, expandKeyFunc) - 0usize];
+    ["Offset of field: _SYMCRYPT_MAC::initFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, initFunc) - 8usize];
+    ["Offset of field: _SYMCRYPT_MAC::appendFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, appendFunc) - 16usize];
+    ["Offset of field: _SYMCRYPT_MAC::resultFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, resultFunc) - 24usize];
+    ["Offset of field: _SYMCRYPT_MAC::expandedKeySize"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, expandedKeySize) - 32usize];
+    ["Offset of field: _SYMCRYPT_MAC::stateSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, stateSize) - 40usize];
+    ["Offset of field: _SYMCRYPT_MAC::resultSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, resultSize) - 48usize];
+    ["Offset of field: _SYMCRYPT_MAC::ppHashAlgorithm"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, ppHashAlgorithm) - 56usize];
+    ["Offset of field: _SYMCRYPT_MAC::outerChainingStateOffset"]
+        [::std::mem::offset_of!(_SYMCRYPT_MAC, outerChainingStateOffset) - 64usize];
+};
 impl Default for _SYMCRYPT_MAC {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1818,41 +2664,85 @@ pub type PSYMCRYPT_MAC = *mut _SYMCRYPT_MAC;
 pub type PCSYMCRYPT_MAC = *const SYMCRYPT_MAC;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_3DES_EXPANDED_KEY {
     pub roundKey: [[[UINT32; 2usize]; 16usize]; 3usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_3DES_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_3DES_EXPANDED_KEY>() - 400usize];
+    ["Alignment of _SYMCRYPT_3DES_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_3DES_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_3DES_EXPANDED_KEY::roundKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_3DES_EXPANDED_KEY, roundKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_3DES_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_3DES_EXPANDED_KEY, magic) - 384usize];
+};
 pub type SYMCRYPT_3DES_EXPANDED_KEY = _SYMCRYPT_3DES_EXPANDED_KEY;
 pub type PSYMCRYPT_3DES_EXPANDED_KEY = *mut _SYMCRYPT_3DES_EXPANDED_KEY;
 pub type PCSYMCRYPT_3DES_EXPANDED_KEY = *const SYMCRYPT_3DES_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_DES_EXPANDED_KEY {
     pub threeDes: SYMCRYPT_3DES_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_DES_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_DES_EXPANDED_KEY>() - 400usize];
+    ["Alignment of _SYMCRYPT_DES_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_DES_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_DES_EXPANDED_KEY::threeDes"]
+        [::std::mem::offset_of!(_SYMCRYPT_DES_EXPANDED_KEY, threeDes) - 0usize];
+};
 pub type SYMCRYPT_DES_EXPANDED_KEY = _SYMCRYPT_DES_EXPANDED_KEY;
 pub type PSYMCRYPT_DES_EXPANDED_KEY = *mut _SYMCRYPT_DES_EXPANDED_KEY;
 pub type PCSYMCRYPT_DES_EXPANDED_KEY = *const SYMCRYPT_DES_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_DESX_EXPANDED_KEY {
     pub desKey: SYMCRYPT_DES_EXPANDED_KEY,
     pub inputWhitening: [BYTE; 8usize],
     pub outputWhitening: [BYTE; 8usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_DESX_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_DESX_EXPANDED_KEY>() - 416usize];
+    ["Alignment of _SYMCRYPT_DESX_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_DESX_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_DESX_EXPANDED_KEY::desKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_DESX_EXPANDED_KEY, desKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_DESX_EXPANDED_KEY::inputWhitening"]
+        [::std::mem::offset_of!(_SYMCRYPT_DESX_EXPANDED_KEY, inputWhitening) - 400usize];
+    ["Offset of field: _SYMCRYPT_DESX_EXPANDED_KEY::outputWhitening"]
+        [::std::mem::offset_of!(_SYMCRYPT_DESX_EXPANDED_KEY, outputWhitening) - 408usize];
+};
 pub type SYMCRYPT_DESX_EXPANDED_KEY = _SYMCRYPT_DESX_EXPANDED_KEY;
 pub type PSYMCRYPT_DESX_EXPANDED_KEY = *mut _SYMCRYPT_DESX_EXPANDED_KEY;
 pub type PCSYMCRYPT_DESX_EXPANDED_KEY = *const SYMCRYPT_DESX_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_RC2_EXPANDED_KEY {
     pub K: [UINT16; 64usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_RC2_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_RC2_EXPANDED_KEY>() - 144usize];
+    ["Alignment of _SYMCRYPT_RC2_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_RC2_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_RC2_EXPANDED_KEY::K"]
+        [::std::mem::offset_of!(_SYMCRYPT_RC2_EXPANDED_KEY, K) - 0usize];
+    ["Offset of field: _SYMCRYPT_RC2_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_RC2_EXPANDED_KEY, magic) - 128usize];
+};
 impl Default for _SYMCRYPT_RC2_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1867,7 +2757,7 @@ pub type PSYMCRYPT_RC2_EXPANDED_KEY = *mut _SYMCRYPT_RC2_EXPANDED_KEY;
 pub type PCSYMCRYPT_RC2_EXPANDED_KEY = *const SYMCRYPT_RC2_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_CCM_STATE {
     pub pBlockCipher: PCSYMCRYPT_BLOCKCIPHER,
     pub pExpandedKey: PCVOID,
@@ -1882,6 +2772,35 @@ pub struct _SYMCRYPT_CCM_STATE {
     pub keystreamBlock: [BYTE; 16usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_CCM_STATE"][::std::mem::size_of::<_SYMCRYPT_CCM_STATE>() - 128usize];
+    ["Alignment of _SYMCRYPT_CCM_STATE"][::std::mem::align_of::<_SYMCRYPT_CCM_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::pBlockCipher"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, pBlockCipher) - 0usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::pExpandedKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, pExpandedKey) - 8usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::cbData"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, cbData) - 16usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::cbTag"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, cbTag) - 24usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::cbNonce"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, cbNonce) - 32usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::cbCounter"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, cbCounter) - 40usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::bytesProcessed"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, bytesProcessed) - 48usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::bytesInMacBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, bytesInMacBlock) - 56usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::counterBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, counterBlock) - 64usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::macBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, macBlock) - 80usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::keystreamBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, keystreamBlock) - 96usize];
+    ["Offset of field: _SYMCRYPT_CCM_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_CCM_STATE, magic) - 112usize];
+};
 impl Default for _SYMCRYPT_CCM_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1899,6 +2818,15 @@ pub type PSYMCRYPT_CCM_STATE = *mut _SYMCRYPT_CCM_STATE;
 pub union _SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS {
     pub aes: SYMCRYPT_AES_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS"]
+        [::std::mem::size_of::<_SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS>() - 496usize];
+    ["Alignment of _SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS"]
+        [::std::mem::align_of::<_SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS>() - 16usize];
+    ["Offset of field: _SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS::aes"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS, aes) - 0usize];
+};
 impl Default for _SYMCRYPT_GCM_SUPPORTED_BLOCKCIPHER_KEYS {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1917,6 +2845,18 @@ pub union _SYMCRYPT_GF128_ELEMENT {
     pub m128i: __m128i,
     pub ul: [UINT32; 4usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_GF128_ELEMENT"][::std::mem::size_of::<_SYMCRYPT_GF128_ELEMENT>() - 16usize];
+    ["Alignment of _SYMCRYPT_GF128_ELEMENT"]
+        [::std::mem::align_of::<_SYMCRYPT_GF128_ELEMENT>() - 16usize];
+    ["Offset of field: _SYMCRYPT_GF128_ELEMENT::ull"]
+        [::std::mem::offset_of!(_SYMCRYPT_GF128_ELEMENT, ull) - 0usize];
+    ["Offset of field: _SYMCRYPT_GF128_ELEMENT::m128i"]
+        [::std::mem::offset_of!(_SYMCRYPT_GF128_ELEMENT, m128i) - 0usize];
+    ["Offset of field: _SYMCRYPT_GF128_ELEMENT::ul"]
+        [::std::mem::offset_of!(_SYMCRYPT_GF128_ELEMENT, ul) - 0usize];
+};
 impl Default for _SYMCRYPT_GF128_ELEMENT {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1935,6 +2875,15 @@ pub type PCSYMCRYPT_GF128_ELEMENT = *const SYMCRYPT_GF128_ELEMENT;
 pub struct _SYMCRYPT_GHASH_EXPANDED_KEY {
     pub table: [SYMCRYPT_GF128_ELEMENT; 128usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_GHASH_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_GHASH_EXPANDED_KEY>() - 2048usize];
+    ["Alignment of _SYMCRYPT_GHASH_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_GHASH_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_GHASH_EXPANDED_KEY::table"]
+        [::std::mem::offset_of!(_SYMCRYPT_GHASH_EXPANDED_KEY, table) - 0usize];
+};
 impl Default for _SYMCRYPT_GHASH_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1959,6 +2908,25 @@ pub struct _SYMCRYPT_GCM_EXPANDED_KEY {
     pub abKey: [BYTE; 32usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_GCM_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_GCM_EXPANDED_KEY>() - 2608usize];
+    ["Alignment of _SYMCRYPT_GCM_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_GCM_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_GCM_EXPANDED_KEY::ghashKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_EXPANDED_KEY, ghashKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_GCM_EXPANDED_KEY::pBlockCipher"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_EXPANDED_KEY, pBlockCipher) - 2048usize];
+    ["Offset of field: _SYMCRYPT_GCM_EXPANDED_KEY::blockcipherKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_EXPANDED_KEY, blockcipherKey) - 2064usize];
+    ["Offset of field: _SYMCRYPT_GCM_EXPANDED_KEY::cbKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_EXPANDED_KEY, cbKey) - 2560usize];
+    ["Offset of field: _SYMCRYPT_GCM_EXPANDED_KEY::abKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_EXPANDED_KEY, abKey) - 2568usize];
+    ["Offset of field: _SYMCRYPT_GCM_EXPANDED_KEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_EXPANDED_KEY, magic) - 2600usize];
+};
 impl Default for _SYMCRYPT_GCM_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -1985,6 +2953,29 @@ pub struct _SYMCRYPT_GCM_STATE {
     pub keystreamBlock: [BYTE; 16usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_GCM_STATE"][::std::mem::size_of::<_SYMCRYPT_GCM_STATE>() - 112usize];
+    ["Alignment of _SYMCRYPT_GCM_STATE"][::std::mem::align_of::<_SYMCRYPT_GCM_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::pKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, pKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::cbData"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, cbData) - 8usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::cbAuthData"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, cbAuthData) - 16usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::bytesInMacBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, bytesInMacBlock) - 24usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::ghashState"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, ghashState) - 32usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::counterBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, counterBlock) - 48usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::macBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, macBlock) - 64usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::keystreamBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, keystreamBlock) - 80usize];
+    ["Offset of field: _SYMCRYPT_GCM_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_GCM_STATE, magic) - 96usize];
+};
 impl Default for _SYMCRYPT_GCM_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2026,7 +3017,7 @@ pub type PSYMCRYPT_BLOCKCIPHER_AEADPART_MODE = ::std::option::Option<
     unsafe extern "C" fn(pState: PVOID, pbSrc: PCBYTE, pbDst: PBYTE, cbData: SIZE_T),
 >;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_BLOCKCIPHER {
     pub expandKeyFunc: PSYMCRYPT_BLOCKCIPHER_EXPAND_KEY,
     pub encryptFunc: PSYMCRYPT_BLOCKCIPHER_CRYPT,
@@ -2042,25 +3033,81 @@ pub struct _SYMCRYPT_BLOCKCIPHER {
     pub blockSize: SIZE_T,
     pub expandedKeySize: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_BLOCKCIPHER"][::std::mem::size_of::<_SYMCRYPT_BLOCKCIPHER>() - 104usize];
+    ["Alignment of _SYMCRYPT_BLOCKCIPHER"]
+        [::std::mem::align_of::<_SYMCRYPT_BLOCKCIPHER>() - 8usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::expandKeyFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, expandKeyFunc) - 0usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::encryptFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, encryptFunc) - 8usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::decryptFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, decryptFunc) - 16usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::ecbEncryptFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, ecbEncryptFunc) - 24usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::ecbDecryptFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, ecbDecryptFunc) - 32usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::cbcEncryptFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, cbcEncryptFunc) - 40usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::cbcDecryptFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, cbcDecryptFunc) - 48usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::cbcMacFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, cbcMacFunc) - 56usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::ctrMsb64Func"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, ctrMsb64Func) - 64usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::gcmEncryptPartFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, gcmEncryptPartFunc) - 72usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::gcmDecryptPartFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, gcmDecryptPartFunc) - 80usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::blockSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, blockSize) - 88usize];
+    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::expandedKeySize"]
+        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, expandedKeySize) - 96usize];
+};
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_SESSION_REPLAY_STATE {
     pub replayMask: UINT64,
     pub messageNumber: UINT64,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SESSION_REPLAY_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_SESSION_REPLAY_STATE>() - 16usize];
+    ["Alignment of _SYMCRYPT_SESSION_REPLAY_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_SESSION_REPLAY_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SESSION_REPLAY_STATE::replayMask"]
+        [::std::mem::offset_of!(_SYMCRYPT_SESSION_REPLAY_STATE, replayMask) - 0usize];
+    ["Offset of field: _SYMCRYPT_SESSION_REPLAY_STATE::messageNumber"]
+        [::std::mem::offset_of!(_SYMCRYPT_SESSION_REPLAY_STATE, messageNumber) - 8usize];
+};
 pub type SYMCRYPT_SESSION_REPLAY_STATE = _SYMCRYPT_SESSION_REPLAY_STATE;
 pub type PSYMCRYPT_SESSION_REPLAY_STATE = *mut _SYMCRYPT_SESSION_REPLAY_STATE;
 pub type PCSYMCRYPT_SESSION_REPLAY_STATE = *const SYMCRYPT_SESSION_REPLAY_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_SESSION {
     pub replayState: SYMCRYPT_SESSION_REPLAY_STATE,
     pub senderId: UINT32,
     pub flags: UINT32,
     pub pMutex: PVOID,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SESSION"][::std::mem::size_of::<_SYMCRYPT_SESSION>() - 32usize];
+    ["Alignment of _SYMCRYPT_SESSION"][::std::mem::align_of::<_SYMCRYPT_SESSION>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SESSION::replayState"]
+        [::std::mem::offset_of!(_SYMCRYPT_SESSION, replayState) - 0usize];
+    ["Offset of field: _SYMCRYPT_SESSION::senderId"]
+        [::std::mem::offset_of!(_SYMCRYPT_SESSION, senderId) - 16usize];
+    ["Offset of field: _SYMCRYPT_SESSION::flags"]
+        [::std::mem::offset_of!(_SYMCRYPT_SESSION, flags) - 20usize];
+    ["Offset of field: _SYMCRYPT_SESSION::pMutex"]
+        [::std::mem::offset_of!(_SYMCRYPT_SESSION, pMutex) - 24usize];
+};
 impl Default for _SYMCRYPT_SESSION {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2075,13 +3122,26 @@ pub type PSYMCRYPT_SESSION = *mut _SYMCRYPT_SESSION;
 pub type SYMCRYPT_RC4_S_TYPE = BYTE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_RC4_STATE {
     pub S: [SYMCRYPT_RC4_S_TYPE; 256usize],
     pub i: BYTE,
     pub j: BYTE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_RC4_STATE"][::std::mem::size_of::<_SYMCRYPT_RC4_STATE>() - 272usize];
+    ["Alignment of _SYMCRYPT_RC4_STATE"][::std::mem::align_of::<_SYMCRYPT_RC4_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_RC4_STATE::S"]
+        [::std::mem::offset_of!(_SYMCRYPT_RC4_STATE, S) - 0usize];
+    ["Offset of field: _SYMCRYPT_RC4_STATE::i"]
+        [::std::mem::offset_of!(_SYMCRYPT_RC4_STATE, i) - 256usize];
+    ["Offset of field: _SYMCRYPT_RC4_STATE::j"]
+        [::std::mem::offset_of!(_SYMCRYPT_RC4_STATE, j) - 257usize];
+    ["Offset of field: _SYMCRYPT_RC4_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_RC4_STATE, magic) - 264usize];
+};
 impl Default for _SYMCRYPT_RC4_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2095,7 +3155,7 @@ pub type SYMCRYPT_RC4_STATE = _SYMCRYPT_RC4_STATE;
 pub type PSYMCRYPT_RC4_STATE = *mut _SYMCRYPT_RC4_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_CHACHA20_STATE {
     pub key: [UINT32; 8usize],
     pub nonce: [UINT32; 3usize],
@@ -2103,6 +3163,23 @@ pub struct _SYMCRYPT_CHACHA20_STATE {
     pub keystreamBufferValid: BOOLEAN,
     pub keystream: [BYTE; 64usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_CHACHA20_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_CHACHA20_STATE>() - 128usize];
+    ["Alignment of _SYMCRYPT_CHACHA20_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_CHACHA20_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_CHACHA20_STATE::key"]
+        [::std::mem::offset_of!(_SYMCRYPT_CHACHA20_STATE, key) - 0usize];
+    ["Offset of field: _SYMCRYPT_CHACHA20_STATE::nonce"]
+        [::std::mem::offset_of!(_SYMCRYPT_CHACHA20_STATE, nonce) - 32usize];
+    ["Offset of field: _SYMCRYPT_CHACHA20_STATE::offset"]
+        [::std::mem::offset_of!(_SYMCRYPT_CHACHA20_STATE, offset) - 48usize];
+    ["Offset of field: _SYMCRYPT_CHACHA20_STATE::keystreamBufferValid"]
+        [::std::mem::offset_of!(_SYMCRYPT_CHACHA20_STATE, keystreamBufferValid) - 56usize];
+    ["Offset of field: _SYMCRYPT_CHACHA20_STATE::keystream"]
+        [::std::mem::offset_of!(_SYMCRYPT_CHACHA20_STATE, keystream) - 57usize];
+};
 impl Default for _SYMCRYPT_CHACHA20_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2116,7 +3193,7 @@ pub type SYMCRYPT_CHACHA20_STATE = _SYMCRYPT_CHACHA20_STATE;
 pub type PSYMCRYPT_CHACHA20_STATE = *mut _SYMCRYPT_CHACHA20_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_RNG_AES_STATE {
     pub keyAndV: [BYTE; 48usize],
     pub previousBlock: [BYTE; 16usize],
@@ -2124,6 +3201,22 @@ pub struct _SYMCRYPT_RNG_AES_STATE {
     pub fips140_2Check: BOOLEAN,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_RNG_AES_STATE"][::std::mem::size_of::<_SYMCRYPT_RNG_AES_STATE>() - 96usize];
+    ["Alignment of _SYMCRYPT_RNG_AES_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_RNG_AES_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_RNG_AES_STATE::keyAndV"]
+        [::std::mem::offset_of!(_SYMCRYPT_RNG_AES_STATE, keyAndV) - 0usize];
+    ["Offset of field: _SYMCRYPT_RNG_AES_STATE::previousBlock"]
+        [::std::mem::offset_of!(_SYMCRYPT_RNG_AES_STATE, previousBlock) - 48usize];
+    ["Offset of field: _SYMCRYPT_RNG_AES_STATE::requestCounter"]
+        [::std::mem::offset_of!(_SYMCRYPT_RNG_AES_STATE, requestCounter) - 64usize];
+    ["Offset of field: _SYMCRYPT_RNG_AES_STATE::fips140_2Check"]
+        [::std::mem::offset_of!(_SYMCRYPT_RNG_AES_STATE, fips140_2Check) - 72usize];
+    ["Offset of field: _SYMCRYPT_RNG_AES_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_RNG_AES_STATE, magic) - 80usize];
+};
 impl Default for _SYMCRYPT_RNG_AES_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2137,10 +3230,19 @@ pub type SYMCRYPT_RNG_AES_STATE = _SYMCRYPT_RNG_AES_STATE;
 pub type PSYMCRYPT_RNG_AES_STATE = *mut _SYMCRYPT_RNG_AES_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_RNG_AES_FIPS140_2_STATE {
     pub rng: SYMCRYPT_RNG_AES_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_RNG_AES_FIPS140_2_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_RNG_AES_FIPS140_2_STATE>() - 96usize];
+    ["Alignment of _SYMCRYPT_RNG_AES_FIPS140_2_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_RNG_AES_FIPS140_2_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_RNG_AES_FIPS140_2_STATE::rng"]
+        [::std::mem::offset_of!(_SYMCRYPT_RNG_AES_FIPS140_2_STATE, rng) - 0usize];
+};
 impl Default for _SYMCRYPT_RNG_AES_FIPS140_2_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2154,11 +3256,22 @@ pub type SYMCRYPT_RNG_AES_FIPS140_2_STATE = _SYMCRYPT_RNG_AES_FIPS140_2_STATE;
 pub type PSYMCRYPT_RNG_AES_FIPS140_2_STATE = *mut _SYMCRYPT_RNG_AES_FIPS140_2_STATE;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_MARVIN32_EXPANDED_SEED {
     pub s: [UINT32; 2usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MARVIN32_EXPANDED_SEED"]
+        [::std::mem::size_of::<_SYMCRYPT_MARVIN32_EXPANDED_SEED>() - 16usize];
+    ["Alignment of _SYMCRYPT_MARVIN32_EXPANDED_SEED"]
+        [::std::mem::align_of::<_SYMCRYPT_MARVIN32_EXPANDED_SEED>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MARVIN32_EXPANDED_SEED::s"]
+        [::std::mem::offset_of!(_SYMCRYPT_MARVIN32_EXPANDED_SEED, s) - 0usize];
+    ["Offset of field: _SYMCRYPT_MARVIN32_EXPANDED_SEED::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_MARVIN32_EXPANDED_SEED, magic) - 8usize];
+};
 pub type SYMCRYPT_MARVIN32_EXPANDED_SEED = _SYMCRYPT_MARVIN32_EXPANDED_SEED;
 pub type PSYMCRYPT_MARVIN32_EXPANDED_SEED = *mut _SYMCRYPT_MARVIN32_EXPANDED_SEED;
 pub type PCSYMCRYPT_MARVIN32_EXPANDED_SEED = *const SYMCRYPT_MARVIN32_EXPANDED_SEED;
@@ -2166,7 +3279,7 @@ pub type SYMCRYPT_MARVIN32_CHAINING_STATE = SYMCRYPT_MARVIN32_EXPANDED_SEED;
 pub type PSYMCRYPT_MARVIN32_CHAINING_STATE = *mut SYMCRYPT_MARVIN32_EXPANDED_SEED;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MARVIN32_STATE {
     pub buffer: [BYTE; 8usize],
     pub __bindgen_padding_0: u64,
@@ -2175,6 +3288,23 @@ pub struct _SYMCRYPT_MARVIN32_STATE {
     pub dataLength: UINT32,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MARVIN32_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_MARVIN32_STATE>() - 64usize];
+    ["Alignment of _SYMCRYPT_MARVIN32_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_MARVIN32_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_MARVIN32_STATE::buffer"]
+        [::std::mem::offset_of!(_SYMCRYPT_MARVIN32_STATE, buffer) - 0usize];
+    ["Offset of field: _SYMCRYPT_MARVIN32_STATE::chain"]
+        [::std::mem::offset_of!(_SYMCRYPT_MARVIN32_STATE, chain) - 16usize];
+    ["Offset of field: _SYMCRYPT_MARVIN32_STATE::pSeed"]
+        [::std::mem::offset_of!(_SYMCRYPT_MARVIN32_STATE, pSeed) - 32usize];
+    ["Offset of field: _SYMCRYPT_MARVIN32_STATE::dataLength"]
+        [::std::mem::offset_of!(_SYMCRYPT_MARVIN32_STATE, dataLength) - 40usize];
+    ["Offset of field: _SYMCRYPT_MARVIN32_STATE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_MARVIN32_STATE, magic) - 48usize];
+};
 impl Default for _SYMCRYPT_MARVIN32_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2194,6 +3324,17 @@ pub struct _SYMCRYPT_PBKDF2_EXPANDED_KEY {
     pub macKey: SYMCRYPT_MAC_EXPANDED_KEY,
     pub macAlg: PCSYMCRYPT_MAC,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_PBKDF2_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_PBKDF2_EXPANDED_KEY>() - 560usize];
+    ["Alignment of _SYMCRYPT_PBKDF2_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_PBKDF2_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_PBKDF2_EXPANDED_KEY::macKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_PBKDF2_EXPANDED_KEY, macKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_PBKDF2_EXPANDED_KEY::macAlg"]
+        [::std::mem::offset_of!(_SYMCRYPT_PBKDF2_EXPANDED_KEY, macAlg) - 544usize];
+};
 impl Default for _SYMCRYPT_PBKDF2_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2213,6 +3354,17 @@ pub struct _SYMCRYPT_SP800_108_EXPANDED_KEY {
     pub macKey: SYMCRYPT_MAC_EXPANDED_KEY,
     pub macAlg: PCSYMCRYPT_MAC,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SP800_108_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_SP800_108_EXPANDED_KEY>() - 560usize];
+    ["Alignment of _SYMCRYPT_SP800_108_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_SP800_108_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SP800_108_EXPANDED_KEY::macKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_SP800_108_EXPANDED_KEY, macKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_SP800_108_EXPANDED_KEY::macAlg"]
+        [::std::mem::offset_of!(_SYMCRYPT_SP800_108_EXPANDED_KEY, macAlg) - 544usize];
+};
 impl Default for _SYMCRYPT_SP800_108_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2227,11 +3379,22 @@ pub type PSYMCRYPT_SP800_108_EXPANDED_KEY = *mut _SYMCRYPT_SP800_108_EXPANDED_KE
 pub type PCSYMCRYPT_SP800_108_EXPANDED_KEY = *const SYMCRYPT_SP800_108_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_TLSPRF1_1_EXPANDED_KEY {
     pub macMd5Key: SYMCRYPT_HMAC_MD5_EXPANDED_KEY,
     pub macSha1Key: SYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_TLSPRF1_1_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_TLSPRF1_1_EXPANDED_KEY>() - 128usize];
+    ["Alignment of _SYMCRYPT_TLSPRF1_1_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_TLSPRF1_1_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_TLSPRF1_1_EXPANDED_KEY::macMd5Key"]
+        [::std::mem::offset_of!(_SYMCRYPT_TLSPRF1_1_EXPANDED_KEY, macMd5Key) - 0usize];
+    ["Offset of field: _SYMCRYPT_TLSPRF1_1_EXPANDED_KEY::macSha1Key"]
+        [::std::mem::offset_of!(_SYMCRYPT_TLSPRF1_1_EXPANDED_KEY, macSha1Key) - 48usize];
+};
 pub type SYMCRYPT_TLSPRF1_1_EXPANDED_KEY = _SYMCRYPT_TLSPRF1_1_EXPANDED_KEY;
 pub type PSYMCRYPT_TLSPRF1_1_EXPANDED_KEY = *mut _SYMCRYPT_TLSPRF1_1_EXPANDED_KEY;
 pub type PCSYMCRYPT_TLSPRF1_1_EXPANDED_KEY = *const SYMCRYPT_TLSPRF1_1_EXPANDED_KEY;
@@ -2242,6 +3405,17 @@ pub struct _SYMCRYPT_TLSPRF1_2_EXPANDED_KEY {
     pub macKey: SYMCRYPT_MAC_EXPANDED_KEY,
     pub macAlg: PCSYMCRYPT_MAC,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_TLSPRF1_2_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_TLSPRF1_2_EXPANDED_KEY>() - 560usize];
+    ["Alignment of _SYMCRYPT_TLSPRF1_2_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_TLSPRF1_2_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_TLSPRF1_2_EXPANDED_KEY::macKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_TLSPRF1_2_EXPANDED_KEY, macKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_TLSPRF1_2_EXPANDED_KEY::macAlg"]
+        [::std::mem::offset_of!(_SYMCRYPT_TLSPRF1_2_EXPANDED_KEY, macAlg) - 544usize];
+};
 impl Default for _SYMCRYPT_TLSPRF1_2_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2262,6 +3436,17 @@ pub struct _SYMCRYPT_SSHKDF_EXPANDED_KEY {
     pub __bindgen_padding_0: u64,
     pub hashState: SYMCRYPT_HASH_STATE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SSHKDF_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_SSHKDF_EXPANDED_KEY>() - 256usize];
+    ["Alignment of _SYMCRYPT_SSHKDF_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_SSHKDF_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SSHKDF_EXPANDED_KEY::pHashFunc"]
+        [::std::mem::offset_of!(_SYMCRYPT_SSHKDF_EXPANDED_KEY, pHashFunc) - 0usize];
+    ["Offset of field: _SYMCRYPT_SSHKDF_EXPANDED_KEY::hashState"]
+        [::std::mem::offset_of!(_SYMCRYPT_SSHKDF_EXPANDED_KEY, hashState) - 16usize];
+};
 impl Default for _SYMCRYPT_SSHKDF_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2276,10 +3461,19 @@ pub type PSYMCRYPT_SSHKDF_EXPANDED_KEY = *mut _SYMCRYPT_SSHKDF_EXPANDED_KEY;
 pub type PCSYMCRYPT_SSHKDF_EXPANDED_KEY = *const SYMCRYPT_SSHKDF_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_SRTPKDF_EXPANDED_KEY {
     pub aesExpandedKey: SYMCRYPT_AES_EXPANDED_KEY,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SRTPKDF_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_SRTPKDF_EXPANDED_KEY>() - 496usize];
+    ["Alignment of _SYMCRYPT_SRTPKDF_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_SRTPKDF_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SRTPKDF_EXPANDED_KEY::aesExpandedKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_SRTPKDF_EXPANDED_KEY, aesExpandedKey) - 0usize];
+};
 impl Default for _SYMCRYPT_SRTPKDF_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2299,6 +3493,17 @@ pub struct _SYMCRYPT_HKDF_EXPANDED_KEY {
     pub macKey: SYMCRYPT_MAC_EXPANDED_KEY,
     pub macAlg: PCSYMCRYPT_MAC,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_HKDF_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_HKDF_EXPANDED_KEY>() - 560usize];
+    ["Alignment of _SYMCRYPT_HKDF_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_HKDF_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_HKDF_EXPANDED_KEY::macKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_HKDF_EXPANDED_KEY, macKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_HKDF_EXPANDED_KEY::macAlg"]
+        [::std::mem::offset_of!(_SYMCRYPT_HKDF_EXPANDED_KEY, macAlg) - 544usize];
+};
 impl Default for _SYMCRYPT_HKDF_EXPANDED_KEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2311,25 +3516,6 @@ impl Default for _SYMCRYPT_HKDF_EXPANDED_KEY {
 pub type SYMCRYPT_HKDF_EXPANDED_KEY = _SYMCRYPT_HKDF_EXPANDED_KEY;
 pub type PSYMCRYPT_HKDF_EXPANDED_KEY = *mut _SYMCRYPT_HKDF_EXPANDED_KEY;
 pub type PCSYMCRYPT_HKDF_EXPANDED_KEY = *const SYMCRYPT_HKDF_EXPANDED_KEY;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Copy, Clone)]
-pub struct _SYMCRYPT_SSKDF_MAC_EXPANDED_SALT {
-    pub macKey: SYMCRYPT_MAC_EXPANDED_KEY,
-    pub macAlg: PCSYMCRYPT_MAC,
-}
-impl Default for _SYMCRYPT_SSKDF_MAC_EXPANDED_SALT {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_SSKDF_MAC_EXPANDED_SALT = _SYMCRYPT_SSKDF_MAC_EXPANDED_SALT;
-pub type PSYMCRYPT_SSKDF_MAC_EXPANDED_SALT = *mut _SYMCRYPT_SSKDF_MAC_EXPANDED_SALT;
-pub type PCSYMCRYPT_SSKDF_MAC_EXPANDED_SALT = *const SYMCRYPT_SSKDF_MAC_EXPANDED_SALT;
 pub type SYMCRYPT_INT = _SYMCRYPT_INT;
 pub type PSYMCRYPT_INT = *mut SYMCRYPT_INT;
 pub type PCSYMCRYPT_INT = *const SYMCRYPT_INT;
@@ -2362,10 +3548,28 @@ pub union _SYMCRYPT_INT__bindgen_ty_1 {
     pub fdef: _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1 {
     pub uint32: [UINT32; 1usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::size_of::<_SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1>() - 4usize];
+    ["Alignment of _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::align_of::<_SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1>() - 4usize];
+    ["Offset of field: _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1::uint32"]
+        [::std::mem::offset_of!(_SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1, uint32) - 0usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_INT__bindgen_ty_1"]
+        [::std::mem::size_of::<_SYMCRYPT_INT__bindgen_ty_1>() - 4usize];
+    ["Alignment of _SYMCRYPT_INT__bindgen_ty_1"]
+        [::std::mem::align_of::<_SYMCRYPT_INT__bindgen_ty_1>() - 4usize];
+    ["Offset of field: _SYMCRYPT_INT__bindgen_ty_1::fdef"]
+        [::std::mem::offset_of!(_SYMCRYPT_INT__bindgen_ty_1, fdef) - 0usize];
+};
 impl Default for _SYMCRYPT_INT__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2375,6 +3579,20 @@ impl Default for _SYMCRYPT_INT__bindgen_ty_1 {
         }
     }
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_INT"][::std::mem::size_of::<_SYMCRYPT_INT>() - 64usize];
+    ["Alignment of _SYMCRYPT_INT"][::std::mem::align_of::<_SYMCRYPT_INT>() - 32usize];
+    ["Offset of field: _SYMCRYPT_INT::type_"]
+        [::std::mem::offset_of!(_SYMCRYPT_INT, type_) - 0usize];
+    ["Offset of field: _SYMCRYPT_INT::nDigits"]
+        [::std::mem::offset_of!(_SYMCRYPT_INT, nDigits) - 4usize];
+    ["Offset of field: _SYMCRYPT_INT::cbSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_INT, cbSize) - 8usize];
+    ["Offset of field: _SYMCRYPT_INT::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_INT, magic) - 16usize];
+    ["Offset of field: _SYMCRYPT_INT::ti"][::std::mem::offset_of!(_SYMCRYPT_INT, ti) - 32usize];
+};
 impl Default for _SYMCRYPT_INT {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2402,10 +3620,28 @@ pub union _SYMCRYPT_DIVISOR__bindgen_ty_1 {
     pub fdef: _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1 {
     pub W: UINT64,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::size_of::<_SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1>() - 8usize];
+    ["Alignment of _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::align_of::<_SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1>() - 8usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1::W"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1, W) - 0usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_DIVISOR__bindgen_ty_1"]
+        [::std::mem::size_of::<_SYMCRYPT_DIVISOR__bindgen_ty_1>() - 8usize];
+    ["Alignment of _SYMCRYPT_DIVISOR__bindgen_ty_1"]
+        [::std::mem::align_of::<_SYMCRYPT_DIVISOR__bindgen_ty_1>() - 8usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR__bindgen_ty_1::fdef"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR__bindgen_ty_1, fdef) - 0usize];
+};
 impl Default for _SYMCRYPT_DIVISOR__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2415,6 +3651,25 @@ impl Default for _SYMCRYPT_DIVISOR__bindgen_ty_1 {
         }
     }
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_DIVISOR"][::std::mem::size_of::<_SYMCRYPT_DIVISOR>() - 96usize];
+    ["Alignment of _SYMCRYPT_DIVISOR"][::std::mem::align_of::<_SYMCRYPT_DIVISOR>() - 32usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR::type_"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, type_) - 0usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR::nDigits"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, nDigits) - 4usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR::cbSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, cbSize) - 8usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR::nBits"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, nBits) - 12usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, magic) - 16usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR::td"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, td) - 24usize];
+    ["Offset of field: _SYMCRYPT_DIVISOR::Int"]
+        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, Int) - 32usize];
+};
 impl Default for _SYMCRYPT_DIVISOR {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2446,10 +3701,19 @@ pub union _SYMCRYPT_MODULUS__bindgen_ty_1 {
     pub pseudoMersenne: _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1 {
     pub Rsqr: PCUINT32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::size_of::<_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1>() - 8usize];
+    ["Alignment of _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1"]
+        [::std::mem::align_of::<_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1>() - 8usize];
+    ["Offset of field: _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1::Rsqr"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1, Rsqr) - 0usize];
+};
 impl Default for _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2460,10 +3724,30 @@ impl Default for _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1 {
     }
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2 {
     pub k: UINT32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2"]
+        [::std::mem::size_of::<_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2>() - 4usize];
+    ["Alignment of _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2"]
+        [::std::mem::align_of::<_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2>() - 4usize];
+    ["Offset of field: _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2::k"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2, k) - 0usize];
+};
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MODULUS__bindgen_ty_1"]
+        [::std::mem::size_of::<_SYMCRYPT_MODULUS__bindgen_ty_1>() - 8usize];
+    ["Alignment of _SYMCRYPT_MODULUS__bindgen_ty_1"]
+        [::std::mem::align_of::<_SYMCRYPT_MODULUS__bindgen_ty_1>() - 8usize];
+    ["Offset of field: _SYMCRYPT_MODULUS__bindgen_ty_1::montgomery"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS__bindgen_ty_1, montgomery) - 0usize];
+    ["Offset of field: _SYMCRYPT_MODULUS__bindgen_ty_1::pseudoMersenne"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS__bindgen_ty_1, pseudoMersenne) - 0usize];
+};
 impl Default for _SYMCRYPT_MODULUS__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2473,6 +3757,29 @@ impl Default for _SYMCRYPT_MODULUS__bindgen_ty_1 {
         }
     }
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MODULUS"][::std::mem::size_of::<_SYMCRYPT_MODULUS>() - 160usize];
+    ["Alignment of _SYMCRYPT_MODULUS"][::std::mem::align_of::<_SYMCRYPT_MODULUS>() - 32usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::type_"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, type_) - 0usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::nDigits"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, nDigits) - 4usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::cbSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, cbSize) - 8usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::flags"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, flags) - 12usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::cbModElement"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, cbModElement) - 16usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::inv64"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, inv64) - 24usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, magic) - 32usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::tm"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, tm) - 40usize];
+    ["Offset of field: _SYMCRYPT_MODULUS::Divisor"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, Divisor) - 64usize];
+};
 impl Default for _SYMCRYPT_MODULUS {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2493,6 +3800,15 @@ pub struct _SYMCRYPT_MODELEMENT {
 pub union _SYMCRYPT_MODELEMENT__bindgen_ty_1 {
     pub uint32: [UINT32; 1usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MODELEMENT__bindgen_ty_1"]
+        [::std::mem::size_of::<_SYMCRYPT_MODELEMENT__bindgen_ty_1>() - 4usize];
+    ["Alignment of _SYMCRYPT_MODELEMENT__bindgen_ty_1"]
+        [::std::mem::align_of::<_SYMCRYPT_MODELEMENT__bindgen_ty_1>() - 4usize];
+    ["Offset of field: _SYMCRYPT_MODELEMENT__bindgen_ty_1::uint32"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODELEMENT__bindgen_ty_1, uint32) - 0usize];
+};
 impl Default for _SYMCRYPT_MODELEMENT__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2502,6 +3818,13 @@ impl Default for _SYMCRYPT_MODELEMENT__bindgen_ty_1 {
         }
     }
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_MODELEMENT"][::std::mem::size_of::<_SYMCRYPT_MODELEMENT>() - 32usize];
+    ["Alignment of _SYMCRYPT_MODELEMENT"][::std::mem::align_of::<_SYMCRYPT_MODELEMENT>() - 32usize];
+    ["Offset of field: _SYMCRYPT_MODELEMENT::d"]
+        [::std::mem::offset_of!(_SYMCRYPT_MODELEMENT, d) - 0usize];
+};
 impl Default for _SYMCRYPT_MODELEMENT {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2512,16 +3835,8 @@ impl Default for _SYMCRYPT_MODELEMENT {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _SYMCRYPT_MLKEMKEY {
-    _unused: [u8; 0],
-}
-pub type SYMCRYPT_MLKEMKEY = _SYMCRYPT_MLKEMKEY;
-pub type PSYMCRYPT_MLKEMKEY = *mut SYMCRYPT_MLKEMKEY;
-pub type PCSYMCRYPT_MLKEMKEY = *const SYMCRYPT_MLKEMKEY;
-#[repr(C)]
 #[repr(align(32))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_RSAKEY {
     pub fAlgorithmInfo: UINT32,
     pub cbTotalSize: UINT32,
@@ -2546,6 +3861,55 @@ pub struct _SYMCRYPT_RSAKEY {
     pub piCrtPrivExps: [PSYMCRYPT_INT; 2usize],
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_RSAKEY"][::std::mem::size_of::<_SYMCRYPT_RSAKEY>() - 192usize];
+    ["Alignment of _SYMCRYPT_RSAKEY"][::std::mem::align_of::<_SYMCRYPT_RSAKEY>() - 32usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::fAlgorithmInfo"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, fAlgorithmInfo) - 0usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::cbTotalSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, cbTotalSize) - 4usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::hasPrivateKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, hasPrivateKey) - 8usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::nSetBitsOfModulus"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, nSetBitsOfModulus) - 12usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::nBitsOfModulus"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, nBitsOfModulus) - 16usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::nDigitsOfModulus"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, nDigitsOfModulus) - 20usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::nPubExp"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, nPubExp) - 24usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::nPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, nPrimes) - 28usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::nBitsOfPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, nBitsOfPrimes) - 32usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::nDigitsOfPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, nDigitsOfPrimes) - 40usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::nMaxDigitsOfPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, nMaxDigitsOfPrimes) - 48usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::au64PubExp"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, au64PubExp) - 56usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::pbPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, pbPrimes) - 64usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::pbCrtInverses"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, pbCrtInverses) - 80usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::pbPrivExps"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, pbPrivExps) - 96usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::pbCrtPrivExps"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, pbCrtPrivExps) - 104usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::pmModulus"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, pmModulus) - 120usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::pmPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, pmPrimes) - 128usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::peCrtInverses"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, peCrtInverses) - 144usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::piPrivExps"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, piPrivExps) - 160usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::piCrtPrivExps"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, piCrtPrivExps) - 168usize];
+    ["Offset of field: _SYMCRYPT_RSAKEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSAKEY, magic) - 184usize];
+};
 impl Default for _SYMCRYPT_RSAKEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2559,25 +3923,47 @@ pub type SYMCRYPT_RSAKEY = _SYMCRYPT_RSAKEY;
 pub type PSYMCRYPT_RSAKEY = *mut SYMCRYPT_RSAKEY;
 pub type PCSYMCRYPT_RSAKEY = *const SYMCRYPT_RSAKEY;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_TRIALDIVISION_PRIME {
     pub invMod2e64: UINT64,
     pub compareLimit: UINT64,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_TRIALDIVISION_PRIME"]
+        [::std::mem::size_of::<_SYMCRYPT_TRIALDIVISION_PRIME>() - 16usize];
+    ["Alignment of _SYMCRYPT_TRIALDIVISION_PRIME"]
+        [::std::mem::align_of::<_SYMCRYPT_TRIALDIVISION_PRIME>() - 8usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_PRIME::invMod2e64"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_PRIME, invMod2e64) - 0usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_PRIME::compareLimit"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_PRIME, compareLimit) - 8usize];
+};
 pub type SYMCRYPT_TRIALDIVISION_PRIME = _SYMCRYPT_TRIALDIVISION_PRIME;
 pub type PSYMCRYPT_TRIALDIVISION_PRIME = *mut _SYMCRYPT_TRIALDIVISION_PRIME;
 pub type PCSYMCRYPT_TRIALDIVISION_PRIME = *const SYMCRYPT_TRIALDIVISION_PRIME;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_TRIALDIVISION_GROUP {
     pub nPrimes: UINT32,
     pub factor: [UINT32; 9usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_TRIALDIVISION_GROUP"]
+        [::std::mem::size_of::<_SYMCRYPT_TRIALDIVISION_GROUP>() - 40usize];
+    ["Alignment of _SYMCRYPT_TRIALDIVISION_GROUP"]
+        [::std::mem::align_of::<_SYMCRYPT_TRIALDIVISION_GROUP>() - 4usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_GROUP::nPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_GROUP, nPrimes) - 0usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_GROUP::factor"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_GROUP, factor) - 4usize];
+};
 pub type SYMCRYPT_TRIALDIVISION_GROUP = _SYMCRYPT_TRIALDIVISION_GROUP;
 pub type PSYMCRYPT_TRIALDIVISION_GROUP = *mut _SYMCRYPT_TRIALDIVISION_GROUP;
 pub type PCSYMCRYPT_TRIALDIVISION_GROUP = *const SYMCRYPT_TRIALDIVISION_GROUP;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_TRIALDIVISION_CONTEXT {
     pub nBytesAlloc: SIZE_T,
     pub maxTrialPrime: UINT32,
@@ -2586,6 +3972,25 @@ pub struct _SYMCRYPT_TRIALDIVISION_CONTEXT {
     pub pPrimes: PUINT32,
     pub Primes3_5_17: [SYMCRYPT_TRIALDIVISION_PRIME; 3usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_TRIALDIVISION_CONTEXT"]
+        [::std::mem::size_of::<_SYMCRYPT_TRIALDIVISION_CONTEXT>() - 88usize];
+    ["Alignment of _SYMCRYPT_TRIALDIVISION_CONTEXT"]
+        [::std::mem::align_of::<_SYMCRYPT_TRIALDIVISION_CONTEXT>() - 8usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_CONTEXT::nBytesAlloc"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_CONTEXT, nBytesAlloc) - 0usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_CONTEXT::maxTrialPrime"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_CONTEXT, maxTrialPrime) - 8usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_CONTEXT::pGroupList"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_CONTEXT, pGroupList) - 16usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_CONTEXT::pPrimeList"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_CONTEXT, pPrimeList) - 24usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_CONTEXT::pPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_CONTEXT, pPrimes) - 32usize];
+    ["Offset of field: _SYMCRYPT_TRIALDIVISION_CONTEXT::Primes3_5_17"]
+        [::std::mem::offset_of!(_SYMCRYPT_TRIALDIVISION_CONTEXT, Primes3_5_17) - 40usize];
+};
 impl Default for _SYMCRYPT_TRIALDIVISION_CONTEXT {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2600,7 +4005,7 @@ pub type PSYMCRYPT_TRIALDIVISION_CONTEXT = *mut _SYMCRYPT_TRIALDIVISION_CONTEXT;
 pub type PCSYMCRYPT_TRIALDIVISION_CONTEXT = *const SYMCRYPT_TRIALDIVISION_CONTEXT;
 #[repr(C)]
 #[repr(align(32))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_DLGROUP {
     pub cbTotalSize: UINT32,
     pub fHasPrimeQ: BOOLEAN,
@@ -2628,6 +4033,61 @@ pub struct _SYMCRYPT_DLGROUP {
     pub pbSeed: PBYTE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_DLGROUP"][::std::mem::size_of::<_SYMCRYPT_DLGROUP>() - 128usize];
+    ["Alignment of _SYMCRYPT_DLGROUP"][::std::mem::align_of::<_SYMCRYPT_DLGROUP>() - 32usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::cbTotalSize"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, cbTotalSize) - 0usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::fHasPrimeQ"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, fHasPrimeQ) - 4usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nBitsOfP"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nBitsOfP) - 8usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::cbPrimeP"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, cbPrimeP) - 12usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nDigitsOfP"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nDigitsOfP) - 16usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nMaxBitsOfP"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nMaxBitsOfP) - 20usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nBitsOfQ"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nBitsOfQ) - 24usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::cbPrimeQ"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, cbPrimeQ) - 28usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nDigitsOfQ"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nDigitsOfQ) - 32usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nMaxBitsOfQ"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nMaxBitsOfQ) - 36usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::isSafePrimeGroup"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, isSafePrimeGroup) - 40usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nMinBitsPriv"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nMinBitsPriv) - 44usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nDefaultBitsPriv"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nDefaultBitsPriv) - 48usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::nBitsOfSeed"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, nBitsOfSeed) - 52usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::cbSeed"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, cbSeed) - 56usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::eFipsStandard"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, eFipsStandard) - 60usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::pHashAlgorithm"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, pHashAlgorithm) - 64usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::dwGenCounter"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, dwGenCounter) - 72usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::bIndexGenG"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, bIndexGenG) - 76usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::pbQ"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, pbQ) - 80usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::pmP"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, pmP) - 88usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::pmQ"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, pmQ) - 96usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::peG"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, peG) - 104usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::pbSeed"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, pbSeed) - 112usize];
+    ["Offset of field: _SYMCRYPT_DLGROUP::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLGROUP, magic) - 120usize];
+};
 impl Default for _SYMCRYPT_DLGROUP {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2642,7 +4102,7 @@ pub type PSYMCRYPT_DLGROUP = *mut SYMCRYPT_DLGROUP;
 pub type PCSYMCRYPT_DLGROUP = *const SYMCRYPT_DLGROUP;
 #[repr(C)]
 #[repr(align(32))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_DLKEY {
     pub fAlgorithmInfo: UINT32,
     pub fHasPrivateKey: BOOLEAN,
@@ -2654,6 +4114,29 @@ pub struct _SYMCRYPT_DLKEY {
     pub piPrivateKey: PSYMCRYPT_INT,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_DLKEY"][::std::mem::size_of::<_SYMCRYPT_DLKEY>() - 64usize];
+    ["Alignment of _SYMCRYPT_DLKEY"][::std::mem::align_of::<_SYMCRYPT_DLKEY>() - 32usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::fAlgorithmInfo"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, fAlgorithmInfo) - 0usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::fHasPrivateKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, fHasPrivateKey) - 4usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::fPrivateModQ"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, fPrivateModQ) - 5usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::nBitsPriv"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, nBitsPriv) - 8usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::pDlgroup"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, pDlgroup) - 16usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::pbPrivate"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, pbPrivate) - 24usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::pePublicKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, pePublicKey) - 32usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::piPrivateKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, piPrivateKey) - 40usize];
+    ["Offset of field: _SYMCRYPT_DLKEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_DLKEY, magic) - 48usize];
+};
 impl Default for _SYMCRYPT_DLKEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2683,13 +4166,28 @@ pub const _SYMCRYPT_ECPOINT_COORDINATES_SYMCRYPT_ECPOINT_COORDINATES_SINGLE_PROJ
 pub type _SYMCRYPT_ECPOINT_COORDINATES = ::std::os::raw::c_uint;
 pub use self::_SYMCRYPT_ECPOINT_COORDINATES as SYMCRYPT_ECPOINT_COORDINATES;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_ECURVE_INFO_PRECOMP {
     pub window: UINT32,
     pub nPrecompPoints: UINT32,
     pub nRecodedDigits: UINT32,
     pub poPrecompPoints: [PSYMCRYPT_ECPOINT; 64usize],
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_ECURVE_INFO_PRECOMP"]
+        [::std::mem::size_of::<_SYMCRYPT_ECURVE_INFO_PRECOMP>() - 528usize];
+    ["Alignment of _SYMCRYPT_ECURVE_INFO_PRECOMP"]
+        [::std::mem::align_of::<_SYMCRYPT_ECURVE_INFO_PRECOMP>() - 8usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_INFO_PRECOMP::window"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_INFO_PRECOMP, window) - 0usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_INFO_PRECOMP::nPrecompPoints"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_INFO_PRECOMP, nPrecompPoints) - 4usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_INFO_PRECOMP::nRecodedDigits"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_INFO_PRECOMP, nRecodedDigits) - 8usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_INFO_PRECOMP::poPrecompPoints"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_INFO_PRECOMP, poPrecompPoints) - 16usize];
+};
 impl Default for _SYMCRYPT_ECURVE_INFO_PRECOMP {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2749,6 +4247,15 @@ pub struct _SYMCRYPT_ECURVE {
 pub union _SYMCRYPT_ECURVE__bindgen_ty_1 {
     pub sw: SYMCRYPT_ECURVE_INFO_PRECOMP,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_ECURVE__bindgen_ty_1"]
+        [::std::mem::size_of::<_SYMCRYPT_ECURVE__bindgen_ty_1>() - 528usize];
+    ["Alignment of _SYMCRYPT_ECURVE__bindgen_ty_1"]
+        [::std::mem::align_of::<_SYMCRYPT_ECURVE__bindgen_ty_1>() - 8usize];
+    ["Offset of field: _SYMCRYPT_ECURVE__bindgen_ty_1::sw"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE__bindgen_ty_1, sw) - 0usize];
+};
 impl Default for _SYMCRYPT_ECURVE__bindgen_ty_1 {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2758,6 +4265,69 @@ impl Default for _SYMCRYPT_ECURVE__bindgen_ty_1 {
         }
     }
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_ECURVE"][::std::mem::size_of::<_SYMCRYPT_ECURVE>() - 672usize];
+    ["Alignment of _SYMCRYPT_ECURVE"][::std::mem::align_of::<_SYMCRYPT_ECURVE>() - 32usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::version"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, version) - 0usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::type_"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, type_) - 4usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::eCoordinates"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, eCoordinates) - 8usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::FModBitsize"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, FModBitsize) - 12usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::FModDigits"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, FModDigits) - 16usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::FModBytesize"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, FModBytesize) - 20usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::GOrdBitsize"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, GOrdBitsize) - 24usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::GOrdDigits"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, GOrdDigits) - 28usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::GOrdBytesize"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, GOrdBytesize) - 32usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::cbModElement"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, cbModElement) - 36usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::cbAlloc"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, cbAlloc) - 40usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::cbScratchCommon"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, cbScratchCommon) - 44usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::cbScratchScalar"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, cbScratchScalar) - 48usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::cbScratchScalarMulti"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, cbScratchScalarMulti) - 52usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::cbScratchGetSetValue"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, cbScratchGetSetValue) - 56usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::cbScratchEckey"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, cbScratchEckey) - 60usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::coFactorPower"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, coFactorPower) - 64usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::PrivateKeyDefaultFormat"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, PrivateKeyDefaultFormat) - 68usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::HighBitRestrictionNumOfBits"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, HighBitRestrictionNumOfBits) - 72usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::HighBitRestrictionPosition"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, HighBitRestrictionPosition) - 76usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::HighBitRestrictionValue"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, HighBitRestrictionValue) - 80usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::info"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, info) - 88usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::FMod"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, FMod) - 616usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::GOrd"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, GOrd) - 624usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::A"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, A) - 632usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::B"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, B) - 640usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::G"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, G) - 648usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::H"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, H) - 656usize];
+    ["Offset of field: _SYMCRYPT_ECURVE::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE, magic) - 664usize];
+};
 impl Default for _SYMCRYPT_ECURVE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2772,12 +4342,23 @@ pub type PSYMCRYPT_ECURVE = *mut SYMCRYPT_ECURVE;
 pub type PCSYMCRYPT_ECURVE = *const SYMCRYPT_ECURVE;
 #[repr(C)]
 #[repr(align(32))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_ECPOINT {
     pub normalized: BOOLEAN,
     pub pCurve: PCSYMCRYPT_ECURVE,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_ECPOINT"][::std::mem::size_of::<_SYMCRYPT_ECPOINT>() - 32usize];
+    ["Alignment of _SYMCRYPT_ECPOINT"][::std::mem::align_of::<_SYMCRYPT_ECPOINT>() - 32usize];
+    ["Offset of field: _SYMCRYPT_ECPOINT::normalized"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECPOINT, normalized) - 0usize];
+    ["Offset of field: _SYMCRYPT_ECPOINT::pCurve"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECPOINT, pCurve) - 8usize];
+    ["Offset of field: _SYMCRYPT_ECPOINT::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECPOINT, magic) - 16usize];
+};
 impl Default for _SYMCRYPT_ECPOINT {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2789,7 +4370,7 @@ impl Default for _SYMCRYPT_ECPOINT {
 }
 #[repr(C)]
 #[repr(align(32))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_ECKEY {
     pub fAlgorithmInfo: UINT32,
     pub hasPrivateKey: BOOLEAN,
@@ -2798,6 +4379,23 @@ pub struct _SYMCRYPT_ECKEY {
     pub piPrivateKey: PSYMCRYPT_INT,
     pub magic: SIZE_T,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_ECKEY"][::std::mem::size_of::<_SYMCRYPT_ECKEY>() - 64usize];
+    ["Alignment of _SYMCRYPT_ECKEY"][::std::mem::align_of::<_SYMCRYPT_ECKEY>() - 32usize];
+    ["Offset of field: _SYMCRYPT_ECKEY::fAlgorithmInfo"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECKEY, fAlgorithmInfo) - 0usize];
+    ["Offset of field: _SYMCRYPT_ECKEY::hasPrivateKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECKEY, hasPrivateKey) - 4usize];
+    ["Offset of field: _SYMCRYPT_ECKEY::pCurve"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECKEY, pCurve) - 8usize];
+    ["Offset of field: _SYMCRYPT_ECKEY::poPublicKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECKEY, poPublicKey) - 16usize];
+    ["Offset of field: _SYMCRYPT_ECKEY::piPrivateKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECKEY, piPrivateKey) - 24usize];
+    ["Offset of field: _SYMCRYPT_ECKEY::magic"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECKEY, magic) - 32usize];
+};
 impl Default for _SYMCRYPT_ECKEY {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2812,7 +4410,7 @@ pub type PSYMCRYPT_ECKEY = *mut SYMCRYPT_ECKEY;
 pub type PCSYMCRYPT_ECKEY = *const SYMCRYPT_ECKEY;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_802_11_SAE_CUSTOM_STATE {
     pub pCurve: PSYMCRYPT_ECURVE,
     pub macAlgorithm: PCSYMCRYPT_MAC,
@@ -2821,6 +4419,25 @@ pub struct _SYMCRYPT_802_11_SAE_CUSTOM_STATE {
     pub poPWE: PSYMCRYPT_ECPOINT,
     pub counter: BYTE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_802_11_SAE_CUSTOM_STATE"]
+        [::std::mem::size_of::<_SYMCRYPT_802_11_SAE_CUSTOM_STATE>() - 48usize];
+    ["Alignment of _SYMCRYPT_802_11_SAE_CUSTOM_STATE"]
+        [::std::mem::align_of::<_SYMCRYPT_802_11_SAE_CUSTOM_STATE>() - 16usize];
+    ["Offset of field: _SYMCRYPT_802_11_SAE_CUSTOM_STATE::pCurve"]
+        [::std::mem::offset_of!(_SYMCRYPT_802_11_SAE_CUSTOM_STATE, pCurve) - 0usize];
+    ["Offset of field: _SYMCRYPT_802_11_SAE_CUSTOM_STATE::macAlgorithm"]
+        [::std::mem::offset_of!(_SYMCRYPT_802_11_SAE_CUSTOM_STATE, macAlgorithm) - 8usize];
+    ["Offset of field: _SYMCRYPT_802_11_SAE_CUSTOM_STATE::peRand"]
+        [::std::mem::offset_of!(_SYMCRYPT_802_11_SAE_CUSTOM_STATE, peRand) - 16usize];
+    ["Offset of field: _SYMCRYPT_802_11_SAE_CUSTOM_STATE::peMask"]
+        [::std::mem::offset_of!(_SYMCRYPT_802_11_SAE_CUSTOM_STATE, peMask) - 24usize];
+    ["Offset of field: _SYMCRYPT_802_11_SAE_CUSTOM_STATE::poPWE"]
+        [::std::mem::offset_of!(_SYMCRYPT_802_11_SAE_CUSTOM_STATE, poPWE) - 32usize];
+    ["Offset of field: _SYMCRYPT_802_11_SAE_CUSTOM_STATE::counter"]
+        [::std::mem::offset_of!(_SYMCRYPT_802_11_SAE_CUSTOM_STATE, counter) - 40usize];
+};
 impl Default for _SYMCRYPT_802_11_SAE_CUSTOM_STATE {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2830,78 +4447,6 @@ impl Default for _SYMCRYPT_802_11_SAE_CUSTOM_STATE {
         }
     }
 }
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_XMSS_PARAMS {
-    pub hash: PCSYMCRYPT_HASH,
-    pub id: UINT32,
-    pub cbHashOutput: UINT32,
-    pub nWinternitzWidth: UINT32,
-    pub nTotalTreeHeight: UINT32,
-    pub nLayers: UINT32,
-    pub cbPrefix: UINT32,
-    pub len1: UINT32,
-    pub len2: UINT32,
-    pub len: UINT32,
-    pub nLayerHeight: UINT32,
-    pub cbIdx: UINT32,
-    pub nLeftShift32: UINT32,
-    pub Reserved: [BYTE; 16usize],
-}
-impl Default for _SYMCRYPT_XMSS_PARAMS {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_XMSS_PARAMS = _SYMCRYPT_XMSS_PARAMS;
-pub type PSYMCRYPT_XMSS_PARAMS = *mut SYMCRYPT_XMSS_PARAMS;
-pub type PCSYMCRYPT_XMSS_PARAMS = *const SYMCRYPT_XMSS_PARAMS;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _SYMCRYPT_XMSS_KEY {
-    _unused: [u8; 0],
-}
-pub type SYMCRYPT_XMSS_KEY = _SYMCRYPT_XMSS_KEY;
-pub type PSYMCRYPT_XMSS_KEY = *mut SYMCRYPT_XMSS_KEY;
-pub type PCSYMCRYPT_XMSS_KEY = *const SYMCRYPT_XMSS_KEY;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct _SYMCRYPT_LMS_PARAMS {
-    pub lmsAlgID: UINT32,
-    pub lmsOtsAlgID: UINT32,
-    pub pLmsHashFunction: PCSYMCRYPT_HASH,
-    pub nTreeHeight: UINT32,
-    pub cbHashOutput: UINT32,
-    pub nWinternitzChainWidth: UINT32,
-    pub nByteStringCount: UINT32,
-    pub nChecksumLShiftBits: UINT32,
-}
-impl Default for _SYMCRYPT_LMS_PARAMS {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_LMS_PARAMS = _SYMCRYPT_LMS_PARAMS;
-pub type PSYMCRYPT_LMS_PARAMS = *mut SYMCRYPT_LMS_PARAMS;
-pub type PCSYMCRYPT_LMS_PARAMS = *const SYMCRYPT_LMS_PARAMS;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _SYMCRYPT_LMS_KEY {
-    _unused: [u8; 0],
-}
-pub type SYMCRYPT_LMS_KEY = _SYMCRYPT_LMS_KEY;
-pub type PSYMCRYPT_LMS_KEY = *mut SYMCRYPT_LMS_KEY;
-pub type PCSYMCRYPT_LMS_KEY = *const SYMCRYPT_LMS_KEY;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_EXTENDED_SAVE_DATA {
@@ -2923,12 +4468,6 @@ pub const _SYMCRYPT_SELFTEST_ALGORITHM_SYMCRYPT_SELFTEST_ALGORITHM_DH:
     _SYMCRYPT_SELFTEST_ALGORITHM = 16;
 pub const _SYMCRYPT_SELFTEST_ALGORITHM_SYMCRYPT_SELFTEST_ALGORITHM_ECDH:
     _SYMCRYPT_SELFTEST_ALGORITHM = 32;
-pub const _SYMCRYPT_SELFTEST_ALGORITHM_SYMCRYPT_SELFTEST_ALGORITHM_MLKEM:
-    _SYMCRYPT_SELFTEST_ALGORITHM = 64;
-pub const _SYMCRYPT_SELFTEST_ALGORITHM_SYMCRYPT_SELFTEST_ALGORITHM_XMSS:
-    _SYMCRYPT_SELFTEST_ALGORITHM = 128;
-pub const _SYMCRYPT_SELFTEST_ALGORITHM_SYMCRYPT_SELFTEST_ALGORITHM_LMS:
-    _SYMCRYPT_SELFTEST_ALGORITHM = 256;
 pub type _SYMCRYPT_SELFTEST_ALGORITHM = ::std::os::raw::c_uint;
 pub use self::_SYMCRYPT_SELFTEST_ALGORITHM as SYMCRYPT_SELFTEST_ALGORITHM;
 pub const _SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST: _SYMCRYPT_NUMBER_FORMAT = 1;
@@ -2936,13 +4475,26 @@ pub const _SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST: _SYMCRYPT_NU
 pub type _SYMCRYPT_NUMBER_FORMAT = ::std::os::raw::c_uint;
 pub use self::_SYMCRYPT_NUMBER_FORMAT as SYMCRYPT_NUMBER_FORMAT;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_RSA_PARAMS {
     pub version: UINT32,
     pub nBitsOfModulus: UINT32,
     pub nPrimes: UINT32,
     pub nPubExp: UINT32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_RSA_PARAMS"][::std::mem::size_of::<_SYMCRYPT_RSA_PARAMS>() - 16usize];
+    ["Alignment of _SYMCRYPT_RSA_PARAMS"][::std::mem::align_of::<_SYMCRYPT_RSA_PARAMS>() - 4usize];
+    ["Offset of field: _SYMCRYPT_RSA_PARAMS::version"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSA_PARAMS, version) - 0usize];
+    ["Offset of field: _SYMCRYPT_RSA_PARAMS::nBitsOfModulus"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSA_PARAMS, nBitsOfModulus) - 4usize];
+    ["Offset of field: _SYMCRYPT_RSA_PARAMS::nPrimes"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSA_PARAMS, nPrimes) - 8usize];
+    ["Offset of field: _SYMCRYPT_RSA_PARAMS::nPubExp"]
+        [::std::mem::offset_of!(_SYMCRYPT_RSA_PARAMS, nPubExp) - 12usize];
+};
 pub type SYMCRYPT_RSA_PARAMS = _SYMCRYPT_RSA_PARAMS;
 pub type PSYMCRYPT_RSA_PARAMS = *mut _SYMCRYPT_RSA_PARAMS;
 pub type PCSYMCRYPT_RSA_PARAMS = *const SYMCRYPT_RSA_PARAMS;
@@ -2951,13 +4503,38 @@ pub const _SYMCRYPT_ECURVE_GEN_ALG_ID_SYMCRYPT_ECURVE_GEN_ALG_ID_NULL: _SYMCRYPT
 pub type _SYMCRYPT_ECURVE_GEN_ALG_ID = ::std::os::raw::c_uint;
 pub use self::_SYMCRYPT_ECURVE_GEN_ALG_ID as SYMCRYPT_ECURVE_GEN_ALG_ID;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION {
     pub PrivateKeyDefaultFormat: UINT32,
     pub HighBitRestrictionNumOfBits: UINT32,
     pub HighBitRestrictionPosition: UINT32,
     pub HighBitRestrictionValue: UINT32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION"]
+        [::std::mem::size_of::<_SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION>() - 16usize];
+    ["Alignment of _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION"]
+        [::std::mem::align_of::<_SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION>() - 4usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION::PrivateKeyDefaultFormat"][::std::mem::offset_of!(
+        _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION,
+        PrivateKeyDefaultFormat
+    ) - 0usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION::HighBitRestrictionNumOfBits"][::std::mem::offset_of!(
+        _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION,
+        HighBitRestrictionNumOfBits
+    )
+        - 4usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION::HighBitRestrictionPosition"][::std::mem::offset_of!(
+        _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION,
+        HighBitRestrictionPosition
+    )
+        - 8usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION::HighBitRestrictionValue"][::std::mem::offset_of!(
+        _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION,
+        HighBitRestrictionValue
+    ) - 12usize];
+};
 pub type SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION = _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION;
 pub type PSYMCRYPT_ECURVE_PARAMS_V2_EXTENSION = *mut _SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION;
 pub type PCSYMCRYPT_ECURVE_PARAMS_V2_EXTENSION = *const SYMCRYPT_ECURVE_PARAMS_V2_EXTENSION;
@@ -2972,7 +4549,7 @@ pub const _SYMCRYPT_ECKEY_PRIVATE_FORMAT_SYMCRYPT_ECKEY_PRIVATE_FORMAT_DIVH_TIME
 pub type _SYMCRYPT_ECKEY_PRIVATE_FORMAT = ::std::os::raw::c_uint;
 pub use self::_SYMCRYPT_ECKEY_PRIVATE_FORMAT as SYMCRYPT_ECKEY_PRIVATE_FORMAT;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_ECURVE_PARAMS {
     pub version: UINT32,
     pub type_: SYMCRYPT_ECURVE_TYPE,
@@ -2982,6 +4559,26 @@ pub struct _SYMCRYPT_ECURVE_PARAMS {
     pub cbCofactor: UINT32,
     pub cbSeed: UINT32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_ECURVE_PARAMS"][::std::mem::size_of::<_SYMCRYPT_ECURVE_PARAMS>() - 28usize];
+    ["Alignment of _SYMCRYPT_ECURVE_PARAMS"]
+        [::std::mem::align_of::<_SYMCRYPT_ECURVE_PARAMS>() - 4usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS::version"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_PARAMS, version) - 0usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS::type_"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_PARAMS, type_) - 4usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS::algId"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_PARAMS, algId) - 8usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS::cbFieldLength"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_PARAMS, cbFieldLength) - 12usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS::cbSubgroupOrder"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_PARAMS, cbSubgroupOrder) - 16usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS::cbCofactor"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_PARAMS, cbCofactor) - 20usize];
+    ["Offset of field: _SYMCRYPT_ECURVE_PARAMS::cbSeed"]
+        [::std::mem::offset_of!(_SYMCRYPT_ECURVE_PARAMS, cbSeed) - 24usize];
+};
 impl Default for _SYMCRYPT_ECURVE_PARAMS {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -2999,11 +4596,20 @@ pub const _SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY: _SYMCRYPT_ECPOINT
 pub type _SYMCRYPT_ECPOINT_FORMAT = ::std::os::raw::c_uint;
 pub use self::_SYMCRYPT_ECPOINT_FORMAT as SYMCRYPT_ECPOINT_FORMAT;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_OID {
     pub cbOID: UINT32,
     pub pbOID: PCBYTE,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_OID"][::std::mem::size_of::<_SYMCRYPT_OID>() - 16usize];
+    ["Alignment of _SYMCRYPT_OID"][::std::mem::align_of::<_SYMCRYPT_OID>() - 8usize];
+    ["Offset of field: _SYMCRYPT_OID::cbOID"]
+        [::std::mem::offset_of!(_SYMCRYPT_OID, cbOID) - 0usize];
+    ["Offset of field: _SYMCRYPT_OID::pbOID"]
+        [::std::mem::offset_of!(_SYMCRYPT_OID, pbOID) - 8usize];
+};
 impl Default for _SYMCRYPT_OID {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
@@ -3016,158 +4622,21 @@ impl Default for _SYMCRYPT_OID {
 pub type SYMCRYPT_OID = _SYMCRYPT_OID;
 pub type PSYMCRYPT_OID = *mut _SYMCRYPT_OID;
 pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_10_256: _SYMCRYPT_XMSS_ALGID = 1;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_16_256: _SYMCRYPT_XMSS_ALGID = 2;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_20_256: _SYMCRYPT_XMSS_ALGID = 3;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_10_512: _SYMCRYPT_XMSS_ALGID = 4;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_16_512: _SYMCRYPT_XMSS_ALGID = 5;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_20_512: _SYMCRYPT_XMSS_ALGID = 6;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE_10_256: _SYMCRYPT_XMSS_ALGID = 7;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE_16_256: _SYMCRYPT_XMSS_ALGID = 8;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE_20_256: _SYMCRYPT_XMSS_ALGID = 9;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE_10_512: _SYMCRYPT_XMSS_ALGID = 10;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE_16_512: _SYMCRYPT_XMSS_ALGID = 11;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE_20_512: _SYMCRYPT_XMSS_ALGID = 12;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_10_192: _SYMCRYPT_XMSS_ALGID = 13;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_16_192: _SYMCRYPT_XMSS_ALGID = 14;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHA2_20_192: _SYMCRYPT_XMSS_ALGID = 15;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE256_10_256: _SYMCRYPT_XMSS_ALGID = 16;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE256_16_256: _SYMCRYPT_XMSS_ALGID = 17;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE256_20_256: _SYMCRYPT_XMSS_ALGID = 18;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE256_10_192: _SYMCRYPT_XMSS_ALGID = 19;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE256_16_192: _SYMCRYPT_XMSS_ALGID = 20;
-pub const _SYMCRYPT_XMSS_ALGID_SYMCRYPT_XMSS_SHAKE256_20_192: _SYMCRYPT_XMSS_ALGID = 21;
-pub type _SYMCRYPT_XMSS_ALGID = ::std::os::raw::c_uint;
-pub use self::_SYMCRYPT_XMSS_ALGID as SYMCRYPT_XMSS_ALGID;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_20_2_256: _SYMCRYPT_XMSSMT_ALGID = 1;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_20_4_256: _SYMCRYPT_XMSSMT_ALGID = 2;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_2_256: _SYMCRYPT_XMSSMT_ALGID = 3;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_4_256: _SYMCRYPT_XMSSMT_ALGID = 4;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_8_256: _SYMCRYPT_XMSSMT_ALGID = 5;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_3_256: _SYMCRYPT_XMSSMT_ALGID = 6;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_6_256: _SYMCRYPT_XMSSMT_ALGID = 7;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_12_256: _SYMCRYPT_XMSSMT_ALGID = 8;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_20_2_512: _SYMCRYPT_XMSSMT_ALGID = 9;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_20_4_512: _SYMCRYPT_XMSSMT_ALGID = 10;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_2_512: _SYMCRYPT_XMSSMT_ALGID = 11;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_4_512: _SYMCRYPT_XMSSMT_ALGID = 12;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_8_512: _SYMCRYPT_XMSSMT_ALGID = 13;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_3_512: _SYMCRYPT_XMSSMT_ALGID = 14;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_6_512: _SYMCRYPT_XMSSMT_ALGID = 15;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_12_512: _SYMCRYPT_XMSSMT_ALGID = 16;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_20_2_256: _SYMCRYPT_XMSSMT_ALGID = 17;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_20_4_256: _SYMCRYPT_XMSSMT_ALGID = 18;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_40_2_256: _SYMCRYPT_XMSSMT_ALGID = 19;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_40_4_256: _SYMCRYPT_XMSSMT_ALGID = 20;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_40_8_256: _SYMCRYPT_XMSSMT_ALGID = 21;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_60_3_256: _SYMCRYPT_XMSSMT_ALGID = 22;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_60_6_256: _SYMCRYPT_XMSSMT_ALGID = 23;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_60_12_256: _SYMCRYPT_XMSSMT_ALGID = 24;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_20_2_512: _SYMCRYPT_XMSSMT_ALGID = 25;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_20_4_512: _SYMCRYPT_XMSSMT_ALGID = 26;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_40_2_512: _SYMCRYPT_XMSSMT_ALGID = 27;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_40_4_512: _SYMCRYPT_XMSSMT_ALGID = 28;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_40_8_512: _SYMCRYPT_XMSSMT_ALGID = 29;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_60_3_512: _SYMCRYPT_XMSSMT_ALGID = 30;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_60_6_512: _SYMCRYPT_XMSSMT_ALGID = 31;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE_60_12_512: _SYMCRYPT_XMSSMT_ALGID = 32;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_20_2_192: _SYMCRYPT_XMSSMT_ALGID = 33;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_20_4_192: _SYMCRYPT_XMSSMT_ALGID = 34;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_2_192: _SYMCRYPT_XMSSMT_ALGID = 35;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_4_192: _SYMCRYPT_XMSSMT_ALGID = 36;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_40_8_192: _SYMCRYPT_XMSSMT_ALGID = 37;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_3_192: _SYMCRYPT_XMSSMT_ALGID = 38;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_6_192: _SYMCRYPT_XMSSMT_ALGID = 39;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHA2_60_12_192: _SYMCRYPT_XMSSMT_ALGID = 40;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_20_2_256: _SYMCRYPT_XMSSMT_ALGID = 41;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_20_4_256: _SYMCRYPT_XMSSMT_ALGID = 42;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_40_2_256: _SYMCRYPT_XMSSMT_ALGID = 43;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_40_4_256: _SYMCRYPT_XMSSMT_ALGID = 44;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_40_8_256: _SYMCRYPT_XMSSMT_ALGID = 45;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_60_3_256: _SYMCRYPT_XMSSMT_ALGID = 46;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_60_6_256: _SYMCRYPT_XMSSMT_ALGID = 47;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_60_12_256: _SYMCRYPT_XMSSMT_ALGID = 48;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_20_2_192: _SYMCRYPT_XMSSMT_ALGID = 49;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_20_4_192: _SYMCRYPT_XMSSMT_ALGID = 50;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_40_2_192: _SYMCRYPT_XMSSMT_ALGID = 51;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_40_4_192: _SYMCRYPT_XMSSMT_ALGID = 52;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_40_8_192: _SYMCRYPT_XMSSMT_ALGID = 53;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_60_3_192: _SYMCRYPT_XMSSMT_ALGID = 54;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_60_6_192: _SYMCRYPT_XMSSMT_ALGID = 55;
-pub const _SYMCRYPT_XMSSMT_ALGID_SYMCRYPT_XMSSMT_SHAKE256_60_12_192: _SYMCRYPT_XMSSMT_ALGID = 56;
-pub type _SYMCRYPT_XMSSMT_ALGID = ::std::os::raw::c_uint;
-pub use self::_SYMCRYPT_XMSSMT_ALGID as SYMCRYPT_XMSSMT_ALGID;
-pub const _SYMCRYPT_XMSSKEY_TYPE_SYMCRYPT_XMSSKEY_TYPE_NONE: _SYMCRYPT_XMSSKEY_TYPE = 0;
-pub const _SYMCRYPT_XMSSKEY_TYPE_SYMCRYPT_XMSSKEY_TYPE_PUBLIC: _SYMCRYPT_XMSSKEY_TYPE = 1;
-pub const _SYMCRYPT_XMSSKEY_TYPE_SYMCRYPT_XMSSKEY_TYPE_PRIVATE: _SYMCRYPT_XMSSKEY_TYPE = 2;
-pub type _SYMCRYPT_XMSSKEY_TYPE = ::std::os::raw::c_uint;
-pub use self::_SYMCRYPT_XMSSKEY_TYPE as SYMCRYPT_XMSSKEY_TYPE;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M32_H5: _SYMCRYPT_LMS_ALGID = 5;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M32_H10: _SYMCRYPT_LMS_ALGID = 6;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M32_H15: _SYMCRYPT_LMS_ALGID = 7;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M32_H20: _SYMCRYPT_LMS_ALGID = 8;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M32_H25: _SYMCRYPT_LMS_ALGID = 9;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M24_H5: _SYMCRYPT_LMS_ALGID = 10;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M24_H10: _SYMCRYPT_LMS_ALGID = 11;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M24_H15: _SYMCRYPT_LMS_ALGID = 12;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M24_H20: _SYMCRYPT_LMS_ALGID = 13;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHA256_M24_H25: _SYMCRYPT_LMS_ALGID = 14;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M32_H5: _SYMCRYPT_LMS_ALGID = 15;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M32_H10: _SYMCRYPT_LMS_ALGID = 16;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M32_H15: _SYMCRYPT_LMS_ALGID = 17;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M32_H20: _SYMCRYPT_LMS_ALGID = 18;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M32_H25: _SYMCRYPT_LMS_ALGID = 19;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M24_H5: _SYMCRYPT_LMS_ALGID = 20;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M24_H10: _SYMCRYPT_LMS_ALGID = 21;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M24_H15: _SYMCRYPT_LMS_ALGID = 22;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M24_H20: _SYMCRYPT_LMS_ALGID = 23;
-pub const _SYMCRYPT_LMS_ALGID_SYMCRYPT_LMS_SHAKE_M24_H25: _SYMCRYPT_LMS_ALGID = 24;
-pub type _SYMCRYPT_LMS_ALGID = ::std::os::raw::c_uint;
-pub use self::_SYMCRYPT_LMS_ALGID as SYMCRYPT_LMS_ALGID;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHA256_N32_W1: _SYMCRYPT_LMS_OTS_ALGID = 1;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHA256_N32_W2: _SYMCRYPT_LMS_OTS_ALGID = 2;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHA256_N32_W4: _SYMCRYPT_LMS_OTS_ALGID = 3;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHA256_N32_W8: _SYMCRYPT_LMS_OTS_ALGID = 4;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHA256_N24_W1: _SYMCRYPT_LMS_OTS_ALGID = 5;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHA256_N24_W2: _SYMCRYPT_LMS_OTS_ALGID = 6;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHA256_N24_W4: _SYMCRYPT_LMS_OTS_ALGID = 7;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHA256_N24_W8: _SYMCRYPT_LMS_OTS_ALGID = 8;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHAKE_N32_W1: _SYMCRYPT_LMS_OTS_ALGID = 9;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHAKE_N32_W2: _SYMCRYPT_LMS_OTS_ALGID = 10;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHAKE_N32_W4: _SYMCRYPT_LMS_OTS_ALGID = 11;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHAKE_N32_W8: _SYMCRYPT_LMS_OTS_ALGID = 12;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHAKE_N24_W1: _SYMCRYPT_LMS_OTS_ALGID = 13;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHAKE_N24_W2: _SYMCRYPT_LMS_OTS_ALGID = 14;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHAKE_N24_W4: _SYMCRYPT_LMS_OTS_ALGID = 15;
-pub const _SYMCRYPT_LMS_OTS_ALGID_SYMCRYPT_LMS_OTS_SHAKE_N24_W8: _SYMCRYPT_LMS_OTS_ALGID = 16;
-pub type _SYMCRYPT_LMS_OTS_ALGID = ::std::os::raw::c_uint;
-pub use self::_SYMCRYPT_LMS_OTS_ALGID as SYMCRYPT_LMS_OTS_ALGID;
-pub const _SYMCRYPT_LMSKEY_TYPE_SYMCRYPT_LMSKEY_TYPE_NONE: _SYMCRYPT_LMSKEY_TYPE = 0;
-pub const _SYMCRYPT_LMSKEY_TYPE_SYMCRYPT_LMSKEY_TYPE_PUBLIC: _SYMCRYPT_LMSKEY_TYPE = 1;
-pub const _SYMCRYPT_LMSKEY_TYPE_SYMCRYPT_LMSKEY_TYPE_PRIVATE: _SYMCRYPT_LMSKEY_TYPE = 2;
-pub type _SYMCRYPT_LMSKEY_TYPE = ::std::os::raw::c_uint;
-pub use self::_SYMCRYPT_LMSKEY_TYPE as SYMCRYPT_LMSKEY_TYPE;
-pub const _SYMCRYPT_MLKEMKEY_FORMAT_SYMCRYPT_MLKEMKEY_FORMAT_NULL: _SYMCRYPT_MLKEMKEY_FORMAT = 0;
-pub const _SYMCRYPT_MLKEMKEY_FORMAT_SYMCRYPT_MLKEMKEY_FORMAT_PRIVATE_SEED:
-    _SYMCRYPT_MLKEMKEY_FORMAT = 1;
-pub const _SYMCRYPT_MLKEMKEY_FORMAT_SYMCRYPT_MLKEMKEY_FORMAT_DECAPSULATION_KEY:
-    _SYMCRYPT_MLKEMKEY_FORMAT = 2;
-pub const _SYMCRYPT_MLKEMKEY_FORMAT_SYMCRYPT_MLKEMKEY_FORMAT_ENCAPSULATION_KEY:
-    _SYMCRYPT_MLKEMKEY_FORMAT = 3;
-pub type _SYMCRYPT_MLKEMKEY_FORMAT = ::std::os::raw::c_uint;
-pub use self::_SYMCRYPT_MLKEMKEY_FORMAT as SYMCRYPT_MLKEMKEY_FORMAT;
-pub const _SYMCRYPT_MLKEM_PARAMS_SYMCRYPT_MLKEM_PARAMS_NULL: _SYMCRYPT_MLKEM_PARAMS = 0;
-pub const _SYMCRYPT_MLKEM_PARAMS_SYMCRYPT_MLKEM_PARAMS_MLKEM512: _SYMCRYPT_MLKEM_PARAMS = 1;
-pub const _SYMCRYPT_MLKEM_PARAMS_SYMCRYPT_MLKEM_PARAMS_MLKEM768: _SYMCRYPT_MLKEM_PARAMS = 2;
-pub const _SYMCRYPT_MLKEM_PARAMS_SYMCRYPT_MLKEM_PARAMS_MLKEM1024: _SYMCRYPT_MLKEM_PARAMS = 3;
-pub type _SYMCRYPT_MLKEM_PARAMS = ::std::os::raw::c_uint;
-pub use self::_SYMCRYPT_MLKEM_PARAMS as SYMCRYPT_MLKEM_PARAMS;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_UINT32_MAP {
     pub from: UINT32,
     pub to: UINT32,
 }
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_UINT32_MAP"][::std::mem::size_of::<_SYMCRYPT_UINT32_MAP>() - 8usize];
+    ["Alignment of _SYMCRYPT_UINT32_MAP"][::std::mem::align_of::<_SYMCRYPT_UINT32_MAP>() - 4usize];
+    ["Offset of field: _SYMCRYPT_UINT32_MAP::from"]
+        [::std::mem::offset_of!(_SYMCRYPT_UINT32_MAP, from) - 0usize];
+    ["Offset of field: _SYMCRYPT_UINT32_MAP::to"]
+        [::std::mem::offset_of!(_SYMCRYPT_UINT32_MAP, to) - 4usize];
+};
 pub type SYMCRYPT_UINT32_MAP = _SYMCRYPT_UINT32_MAP;
 pub type PSYMCRYPT_UINT32_MAP = *mut _SYMCRYPT_UINT32_MAP;
 pub type PCSYMCRYPT_UINT32_MAP = *const SYMCRYPT_UINT32_MAP;
