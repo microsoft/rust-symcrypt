@@ -16,6 +16,6 @@ extern crate libc;
 // Linux:
 // linux amd64 x86_64-unknown-linux-gnu
 // linux arm64 aarch64-unknown-linux-gnu
-pub(crate) mod bindings;
+mod bindings;
 
 pub use bindings::*;
