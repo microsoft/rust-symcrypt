@@ -1,7 +1,16 @@
-# This script generates all bindings for all four triples.
-# Pre-requisites:
-# - The script has to be run from on Windows with WSL installed
-# - LLVM and bingen have to be installed on Windows and on WSL
+# This script generates Rust bindings for the SymCrypt library for all supported target triples.
+# Prerequisites:
+# - The script must be run on Windows with WSL installed.
+# - LLVM and bindgen must be installed on both Windows and WSL.
+
+# Installation instructions:
+# Windows:
+#    winget install LLVM.LLVM
+#    cargo install bindgen-cli
+# WSL Ubuntu:
+#    sudo apt install pwsh clang libclang-dev
+#    sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for cross-compilation
+#    cargo install bindgen-cli
 
 [CmdletBinding()]
 param([string]$SymCryptRoot = "../SymCrypt")

@@ -1,13 +1,9 @@
+# This script generates Rust bindings for the SymCrypt library using bindgen.
+# It can be called directly from the command line or via generate-all-bindings.ps1.
+#
 # Prerequisites:
 # - LLVM
 # - bindgen
-# Windows:
-#    winget install LLVM.LLVM
-#    cargo install bindgen-cli
-# Ubuntu:
-#    sudo apt install pwsh clang libclang-dev
-#    sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for crosscompilation
-#    cargo install bindgen-cli
 
 [CmdletBinding()]
 param(
