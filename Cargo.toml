@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "rust-symcrypt",
+    "symcrypt-sys"
+]
+resolver = "2"
