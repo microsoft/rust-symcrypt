@@ -17,6 +17,9 @@ $PSNativeCommandUseErrorActionPreference = $True
 
 # Init variables
 $outDir = "$PSScriptRoot/../symcrypt-sys/src/bindings"
+if (-not (Test-Path $outDir)) {
+    New-Item -ItemType Directory -Path $outDir | Out-Null
+}
 
 $supportedTargets = @(
     "x86_64-pc-windows-msvc",
@@ -86,11 +89,6 @@ $importRules = @(
 @("allowlist_function", "SymCryptStoreMsbFirstUint64")
 )
 
-$moduleCode = 'pub mod consts;
-pub mod fns_source;
-pub mod types;'
-
-
 $generateVarsParams = @()
 $generateFunctionsParams = @()
 foreach ($rule in $importRules) {
@@ -123,51 +121,12 @@ $clangParams = @(
 )
 
 # Generate bindings
-
 $targetName = $triple.Replace("-", "_")
-$targetFolder = "$outDir/$targetName"
-if (Test-Path $targetFolder) {
-    Remove-Item $targetFolder -Recurse -Force
-}
-mkdir $targetFolder
-
-$moduleCode > $outDir/$targetName.rs
-
 
 bindgen `
     $SymCryptHeader `
     @bindgenParams `
-    --generate types `
-    -o "$targetFolder/types.rs" `
-    -- @clangParams
-
-bindgen `
-    $SymCryptHeader `
-    @bindgenParams `
-    --raw-line "use super::types::*;" `
-    --generate vars `
     @generateVarsParams `
-    -o "$targetFolder/consts.rs" `
-    -- @clangParams
-
-bindgen `
-    $SymCryptHeader `
-    @bindgenParams `
-    --raw-line "use super::types::*;" `
-    --generate functions `
     @generateFunctionsParams `
-    -o "$targetFolder/fns_source.rs" `
+    -o "$outDir/$targetName.rs" `
     -- @clangParams
-
-<#
-Dynamic loading is not yet supported
-bindgen `
-    $SymCryptHeader `
-    @bindgenParams `
-    --raw-line "use super::types::*;" `
-    --dynamic-loading APILoader `
-    --generate functions `
-    @generateFunctionsParams `
-    -o "$targetFolder/fns_libloading.rs" `
-    -- @clangParams
-#>

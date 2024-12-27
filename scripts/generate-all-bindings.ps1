@@ -32,7 +32,10 @@ $wrapperHeader = '
 '
 $wrapperHeader > $header
 
-Remove-Item -Recurse -Force "$PSScriptRoot/../symcrypt-sys/src/bindings"
+$bindingsDir = "$PSScriptRoot/../symcrypt-sys/src/bindings"
+if (Test-Path $bindingsDir) {
+    Remove-Item -Recurse -Force "$bindingsDir"
+}
 
 & "$PSScriptRoot/generate-bindings.ps1" $header "x86_64-pc-windows-msvc"
 & "$PSScriptRoot/generate-bindings.ps1" $header "aarch64-pc-windows-msvc"
