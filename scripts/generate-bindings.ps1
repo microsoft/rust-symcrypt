@@ -122,11 +122,36 @@ if (-not (Test-Path $outDir)) {
 }
 
 $targetName = $triple.Replace("-", "_")
+$bindingsFile = "$outDir/$targetName.rs"
 
 bindgen `
     $SymCryptHeader `
     @bindgenParams `
     @generateVarsParams `
     @generateFunctionsParams `
-    -o "$outDir/$targetName.rs" `
+    -o $bindingsFile `
     -- @clangParams
+
+if ($triple.Contains("windows")) {
+    Write-Host "Fixing bindings for Windows"
+    $linkStr = '#[link(name = "symcrypt", kind = "dylib")]'
+    $regexExp1 = 'pub static \w+: \[SYMCRYPT_OID; \d+usize\];'
+    $regexExp2 = 'pub static \w+: PCSYMCRYPT_\w+;'
+    $bindingsContent = Get-Content $bindingsFile
+
+    $outContent = @()
+    $outContent += $bindingsContent[0]
+
+    for ($i = 1; $i -lt $bindingsContent.Length; $i++) {
+        if ($bindingsContent[$i-1].Contains('extern "C" {')) {
+            if ($bindingsContent[$i] -match $regexExp1 -or $bindingsContent[$i] -match $regexExp2) {
+                $outContent = $outContent[0..($outContent.Length - 2)]
+                $outContent += $linkStr
+                $outContent += $bindingsContent[$i-1]
+            }
+        }
+        $outContent += $bindingsContent[$i]
+    }
+    
+    $outContent | Set-Content $bindingsFile
+}

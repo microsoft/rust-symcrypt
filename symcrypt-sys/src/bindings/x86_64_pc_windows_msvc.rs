@@ -1957,6 +1957,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptMd5StateCopy(pSrc: PCSYMCRYPT_MD5_STATE, pDst: PSYMCRYPT_MD5_STATE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptMd5Algorithm: PCSYMCRYPT_HASH;
 }
@@ -1975,6 +1976,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptSha1StateCopy(pSrc: PCSYMCRYPT_SHA1_STATE, pDst: PSYMCRYPT_SHA1_STATE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha1Algorithm: PCSYMCRYPT_HASH;
 }
@@ -1993,6 +1995,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptSha256StateCopy(pSrc: PCSYMCRYPT_SHA256_STATE, pDst: PSYMCRYPT_SHA256_STATE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha256Algorithm: PCSYMCRYPT_HASH;
 }
@@ -2011,6 +2014,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptSha384StateCopy(pSrc: PCSYMCRYPT_SHA384_STATE, pDst: PSYMCRYPT_SHA384_STATE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha384Algorithm: PCSYMCRYPT_HASH;
 }
@@ -2029,6 +2033,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptSha512StateCopy(pSrc: PCSYMCRYPT_SHA512_STATE, pDst: PSYMCRYPT_SHA512_STATE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -2050,6 +2055,7 @@ unsafe extern "C" {
         pDst: PSYMCRYPT_SHA3_256_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
 }
@@ -2071,6 +2077,7 @@ unsafe extern "C" {
         pDst: PSYMCRYPT_SHA3_384_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
 }
@@ -2092,6 +2099,7 @@ unsafe extern "C" {
         pDst: PSYMCRYPT_SHA3_512_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha3_512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -2129,6 +2137,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptHmacMd5Result(pState: PSYMCRYPT_HMAC_MD5_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptHmacMd5Algorithm: PCSYMCRYPT_MAC;
 }
@@ -2170,6 +2179,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptHmacSha1Result(pState: PSYMCRYPT_HMAC_SHA1_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptHmacSha1Algorithm: PCSYMCRYPT_MAC;
 }
@@ -2211,6 +2221,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptHmacSha256Result(pState: PSYMCRYPT_HMAC_SHA256_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptHmacSha256Algorithm: PCSYMCRYPT_MAC;
 }
@@ -2252,6 +2263,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptHmacSha384Result(pState: PSYMCRYPT_HMAC_SHA384_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptHmacSha384Algorithm: PCSYMCRYPT_MAC;
 }
@@ -2293,6 +2305,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptHmacSha512Result(pState: PSYMCRYPT_HMAC_SHA512_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptHmacSha512Algorithm: PCSYMCRYPT_MAC;
 }
@@ -2351,6 +2364,7 @@ unsafe extern "C" {
         cbData: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
 }
@@ -2713,15 +2727,19 @@ unsafe extern "C" {
 unsafe extern "C" {
     pub fn SymCryptEcurveSizeofFieldElement(pCurve: PCSYMCRYPT_ECURVE) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptEcurveParamsNistP521: PCSYMCRYPT_ECURVE_PARAMS;
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
@@ -2841,27 +2859,35 @@ impl Default for _SYMCRYPT_OID {
 }
 pub type SYMCRYPT_OID = _SYMCRYPT_OID;
 pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
+#[link(name = "symcrypt", kind = "dylib")]
 unsafe extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
