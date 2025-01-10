@@ -12,38 +12,26 @@
 #    sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for cross-compilation
 #    cargo install bindgen-cli
 
-[CmdletBinding()]
-param([string]$SymCryptRoot = "../SymCrypt")
-
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $True
 
+Push-Location "$PSScriptRoot/.." # Move to the root of the project
 
-cd "$PSScriptRoot/.." # Move to the root of the project
-$SymCryptRoot = $SymCryptRoot.Replace("\", "/")
+python3 "./symcrypt-sys/symcrypt/scripts/version.py" --build-info
+mv -Force "./symcrypt-sys/symcrypt/inc/buildInfo.h" "./symcrypt-sys/inc/"
 
-$header = "$SymCryptRoot/inc/wrapper.h"
-$wrapperHeader = '
-#ifdef __linux__
-#include <stddef.h>
-#endif
-
-#include "symcrypt.h"
-'
-$wrapperHeader > $header
-
-$bindingsDir = "$PSScriptRoot/../symcrypt-sys/src/bindings"
+$bindingsDir = "./symcrypt-sys/src/bindings" # is relative to the project root
 if (Test-Path $bindingsDir) {
     Remove-Item -Recurse -Force "$bindingsDir"
 }
 
-& "$PSScriptRoot/generate-bindings.ps1" $header "x86_64-pc-windows-msvc"
-& "$PSScriptRoot/generate-bindings.ps1" $header "aarch64-pc-windows-msvc"
+& "$PSScriptRoot/generate-bindings.ps1" "x86_64-pc-windows-msvc" $bindingsDir
+& "$PSScriptRoot/generate-bindings.ps1" "aarch64-pc-windows-msvc" $bindingsDir
 
 wsl --shutdown # force WSL to reload the environment
-wsl exec bash "./scripts/generate-bindings.sh" $header "x86_64-unknown-linux-gnu"
-wsl exec bash "./scripts/generate-bindings.sh" $header "aarch64-unknown-linux-gnu"
-
-Remove-Item $header
+wsl exec bash "./scripts/generate-bindings.sh" "x86_64-unknown-linux-gnu" $bindingsDir
+wsl exec bash "./scripts/generate-bindings.sh" "aarch64-unknown-linux-gnu" $bindingsDir
 
 cargo fmt -p symcrypt-sys
+
+Pop-Location

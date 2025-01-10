@@ -1,10 +1,9 @@
-name: Rust
+name: Build
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -15,22 +14,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-pc-windows-msvc
-            os: windows-latest
-            symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-windows-amd64-release-103.4.2-171f697.zip"
-            run-tests: true
-          - target: aarch64-pc-windows-msvc
-            os: windows-latest
-            symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-windows-arm64-release-103.4.2-171f697.zip"
-            run-tests: false # Windows doesn't support ARM64 emulation
-          - target: x86_64-unknown-linux-gnu
-            symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-amd64-release-103.4.2-171f697.tar.gz"
-            os: ubuntu-latest
-            run-tests: true
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-arm64-release-103.4.2-171f697.tar.gz"
-            run-tests: false
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-windows-amd64-release-103.4.2-171f697.zip"
+          run-tests: true
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-windows-arm64-release-103.4.2-171f697.zip"
+          run-tests: false # Windows doesn't support ARM64 emulation
+        - target: x86_64-unknown-linux-gnu
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-amd64-release-103.4.2-171f697.tar.gz"
+          os: ubuntu-latest
+          run-tests: true
+        - target: aarch64-unknown-linux-gnu
+          os: ubuntu-latest
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-arm64-release-103.4.2-171f697.tar.gz"
+          run-tests: false
             
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.target }}    
@@ -63,8 +62,11 @@ jobs:
           echo "SYMCRYPT_LIB_PATH=$dir/symcrypt/dll" >> $env:GITHUB_ENV   
         }
 
-    - name: Build
+    - name: Debug build
       run: cargo build --verbose --target ${{ matrix.target }}
+    
+    - name: Release build
+      run: cargo build --release --verbose --target ${{ matrix.target }}
 
     - name: Run tests
       if: matrix.run-tests
