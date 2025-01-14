@@ -4,13 +4,27 @@
 # - LLVM and bindgen must be installed on both Windows and WSL.
 
 # Installation instructions:
-# Windows:
+# Setting up Windows:
 #    winget install LLVM.LLVM
 #    cargo install bindgen-cli@0.71.1
-# WSL Ubuntu:
-#    sudo apt install pwsh clang libclang-dev
-#    sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for cross-compilation
+#
+# Setting up WSL:
+#  - It's better to install the most recent version of Ubuntu, rustup, etc.
+#    wsl --install Ubuntu-24.04
+#
+#  - Enter the WSL shell and run the following commands:
+#    sudo apt update && sudo apt upgrade
+#    sudo apt install -y clang libclang-dev rustup
+#    sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for cross-compilation
+#    
+#    rustup update 
+#    rustup toolchain add stable
+#    rustup target add x86_64-unknown-linux-gnu
+#    rustup target add aarch64-unknown-linux-gnu
 #    cargo install bindgen-cli@0.71.1
+#
+#  - Follow this instruction to install powershell: 
+#    https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu
 
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $True
