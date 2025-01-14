@@ -166,32 +166,42 @@ impl RsaKey {
         rsa_key_usage: RsaKeyUsage,
     ) -> Result<Self, SymCryptError> {
         symcrypt_init();
-        let (pub_exp_ptr, pub_exp_count) = match pub_exp {
-            Some(exp) => {
-                let u64_pub_exp = load_msb_first_u64(exp)?;
-                ([u64_pub_exp].as_ptr(), 1) // This array has a length of 1.
-            }
-            None => (ptr::null(), 0), // If no public exponent is provided, use null and count 0 which will notify SymCrypt to use their default exponent.
-        };
+        let flags = rsa_key_usage.to_symcrypt_flag();
 
         // Can return MemoryAllocationError
         let rsa_key = allocate_rsa(2, n_bits_mod as symcrypt_sys::SIZE_T)?;
 
-        unsafe {
+        let result = match pub_exp {
             // SAFETY: FFI calls
-            match symcrypt_sys::SymCryptRsakeyGenerate(
-                rsa_key.0,
-                pub_exp_ptr,   // Pointer to the public exponent array or null.
-                pub_exp_count, // Count of public exponents. Will be 1 if Some() is provided, else 0.
-                rsa_key_usage.to_symcrypt_flag(),
-            ) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
-                    inner: rsa_key,
-                    rsa_key_usage,
-                    has_private_key: true,
-                }),
-                err => Err(err.into()),
-            }
+            Some(pub_exp_bytes) => {
+                let u64_pub_exp =  load_msb_first_u64(pub_exp_bytes)?;
+
+                unsafe {
+                    symcrypt_sys::SymCryptRsakeyGenerate(
+                        rsa_key.0,
+                        [u64_pub_exp].as_ptr(),
+                        1, // Count of public exponents.
+                        flags)
+                }
+            },
+            // If no public exponent is provided, use null and count 0 which will notify SymCrypt to use their default exponent.
+            // SAFETY: FFI calls
+            None => unsafe {
+                symcrypt_sys::SymCryptRsakeyGenerate(
+                    rsa_key.0,
+                    ptr::null(),
+                    0,
+                    flags)
+                },
+        };
+
+        match result {
+            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
+                inner: rsa_key,
+                rsa_key_usage: rsa_key_usage,
+                has_private_key: true,
+            }),
+            err => Err(err.into()),
         }
     }
 
@@ -220,12 +230,11 @@ impl RsaKey {
         let u64_pub_exp = load_msb_first_u64(pub_exp)?;
 
         // Construct the primes_ptr and primes_len_ptr for SymCryptRsaKeyValue consumption
-        let primes_ptr = [p.as_ptr(), q.as_ptr()].as_mut_ptr();
-        let primes_len_ptr = [
+        let mut primes = [p.as_ptr(), q.as_ptr()];
+        let mut primes_len = [
             p.len() as symcrypt_sys::SIZE_T,
             q.len() as symcrypt_sys::SIZE_T,
-        ]
-        .as_mut_ptr();
+        ];
         unsafe {
             // SAFETY: FFI calls
             match symcrypt_sys::SymCryptRsakeySetValue(
@@ -233,8 +242,8 @@ impl RsaKey {
                 modulus_buffer.len() as symcrypt_sys::SIZE_T,
                 [u64_pub_exp].as_ptr(),    // This array has a length of 1.
                 1 as symcrypt_sys::UINT32, // Must be 1.
-                primes_ptr,
-                primes_len_ptr,
+                primes.as_mut_ptr(),
+                primes_len.as_mut_ptr(),
                 2 as symcrypt_sys::UINT32,
                 NumberFormat::MSB.to_symcrypt_format(),
                 rsa_key_usage.to_symcrypt_flag(),
@@ -536,9 +545,8 @@ mod test {
         let key_pair = result.unwrap();
         let key_pair_exported = key_pair.export_key_pair_blob().unwrap();
 
-        let pub_exp_exported = key_pair_exported.pub_exp.iter().rev()
-            .enumerate()
-            .fold(0, |v: u64, (offset, byte)| v | ((*byte as u64) << 8 * offset));
+        let pub_exp_exported = key_pair_exported.pub_exp.iter().rev().enumerate()
+            .fold(0, |v, (byte_offset, byte)| v | (*byte as u64) << 8 * byte_offset);
 
         assert_eq!(pub_exp_exported, pub_exp);
     }
