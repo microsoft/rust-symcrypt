@@ -22,6 +22,7 @@ $SymCryptSysCrate = $SymCryptSysCrate.Replace("\", "/")
 $wrapperHeader = "$SymCryptSysCrate/inc/wrapper.h"
 $targetName = $triple.Replace("-", "_")
 $bindingsFile = "$outDir/$targetName.rs"
+$rustVersion = "1.64.0"
 
 $supportedTargets = @(
     "x86_64-pc-windows-msvc",
@@ -112,10 +113,11 @@ $bindgenParams = @(
     #"--generate-block",
     #"--no-layout-tests",
     #"--with-derive-eq",
-    "--with-derive-default"
+    "--with-derive-default",
     #"--with-derive-hash",
     #"--with-derive-ord",
     #"--use-array-pointers-in-arguments"
+    "--rust-target", $rustVersion
 )
 $clangParams = @(
     "-v",

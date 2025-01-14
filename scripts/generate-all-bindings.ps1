@@ -6,11 +6,11 @@
 # Installation instructions:
 # Windows:
 #    winget install LLVM.LLVM
-#    cargo install bindgen-cli
+#    cargo install bindgen-cli@0.71.1
 # WSL Ubuntu:
 #    sudo apt install pwsh clang libclang-dev
 #    sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for cross-compilation
-#    cargo install bindgen-cli
+#    cargo install bindgen-cli@0.71.1
 
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $True
