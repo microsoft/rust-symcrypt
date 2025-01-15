@@ -23,7 +23,7 @@ jobs:
           os: windows-latest
           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-windows-arm64-release-103.4.2-171f697.zip"
           run-tests: false # Windows doesn't support ARM64 emulation
-          command: cross
+          command: cargo # cross doesn't support Win ARM64
         - target: x86_64-unknown-linux-gnu
           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-amd64-release-103.4.2-171f697.tar.gz"
           os: ubuntu-latest
@@ -84,7 +84,12 @@ jobs:
     - name: Release build
       run: ${{ matrix.command }} build --release --locked --verbose --target ${{ matrix.target }}
 
-    - name: Run tests
+    - name: Run tests (Debug)
       if: matrix.run-tests
       shell: pwsh
       run: ${{ matrix.command }} test --locked --verbose --target ${{ matrix.target }}
+
+    - name: Run tests (Release)
+      if: matrix.run-tests
+      shell: pwsh
+      run: ${{ matrix.command }} test --release --locked --verbose --target ${{ matrix.target }}
