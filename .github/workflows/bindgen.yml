@@ -52,8 +52,12 @@ jobs:
       run: |
         $targetFolder = "./target/__bindgen"
         $targetName = "${{ matrix.target }}".Replace("-", "_")
-
-        ${{ matrix.command }} run --locked --bin symcrypt-bindgen -- ${{ matrix.target }} $targetFolder
+(
+        if (${{ matrix.command }} -eq 'cross')) {
+          cross run --locked --bin symcrypt-bindgen --target ${{ matrix.target }} -- ${{ matrix.target }} $targetFolder
+        } else {
+          cargo run --locked --bin symcrypt-bindgen -- ${{ matrix.target }} $targetFolder
+        }
         $newBindingsFile = "$targetFolder/$targetName.rs"
         $oldBindingsFile = "./symcrypt-sys/src/bindings/$targetName.rs"
         $diff = git diff --no-index $newBindingsFile $oldBindingsFile
