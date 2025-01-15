@@ -53,7 +53,7 @@ jobs:
         $targetFolder = "./target/__bindgen"
         $targetName = "${{ matrix.target }}".Replace("-", "_")
 
-        if (${{ matrix.command }} -eq 'cross')) {
+        if (${{ matrix.command }} -eq 'cross') {
           cross run --locked --bin symcrypt-bindgen --target ${{ matrix.target }} -- ${{ matrix.target }} $targetFolder
         } else {
           cargo run --locked --bin symcrypt-bindgen -- ${{ matrix.target }} $targetFolder
