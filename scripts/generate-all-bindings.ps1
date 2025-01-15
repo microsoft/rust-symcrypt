@@ -41,8 +41,8 @@ if (Test-Path $bindingsDir) {
     Remove-Item -Recurse -Force "$bindingsDir"
 }
 
-cargo run --bin symcrypt-bindgen "x86_64-pc-windows-msvc" $bindingsDir
-cargo run --bin symcrypt-bindgen "aarch64-pc-windows-msvc" $bindingsDir
+cargo run --locked --bin symcrypt-bindgen "x86_64-pc-windows-msvc" $bindingsDir
+cargo run --locked --bin symcrypt-bindgen "aarch64-pc-windows-msvc" $bindingsDir
 
 # because we're trying to build from windows volume, WSL often fails to detect changes in the file system
 # a better approach might be to clone the whole repo to WSL volume and create linux bindings from there
@@ -63,8 +63,8 @@ if (-not $success) {
 }
 
 wsl --shutdown # force WSL to reload the environment
-wsl exec bash "./scripts/run.sh" "cargo run --bin symcrypt-bindgen x86_64-unknown-linux-gnu $bindingsDir"
-wsl exec bash "./scripts/run.sh" "cargo run --bin symcrypt-bindgen aarch64-unknown-linux-gnu $bindingsDir"
+wsl exec bash "./scripts/run.sh" "cargo run --locked --bin symcrypt-bindgen x86_64-unknown-linux-gnu $bindingsDir"
+wsl exec bash "./scripts/run.sh" "cargo run --locked --bin symcrypt-bindgen aarch64-unknown-linux-gnu $bindingsDir"
 
 cargo fmt -p symcrypt-sys
 

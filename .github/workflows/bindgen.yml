@@ -42,15 +42,10 @@ jobs:
           sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         }
 
-    - uses: taiki-e/cache-cargo-install-action@v2
-      name: Install bindgen
-      with:
-        tool: bindgen-cli@${{ env.BINDGEN_VERSION }}
-
     - name: Compare generated bindings
       shell: pwsh
       run: |
-        ./scripts/generate-bindings.ps1 -triple ${{ matrix.target }} -outDir ${{ runner.temp }}
+        cargo run --locked --bin symcrypt-bindgen ${{ matrix.target }} ${{ runner.temp }}
         $targetName = "${{ matrix.target }}".Replace("-", "_")
         $newBindingsFile = "${{ runner.temp }}/$targetName.rs"
         $oldBindingsFile = "./symcrypt-sys/src/bindings/$targetName.rs"

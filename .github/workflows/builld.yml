@@ -63,10 +63,10 @@ jobs:
         }
 
     - name: Debug build
-      run: cargo build --verbose --target ${{ matrix.target }}
+      run: cargo build --locked --verbose --target ${{ matrix.target }}
     
     - name: Release build
-      run: cargo build --release --verbose --target ${{ matrix.target }}
+      run: cargo build --release --locked --verbose --target ${{ matrix.target }}
 
     - name: Run tests
       if: matrix.run-tests
@@ -74,4 +74,4 @@ jobs:
       run: |
         Write-Output "SYMCRYPT_LIB_PATH=$env:SYMCRYPT_LIB_PATH"
         Write-Output "PATH=$env:PATH"
-        cargo test --verbose --target ${{ matrix.target }}
+        cargo test --locked --verbose --target ${{ matrix.target }}
