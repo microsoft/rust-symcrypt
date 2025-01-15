@@ -56,8 +56,8 @@ fn main() {
         // Clang arguments
         .clang_arg("-v")
         .clang_args(["-target", &triple])
-        .clang_arg(format!("-I${}/symcrypt/inc", symcrypt_sys_crate.display()))
-        .clang_arg(format!("-I${}/symcrypt/lib", symcrypt_sys_crate.display()))
+        .clang_arg(format!("-I{}/symcrypt/inc", symcrypt_sys_crate.display()))
+        .clang_arg(format!("-I{}/symcrypt/lib", symcrypt_sys_crate.display()))
 
         // ALLOWLIST
 
