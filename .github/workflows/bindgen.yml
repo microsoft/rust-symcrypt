@@ -17,12 +17,16 @@ jobs:
         include:
         - target: x86_64-pc-windows-msvc
           os: windows-latest
+          command: cargo
         - target: aarch64-pc-windows-msvc
           os: windows-latest
+          command: cargo
         - target: x86_64-unknown-linux-gnu
           os: ubuntu-24.04
+          command: cargo
         - target: aarch64-unknown-linux-gnu
           os: ubuntu-24.04
+          command: cross
 
     runs-on: ${{ matrix.os }}
     name: Bindgen ${{ matrix.target }}
@@ -34,17 +38,19 @@ jobs:
 
     - name: Install host target
       shell: pwsh
-      run: |
-        rustup target add ${{ matrix.target }}
-        if ("${{ matrix.target }}" -match "aarch64-unknown-linux-gnu") {
-          sudo apt update
-          sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-        }
+      run: rustup target add ${{ matrix.target }}
+
+    - name: Install cross
+      if: ${{ matrix.command }} == 'cross'
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cross
+
 
     - name: Compare generated bindings
       shell: pwsh
       run: |
-        cargo run --locked --bin symcrypt-bindgen ${{ matrix.target }} ${{ runner.temp }}
+        ${{ matrix.command }} run --locked --bin symcrypt-bindgen ${{ matrix.target }} ${{ runner.temp }}
         $targetName = "${{ matrix.target }}".Replace("-", "_")
         $newBindingsFile = "${{ runner.temp }}/$targetName.rs"
         $oldBindingsFile = "./symcrypt-sys/src/bindings/$targetName.rs"
