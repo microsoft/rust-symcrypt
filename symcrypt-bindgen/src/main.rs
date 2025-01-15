@@ -12,6 +12,7 @@ const SUPPORTED_TARGETS: &[&str] = &[
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 3 {
+        eprintln!("Wrong arguments: {:?}", args);
         eprintln!("Usage: {} <triple> <outDir>", args[0]);
         std::process::exit(1);
     }
