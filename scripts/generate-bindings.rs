@@ -33,7 +33,10 @@ fn main() {
     let out_dir = &args[2];
 
     if !SUPPORTED_TARGETS.contains(&triple.as_str()) {
-        eprintln!("Unsupported target: {}. Supported targets: {:?}", triple, SUPPORTED_TARGETS);
+        eprintln!(
+            "Unsupported target: {}. Supported targets: {:?}",
+            triple, SUPPORTED_TARGETS
+        );
         std::process::exit(1);
     }
 
@@ -51,10 +54,13 @@ fn main() {
     let bindings = bindgen::builder()
         .header(wrapper_header.display().to_string())
         .rust_target(bindgen::RustTarget::from_str(&rust_target).unwrap())
+
+        // Clang arguments
         .clang_arg("-v")
         .clang_args(["-target", &triple])
         .clang_arg(format!("-I${}/symcrypt/inc", symcrypt_sys_crate.display()))
         .clang_arg(format!("-I${}/symcrypt/lib", symcrypt_sys_crate.display()))
+
         // ALLOWLIST
 
         // INIT FUNCTIONS
@@ -128,12 +134,18 @@ fn get_rust_version_from_cargo_metadata() -> String {
     let output: String = cmd_lib::run_fun!(cargo metadata --no-deps --format-version=1)
         .expect("failed to execute cargo metadata");
 
-    let metadata: serde_json::Value = serde_json::from_slice(&output.as_bytes())
-        .expect("Failed to parse cargo metadata output");
+    let metadata: serde_json::Value =
+        serde_json::from_slice(&output.as_bytes()).expect("Failed to parse cargo metadata output");
 
     let packages = metadata["packages"].as_array().unwrap();
-    let package = packages.iter().find(|p| p["name"].as_str().unwrap() == "symcrypt-sys").expect("symcrypt-sys package not found");
-    package["rust_version"].as_str().map(|s| s.to_string()).unwrap()
+    let package = packages
+        .iter()
+        .find(|p| p["name"].as_str().unwrap() == "symcrypt-sys")
+        .expect("symcrypt-sys package not found");
+    package["rust_version"]
+        .as_str()
+        .map(|s| s.to_string())
+        .unwrap()
 }
 
 fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
@@ -142,7 +154,8 @@ fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
         let link_str = "#[link(name = \"symcrypt\", kind = \"dylib\")]";
         let regex_exp1 = regex::Regex::new(r"pub static \w+: \[SYMCRYPT_OID; \d+usize\];").unwrap();
         let regex_exp2 = regex::Regex::new(r"pub static \w+: PCSYMCRYPT_\w+;").unwrap();
-        let bindings_content = std::fs::read_to_string(bindings_file).expect("Unable to read bindings file");
+        let bindings_content =
+            std::fs::read_to_string(bindings_file).expect("Unable to read bindings file");
 
         let mut out_content = Vec::new();
         let lines: Vec<&str> = bindings_content.lines().collect();
@@ -160,6 +173,7 @@ fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
         }
 
         out_content.push(""); // Add an empty line at the end
-        std::fs::write(bindings_file, out_content.join("\n")).expect("Unable to write bindings file");
+        std::fs::write(bindings_file, out_content.join("\n"))
+            .expect("Unable to write bindings file");
     }
 }
