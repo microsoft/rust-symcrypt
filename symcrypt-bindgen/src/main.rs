@@ -27,7 +27,11 @@ fn main() {
         std::process::exit(1);
     }
 
-    let root_dir = Path::new(std::file!()).parent().unwrap().parent().unwrap();
+    let root_dir = Path::new(std::file!())
+        .parent().unwrap()
+        .parent().unwrap()
+        .parent().unwrap();
+
     println!("root_dir: {}", root_dir.display());
     let symcrypt_sys_crate = root_dir.join("symcrypt-sys");
     let wrapper_header = symcrypt_sys_crate.join("inc/wrapper.h");
@@ -37,6 +41,8 @@ fn main() {
 
     println!("Rust version: {rust_target}");
     println!("Output file: {bindings_file}");
+
+    std::fs::create_dir_all(out_dir).expect("Unable to create output directory");
 
     let bindings = bindgen::builder()
         .header(wrapper_header.display().to_string())
