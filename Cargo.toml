@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "rust-symcrypt",
+    "symcrypt-bindgen",
     "symcrypt-sys"
 ]
 resolver = "2"

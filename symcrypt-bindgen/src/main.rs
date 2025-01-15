@@ -1,16 +1,3 @@
-//! ```cargo
-//! [dependencies]
-//! bindgen = "0.71.1"
-//! serde_json = "1.0"
-//! anyhow = "1.0"
-//! cmd_lib = "1.9"
-//! regex = "1.11"
-//! ```
-// Prerequisites:
-// - Install runrust (cargo install runrust)
-// Usage:
-// runrust ./scripts/generate-bindings.rs x86_64-pc-windows-msvc target/bindings
-
 use std::env;
 use std::path::Path;
 use std::str::FromStr;
@@ -25,7 +12,7 @@ const SUPPORTED_TARGETS: &[&str] = &[
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 3 {
-        eprintln!("Usage: runrust generate_bindings.rs <triple> <outDir>");
+        eprintln!("Usage: {} <triple> <outDir>", args[0]);
         std::process::exit(1);
     }
 
