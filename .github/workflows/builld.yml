@@ -40,7 +40,13 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install host target
-      run: rustup target add ${{ matrix.target }}
+      shell: pwsh
+      run: |
+        rustup target add ${{ matrix.target }}
+        if ("${{ matrix.target }}" -match "aarch64-unknown-linux-gnu") {
+          sudo apt update
+          sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        }
 
     - name: Download SymCrypt
       shell: pwsh
