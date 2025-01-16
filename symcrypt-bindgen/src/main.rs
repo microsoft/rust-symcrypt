@@ -12,6 +12,7 @@ const SUPPORTED_TARGETS: &[&str] = &[
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 3 {
+        eprintln!("Wrong arguments: {:?}", args);
         eprintln!("Usage: {} <triple> <outDir>", args[0]);
         std::process::exit(1);
     }
@@ -51,8 +52,8 @@ fn main() {
         // Clang arguments
         .clang_arg("-v")
         .clang_args(["-target", &triple])
-        .clang_arg(format!("-I${}/symcrypt/inc", symcrypt_sys_crate.display()))
-        .clang_arg(format!("-I${}/symcrypt/lib", symcrypt_sys_crate.display()))
+        .clang_arg(format!("-I{}/symcrypt/inc", symcrypt_sys_crate.display()))
+        .clang_arg(format!("-I{}/symcrypt/lib", symcrypt_sys_crate.display()))
 
         // ALLOWLIST
 
