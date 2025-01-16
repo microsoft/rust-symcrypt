@@ -1,15 +1,9 @@
 # adds missining dependencies into cross's container
 # https://github.com/cross-rs/cross/wiki/FAQ#using-clang--bindgen
 [target.aarch64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
 pre-build = [
     "echo 'running pre-build for aarch64-unknown-linux-gnu'",
     "apt-get update",
-    "apt-get install --assume-yes --no-install-recommends libclang-3.9-dev clang-3.9"
-]
-
-[build]
-pre-build = [
-    "echo 'running pre-build for build'",
-    "apt-get update",
-    "apt-get install --assume-yes --no-install-recommends libclang-3.9-dev clang-3.9"
+    "apt-get install --assume-yes --no-install-recommends libclang-10-dev clang-10"
 ]
