@@ -14,11 +14,7 @@ fn main() {
     if args.len() != 3 {
         eprintln!("Wrong arguments: {:?}", args);
         eprintln!("Usage: {} <triple> <outDir>", args[0]);
-
-        // discard extra arguments
-        if args.len() < 3 {
-            std::process::exit(1);
-        }
+        std::process::exit(1);
     }
 
     let triple = &args[1];
