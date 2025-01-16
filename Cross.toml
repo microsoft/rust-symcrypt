@@ -9,7 +9,8 @@ pre-build = [
     "mkdir symcrypt",
     "wget https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-arm64-release-103.4.2-171f697.tar.gz -O symcrypt.tar.gz",
     "tar -xzf symcrypt.tar.gz -C symcrypt",
-    "export LD_LIBRARY_PATH=/symcrypt/lib:$LD_LIBRARY_PATH",
-    "export LIBRARY_PATH=/symcrypt/lib:$LIBRARY_PATH",
-    "export SYMCRYPT_LIB_PATH=/symcrypt/lib"
+    "cp symcrypt/lib/libsymcrypt.so.103.4.2 /usr/lib/",
+    "ln -s /usr/lib/libsymcrypt.so.103 /usr/lib/libsymcrypt.so",
+    "ln -s /usr/lib/libsymcrypt.so.103.4.2 /usr/lib/libsymcrypt.so",
+    "ldconfig",
 ]
