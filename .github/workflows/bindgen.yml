@@ -24,9 +24,11 @@ jobs:
         - target: x86_64-unknown-linux-gnu
           os: ubuntu-24.04
           command: cargo
+        # cross fails with error below:
+        # Unable to find libclang: "the `libclang` shared library at /usr/lib/llvm-10/lib/libclang-10.0.0.so
         - target: aarch64-unknown-linux-gnu
           os: ubuntu-24.04
-          command: cross
+          command: cargo
 
     runs-on: ${{ matrix.os }}
     name: Bindgen ${{ matrix.target }}

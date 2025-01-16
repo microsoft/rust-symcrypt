@@ -49,8 +49,6 @@ fn main() {
 
     std::fs::create_dir_all(out_dir).expect("Unable to create output directory");
 
-    println!("[DBG] libclang-10.0.0.so: {}", Path::new("/usr/lib/llvm-10/lib/libclang-10.0.0.so").exists());
-
     let bindings = bindgen::builder()
         .header(wrapper_header.display().to_string())
         .rust_target(bindgen::RustTarget::from_str(&rust_target).unwrap())
