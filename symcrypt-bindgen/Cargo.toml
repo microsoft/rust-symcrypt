@@ -17,3 +17,8 @@ anyhow = "1.0"
 cmd_lib = "1.9"
 serde_json = "1.0"
 regex = "1.11"
+
+
+# adds missining dependencies into cross's container
+[package.metadata.cross.target.aarch64-unknown-linux-gnu]
+pre-build = ["apt-get update && apt-get install --assume-yes --no-install-recommends libclang-3.9-dev clang-3.9"]
