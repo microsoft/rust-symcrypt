@@ -32,7 +32,7 @@ jobs:
         - target: aarch64-unknown-linux-gnu
           os: ubuntu-latest
           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-arm64-release-103.4.2-171f697.tar.gz"
-          run-tests: false
+          run-tests: true
           command: cross
             
     runs-on: ${{ matrix.os }}
