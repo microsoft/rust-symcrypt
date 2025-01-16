@@ -46,7 +46,12 @@ jobs:
     - name: Install host target
       if: ${{ matrix.command != 'cross' }}
       shell: pwsh
-      run: rustup target add ${{ matrix.target }}
+      run: |
+        rustup target add ${{ matrix.target }}
+        if ("${{ matrix.target }}" -match "aarch64-unknown-linux-gnu") {
+          sudo apt update
+          sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        }
 
     - name: Install cross
       if: ${{ matrix.command == 'cross' }}
