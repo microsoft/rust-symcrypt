@@ -51,6 +51,7 @@ jobs:
         $targetName = "${{ matrix.target }}".Replace("-", "_")
 
         if (${{ matrix.command }} -eq 'cross') {
+          cross build --locked -p symcrypt-bindgen --target ${{ matrix.target }}
           cross run --locked --bin symcrypt-bindgen --target ${{ matrix.target }} -- ${{ matrix.target }} $targetFolder
         } else {
           cargo run --locked --bin symcrypt-bindgen -- ${{ matrix.target }} $targetFolder
