@@ -37,12 +37,12 @@ jobs:
         submodules: true
 
     - name: Install host target
-      if: ${{ matrix.command }} != 'cross'
+      if: ${{ matrix.command != 'cross' }}
       shell: pwsh
       run: rustup target add ${{ matrix.target }}
 
     - name: Install cross
-      if: ${{ matrix.command }} == 'cross'
+      if: ${{ matrix.command == 'cross' }}
       uses: taiki-e/install-action@v2
       with:
         tool: cross
@@ -51,11 +51,11 @@ jobs:
       run:  ${{ matrix.command }} build -p symcrypt-bindgen --locked --verbose --target ${{ matrix.target }}
 
     - name: Generate bindings (cross)
-      if: ${{ matrix.command }} == 'cross'
+      if: ${{ matrix.command == 'cross' }}
       run: ${{ matrix.command }} run --locked --bin symcrypt-bindgen --target ${{ matrix.target }} -- ${{ matrix.target }} ${{ env.NEW_BINDINGS_TARGET_FOLDER }}
 
     - name: Generate bindings (cargo)
-      if: ${{ matrix.command }} != 'cross'
+      if: ${{ matrix.command != 'cross' }}
       run: ${{ matrix.command }} run --locked --bin symcrypt-bindgen -- ${{ matrix.target }} ${{ env.NEW_BINDINGS_TARGET_FOLDER }}
 
     - name: Compare generated bindings

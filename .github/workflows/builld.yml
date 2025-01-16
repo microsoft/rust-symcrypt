@@ -44,12 +44,12 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install host target
-      if: ${{ matrix.command }} != 'cross'
+      if: ${{ matrix.command != 'cross' }}
       shell: pwsh
       run: rustup target add ${{ matrix.target }}
 
     - name: Install cross
-      if: ${{ matrix.command }} == 'cross'
+      if: ${{ matrix.command == 'cross' }}
       uses: taiki-e/install-action@v2
       with:
         tool: cross
