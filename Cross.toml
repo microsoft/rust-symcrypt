@@ -5,7 +5,7 @@ image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:edge"
 pre-build = [
     "echo 'running pre-build for aarch64-unknown-linux-gnu'",
     "apt-get update",
-    "apt-get install --assume-yes clang libclang-dev",
+    "apt-get install --assume-yes clang libclang-dev wget",
     "wget https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-arm64-release-103.4.2-171f697.tar.gz -O symcrypt.tar.gz",
     "tar -xzf symcrypt.tar.gz -C symcrypt",
     "export LD_LIBRARY_PATH=/symcrypt/lib:$LD_LIBRARY_PATH",
