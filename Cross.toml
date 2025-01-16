@@ -10,7 +10,7 @@ pre-build = [
     "wget https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-arm64-release-103.4.2-171f697.tar.gz -O symcrypt.tar.gz",
     "tar -xzf symcrypt.tar.gz -C symcrypt",
     "cp symcrypt/lib/libsymcrypt.so.103.4.2 /usr/lib/",
-    "ln -s /usr/lib/libsymcrypt.so.103 /usr/lib/libsymcrypt.so",
+    "ln -s /usr/lib/libsymcrypt.so.103.4.2 /usr/lib/libsymcrypt.so.103",
     "ln -s /usr/lib/libsymcrypt.so.103.4.2 /usr/lib/libsymcrypt.so",
     "ldconfig",
 ]
