@@ -2,14 +2,14 @@
 # https://github.com/cross-rs/cross/wiki/FAQ#using-clang--bindgen
 [package.metadata.cross.target.aarch64-unknown-linux-gnu]
 pre-build = [
-    "echo running pre-build for aarch64-unknown-linux-gnu (1)",
+    "echo 'running pre-build for aarch64-unknown-linux-gnu'",
     "apt-get update",
     "apt-get install --assume-yes --no-install-recommends libclang-3.9-dev clang-3.9"
 ]
 
 [build]
 pre-build = [
-    "echo running pre-build for aarch64-unknown-linux-gnu (2)",
+    "echo 'running pre-build for build'",
     "apt-get update",
     "apt-get install --assume-yes --no-install-recommends libclang-3.9-dev clang-3.9"
 ]
