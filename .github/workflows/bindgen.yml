@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   pull_request:
 
+env:
+  NEW_BINDINGS_TARGET_FOLDER: "./target/__bindgen"
+
 jobs:
   bindgen:
     strategy:
@@ -34,6 +37,7 @@ jobs:
         submodules: true
 
     - name: Install host target
+      if: ${{ matrix.command }} != 'cross'
       shell: pwsh
       run: rustup target add ${{ matrix.target }}
 
@@ -43,20 +47,23 @@ jobs:
       with:
         tool: cross
 
+    - name: Build
+      run:  ${{ matrix.command }} build -p symcrypt-bindgen --locked --verbose --target ${{ matrix.target }}
+
+    - name: Generate bindings (cross)
+      if: ${{ matrix.command }} == 'cross'
+      run: ${{ matrix.command }} run --locked --bin symcrypt-bindgen --target ${{ matrix.target }} -- ${{ matrix.target }} ${{ env.NEW_BINDINGS_TARGET_FOLDER }}
+
+    - name: Generate bindings (cargo)
+      if: ${{ matrix.command }} != 'cross'
+      run: ${{ matrix.command }} run --locked --bin symcrypt-bindgen -- ${{ matrix.target }} ${{ env.NEW_BINDINGS_TARGET_FOLDER }}
 
     - name: Compare generated bindings
       shell: pwsh
       run: |
-        $targetFolder = "./target/__bindgen"
         $targetName = "${{ matrix.target }}".Replace("-", "_")
 
-        if (${{ matrix.command }} -eq 'cross') {
-          cross build --locked -p symcrypt-bindgen --target ${{ matrix.target }}
-          cross run --locked --bin symcrypt-bindgen --target ${{ matrix.target }} -- ${{ matrix.target }} $targetFolder
-        } else {
-          cargo run --locked --bin symcrypt-bindgen -- ${{ matrix.target }} $targetFolder
-        }
-        $newBindingsFile = "$targetFolder/$targetName.rs"
+        $newBindingsFile = "${{ env.NEW_BINDINGS_TARGET_FOLDER }}/$targetName.rs"
         $oldBindingsFile = "./symcrypt-sys/src/bindings/$targetName.rs"
         $diff = git diff --no-index $newBindingsFile $oldBindingsFile
         if ($diff) {
