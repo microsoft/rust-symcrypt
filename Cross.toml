@@ -5,5 +5,5 @@ image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
 pre-build = [
     "echo 'running pre-build for aarch64-unknown-linux-gnu'",
     "apt-get update",
-    "apt-get install --assume-yes --no-install-recommends libclang-10-dev clang-10"
+    "apt-get install --assume-yes clang libclang-dev"
 ]
