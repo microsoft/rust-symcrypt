@@ -50,8 +50,18 @@ jobs:
         echo "NEW_BINDINGS_FILE_NAME=$targetName" >> $env:GITHUB_ENV
         echo "NEW_BINDINGS_FILE_PATH=$newBindingsFilePath" >> $env:GITHUB_ENV
 
+    - name: Check for 'publish_new_bindings' label
+      id: check_label
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const labels = context.payload.pull_request.labels.map(label => label.name);
+          return labels.includes('publish_new_bindings');
+
     - name: Upload bindings as artifact
-      uses: actions/upload-artifact@v3
+      if: steps.check_label.outputs.result == 'true'
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.NEW_BINDINGS_FILE_NAME }}
         path: ${{ env.NEW_BINDINGS_FILE_PATH }}
