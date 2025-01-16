@@ -20,5 +20,18 @@ regex = "1.11"
 
 
 # adds missining dependencies into cross's container
+# https://github.com/cross-rs/cross/wiki/FAQ#using-clang--bindgen
 [package.metadata.cross.target.aarch64-unknown-linux-gnu]
-pre-build = ["apt-get update && apt-get install --assume-yes --no-install-recommends libclang-3.9-dev clang-3.9"]
+pre-build = [
+    "echo running pre-build for aarch64-unknown-linux-gnu (1)",
+    "apt-get update",
+    "apt-get install --assume-yes --no-install-recommends libclang-3.9-dev clang-3.9"
+]
+
+[build]
+pre-build = [
+    "echo running pre-build for aarch64-unknown-linux-gnu (2)",
+    "apt-get update",
+    "apt-get install --assume-yes --no-install-recommends libclang-3.9-dev clang-3.9"
+]
+
