@@ -4,13 +4,13 @@
 image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:edge"
 pre-build = [
     "echo 'running pre-build for aarch64-unknown-linux-gnu'",
-    "apt-get update",
-    "apt-get install --assume-yes clang libclang-dev wget",
-    "mkdir symcrypt",
-    "wget https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-arm64-release-103.4.2-171f697.tar.gz -O symcrypt.tar.gz",
-    "tar -xzf symcrypt.tar.gz -C symcrypt",
-    "cp symcrypt/lib/libsymcrypt.so.103.4.2 /usr/lib/",
-    "ln -s /usr/lib/libsymcrypt.so.103.4.2 /usr/lib/libsymcrypt.so.103",
-    "ln -s /usr/lib/libsymcrypt.so.103.4.2 /usr/lib/libsymcrypt.so",
-    "ldconfig",
+    #"apt-get update",
+    #"apt-get install --assume-yes clang libclang-dev wget",
+    #"mkdir symcrypt",
+    #"wget https://github.com/microsoft/SymCrypt/releases/download/v103.4.2/symcrypt-linux-generic-arm64-release-103.4.2-171f697.tar.gz -O symcrypt.tar.gz",
+    #"tar -xzf symcrypt.tar.gz -C symcrypt",
+    #"cp symcrypt/lib/libsymcrypt.so.103.4.2 /usr/lib/",
+    #"ln -s /usr/lib/libsymcrypt.so.103.4.2 /usr/lib/libsymcrypt.so.103",
+    #"ln -s /usr/lib/libsymcrypt.so.103.4.2 /usr/lib/libsymcrypt.so",
+    #"ldconfig",
 ]
