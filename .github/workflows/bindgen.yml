@@ -47,7 +47,7 @@ jobs:
         cargo run --locked --bin symcrypt-bindgen ${{ matrix.target }} ${{ runner.temp }}
         $targetName = "${{ matrix.target }}".Replace("-", "_")
         $newBindingsFilePath = "${{ runner.temp }}/$targetName.rs"
-        echo "NEW_BINDINGS_FILE_NAME=$targetName" >> $env:GITHUB_ENV
+        echo "NEW_BINDINGS_FILE_NAME=$targetName.rs" >> $env:GITHUB_ENV
         echo "NEW_BINDINGS_FILE_PATH=$newBindingsFilePath" >> $env:GITHUB_ENV
 
     - name: Check for 'publish_new_bindings' label
@@ -69,7 +69,7 @@ jobs:
     - name: Compare generated bindings
       shell: pwsh
       run: |
-        $oldBindingsFile = "./symcrypt-sys/src/bindings/$targetName.rs"
+        $oldBindingsFile = "./symcrypt-sys/src/bindings/$($env:NEW_BINDINGS_FILE_NAME)"
         $diff = git diff --no-index $env:NEW_BINDINGS_FILE_PATH $oldBindingsFile
         if ($diff) {
           Write-Output "Bindings have changed"
