@@ -1,5 +1,5 @@
 use std::env;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 const SUPPORTED_TARGETS: &[&str] = &[
@@ -28,10 +28,7 @@ fn main() {
         std::process::exit(1);
     }
 
-    let root_dir = Path::new(std::file!())
-        .parent().unwrap()
-        .parent().unwrap()
-        .parent().unwrap();
+    let root_dir = get_parent_n(Path::new(std::file!()), 3);
 
     println!("root_dir: {}", root_dir.display());
     let symcrypt_sys_crate = root_dir.join("symcrypt-sys");
@@ -121,6 +118,14 @@ fn main() {
         .expect("Couldn't write bindings!");
 
     fix_bindings_for_windows(triple, &bindings_file);
+}
+
+fn get_parent_n(path: &Path, n: usize) -> PathBuf {
+    let mut parent = path;
+    for _ in 0..n {
+        parent = parent.parent().unwrap();
+    }
+    parent.to_path_buf()
 }
 
 // Bindings have to be compatible with the Rust version specified for symcrypt-sys crate.
