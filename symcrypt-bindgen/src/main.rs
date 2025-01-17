@@ -51,7 +51,7 @@ fn main() {
 
         // Clang arguments
         .clang_arg("-v")
-        .clang_args(["-target", &triple])
+        .clang_args(["-target", triple])
         .clang_arg(format!("-I{}/symcrypt/inc", symcrypt_sys_crate.display()))
         .clang_arg(format!("-I{}/symcrypt/lib", symcrypt_sys_crate.display()))
 
@@ -129,7 +129,7 @@ fn get_rust_version_from_cargo_metadata() -> String {
         .expect("failed to execute cargo metadata");
 
     let metadata: serde_json::Value =
-        serde_json::from_slice(&output.as_bytes()).expect("Failed to parse cargo metadata output");
+        serde_json::from_slice(output.as_bytes()).expect("Failed to parse cargo metadata output");
 
     let packages = metadata["packages"].as_array().unwrap();
     let package = packages
@@ -142,6 +142,7 @@ fn get_rust_version_from_cargo_metadata() -> String {
         .unwrap()
 }
 
+#[allow(clippy::collapsible_if)]
 fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
     if triple.contains("windows") {
         println!("Fixing bindings for Windows");
