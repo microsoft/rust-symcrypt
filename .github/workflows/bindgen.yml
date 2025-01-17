@@ -41,7 +41,7 @@ jobs:
           sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         }
 
-    - name: Generated bindings
+    - name: Generate bindings
       shell: pwsh
       run: |
         cargo run --locked --bin symcrypt-bindgen ${{ matrix.target }} ${{ runner.temp }}
