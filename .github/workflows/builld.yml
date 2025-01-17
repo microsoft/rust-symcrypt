@@ -77,7 +77,4 @@ jobs:
     - name: Run tests
       if: matrix.run-tests
       shell: pwsh
-      run: |
-        Write-Output "SYMCRYPT_LIB_PATH=$env:SYMCRYPT_LIB_PATH"
-        Write-Output "PATH=$env:PATH"
-        cargo test --locked --verbose --target ${{ matrix.target }}
+      run: cargo test --locked --verbose --target ${{ matrix.target }}
