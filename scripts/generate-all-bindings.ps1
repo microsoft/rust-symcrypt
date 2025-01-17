@@ -6,7 +6,6 @@
 # Installation instructions:
 # Setting up Windows:
 #    winget install LLVM.LLVM
-#    cargo install bindgen-cli@0.71.1
 #
 # Setting up WSL:
 #  - It's better to install the most recent version of Ubuntu, rustup, etc.
@@ -21,10 +20,6 @@
 #    rustup toolchain add stable
 #    rustup target add x86_64-unknown-linux-gnu
 #    rustup target add aarch64-unknown-linux-gnu
-#    cargo install bindgen-cli@0.71.1
-#
-#  - Follow this instruction to install powershell: 
-#    https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu
 
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $True
