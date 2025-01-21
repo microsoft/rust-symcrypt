@@ -77,4 +77,4 @@ jobs:
     - name: Run tests
       if: matrix.run-tests
       shell: pwsh
-      run: cargo test --locked --verbose --target ${{ matrix.target }}
+      run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
