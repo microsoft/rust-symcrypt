@@ -74,7 +74,12 @@ jobs:
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
 
-    - name: Run tests
+    - name: Run tests (Debug)
       if: matrix.run-tests
       shell: pwsh
       run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run tests (Release)
+      if: matrix.run-tests
+      shell: pwsh
+      run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
