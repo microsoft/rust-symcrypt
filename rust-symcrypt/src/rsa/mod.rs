@@ -174,25 +174,22 @@ impl RsaKey {
         let result = match pub_exp {
             // SAFETY: FFI calls
             Some(pub_exp_bytes) => {
-                let u64_pub_exp =  load_msb_first_u64(pub_exp_bytes)?;
+                let u64_pub_exp = load_msb_first_u64(pub_exp_bytes)?;
 
                 unsafe {
                     symcrypt_sys::SymCryptRsakeyGenerate(
                         rsa_key.0,
                         [u64_pub_exp].as_ptr(),
                         1, // Count of public exponents.
-                        flags)
+                        flags,
+                    )
                 }
-            },
+            }
             // If no public exponent is provided, use null and count 0 which will notify SymCrypt to use their default exponent.
             // SAFETY: FFI calls
             None => unsafe {
-                symcrypt_sys::SymCryptRsakeyGenerate(
-                    rsa_key.0,
-                    ptr::null(),
-                    0,
-                    flags)
-                },
+                symcrypt_sys::SymCryptRsakeyGenerate(rsa_key.0, ptr::null(), 0, flags)
+            },
         };
 
         match result {
@@ -539,14 +536,21 @@ mod test {
     fn test_generate_custom_exponent() {
         let pub_exp: u64 = 257;
 
-        let result = RsaKey::generate_key_pair(2048, Some(&pub_exp.to_be_bytes()), RsaKeyUsage::Sign);
+        let result =
+            RsaKey::generate_key_pair(2048, Some(&pub_exp.to_be_bytes()), RsaKeyUsage::Sign);
         assert!(result.is_ok());
 
         let key_pair = result.unwrap();
         let key_pair_exported = key_pair.export_key_pair_blob().unwrap();
 
-        let pub_exp_exported = key_pair_exported.pub_exp.iter().rev().enumerate()
-            .fold(0, |v, (byte_offset, byte)| v | (*byte as u64) << 8 * byte_offset);
+        let pub_exp_exported = key_pair_exported
+            .pub_exp
+            .iter()
+            .rev()
+            .enumerate()
+            .fold(0, |v, (byte_offset, byte)| {
+                v | (*byte as u64) << 8 * byte_offset
+            });
 
         assert_eq!(pub_exp_exported, pub_exp);
     }
