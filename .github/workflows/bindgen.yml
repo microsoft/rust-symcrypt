@@ -1,0 +1,80 @@
+name: Bindgen
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  bindgen:
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [x86_64-pc-windows-msvc, aarch64-pc-windows-msvc, x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
+        include:
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
+        - target: x86_64-unknown-linux-gnu
+          os: ubuntu-24.04
+        - target: aarch64-unknown-linux-gnu
+          os: ubuntu-24.04
+
+    runs-on: ${{ matrix.os }}
+    name: Bindgen ${{ matrix.target }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Install host target
+      shell: pwsh
+      run: |
+        rustup target add ${{ matrix.target }}
+        if ("${{ matrix.target }}" -match "aarch64-unknown-linux-gnu") {
+          sudo apt update
+          sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        }
+
+    - name: Generate bindings
+      shell: pwsh
+      run: |
+        cargo run --locked --bin symcrypt-bindgen ${{ matrix.target }} ${{ runner.temp }}
+        $targetName = "${{ matrix.target }}".Replace("-", "_")
+        $newBindingsFilePath = "${{ runner.temp }}/$targetName.rs"
+        echo "NEW_BINDINGS_FILE_NAME=$targetName.rs" >> $env:GITHUB_ENV
+        echo "NEW_BINDINGS_FILE_PATH=$newBindingsFilePath" >> $env:GITHUB_ENV
+
+    - name: Check for 'publish_new_bindings' label
+      id: check_label
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const labels = context.payload.pull_request.labels.map(label => label.name);
+          return labels.includes('publish_new_bindings');
+
+    - name: Upload bindings as artifact
+      if: steps.check_label.outputs.result == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.NEW_BINDINGS_FILE_NAME }}
+        path: ${{ env.NEW_BINDINGS_FILE_PATH }}
+
+    - name: Compare generated bindings
+      shell: pwsh
+      run: |
+        $oldBindingsFile = "./symcrypt-sys/src/bindings/$($env:NEW_BINDINGS_FILE_NAME)"
+        $diff = git diff --no-index $env:NEW_BINDINGS_FILE_PATH $oldBindingsFile
+        if ($diff) {
+          Write-Output "Bindings have changed"
+          Write-Output $diff
+          exit 1
+        } else {
+          Write-Output "Bindings are up to date"
+        }

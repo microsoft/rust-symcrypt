@@ -4,11 +4,13 @@ authors = ["Microsoft"]
 version = "0.4.0"
 license = "MIT OR Apache-2.0"
 description = "Rust/C Bindings for SymCrypt"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 build = "build.rs"
 homepage = "https://github.com/microsoft/SymCrypt"
 repository = "https://github.com/microsoft/rust-symcrypt"
 readme = "README.md"
+exclude = ["symcrypt/*", "inc/*"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

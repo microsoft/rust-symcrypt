@@ -1,0 +1,3 @@
+[submodule "SymCrypt"]
+	path = symcrypt-sys/symcrypt
+	url = https://github.com/microsoft/SymCrypt.git
