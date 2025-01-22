@@ -260,7 +260,7 @@ pub mod test {
         let expected_ciphertext = hex::decode(ciphertext_hex).unwrap();
 
         let aes_cbc = AesExpandedKey::new(&key).unwrap();
-        let mut chaining_value = iv.clone();
+        let mut chaining_value = iv;
 
         // Single encryption
         let mut single_encrypted = vec![0u8; plaintext.len()];
@@ -269,7 +269,7 @@ pub mod test {
             .unwrap();
         assert_eq!(single_encrypted, expected_ciphertext);
 
-        chaining_value = iv.clone();
+        chaining_value = iv;
         let mut piecewise_encrypted = vec![0u8; plaintext.len()];
         let mid = plaintext.len() / 2;
 
@@ -308,7 +308,7 @@ pub mod test {
         let ciphertext = hex::decode(ciphertext_hex).unwrap();
 
         let aes_cbc = AesExpandedKey::new(&key).unwrap();
-        let mut chaining_value = iv.clone();
+        let mut chaining_value = iv;
 
         // Single decryption
         let mut single_decrypted = vec![0u8; ciphertext.len()];
@@ -317,7 +317,7 @@ pub mod test {
             .unwrap();
         assert_eq!(single_decrypted, expected_plaintext);
 
-        chaining_value = iv.clone();
+        chaining_value = iv;
         let mut block_by_block_decrypted = vec![0u8; ciphertext.len()];
         let block_size = AES_BLOCK_SIZE as usize;
 
@@ -350,7 +350,7 @@ pub mod test {
         let ciphertext = hex::decode(ciphertext_hex).unwrap();
 
         let aes_cbc = AesExpandedKey::new(&key).unwrap();
-        let mut chaining_value = iv.clone();
+        let mut chaining_value = iv;
 
         // Single decryption
         let mut single_decrypted = vec![0u8; ciphertext.len()];
@@ -359,7 +359,7 @@ pub mod test {
             .unwrap();
         assert_eq!(single_decrypted, expected_plaintext);
 
-        chaining_value = iv.clone();
+        chaining_value = iv;
         let mut piecewise_decrypted = vec![0u8; ciphertext.len()];
         let mid = ciphertext.len() / 2;
 
@@ -416,14 +416,14 @@ pub mod test {
         let mut buffer = plaintext.clone();
 
         // Encryption in-place
-        let mut chaining_value = iv.clone();
+        let mut chaining_value = iv;
         aes_cbc
             .aes_cbc_encrypt_in_place(&mut chaining_value, &mut buffer)
             .unwrap();
         assert_eq!(buffer, expected_ciphertext);
 
         // Decryption in-place
-        chaining_value = iv.clone();
+        chaining_value = iv;
         aes_cbc
             .aes_cbc_decrypt_in_place(&mut chaining_value, &mut buffer)
             .unwrap();
@@ -484,7 +484,6 @@ pub mod test {
         let mut handles = vec![];
         for i in 0..2 {
             let aes_cbc = Arc::clone(&aes_cbc);
-            let iv = iv.clone();
             let plaintext = plaintext.clone();
             let expected_ciphertext = expected_ciphertext.clone();
 

@@ -261,7 +261,7 @@ mod tests {
         let res =
             key_pair.pkcs1_decrypt(&encrypted_message, &mut plaintext_buffer, &mut result_size);
         assert_eq!(res, SymCryptError::NoError);
-        plaintext_buffer.truncate(result_size as usize);
+        plaintext_buffer.truncate(result_size);
         assert_eq!(plaintext_buffer, message);
     }
 
@@ -278,9 +278,9 @@ mod tests {
         let res =
             key_pair.pkcs1_decrypt(&encrypted_message, &mut plaintext_buffer, &mut result_size);
         assert_eq!(res, SymCryptError::NoError);
-        assert_eq!(result_size, message.len() as usize);
+        assert_eq!(result_size, message.len());
         assert_eq!(plaintext_buffer.len(), 100);
-        plaintext_buffer.truncate(result_size as usize);
+        plaintext_buffer.truncate(result_size);
         assert_eq!(plaintext_buffer, message);
     }
 
@@ -297,7 +297,7 @@ mod tests {
         let res =
             key_pair.pkcs1_decrypt(&encrypted_message, &mut plaintext_buffer, &mut result_size);
         assert_eq!(res, SymCryptError::BufferTooSmall);
-        plaintext_buffer.truncate(result_size as usize);
+        plaintext_buffer.truncate(result_size);
         assert_ne!(plaintext_buffer, message);
     }
 
@@ -321,7 +321,7 @@ mod tests {
         let res =
             key_pair.pkcs1_decrypt(&encrypted_message, &mut plaintext_buffer, &mut result_size);
         assert_eq!(res, SymCryptError::NoError);
-        plaintext_buffer.truncate(result_size as usize);
+        plaintext_buffer.truncate(result_size);
         assert_eq!(plaintext_buffer, message);
     }
 

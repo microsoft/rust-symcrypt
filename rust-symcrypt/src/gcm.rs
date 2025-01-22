@@ -361,7 +361,7 @@ mod test {
 
         let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
         gcm_state
-            .decrypt_in_place(&nonce_array, &auth_data, &mut buffer, &mut tag)
+            .decrypt_in_place(&nonce_array, &auth_data, &mut buffer, &tag)
             .unwrap();
         assert_eq!(hex::encode(buffer), expected_result);
     }
@@ -381,7 +381,7 @@ mod test {
         let cipher = BlockCipherType::AesBlock;
 
         let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
-        let result = gcm_state.decrypt_in_place(&nonce_array, &auth_data, &mut buffer, &mut tag);
+        let result = gcm_state.decrypt_in_place(&nonce_array, &auth_data, &mut buffer, &tag);
 
         match result {
             Ok(_) => {

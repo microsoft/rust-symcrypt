@@ -195,7 +195,7 @@ impl RsaKey {
         match result {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(RsaKey {
                 inner: rsa_key,
-                rsa_key_usage: rsa_key_usage,
+                rsa_key_usage,
                 has_private_key: true,
             }),
             err => Err(err.into()),
@@ -529,7 +529,7 @@ mod test {
         assert!(result.is_ok());
         let key_pair = result.unwrap();
         assert_eq!(key_pair.get_rsa_key_usage(), RsaKeyUsage::Sign);
-        assert_eq!(key_pair.has_private_key(), true);
+        assert!(key_pair.has_private_key());
     }
 
     #[test]
@@ -549,7 +549,7 @@ mod test {
             .rev()
             .enumerate()
             .fold(0, |v, (byte_offset, byte)| {
-                v | (*byte as u64) << 8 * byte_offset
+                v | (*byte as u64) << (8 * byte_offset)
             });
 
         assert_eq!(pub_exp_exported, pub_exp);
@@ -561,7 +561,7 @@ mod test {
         assert!(result.is_ok());
         let key_pair = result.unwrap();
         assert_eq!(key_pair.get_rsa_key_usage(), RsaKeyUsage::Sign);
-        assert_eq!(key_pair.has_private_key(), true);
+        assert!(key_pair.has_private_key());
 
         let blob = key_pair.export_key_pair_blob().unwrap();
         let new_key_pair = RsaKey::set_key_pair(
@@ -656,7 +656,7 @@ mod test {
         assert_eq!(key_pair.get_size_of_primes(), (128, 128));
         assert_eq!(key_pair.get_size_of_modulus(), 256);
         assert_eq!(key_pair.get_size_of_public_exponent(), 3);
-        assert_eq!(key_pair.has_private_key(), true);
+        assert!(key_pair.has_private_key());
         let key_blob = key_pair.export_key_pair_blob().unwrap();
         assert_eq!(key_blob.modulus, modulus.to_vec());
         assert_eq!(key_blob.p, p);
@@ -687,7 +687,7 @@ mod test {
         assert!(result.is_ok());
         let pub_key = result.unwrap();
 
-        assert_eq!(pub_key.has_private_key(), false);
+        assert!(!pub_key.has_private_key()); // False assertion
         assert_eq!(pub_key.get_rsa_key_usage(), RsaKeyUsage::Encrypt);
         assert_eq!(pub_key.get_size_of_modulus(), 256);
         assert_eq!(pub_key.get_size_of_public_exponent(), 3);
