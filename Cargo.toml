@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "jitterentropy-sys2",
     "rust-symcrypt",
     "symcrypt-bindgen",
     "symcrypt-sys"
