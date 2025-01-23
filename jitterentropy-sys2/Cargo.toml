@@ -1,0 +1,20 @@
+[package]
+name = "jitterentropy-sys2"
+authors = ["Microsoft"]
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+description = "Rust/C Bindings for Jitterentropy"
+edition = "2021"
+build = "build/main.rs"
+links = "jitterentropy"
+homepage = "https://github.com/smuellerDD/jitterentropy-library"
+repository = "https://github.com/microsoft/rust-symcrypt"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2.0"
+
+[build-dependencies]
+cc = { version = "1.2.7" }
