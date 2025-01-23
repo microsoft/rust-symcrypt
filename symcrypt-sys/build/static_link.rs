@@ -372,7 +372,7 @@ fn compile_intermediates(
         }
 
         let file = parts[0];
-        println!("Compiling {file} with options: {}", parts[3]);
+        println!("Compiling {file} with custom options: {}", parts[3]);
 
         let options = parts[3]
             .trim_matches('"')
