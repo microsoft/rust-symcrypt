@@ -1,2 +1,5 @@
 /target/
 .vscode/
+
+# where does it come from?
+flag_check.exe
