@@ -31,10 +31,15 @@ git submodule update --init
 python3 "./symcrypt-sys/symcrypt/scripts/version.py" --build-info
 mv -Force "./symcrypt-sys/symcrypt/inc/buildInfo.h" "./symcrypt-sys/inc/"
 
+# Paths are relative to the project root
+$jitterentropyBindingsFile = "./jitterentropy-sys2/src/bindings.rs"
 $bindingsDir = "./symcrypt-sys/src/bindings" # is relative to the project root
 if (Test-Path $bindingsDir) {
     Remove-Item -Recurse -Force "$bindingsDir"
 }
+
+# jitterentropy has the same bindings for all target triples
+cargo run --locked --bin jitterentropy-bindgen $jitterentropyBindingsFile
 
 cargo run --locked --bin symcrypt-bindgen "x86_64-pc-windows-msvc" $bindingsDir
 cargo run --locked --bin symcrypt-bindgen "aarch64-pc-windows-msvc" $bindingsDir

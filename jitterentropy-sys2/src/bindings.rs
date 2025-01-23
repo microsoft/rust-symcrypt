@@ -6,22 +6,22 @@ pub const JENT_MAJVERSION: u32 = 3;
 pub const JENT_MINVERSION: u32 = 6;
 pub const JENT_PATCHLEVEL: u32 = 1;
 pub const JENT_VERSION: u32 = 3060100;
-unsafe extern "C" {
+extern "C" {
     pub fn jent_read_entropy(
         ec: *mut rand_data,
         data: *mut ::std::os::raw::c_char,
         len: usize,
     ) -> isize;
 }
-unsafe extern "C" {
+extern "C" {
     pub fn jent_entropy_collector_alloc(
         osr: ::std::os::raw::c_uint,
         flags: ::std::os::raw::c_uint,
     ) -> *mut rand_data;
 }
-unsafe extern "C" {
+extern "C" {
     pub fn jent_entropy_collector_free(entropy_collector: *mut rand_data);
 }
-unsafe extern "C" {
+extern "C" {
     pub fn jent_entropy_init() -> ::std::os::raw::c_int;
 }

@@ -1,0 +1,18 @@
+[package]
+name = "jitterentropy-bindgen"
+authors = ["Microsoft"]
+version = "0.1.0"
+description = "Bindings generation for jitterentropy-sys2"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bindgen = "^0.71.1"
+
+anyhow = "1.0"
+cmd_lib = "1.9"
+serde_json = "1.0"
