@@ -32,7 +32,7 @@ fn main() {
     bindgen_builder = bindgen_builder
         .header(wrapper_header.display().to_string())
         .rust_target(bindgen::RustTarget::from_str(&rust_target).unwrap());
-        
+
     // Clang arguments
     if let Some(triple) = triple {
         bindgen_builder = bindgen_builder.clang_args(["-target", triple]);
@@ -41,8 +41,14 @@ fn main() {
     bindgen_builder = bindgen_builder
         .clang_arg("-v")
         .clang_arg("+A") // this fixes compilation
-        .clang_arg(format!("-I{}/jitterentropy", jitterentropy_sys_crate.display()))
-        .clang_arg(format!("-I{}/jitterentropy/src", jitterentropy_sys_crate.display()));
+        .clang_arg(format!(
+            "-I{}/jitterentropy",
+            jitterentropy_sys_crate.display()
+        ))
+        .clang_arg(format!(
+            "-I{}/jitterentropy/src",
+            jitterentropy_sys_crate.display()
+        ));
 
     // export list
     bindgen_builder = bindgen_builder

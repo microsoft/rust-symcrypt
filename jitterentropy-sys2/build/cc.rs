@@ -5,8 +5,7 @@ pub fn compile_and_link_jitterentropy(jitterentropy_dir: &str) {
     let triple = std::env::var("TARGET").expect("TARGET not set");
 
     let mut cc = cc::Build::new();
-    cc
-        .target(&triple)
+    cc.target(&triple)
         .warnings(false)
         .include(&jitterentropy_dir)
         .include(format!("{jitterentropy_dir}/src"));
