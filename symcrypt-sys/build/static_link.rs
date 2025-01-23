@@ -1,5 +1,7 @@
-use super::triple::Triple;
 use super::jitterentropy::compile_and_link_jitterentropy;
+use super::triple::Triple;
+
+const LIB_NAME: &str = "symcrypt";
 
 pub fn compile_and_link_symcrypt() -> std::io::Result<()> {
     // based on SymCrypt/lib/CMakeLists.txt
@@ -14,7 +16,6 @@ pub fn compile_and_link_symcrypt() -> std::io::Result<()> {
     println!("cargo:rerun-if-changed=upstream");
     println!("Compiling SymCrypt...");
 
-    const LIB_NAME: &str = "symcrypt_static";
     compile_symcrypt_static(LIB_NAME, &options)?;
     println!("cargo:rustc-link-lib=static={LIB_NAME}");
 
@@ -50,14 +51,18 @@ impl SymCryptOptions {
         self.triple.clone()
     }
     fn need_jitterentropy(&self) -> bool {
-        matches!(self.triple, Triple::x86_64_unknown_linux_gnu | Triple::aarch64_unknown_linux_gnu)
+        matches!(
+            self.triple,
+            Triple::x86_64_unknown_linux_gnu | Triple::aarch64_unknown_linux_gnu
+        )
     }
 
     fn preconfigure_cc(&self) -> cc::Build {
         let mut cc = cc::Build::new();
         cc.target(self.triple.to_triple())
-            .include("upstream/inc")
-            .include("upstream/lib")
+            .include("inc")
+            .include("symcrypt/inc")
+            .include("symcrypt/lib")
             .warnings(false);
 
         if !self.symcrypt_use_asm {
@@ -72,7 +77,7 @@ impl SymCryptOptions {
                 cc.define("_ARM64_", None);
             }
             Triple::x86_64_unknown_linux_gnu => {
-                cc.include("upstream/modules/linux/common");
+                cc.include("symcrypt/modules/linux/common");
                 cc.flag("-mpclmul");
                 /*
                 cc.flag("-mpclmul")
@@ -85,19 +90,19 @@ impl SymCryptOptions {
                 */
             }
             Triple::aarch64_unknown_linux_gnu => {
-                cc.include("upstream/modules/linux/common");
+                cc.include("symcrypt/modules/linux/common");
             }
         }
 
         if self.need_jitterentropy() {
-            cc.include("upstream/3rdparty/jitterentropy-library");
+            cc.include("symcrypt/3rdparty/jitterentropy-library");
         }
 
         cc
     }
 }
 
-const SOURCE_DIR: &str = "upstream/lib";
+const SOURCE_DIR: &str = "symcrypt/lib";
 const CMAKE_SOURCES_COMMON: &str = "
 3des.c
 a_dispatch.c
@@ -247,44 +252,44 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
             base_files.push("env_windowsUserModeWin7.c");
             base_files.push("env_windowsUserModeWin8_1.c");
             base_files.push("IEEE802_11SaeCustom.c");
-            module_files.push("upstream/modules/windows/user/module.c");
+            module_files.push("symcrypt/modules/windows/user/module.c");
         }
         Triple::x86_64_unknown_linux_gnu => {
             base_files.push("linux/intrinsics.c");
             base_files.push("env_linuxUserMode.c");
 
             // generic
-            module_files.push("upstream/modules/linux/generic/statusindicator.c");
-            module_files.push("upstream/modules/linux/common/optional/rngfipsjitter.c");
-            module_files.push("upstream/modules/linux/common/optional/rngforkdetection.c");
-            module_files.push("upstream/modules/linux/common/optional/rngsecureurandom.c");
-            module_files.push("upstream/modules/linux/common/optional/module_linuxUserMode.c");
-            module_files.push("upstream/modules/linux/common/callbacks_pthread.c");
+            module_files.push("symcrypt/modules/linux/generic/statusindicator.c");
+            module_files.push("symcrypt/modules/linux/common/optional/rngfipsjitter.c");
+            module_files.push("symcrypt/modules/linux/common/optional/rngforkdetection.c");
+            module_files.push("symcrypt/modules/linux/common/optional/rngsecureurandom.c");
+            module_files.push("symcrypt/modules/linux/common/optional/module_linuxUserMode.c");
+            module_files.push("symcrypt/modules/linux/common/callbacks_pthread.c");
 
             // Enable integrity verification if compiling for AMD64 or ARM64 or ARM
-            module_files.push("upstream/modules/linux/common/integrity.c");
+            module_files.push("symcrypt/modules/linux/common/integrity.c");
 
             // symcrypt_module_linux_common
-            module_files.push("upstream/modules/linux/common/module.c");
-            module_files.push("upstream/modules/linux/common/rng.c");
+            module_files.push("symcrypt/modules/linux/common/module.c");
+            module_files.push("symcrypt/modules/linux/common/rng.c");
         }
         Triple::aarch64_unknown_linux_gnu => {
             base_files.push("env_linuxUserMode.c");
 
             // generic
-            module_files.push("upstream/modules/linux/generic/statusindicator.c");
-            module_files.push("upstream/modules/linux/common/optional/rngfipsjitter.c");
-            module_files.push("upstream/modules/linux/common/optional/rngforkdetection.c");
-            module_files.push("upstream/modules/linux/common/optional/rngsecureurandom.c");
-            module_files.push("upstream/modules/linux/common/optional/module_linuxUserMode.c");
-            module_files.push("upstream/modules/linux/common/callbacks_pthread.c");
+            module_files.push("symcrypt/modules/linux/generic/statusindicator.c");
+            module_files.push("symcrypt/modules/linux/common/optional/rngfipsjitter.c");
+            module_files.push("symcrypt/modules/linux/common/optional/rngforkdetection.c");
+            module_files.push("symcrypt/modules/linux/common/optional/rngsecureurandom.c");
+            module_files.push("symcrypt/modules/linux/common/optional/module_linuxUserMode.c");
+            module_files.push("symcrypt/modules/linux/common/callbacks_pthread.c");
 
             // Enable integrity verification if compiling for AMD64 or ARM64 or ARM
-            module_files.push("upstream/modules/linux/common/integrity.c");
+            module_files.push("symcrypt/modules/linux/common/integrity.c");
 
             // symcrypt_module_linux_common
-            module_files.push("upstream/modules/linux/common/module.c");
-            module_files.push("upstream/modules/linux/common/rng.c");
+            module_files.push("symcrypt/modules/linux/common/module.c");
+            module_files.push("symcrypt/modules/linux/common/rng.c");
         }
     }
 
