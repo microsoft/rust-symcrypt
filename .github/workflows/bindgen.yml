@@ -41,6 +41,8 @@ jobs:
           sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         }
 
+    - uses: Swatinem/rust-cache@v2
+
     - name: Generate bindings
       shell: pwsh
       run: |

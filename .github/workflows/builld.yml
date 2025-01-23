@@ -56,6 +56,8 @@ jobs:
 
     - uses: taiki-e/install-action@cargo-hack
 
+    - uses: Swatinem/rust-cache@v2
+
     - name: Download SymCrypt
       shell: pwsh
       run: |
