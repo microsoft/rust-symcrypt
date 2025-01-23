@@ -7,6 +7,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  SYMCRYPT_LIB_PATH: "/dev/null" # Dummy value to bypass the env variable check on Windows
+
 
 jobs:
   clippy:
