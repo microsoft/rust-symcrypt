@@ -48,6 +48,8 @@ jobs:
           sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         }
 
+    - uses: taiki-e/install-action@cargo-hack
+
     - name: Download SymCrypt
       shell: pwsh
       run: |
@@ -83,3 +85,8 @@ jobs:
       if: matrix.run-tests
       shell: pwsh
       run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run hack test
+      if: matrix.run-tests
+      shell: pwsh
+      run: cargo hack test --depth 1 --locked --target ${{ matrix.target }}
