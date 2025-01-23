@@ -1,12 +1,13 @@
 use super::triple::Triple;
 
+const LIB_NAME: &str = "jitterentropy";
+
 pub fn compile_and_link_jitterentropy(triple: Triple) {
-    const LIB_NAME: &str = "jitterentropy_static";
 
     println!("Compiling jitterentropy...");
     let cargo_toml_dir =
         std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is not set");
-    let jitterentropy_dir = format!("{cargo_toml_dir}/upstream/3rdparty/jitterentropy-library");
+    let jitterentropy_dir = format!("{cargo_toml_dir}/symcrypt/3rdparty/jitterentropy-library");
 
     let mut cc = cc::Build::new();
     cc.target(triple.to_triple())
