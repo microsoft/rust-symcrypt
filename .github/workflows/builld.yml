@@ -7,6 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_HACK_DEPTH: 2
 
 jobs:
   build:
@@ -89,4 +90,4 @@ jobs:
     - name: Run hack test
       if: matrix.run-tests
       shell: pwsh
-      run: cargo hack test --depth 1 --locked --target ${{ matrix.target }}
+      run: cargo hack test --depth $env:CARGO_HACK_DEPTH --locked --target ${{ matrix.target }}
