@@ -1,4 +1,4 @@
-name: Bindgen
+name: Jitterentropy bindgen
 
 on:
   push:
