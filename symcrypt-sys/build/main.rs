@@ -9,7 +9,7 @@ pub mod jitterentropy;
 
 fn main() -> std::io::Result<()> {
     #[cfg(feature = "dynamic")]
-    link_symcrypt_dynamicaly()?;
+    link_symcrypt_dynamically()?;
 
     #[cfg(not(feature = "dynamic"))]
     static_link::compile_and_link_symcrypt()?;
@@ -18,7 +18,7 @@ fn main() -> std::io::Result<()> {
 }
 
 #[cfg(feature = "dynamic")]
-fn link_symcrypt_dynamicaly() -> std::io::Result<()> {
+fn link_symcrypt_dynamically() -> std::io::Result<()> {
     #[cfg(target_os = "windows")]
     {
         // Look for the .lib file during link time. We are searching the Windows/System32 path which is set as a current default to match
