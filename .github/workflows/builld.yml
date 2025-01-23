@@ -41,6 +41,9 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    
+    - name: Init jitterentropy submodule
+      run: git -C symcrypt-sys/symcrypt submodule update --init -- 3rdparty/jitterentropy-library
 
     - name: Install host target
       shell: pwsh
