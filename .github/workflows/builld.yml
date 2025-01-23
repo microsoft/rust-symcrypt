@@ -95,4 +95,4 @@ jobs:
     - name: Run hack test
       if: matrix.run-tests
       shell: pwsh
-      run: cargo hack test --depth $env:CARGO_HACK_DEPTH --locked --target ${{ matrix.target }}
+      run: cargo hack test --depth $env:CARGO_HACK_DEPTH --feature-powerset --no-dev-deps --locked --target ${{ matrix.target }}
