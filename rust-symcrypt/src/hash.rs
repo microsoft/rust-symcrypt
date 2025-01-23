@@ -1226,7 +1226,7 @@ mod test {
     where
         H::Result: AsRef<[u8]>,
     {
-        hash_state.append(&data);
+        hash_state.append(data);
         let mut new_hash_state = hash_state.clone();
 
         let result = new_hash_state.result();
@@ -1241,8 +1241,8 @@ mod test {
     ) where
         H::Result: AsRef<[u8]>,
     {
-        hash_state.append(&data_1);
-        hash_state.append(&data_2);
+        hash_state.append(data_1);
+        hash_state.append(data_2);
 
         let result = hash_state.result();
         assert_eq!(

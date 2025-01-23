@@ -223,7 +223,6 @@ pub struct HmacMd5State {
 }
 
 #[cfg(feature = "md5")]
-
 struct HmacMd5Inner {
     // inner represents the actual HMAC state from SymCrypt.
     inner: symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE,
@@ -1297,7 +1296,7 @@ mod test {
     where
         H::Result: AsRef<[u8]>,
     {
-        hmac_state.append(&data);
+        hmac_state.append(data);
         let new_hmac_state = hmac_state.clone();
 
         let result = new_hmac_state.result();
@@ -1312,8 +1311,8 @@ mod test {
     ) where
         H::Result: AsRef<[u8]>,
     {
-        hmac_state.append(&data_1);
-        hmac_state.append(&data_2);
+        hmac_state.append(data_1);
+        hmac_state.append(data_2);
 
         let result = hmac_state.result();
         assert_eq!(hex::encode(result), expected);

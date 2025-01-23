@@ -508,7 +508,7 @@ mod test {
     fn test_eckey_generate_key_pair() {
         let key = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
         assert_eq!(key.get_curve_type(), CurveType::NistP256);
-        assert_eq!(key.has_private_key(), true);
+        assert!(key.has_private_key());
     }
 
     #[test]
@@ -517,8 +517,8 @@ mod test {
         let key2 = EcKey::generate_key_pair(CurveType::NistP256, EcKeyUsage::EcDsa).unwrap();
         assert_eq!(key.get_curve_type(), CurveType::NistP256);
         assert_eq!(key2.get_curve_type(), CurveType::NistP256);
-        assert_eq!(key.has_private_key(), true);
-        assert_eq!(key2.has_private_key(), true);
+        assert!(key.has_private_key());
+        assert!(key2.has_private_key());
     }
 
     #[test]
@@ -536,7 +536,7 @@ mod test {
         )
         .unwrap();
         assert_eq!(key.get_curve_type(), CurveType::NistP256);
-        assert_eq!(key.has_private_key(), true);
+        assert!(key.has_private_key());
 
         let key2 = EcKey::set_key_pair(CurveType::NistP256, &private_key, None, EcKeyUsage::EcDsa)
             .unwrap();
@@ -611,8 +611,8 @@ mod test {
             EcKey::set_public_key(CurveType::NistP256, &public_key, EcKeyUsage::EcDsa).unwrap();
         assert_eq!(key.get_curve_type(), CurveType::NistP256);
         assert_eq!(key2.get_curve_type(), CurveType::NistP256);
-        assert_eq!(key.has_private_key(), true);
-        assert_eq!(key2.has_private_key(), false);
+        assert!(key.has_private_key());
+        assert!(!key2.has_private_key()); // False assertion
 
         // ensure both have the same public key
         let public_key2 = key2.export_public_key().unwrap();
@@ -627,8 +627,8 @@ mod test {
             .unwrap();
         assert_eq!(key.get_curve_type(), CurveType::NistP256);
         assert_eq!(key2.get_curve_type(), CurveType::NistP256);
-        assert_eq!(key.has_private_key(), true);
-        assert_eq!(key2.has_private_key(), true);
+        assert!(key.has_private_key());
+        assert!(key2.has_private_key());
     }
 
     #[test]
@@ -646,8 +646,8 @@ mod test {
 
         assert_eq!(key.get_curve_type(), CurveType::NistP521);
         assert_eq!(key2.get_curve_type(), CurveType::NistP521);
-        assert_eq!(key.has_private_key(), true);
-        assert_eq!(key2.has_private_key(), true);
+        assert!(key.has_private_key());
+        assert!(key2.has_private_key());
     }
 
     #[test]
@@ -693,7 +693,7 @@ mod test {
         let key =
             EcKey::set_public_key(CurveType::NistP256, &public_key, EcKeyUsage::EcDsa).unwrap();
         assert_eq!(key.get_curve_type(), CurveType::NistP256);
-        assert_eq!(key.has_private_key(), false);
+        assert!(!key.has_private_key()); // False assertion
         assert_eq!(key.inner_key(), key.inner_key());
     }
 
