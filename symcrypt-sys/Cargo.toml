@@ -11,7 +11,7 @@ homepage = "https://github.com/microsoft/SymCrypt"
 repository = "https://github.com/microsoft/rust-symcrypt"
 readme = "README.md"
 exclude = ["symcrypt/*", "inc/*"] # FIXME: update this before merging to main branch
-#links = "symcrypt" # FIXME: uncomment this before merging to main branch
+links = "symcrypt" # FIXME: uncomment this before merging to main branch
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
