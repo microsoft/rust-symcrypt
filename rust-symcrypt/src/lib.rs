@@ -18,6 +18,12 @@ fn symcrypt_init() {
     unsafe {
         // SAFETY: FFI calls, blocking from being run again.
         INIT.call_once(|| {
+            #[cfg(not(feature = "dynamic"))]
+            println!("Static builds with rust-symcrypt are considered highly experimental and not recommended for production use.");
+            
+            #[cfg(feature = "dynamic")]
+            println!("Dynamic builds");
+
             symcrypt_sys::SymCryptModuleInit(
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
