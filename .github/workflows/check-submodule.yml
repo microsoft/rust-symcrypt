@@ -16,11 +16,11 @@ jobs:
 
       - name: Get Expected Commit from VERSION.md
         id: expected_commit
-        run: echo "EXPECTED_COMMIT=$(cat symcrypt-sys/VERSION.md)" >> $GITHUB_ENV
+        run: echo "EXPECTED_COMMIT=$(cat symcrypt-sys/VERSION.md | tr -d '[:space:]')" >> $GITHUB_ENV
 
       - name: Get Current Submodule Commit
         id: current_commit
-        run: echo "CURRENT_COMMIT=$(git rev-parse HEAD:symcrypt-sys/symcrypt)" >> $GITHUB_ENV
+        run: echo "CURRENT_COMMIT=$(git rev-parse HEAD:symcrypt-sys/symcrypt | tr -d '[:space:]')" >> $GITHUB_ENV
 
       - name: Compare Commits
         run: |
