@@ -24,7 +24,7 @@ To add safe wrappers for a new `symcrypt` API you must first generate the requir
 1. Ensure that you have the correct `SymCrypt` submodule. If you are updating the version of `SymCrypt` that `symcrypt-sys`, please see the `Updating SymCrypt Submodule/SymCrypt Version` section.
 2. Add the new SymCrypt APIs to `symcrypt-bindgen/src/main`. Ensure to use regex semantics as to not include more that is needed for the API you are going to expose.
 3. Generate new bindings with Github actions or the with `generate-all-bindings.ps1` script. 
-4. Implement wrapper code in the `rust-symcrypt` layer. Ensure that you are properly documenting your changes and updating the API master list on `rust-symcrypt`'s README.md 
+4. Implement wrapper code in the `rust-symcrypt` layer. Ensure that you are properly documenting your changes and updating the API master list on `rust-symcrypt`'s README.md.
 5. Once you are complete with your API additions, push and ensure that all CI checks pass. 
 6. Depending on the type of change you are making you may or may not need to update the cargo version, for more info please see the `Cargo Publishing Guidelines` section.
 
@@ -37,8 +37,8 @@ You may have to update the under-lying `SymCrypt` version from time to time, thi
 `symcrypt-sys` depends on a `SymCrypt` via a Github submodule. The `SymCrypt` dependency is tied to a specific version of `SymCrypt`, and a specific commit from the `SymCrypt` Github repo. The specific commit that we depend on can be seen on VERSION.md. There is also a CI check that will ensure that your Github submodule matches the version specified in VERSION.md 
 
 If you need to make an update to the `SymCrypt` submodule dependency, you can do so by:
-1. First going to the `SymCrypt` submodule in `symcrypt-sys/symcrypt` and checking out the required commit. This should be tied to tagged release of `SymCrypt`
-2. Check in the change via `git add symcrypt-sys/symcrypt`
+1. First going to the `SymCrypt` submodule in `symcrypt-sys/symcrypt` and checking out the required commit. This should be tied to tagged release of `SymCrypt`.
+2. Check in the change via `git add symcrypt-sys/symcrypt`.
 3. Update `VERSION.md` in `symcrypt-sys` to include the new commit HASH that you have checked out in `Step 1`.
 4. Update `README.md` with the new version of `SymCrypt` that `rust-symcrypt` depends on. 
 5. Update the `build.yaml` file to ensure that you are downloading the correct SymCrypt dll and .so from the Github artifacts page. 
