@@ -1,0 +1,34 @@
+name: Check Submodule Version
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  check-submodule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository with Submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Get Expected Commit from VERSION.md
+        id: expected_commit
+        run: echo "EXPECTED_COMMIT=$(cat symcrypt-sys/VERSION.md)" >> $GITHUB_ENV
+
+      - name: Get Current Submodule Commit
+        id: current_commit
+        run: echo "CURRENT_COMMIT=$(git rev-parse HEAD:symcrypt-sys/symcrypt)" >> $GITHUB_ENV
+
+      - name: Compare Commits
+        run: |
+          if [ "$EXPECTED_COMMIT" != "$CURRENT_COMMIT" ]; then
+            echo "❌ Submodule commit mismatch!"
+            echo "Expected: $EXPECTED_COMMIT"
+            echo "Found:    $CURRENT_COMMIT"
+            exit 1
+          else
+            echo "✅ Submodule commit matches VERSION.md"
+          fi

@@ -28,7 +28,7 @@ jobs:
     name: Bindgen ${{ matrix.target }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4 # Checks out SymCrypt based on Github submodule
       with:
         submodules: true
 
