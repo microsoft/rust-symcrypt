@@ -113,7 +113,14 @@ fn main() {
     builder = builder
         .opaque_type(format!("_SYMCRYPT_.*_STATE"))
         .opaque_type(format!("_SYMCRYPT_.*_EXPANDED_KEY"))
-        .opaque_type("_SYMCRYPT_BLOCKCIPHER");
+        .opaque_type("_SYMCRYPT_BLOCKCIPHER")
+        .opaque_type("_SYMCRYPT_ECURVE")
+        .opaque_type("_SYMCRYPT_INT")
+        .opaque_type("_SYMCRYPT_DIVISOR")
+        .opaque_type("_SYMCRYPT_MODULUS")
+        .opaque_type("_SYMCRYPT_ECKEY")
+        .opaque_type("_SYMCRYPT_RSAKEY")
+        .opaque_type("_SYMCRYPT_MAC");
 
     let bindings = builder
         .generate_comments(true)
