@@ -271,46 +271,11 @@ pub type SYMCRYPT_MD4_STATE = _SYMCRYPT_MD4_STATE;
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct _SYMCRYPT_MD5_CHAINING_STATE {
-    pub H: [UINT32; 4usize],
-}
-#[test]
-fn bindgen_test_layout__SYMCRYPT_MD5_CHAINING_STATE() {
-    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_MD5_CHAINING_STATE> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<_SYMCRYPT_MD5_CHAINING_STATE>(),
-        16usize,
-        "Size of _SYMCRYPT_MD5_CHAINING_STATE"
-    );
-    assert_eq!(
-        ::std::mem::align_of::<_SYMCRYPT_MD5_CHAINING_STATE>(),
-        16usize,
-        "Alignment of _SYMCRYPT_MD5_CHAINING_STATE"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).H) as usize - ptr as usize },
-        0usize,
-        "Offset of field: _SYMCRYPT_MD5_CHAINING_STATE::H"
-    );
-}
-pub type SYMCRYPT_MD5_CHAINING_STATE = _SYMCRYPT_MD5_CHAINING_STATE;
-#[repr(C)]
-#[repr(align(16))]
-#[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MD5_STATE {
-    pub bytesInBuffer: UINT32,
-    pub magic: SIZE_T,
-    pub dataLengthL: UINT64,
-    pub dataLengthH: UINT64,
-    pub buffer: [BYTE; 64usize],
-    pub chain: SYMCRYPT_MD5_CHAINING_STATE,
+    pub _bindgen_opaque_blob: [u128; 7usize],
 }
 #[test]
 fn bindgen_test_layout__SYMCRYPT_MD5_STATE() {
-    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_MD5_STATE> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<_SYMCRYPT_MD5_STATE>(),
         112usize,
@@ -321,45 +286,6 @@ fn bindgen_test_layout__SYMCRYPT_MD5_STATE() {
         16usize,
         "Alignment of _SYMCRYPT_MD5_STATE"
     );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).bytesInBuffer) as usize - ptr as usize },
-        0usize,
-        "Offset of field: _SYMCRYPT_MD5_STATE::bytesInBuffer"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
-        8usize,
-        "Offset of field: _SYMCRYPT_MD5_STATE::magic"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dataLengthL) as usize - ptr as usize },
-        16usize,
-        "Offset of field: _SYMCRYPT_MD5_STATE::dataLengthL"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).dataLengthH) as usize - ptr as usize },
-        24usize,
-        "Offset of field: _SYMCRYPT_MD5_STATE::dataLengthH"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).buffer) as usize - ptr as usize },
-        32usize,
-        "Offset of field: _SYMCRYPT_MD5_STATE::buffer"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).chain) as usize - ptr as usize },
-        96usize,
-        "Offset of field: _SYMCRYPT_MD5_STATE::chain"
-    );
-}
-impl Default for _SYMCRYPT_MD5_STATE {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 pub type SYMCRYPT_MD5_STATE = _SYMCRYPT_MD5_STATE;
 pub type PSYMCRYPT_MD5_STATE = *mut _SYMCRYPT_MD5_STATE;
@@ -1470,15 +1396,10 @@ fn bindgen_test_layout__SYMCRYPT_HASH() {
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_HMAC_MD5_EXPANDED_KEY {
-    pub innerState: SYMCRYPT_MD5_CHAINING_STATE,
-    pub outerState: SYMCRYPT_MD5_CHAINING_STATE,
-    pub magic: SIZE_T,
+    pub _bindgen_opaque_blob: [u128; 3usize],
 }
 #[test]
 fn bindgen_test_layout__SYMCRYPT_HMAC_MD5_EXPANDED_KEY() {
-    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_MD5_EXPANDED_KEY> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<_SYMCRYPT_HMAC_MD5_EXPANDED_KEY>(),
         48usize,
@@ -1488,21 +1409,6 @@ fn bindgen_test_layout__SYMCRYPT_HMAC_MD5_EXPANDED_KEY() {
         ::std::mem::align_of::<_SYMCRYPT_HMAC_MD5_EXPANDED_KEY>(),
         16usize,
         "Alignment of _SYMCRYPT_HMAC_MD5_EXPANDED_KEY"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).innerState) as usize - ptr as usize },
-        0usize,
-        "Offset of field: _SYMCRYPT_HMAC_MD5_EXPANDED_KEY::innerState"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).outerState) as usize - ptr as usize },
-        16usize,
-        "Offset of field: _SYMCRYPT_HMAC_MD5_EXPANDED_KEY::outerState"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
-        32usize,
-        "Offset of field: _SYMCRYPT_HMAC_MD5_EXPANDED_KEY::magic"
     );
 }
 pub type SYMCRYPT_HMAC_MD5_EXPANDED_KEY = _SYMCRYPT_HMAC_MD5_EXPANDED_KEY;
