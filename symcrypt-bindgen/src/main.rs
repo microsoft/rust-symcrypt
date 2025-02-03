@@ -111,8 +111,8 @@ fn main() {
 
     // Opaque types
     builder = builder
-        .opaque_type(format!("_SYMCRYPT_.*_STATE"))
-        .opaque_type(format!("_SYMCRYPT_.*_EXPANDED_KEY"))
+        .opaque_type("_SYMCRYPT_.*_STATE")
+        .opaque_type("_SYMCRYPT_.*_EXPANDED_KEY")
         .opaque_type("_SYMCRYPT_BLOCKCIPHER")
         .opaque_type("_SYMCRYPT_ECURVE")
         .opaque_type("_SYMCRYPT_ECURVE_PARAMS")
