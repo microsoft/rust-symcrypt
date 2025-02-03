@@ -42,12 +42,6 @@ pub const SYMCRYPT_ERROR_SYMCRYPT_SESSION_REPLAY_FAILURE: SYMCRYPT_ERROR = 32787
 pub const SYMCRYPT_ERROR_SYMCRYPT_HBS_NO_OTS_KEYS_LEFT: SYMCRYPT_ERROR = 32788;
 pub const SYMCRYPT_ERROR_SYMCRYPT_HBS_PUBLIC_ROOT_MISMATCH: SYMCRYPT_ERROR = 32789;
 pub type SYMCRYPT_ERROR = ::std::os::raw::c_int;
-pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_NULL: _SYMCRYPT_ECURVE_TYPE = 0;
-pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_SHORT_WEIERSTRASS: _SYMCRYPT_ECURVE_TYPE = 1;
-pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_TWISTED_EDWARDS: _SYMCRYPT_ECURVE_TYPE = 2;
-pub const _SYMCRYPT_ECURVE_TYPE_SYMCRYPT_ECURVE_TYPE_MONTGOMERY: _SYMCRYPT_ECURVE_TYPE = 3;
-pub type _SYMCRYPT_ECURVE_TYPE = ::std::os::raw::c_int;
-pub use self::_SYMCRYPT_ECURVE_TYPE as SYMCRYPT_ECURVE_TYPE;
 pub type BYTE = ::std::os::raw::c_uchar;
 pub type UINT32 = ::std::os::raw::c_uint;
 pub type UINT64 = ::std::os::raw::c_ulonglong;
@@ -1695,26 +1689,14 @@ fn bindgen_test_layout__SYMCRYPT_RSA_PARAMS() {
 }
 pub type SYMCRYPT_RSA_PARAMS = _SYMCRYPT_RSA_PARAMS;
 pub type PCSYMCRYPT_RSA_PARAMS = *const SYMCRYPT_RSA_PARAMS;
-pub const _SYMCRYPT_ECURVE_GEN_ALG_ID_SYMCRYPT_ECURVE_GEN_ALG_ID_NULL: _SYMCRYPT_ECURVE_GEN_ALG_ID =
-    0;
-pub type _SYMCRYPT_ECURVE_GEN_ALG_ID = ::std::os::raw::c_int;
-pub use self::_SYMCRYPT_ECURVE_GEN_ALG_ID as SYMCRYPT_ECURVE_GEN_ALG_ID;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[repr(align(4))]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_ECURVE_PARAMS {
-    pub version: UINT32,
-    pub type_: SYMCRYPT_ECURVE_TYPE,
-    pub algId: SYMCRYPT_ECURVE_GEN_ALG_ID,
-    pub cbFieldLength: UINT32,
-    pub cbSubgroupOrder: UINT32,
-    pub cbCofactor: UINT32,
-    pub cbSeed: UINT32,
+    pub _bindgen_opaque_blob: [u32; 7usize],
 }
 #[test]
 fn bindgen_test_layout__SYMCRYPT_ECURVE_PARAMS() {
-    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_ECURVE_PARAMS> =
-        ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::std::mem::size_of::<_SYMCRYPT_ECURVE_PARAMS>(),
         28usize,
@@ -1725,50 +1707,6 @@ fn bindgen_test_layout__SYMCRYPT_ECURVE_PARAMS() {
         4usize,
         "Alignment of _SYMCRYPT_ECURVE_PARAMS"
     );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).version) as usize - ptr as usize },
-        0usize,
-        "Offset of field: _SYMCRYPT_ECURVE_PARAMS::version"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
-        4usize,
-        "Offset of field: _SYMCRYPT_ECURVE_PARAMS::type_"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).algId) as usize - ptr as usize },
-        8usize,
-        "Offset of field: _SYMCRYPT_ECURVE_PARAMS::algId"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).cbFieldLength) as usize - ptr as usize },
-        12usize,
-        "Offset of field: _SYMCRYPT_ECURVE_PARAMS::cbFieldLength"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).cbSubgroupOrder) as usize - ptr as usize },
-        16usize,
-        "Offset of field: _SYMCRYPT_ECURVE_PARAMS::cbSubgroupOrder"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).cbCofactor) as usize - ptr as usize },
-        20usize,
-        "Offset of field: _SYMCRYPT_ECURVE_PARAMS::cbCofactor"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).cbSeed) as usize - ptr as usize },
-        24usize,
-        "Offset of field: _SYMCRYPT_ECURVE_PARAMS::cbSeed"
-    );
-}
-impl Default for _SYMCRYPT_ECURVE_PARAMS {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 pub type SYMCRYPT_ECURVE_PARAMS = _SYMCRYPT_ECURVE_PARAMS;
 pub type PCSYMCRYPT_ECURVE_PARAMS = *const SYMCRYPT_ECURVE_PARAMS;

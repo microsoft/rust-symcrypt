@@ -115,6 +115,7 @@ fn main() {
         .opaque_type(format!("_SYMCRYPT_.*_EXPANDED_KEY"))
         .opaque_type("_SYMCRYPT_BLOCKCIPHER")
         .opaque_type("_SYMCRYPT_ECURVE")
+        .opaque_type("_SYMCRYPT_ECURVE_PARAMS")
         .opaque_type("_SYMCRYPT_INT")
         .opaque_type("_SYMCRYPT_DIVISOR")
         .opaque_type("_SYMCRYPT_MODULUS")
