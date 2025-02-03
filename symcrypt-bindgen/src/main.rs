@@ -42,7 +42,7 @@ fn main() {
 
     std::fs::create_dir_all(out_dir).expect("Unable to create output directory");
 
-    let bindings = bindgen::builder()
+    let mut builder = bindgen::builder()
         .header(wrapper_header.display().to_string())
         .rust_target(bindgen::RustTarget::from_str(&rust_target).unwrap())
 
@@ -107,12 +107,15 @@ fn main() {
         .allowlist_function("SymCryptWipe")
         .allowlist_function("SymCryptRandom")
         .allowlist_function("SymCryptLoadMsbFirstUint64")
-        .allowlist_function("SymCryptStoreMsbFirstUint64")    
+        .allowlist_function("SymCryptStoreMsbFirstUint64");
 
-        // Opaque types
-        .opaque_type("_SYMCRYPT_MD5_STATE")
-        .opaque_type("_SYMCRYPT_HMAC_MD5_EXPANDED_KEY")
+    // Opaque types
+    builder = builder
+        .opaque_type(format!("_SYMCRYPT_.*_STATE"))
+        .opaque_type(format!("_SYMCRYPT_.*_EXPANDED_KEY"))
+        .opaque_type("_SYMCRYPT_BLOCKCIPHER");
 
+    let bindings = builder
         .generate_comments(true)
         .derive_default(true)
         .generate()
