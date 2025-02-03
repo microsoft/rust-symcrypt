@@ -109,6 +109,10 @@ fn main() {
         .allowlist_function("SymCryptLoadMsbFirstUint64")
         .allowlist_function("SymCryptStoreMsbFirstUint64")    
 
+        // Opaque types
+        .opaque_type("_SYMCRYPT_MD5_STATE")
+        .opaque_type("_SYMCRYPT_HMAC_MD5_EXPANDED_KEY")
+
         .generate_comments(true)
         .derive_default(true)
         .generate()
