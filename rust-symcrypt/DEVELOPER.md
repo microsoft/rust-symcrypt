@@ -56,6 +56,6 @@ If you need to make an update to the `SymCrypt` submodule dependency, you can do
 8. It is important to ensure that you have no dangling un-commited changes on your active branch. When publishing to `Crates.io`, these files will be published in as well. 
 9. You can verify which files will be published via `cargo package --list`. 
 10. Do a dry publish of the crate via `cargo publish --dry-run`. 
-11. If that was successful, publish the crate via `cargo publish`.S
+11. If that was successful, publish the crate via `cargo publish`.
 12. Update the release docs by assigning a new `tag` and detailing the changes associated with the new version. Make sure to highlight breaking changes. 
 13. If the reason for bumping the version was a critical bug such as a danging pointer, or invalid memory reference, discuss doing a [cargo yank](https://doc.rust-lang.org/cargo/commands/cargo-yank.html) with the rest of the team.
