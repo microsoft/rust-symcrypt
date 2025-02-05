@@ -79,6 +79,7 @@ impl SymCryptOptions {
             Triple::x86_64_unknown_linux_gnu => {
                 cc.include("symcrypt/modules/linux/common");
                 cc.flag("-mpclmul");
+                cc.flag("-Wno-incompatible-pointer-types"); // Should we create parent Enum for Windows / Linux? 
                 /*
                 cc.flag("-mpclmul")
                     .flag("-mssse3")
@@ -91,6 +92,7 @@ impl SymCryptOptions {
             }
             Triple::aarch64_unknown_linux_gnu => {
                 cc.include("symcrypt/modules/linux/common");
+                cc.flag("-Wno-incompatible-pointer-types");
             }
         }
 
@@ -271,7 +273,7 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
         }
         Triple::x86_64_unknown_linux_gnu => {
             base_files.push("linux/intrinsics.c");
-            base_files.push("env_linuxUserMode.c");
+            base_files.push("env_posixUserMode.c");
 
             // generic
             module_files.push("symcrypt/modules/linux/generic/statusindicator.c");
