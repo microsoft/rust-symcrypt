@@ -62,7 +62,79 @@ pub type PCUINT64 = *const UINT64;
 pub type PVOID = *mut ::std::os::raw::c_void;
 pub type PCVOID = *const ::std::os::raw::c_void;
 pub type BOOLEAN = BYTE;
-pub type __m128i = [::std::os::raw::c_longlong; 2usize];
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Copy, Clone)]
+pub union __m128i {
+    pub m128i_i8: [::std::os::raw::c_char; 16usize],
+    pub m128i_i16: [::std::os::raw::c_short; 8usize],
+    pub m128i_i32: [::std::os::raw::c_int; 4usize],
+    pub m128i_i64: [::std::os::raw::c_longlong; 2usize],
+    pub m128i_u8: [::std::os::raw::c_uchar; 16usize],
+    pub m128i_u16: [::std::os::raw::c_ushort; 8usize],
+    pub m128i_u32: [::std::os::raw::c_uint; 4usize],
+    pub m128i_u64: [::std::os::raw::c_ulonglong; 2usize],
+}
+#[test]
+fn bindgen_test_layout___m128i() {
+    const UNINIT: ::std::mem::MaybeUninit<__m128i> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(::std::mem::size_of::<__m128i>(), 16usize, "Size of __m128i");
+    assert_eq!(
+        ::std::mem::align_of::<__m128i>(),
+        16usize,
+        "Alignment of __m128i"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).m128i_i8) as usize - ptr as usize },
+        0usize,
+        "Offset of field: __m128i::m128i_i8"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).m128i_i16) as usize - ptr as usize },
+        0usize,
+        "Offset of field: __m128i::m128i_i16"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).m128i_i32) as usize - ptr as usize },
+        0usize,
+        "Offset of field: __m128i::m128i_i32"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).m128i_i64) as usize - ptr as usize },
+        0usize,
+        "Offset of field: __m128i::m128i_i64"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).m128i_u8) as usize - ptr as usize },
+        0usize,
+        "Offset of field: __m128i::m128i_u8"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).m128i_u16) as usize - ptr as usize },
+        0usize,
+        "Offset of field: __m128i::m128i_u16"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).m128i_u32) as usize - ptr as usize },
+        0usize,
+        "Offset of field: __m128i::m128i_u32"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).m128i_u64) as usize - ptr as usize },
+        0usize,
+        "Offset of field: __m128i::m128i_u64"
+    );
+}
+impl Default for __m128i {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
 pub type SYMCRYPT_BLOCKCIPHER = _SYMCRYPT_BLOCKCIPHER;
 pub type PCSYMCRYPT_BLOCKCIPHER = *const SYMCRYPT_BLOCKCIPHER;
 #[repr(C)]
@@ -1228,35 +1300,35 @@ impl Default for _SYMCRYPT_OID {
 }
 pub type SYMCRYPT_OID = _SYMCRYPT_OID;
 pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5167,83 +5239,6 @@ extern "C" {
         pcbDst: *mut SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
-<<<<<<< HEAD
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _SYMCRYPT_OID {
-    pub cbOID: UINT32,
-    pub pbOID: PCBYTE,
-}
-#[test]
-fn bindgen_test_layout__SYMCRYPT_OID() {
-    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_OID> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<_SYMCRYPT_OID>(),
-        16usize,
-        "Size of _SYMCRYPT_OID"
-    );
-    assert_eq!(
-        ::std::mem::align_of::<_SYMCRYPT_OID>(),
-        8usize,
-        "Alignment of _SYMCRYPT_OID"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).cbOID) as usize - ptr as usize },
-        0usize,
-        "Offset of field: _SYMCRYPT_OID::cbOID"
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).pbOID) as usize - ptr as usize },
-        8usize,
-        "Offset of field: _SYMCRYPT_OID::pbOID"
-    );
-}
-impl Default for _SYMCRYPT_OID {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_OID = _SYMCRYPT_OID;
-pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
-#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
-extern "C" {
-    pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
-extern "C" {
-    pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
-extern "C" {
-    pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
-extern "C" {
-    pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
-extern "C" {
-    pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
-extern "C" {
-    pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
-extern "C" {
-    pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
-}
-#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
-extern "C" {
-    pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
-}
-=======
->>>>>>> b8eec19 (generate new bindings)
 extern "C" {
     pub fn SymCryptRsaPkcs1Sign(
         pkRsakey: PCSYMCRYPT_RSAKEY,

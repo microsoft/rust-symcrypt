@@ -117,6 +117,7 @@ aes-xmm.c
 aes-ymm.c
 aescmac.c
 aesCtrDrbg.c
+aeskw.c
 AesTables.c
 blockciphermodes.c
 ccm.c
@@ -160,18 +161,27 @@ hkdf.c
 hmac.c
 hmacmd5.c
 hmacsha1.c
+hmacsha224.c
 hmacsha256.c
 hmacsha384.c
 hmacsha512.c
+hmacsha512_224.c
+hmacsha512_256.c
+hmacsha3_224.c
 hmacsha3_256.c
 hmacsha3_384.c
 hmacsha3_512.c
 kmac.c
 libmain.c
+lms.c
 marvin32.c
 md2.c
 md4.c
 md5.c
+mldsa.c
+mldsa_primitives.c
+mlkem.c
+mlkem_primitives.c
 modexp.c
 paddingPkcs7.c
 parhash.c
@@ -191,6 +201,7 @@ rsakey.c
 ScsTable.c
 scsTools.c
 selftest.c
+service_indicator.c
 session.c
 sha1.c
 sha256.c
@@ -203,6 +214,7 @@ sha512Par.c
 sha512Par-ymm.c
 sha512-ymm.c
 sha3.c
+sha3_224.c
 sha3_256.c
 sha3_384.c
 sha3_512.c
@@ -216,9 +228,12 @@ srtp_kdf_selftest.c
 ssh_kdf.c
 ssh_kdf_sha256.c
 ssh_kdf_sha512.c
+sskdf.c
+sskdf_selftest.c
 tlsCbcVerify.c
 tlsprf_selftest.c
 tlsprf.c
+xmss.c
 xtsaes.c
 ";
 

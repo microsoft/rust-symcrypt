@@ -13,7 +13,8 @@
 #
 #  - Enter the WSL shell and run the following commands:
 #    sudo apt update && sudo apt upgrade
-#    sudo apt install -y clang libclang-dev rustup
+#    sudo apt install -y clang libclang-dev
+#    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # to install rust for WSL
 #    sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for cross-compilation
 #    
 #    rustup update 
