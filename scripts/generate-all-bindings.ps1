@@ -13,7 +13,8 @@
 #
 #  - Enter the WSL shell and run the following commands:
 #    sudo apt update && sudo apt upgrade
-#    sudo apt install -y clang libclang-dev rustup
+#    sudo apt install -y clang libclang-dev
+#    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # to install rust for WSL
 #    sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu # for cross-compilation
 #    
 #    rustup update 
@@ -27,9 +28,11 @@ $PSNativeCommandUseErrorActionPreference = $True
 Push-Location "$PSScriptRoot/.." # Move to the root of the project
 
 git submodule update --init
+git -C symcrypt-sys/symcrypt/3rdparty/jitterentropy-library submodule update --init
 
 python3 "./symcrypt-sys/symcrypt/scripts/version.py" --build-info
 mv -Force "./symcrypt-sys/symcrypt/inc/buildInfo.h" "./symcrypt-sys/inc/"
+mv -Force "./symcrypt-sys/symcrypt/inc/symcrypt_internal_shared.inc" "./symcrypt-sys/inc/"
 
 $bindingsDir = "./symcrypt-sys/src/bindings" # is relative to the project root
 if (Test-Path $bindingsDir) {
