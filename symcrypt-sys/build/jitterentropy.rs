@@ -3,10 +3,6 @@ use super::triple::Triple;
 const LIB_NAME: &str = "jitterentropy";
 
 pub fn compile_and_link_jitterentropy(triple: Triple) {
-<<<<<<< HEAD
-
-=======
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
     println!("Compiling jitterentropy...");
     let cargo_toml_dir =
         std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is not set");
