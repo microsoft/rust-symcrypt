@@ -23,9 +23,9 @@
 //! // Calculates secret agreements between private/public keys of two EcKey structs. The result
 //! // from each secret agreement should be the same.
 //! let ecdh_1_public =
-//! EcKey::set_public_key(CurveType::NistP256, &public_bytes_1.as_slice(), EcKeyUsage::EcDh).unwrap();
+//! EcKey::set_public_key(CurveType::NistP256, public_bytes_1.as_slice(), EcKeyUsage::EcDh).unwrap();
 //! let ecdh_2_public =
-//! EcKey::set_public_key(CurveType::NistP256, &public_bytes_2.as_slice(), EcKeyUsage::EcDh).unwrap();
+//! EcKey::set_public_key(CurveType::NistP256, public_bytes_2.as_slice(), EcKeyUsage::EcDh).unwrap();
 //!
 //! let secret_agreement_1 = key_1.ecdh_secret_agreement(ecdh_2_public).unwrap();
 //! let secret_agreement_2 = key_2.ecdh_secret_agreement(ecdh_1_public).unwrap();
@@ -84,13 +84,13 @@ mod test {
 
         let ecdh_1_public = EcKey::set_public_key(
             CurveType::NistP256,
-            &public_bytes_1.as_slice(),
+            public_bytes_1.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::NistP256,
-            &public_bytes_2.as_slice(),
+            public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
@@ -113,14 +113,14 @@ mod test {
 
         let ecdh_1_public = EcKey::set_public_key(
             CurveType::NistP384,
-            &public_bytes_1.as_slice(),
+            public_bytes_1.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
 
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::NistP384,
-            &public_bytes_2.as_slice(),
+            public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
@@ -143,14 +143,14 @@ mod test {
 
         let ecdh_1_public = EcKey::set_public_key(
             CurveType::NistP521,
-            &public_bytes_1.as_slice(),
+            public_bytes_1.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
 
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::NistP521,
-            &public_bytes_2.as_slice(),
+            public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
@@ -173,14 +173,14 @@ mod test {
 
         let ecdh_1_public = EcKey::set_public_key(
             CurveType::Curve25519,
-            &public_bytes_1.as_slice(),
+            public_bytes_1.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
 
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::Curve25519,
-            &public_bytes_2.as_slice(),
+            public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
@@ -203,14 +203,14 @@ mod test {
 
         let _ecdh_1_public = EcKey::set_public_key(
             CurveType::Curve25519,
-            &public_bytes_1.as_slice(),
+            public_bytes_1.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
 
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::Curve25519,
-            &public_bytes_2.as_slice(),
+            public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap_err();
@@ -230,14 +230,14 @@ mod test {
 
         let _ecdh_1_public = EcKey::set_public_key(
             CurveType::Curve25519,
-            &public_bytes_1.as_slice(),
+            public_bytes_1.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
 
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::Curve25519,
-            &public_bytes_2.as_slice(),
+            public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
@@ -255,7 +255,7 @@ mod test {
         let dummy_public_key_bytes = dummy_eckey.export_public_key().unwrap();
         let ecdh_1_no_private_key = EcKey::set_public_key(
             CurveType::NistP256,
-            &dummy_public_key_bytes.as_slice(),
+            dummy_public_key_bytes.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();
@@ -265,7 +265,7 @@ mod test {
         let public_bytes_2 = ecdh_2_private.export_public_key().unwrap();
         let ecdh_2_public = EcKey::set_public_key(
             CurveType::NistP256,
-            &public_bytes_2.as_slice(),
+            public_bytes_2.as_slice(),
             EcKeyUsage::EcDh,
         )
         .unwrap();

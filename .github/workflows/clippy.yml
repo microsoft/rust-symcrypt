@@ -1,0 +1,32 @@
+name: Cargo Clippy Check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  SYMCRYPT_LIB_PATH: "/dev/null" # Dummy value to bypass the env variable check on Windows
+
+
+jobs:
+  clippy:
+    name: Clippy Check
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest] # Run on Linux and Windows
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain 
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings

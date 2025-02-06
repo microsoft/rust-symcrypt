@@ -22,6 +22,13 @@
 #    rustup target add x86_64-unknown-linux-gnu
 #    rustup target add aarch64-unknown-linux-gnu
 
+param (
+    # Sets CARGO_TARGET_DIR environment variable for WSL builds.
+    # This is necessary because if we try to build from Windows volume, WSL might fail to detect 
+    # changes in the file system.
+    [string]$wslTempDir = "~/rust-symcrypt/target"
+)
+
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $True
 
@@ -42,27 +49,10 @@ if (Test-Path $bindingsDir) {
 cargo run --locked --bin symcrypt-bindgen "x86_64-pc-windows-msvc" $bindingsDir
 cargo run --locked --bin symcrypt-bindgen "aarch64-pc-windows-msvc" $bindingsDir
 
-# because we're trying to build from windows volume, WSL often fails to detect changes in the file system
-# a better approach might be to clone the whole repo to WSL volume and create linux bindings from there
-$maxRetries = 10; $retryCount = 0; $success = $false
-while (-not $success -and $retryCount -lt $maxRetries) {
-    try {
-        wsl --shutdown # force WSL to reload the environment
-        wsl exec bash "./scripts/run.sh" "cargo build -p symcrypt-bindgen"
-        $success = $true
-    } catch {
-        $retryCount++
-        Write-Host "Attempt $retryCount failed. Retrying..."
-    }
-}
-
-if (-not $success) {
-    throw "Failed to execute build symcrypt-bindgen after $maxRetries attempts."
-}
-
-wsl --shutdown # force WSL to reload the environment
-wsl exec bash "./scripts/run.sh" "cargo run --locked --bin symcrypt-bindgen x86_64-unknown-linux-gnu $bindingsDir"
-wsl exec bash "./scripts/run.sh" "cargo run --locked --bin symcrypt-bindgen aarch64-unknown-linux-gnu $bindingsDir"
+Write-Host "Restarting WSL..." && wsl --shutdown # force WSL to reload the environment
+wsl exec bash "./scripts/run.sh" "export CARGO_TARGET_DIR=$wslTempDir && cargo build -p symcrypt-bindgen"
+wsl exec bash "./scripts/run.sh" "export CARGO_TARGET_DIR=$wslTempDir && cargo run --locked --bin symcrypt-bindgen x86_64-unknown-linux-gnu $bindingsDir"
+wsl exec bash "./scripts/run.sh" "export CARGO_TARGET_DIR=$wslTempDir && cargo run --locked --bin symcrypt-bindgen aarch64-unknown-linux-gnu $bindingsDir"
 
 cargo fmt -p symcrypt-sys
 
