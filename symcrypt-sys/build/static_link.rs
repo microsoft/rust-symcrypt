@@ -79,10 +79,7 @@ impl SymCryptOptions {
             Triple::x86_64_unknown_linux_gnu => {
                 cc.include("symcrypt/modules/linux/common");
                 cc.flag("-mpclmul");
-<<<<<<< HEAD
-=======
                 cc.flag("-Wno-incompatible-pointer-types"); // Should we create parent Enum for Windows / Linux? 
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
                 /*
                 cc.flag("-mpclmul")
                     .flag("-mssse3")
@@ -95,10 +92,7 @@ impl SymCryptOptions {
             }
             Triple::aarch64_unknown_linux_gnu => {
                 cc.include("symcrypt/modules/linux/common");
-<<<<<<< HEAD
-=======
                 cc.flag("-Wno-incompatible-pointer-types");
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
             }
         }
 
@@ -125,10 +119,7 @@ aes-xmm.c
 aes-ymm.c
 aescmac.c
 aesCtrDrbg.c
-<<<<<<< HEAD
-=======
 aeskw.c
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 AesTables.c
 blockciphermodes.c
 ccm.c
@@ -172,11 +163,6 @@ hkdf.c
 hmac.c
 hmacmd5.c
 hmacsha1.c
-<<<<<<< HEAD
-hmacsha256.c
-hmacsha384.c
-hmacsha512.c
-=======
 hmacsha224.c
 hmacsha256.c
 hmacsha384.c
@@ -184,27 +170,20 @@ hmacsha512.c
 hmacsha512_224.c
 hmacsha512_256.c
 hmacsha3_224.c
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 hmacsha3_256.c
 hmacsha3_384.c
 hmacsha3_512.c
 kmac.c
 libmain.c
-<<<<<<< HEAD
-=======
 lms.c
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 marvin32.c
 md2.c
 md4.c
 md5.c
-<<<<<<< HEAD
-=======
 mldsa.c
 mldsa_primitives.c
 mlkem.c
 mlkem_primitives.c
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 modexp.c
 paddingPkcs7.c
 parhash.c
@@ -224,10 +203,7 @@ rsakey.c
 ScsTable.c
 scsTools.c
 selftest.c
-<<<<<<< HEAD
-=======
 service_indicator.c
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 session.c
 sha1.c
 sha256.c
@@ -240,10 +216,7 @@ sha512Par.c
 sha512Par-ymm.c
 sha512-ymm.c
 sha3.c
-<<<<<<< HEAD
-=======
 sha3_224.c
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 sha3_256.c
 sha3_384.c
 sha3_512.c
@@ -257,18 +230,12 @@ srtp_kdf_selftest.c
 ssh_kdf.c
 ssh_kdf_sha256.c
 ssh_kdf_sha512.c
-<<<<<<< HEAD
-tlsCbcVerify.c
-tlsprf_selftest.c
-tlsprf.c
-=======
 sskdf.c
 sskdf_selftest.c
 tlsCbcVerify.c
 tlsprf_selftest.c
 tlsprf.c
 xmss.c
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 xtsaes.c
 ";
 
@@ -306,11 +273,7 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
         }
         Triple::x86_64_unknown_linux_gnu => {
             base_files.push("linux/intrinsics.c");
-<<<<<<< HEAD
-            base_files.push("env_linuxUserMode.c");
-=======
             base_files.push("env_posixUserMode.c");
->>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 
             // generic
             module_files.push("symcrypt/modules/linux/generic/statusindicator.c");
