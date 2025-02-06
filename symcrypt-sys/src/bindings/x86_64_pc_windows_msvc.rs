@@ -5412,6 +5412,7 @@ extern "C" {
 }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> f386281 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
@@ -5495,6 +5496,8 @@ extern "C" {
 =======
 >>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 >>>>>>> f386281 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
+=======
+>>>>>>> 370b81c (Fix the rest of the cherry picks)
 extern "C" {
     pub fn SymCryptRsaPkcs1Sign(
         pkRsakey: PCSYMCRYPT_RSAKEY,
