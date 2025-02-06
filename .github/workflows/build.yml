@@ -7,6 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_HACK_DEPTH: 2
 
 jobs:
   build:
@@ -38,6 +39,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: true
+    
+    - name: Init jitterentropy submodule
+      run: git -C symcrypt-sys/symcrypt submodule update --init -- 3rdparty/jitterentropy-library
 
     - name: Install host target
       shell: pwsh
@@ -47,6 +53,10 @@ jobs:
           sudo apt update
           sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         }
+
+    - uses: taiki-e/install-action@cargo-hack
+
+    - uses: Swatinem/rust-cache@v2
 
     - name: Download SymCrypt
       shell: pwsh
@@ -83,3 +93,8 @@ jobs:
       if: matrix.run-tests
       shell: pwsh
       run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run hack test
+      if: matrix.run-tests
+      shell: pwsh
+      run: cargo hack test --depth $env:CARGO_HACK_DEPTH --feature-powerset --locked --target ${{ matrix.target }}

@@ -152,7 +152,7 @@ fn get_rust_version_from_cargo_metadata() -> String {
 fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
     if triple.contains("windows") {
         println!("Fixing bindings for Windows");
-        let link_str = "#[link(name = \"symcrypt\", kind = \"dylib\")]";
+        let link_str = r#"#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]"#;
         let regex_exp1 = regex::Regex::new(r"pub static \w+: \[SYMCRYPT_OID; \d+usize\];").unwrap();
         let regex_exp2 = regex::Regex::new(r"pub static \w+: PCSYMCRYPT_\w+;").unwrap();
         let bindings_content =

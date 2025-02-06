@@ -1227,35 +1227,35 @@ impl Default for _SYMCRYPT_OID {
 }
 pub type SYMCRYPT_OID = _SYMCRYPT_OID;
 pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -2013,6 +2013,235 @@ pub type SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA512_224_EXPAN
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
+<<<<<<< HEAD
+pub struct _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY {
+    pub innerState: SYMCRYPT_SHA512_CHAINING_STATE,
+    pub outerState: SYMCRYPT_SHA512_CHAINING_STATE,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_HMAC_SHA384_EXPANDED_KEY() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_SHA384_EXPANDED_KEY> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_HMAC_SHA384_EXPANDED_KEY>(),
+        144usize,
+        "Size of _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_HMAC_SHA384_EXPANDED_KEY>(),
+        16usize,
+        "Alignment of _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).innerState) as usize - ptr as usize },
+        0usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY::innerState"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).outerState) as usize - ptr as usize },
+        64usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY::outerState"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        128usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY::magic"
+    );
+}
+pub type SYMCRYPT_HMAC_SHA384_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY;
+pub type PSYMCRYPT_HMAC_SHA384_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA384_EXPANDED_KEY;
+pub type PCSYMCRYPT_HMAC_SHA384_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA384_EXPANDED_KEY;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_HMAC_SHA384_STATE {
+    pub hash: SYMCRYPT_SHA384_STATE,
+    pub pKey: PCSYMCRYPT_HMAC_SHA384_EXPANDED_KEY,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_HMAC_SHA384_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_SHA384_STATE> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_HMAC_SHA384_STATE>(),
+        240usize,
+        "Size of _SYMCRYPT_HMAC_SHA384_STATE"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_HMAC_SHA384_STATE>(),
+        16usize,
+        "Alignment of _SYMCRYPT_HMAC_SHA384_STATE"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hash) as usize - ptr as usize },
+        0usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA384_STATE::hash"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pKey) as usize - ptr as usize },
+        224usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA384_STATE::pKey"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        232usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA384_STATE::magic"
+    );
+}
+impl Default for _SYMCRYPT_HMAC_SHA384_STATE {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_HMAC_SHA384_STATE = _SYMCRYPT_HMAC_SHA384_STATE;
+pub type PSYMCRYPT_HMAC_SHA384_STATE = *mut _SYMCRYPT_HMAC_SHA384_STATE;
+pub type PCSYMCRYPT_HMAC_SHA384_STATE = *const SYMCRYPT_HMAC_SHA384_STATE;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY {
+    pub innerState: SYMCRYPT_SHA512_CHAINING_STATE,
+    pub outerState: SYMCRYPT_SHA512_CHAINING_STATE,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_HMAC_SHA512_EXPANDED_KEY() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_SHA512_EXPANDED_KEY> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_HMAC_SHA512_EXPANDED_KEY>(),
+        144usize,
+        "Size of _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_HMAC_SHA512_EXPANDED_KEY>(),
+        16usize,
+        "Alignment of _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).innerState) as usize - ptr as usize },
+        0usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::innerState"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).outerState) as usize - ptr as usize },
+        64usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::outerState"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        128usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY::magic"
+    );
+}
+pub type SYMCRYPT_HMAC_SHA512_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
+pub type PSYMCRYPT_HMAC_SHA512_EXPANDED_KEY = *mut _SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
+pub type PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY = *const SYMCRYPT_HMAC_SHA512_EXPANDED_KEY;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_HMAC_SHA512_STATE {
+    pub hash: SYMCRYPT_SHA512_STATE,
+    pub pKey: PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_HMAC_SHA512_STATE() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_SHA512_STATE> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_HMAC_SHA512_STATE>(),
+        240usize,
+        "Size of _SYMCRYPT_HMAC_SHA512_STATE"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_HMAC_SHA512_STATE>(),
+        16usize,
+        "Alignment of _SYMCRYPT_HMAC_SHA512_STATE"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hash) as usize - ptr as usize },
+        0usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_STATE::hash"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).pKey) as usize - ptr as usize },
+        224usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_STATE::pKey"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        232usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_STATE::magic"
+    );
+}
+impl Default for _SYMCRYPT_HMAC_SHA512_STATE {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_HMAC_SHA512_STATE = _SYMCRYPT_HMAC_SHA512_STATE;
+pub type PSYMCRYPT_HMAC_SHA512_STATE = *mut _SYMCRYPT_HMAC_SHA512_STATE;
+pub type PCSYMCRYPT_HMAC_SHA512_STATE = *const SYMCRYPT_HMAC_SHA512_STATE;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY {
+    pub innerState: SYMCRYPT_SHA512_CHAINING_STATE,
+    pub outerState: SYMCRYPT_SHA512_CHAINING_STATE,
+    pub magic: SIZE_T,
+}
+#[test]
+fn bindgen_test_layout__SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY() {
+    const UNINIT: ::std::mem::MaybeUninit<_SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY>(),
+        144usize,
+        "Size of _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY>(),
+        16usize,
+        "Alignment of _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).innerState) as usize - ptr as usize },
+        0usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY::innerState"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).outerState) as usize - ptr as usize },
+        64usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY::outerState"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).magic) as usize - ptr as usize },
+        128usize,
+        "Offset of field: _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY::magic"
+    );
+}
+pub type SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY = _SYMCRYPT_HMAC_SHA512_224_EXPANDED_KEY;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Default, Copy, Clone)]
+=======
+>>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 pub struct _SYMCRYPT_HMAC_SHA512_256_EXPANDED_KEY {
     pub innerState: SYMCRYPT_SHA512_CHAINING_STATE,
     pub outerState: SYMCRYPT_SHA512_CHAINING_STATE,
@@ -4492,7 +4721,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptMd5StateCopy(pSrc: PCSYMCRYPT_MD5_STATE, pDst: PSYMCRYPT_MD5_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptMd5Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4511,7 +4740,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptSha1StateCopy(pSrc: PCSYMCRYPT_SHA1_STATE, pDst: PSYMCRYPT_SHA1_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha1Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4530,7 +4759,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptSha256StateCopy(pSrc: PCSYMCRYPT_SHA256_STATE, pDst: PSYMCRYPT_SHA256_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha256Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4549,7 +4778,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptSha384StateCopy(pSrc: PCSYMCRYPT_SHA384_STATE, pDst: PSYMCRYPT_SHA384_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha384Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4568,7 +4797,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptSha512StateCopy(pSrc: PCSYMCRYPT_SHA512_STATE, pDst: PSYMCRYPT_SHA512_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4590,7 +4819,7 @@ extern "C" {
         pDst: PSYMCRYPT_SHA3_256_STATE,
     );
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4612,7 +4841,7 @@ extern "C" {
         pDst: PSYMCRYPT_SHA3_384_STATE,
     );
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4634,7 +4863,7 @@ extern "C" {
         pDst: PSYMCRYPT_SHA3_512_STATE,
     );
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptSha3_512Algorithm: PCSYMCRYPT_HASH;
 }
@@ -4672,7 +4901,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptHmacMd5Result(pState: PSYMCRYPT_HMAC_MD5_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptHmacMd5Algorithm: PCSYMCRYPT_MAC;
 }
@@ -4714,7 +4943,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptHmacSha1Result(pState: PSYMCRYPT_HMAC_SHA1_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptHmacSha1Algorithm: PCSYMCRYPT_MAC;
 }
@@ -4756,7 +4985,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptHmacSha256Result(pState: PSYMCRYPT_HMAC_SHA256_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptHmacSha256Algorithm: PCSYMCRYPT_MAC;
 }
@@ -4798,7 +5027,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptHmacSha384Result(pState: PSYMCRYPT_HMAC_SHA384_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptHmacSha384Algorithm: PCSYMCRYPT_MAC;
 }
@@ -4840,7 +5069,7 @@ extern "C" {
 extern "C" {
     pub fn SymCryptHmacSha512Result(pState: PSYMCRYPT_HMAC_SHA512_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptHmacSha512Algorithm: PCSYMCRYPT_MAC;
 }
@@ -4899,7 +5128,7 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
 }
@@ -5327,19 +5556,19 @@ extern "C" {
 extern "C" {
     pub fn SymCryptEcurveSizeofFieldElement(pCurve: PCSYMCRYPT_ECURVE) -> UINT32;
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptEcurveParamsNistP521: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
 extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
