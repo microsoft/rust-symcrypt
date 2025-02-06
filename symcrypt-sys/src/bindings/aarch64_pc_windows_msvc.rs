@@ -1227,6 +1227,7 @@ impl Default for _SYMCRYPT_OID {
 }
 pub type SYMCRYPT_OID = _SYMCRYPT_OID;
 pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
+<<<<<<< HEAD
 #[link(name = "symcrypt", kind = "dylib")]
 extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
@@ -1256,6 +1257,37 @@ extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
 #[link(name = "symcrypt", kind = "dylib")]
+=======
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
+extern "C" {
+    pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
+}
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
+extern "C" {
+    pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
+}
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
+extern "C" {
+    pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
+}
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
+extern "C" {
+    pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
+}
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
+extern "C" {
+    pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
+}
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
+extern "C" {
+    pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
+}
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
+extern "C" {
+    pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
+}
+#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]
+>>>>>>> f386281 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -5434,7 +5466,10 @@ extern "C" {
     ) -> SYMCRYPT_ERROR;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> f386281 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_OID {
@@ -5509,7 +5544,12 @@ extern "C" {
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
+<<<<<<< HEAD
 >>>>>>> 8deda53 (fixes)
+=======
+=======
+>>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
+>>>>>>> f386281 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
 extern "C" {
     pub fn SymCryptRsaPkcs1Sign(
         pkRsakey: PCSYMCRYPT_RSAKEY,

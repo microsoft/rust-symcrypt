@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "symcrypt_internal_shared.inc"
 
 #define _SYMCRYPT_STRING_INT(a) #a
@@ -11,4 +12,17 @@
 #define SYMCRYPT_BUILD_INFO_COMMIT    "2024-04-12T07:54:16+02:00_171f697"
 #define SYMCRYPT_BUILD_INFO_VERSION   _SYMCRYPT_EXPAND_JOIN(_SYMCRYPT_EXPAND_JOIN(SYMCRYPT_CODE_VERSION_API, SYMCRYPT_CODE_VERSION_MINOR), SYMCRYPT_CODE_VERSION_PATCH)
 #define SYMCRYPT_BUILD_INFO_TIMESTAMP "2025-01-23T12:00:42"
+<<<<<<< HEAD
 >>>>>>> 8deda53 (fixes)
+=======
+=======
+#include "symcrypt_internal_shared.inc"
+
+#define _SYMCRYPT_STRING_INT(a) #a
+#define _SYMCRYPT_STRING(a) _SYMCRYPT_STRING_INT(a)
+#define SYMCRYPT_BUILD_INFO_BRANCH    "main"
+#define SYMCRYPT_BUILD_INFO_COMMIT    "2025-01-27T19:44:15-05:00_53be637"
+#define SYMCRYPT_BUILD_INFO_VERSION   _SYMCRYPT_STRING(SYMCRYPT_CODE_VERSION_API) "." _SYMCRYPT_STRING(SYMCRYPT_CODE_VERSION_MINOR) "." _SYMCRYPT_STRING(SYMCRYPT_CODE_VERSION_PATCH)
+#define SYMCRYPT_BUILD_INFO_TIMESTAMP "2025-02-05T15:08:23"
+>>>>>>> 5f23fa5 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
+>>>>>>> f386281 (Merged changes from u/vaiz/static2 and user/nnmkhang/static_103.8)
