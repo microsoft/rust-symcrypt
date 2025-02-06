@@ -79,16 +79,16 @@ impl SymCryptOptions {
             Triple::x86_64_unknown_linux_gnu => {
                 cc.include("symcrypt/modules/linux/common");
                 cc.flag("-mpclmul");
-                cc.flag("-Wno-incompatible-pointer-types"); // Should we create parent Enum for Windows / Linux? 
-                /*
-                cc.flag("-mpclmul")
-                    .flag("-mssse3")
-                    .flag("-mxsave")
-                    .flag("-maes")
-                    .flag("-msha")
-                    .flag("-mrdrnd")
-                    .flag("-mrdseed");
-                */
+                cc.flag("-Wno-incompatible-pointer-types"); // Should we create parent Enum for Windows / Linux?
+                                                            /*
+                                                            cc.flag("-mpclmul")
+                                                                .flag("-mssse3")
+                                                                .flag("-mxsave")
+                                                                .flag("-maes")
+                                                                .flag("-msha")
+                                                                .flag("-mrdrnd")
+                                                                .flag("-mrdseed");
+                                                            */
             }
             Triple::aarch64_unknown_linux_gnu => {
                 cc.include("symcrypt/modules/linux/common");
