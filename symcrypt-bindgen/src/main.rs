@@ -42,7 +42,7 @@ fn main() {
 
     std::fs::create_dir_all(out_dir).expect("Unable to create output directory");
 
-    let bindings = bindgen::builder()
+    let mut builder = bindgen::builder()
         .header(wrapper_header.display().to_string())
         .rust_target(bindgen::RustTarget::from_str(&rust_target).unwrap())
 
@@ -107,8 +107,23 @@ fn main() {
         .allowlist_function("SymCryptWipe")
         .allowlist_function("SymCryptRandom")
         .allowlist_function("SymCryptLoadMsbFirstUint64")
-        .allowlist_function("SymCryptStoreMsbFirstUint64")    
+        .allowlist_function("SymCryptStoreMsbFirstUint64");
 
+    // Opaque types
+    builder = builder
+        .opaque_type("_SYMCRYPT_.*_STATE")
+        .opaque_type("_SYMCRYPT_.*_EXPANDED_KEY")
+        .opaque_type("_SYMCRYPT_BLOCKCIPHER")
+        .opaque_type("_SYMCRYPT_ECURVE")
+        .opaque_type("_SYMCRYPT_ECURVE_PARAMS")
+        .opaque_type("_SYMCRYPT_INT")
+        .opaque_type("_SYMCRYPT_DIVISOR")
+        .opaque_type("_SYMCRYPT_MODULUS")
+        .opaque_type("_SYMCRYPT_ECKEY")
+        .opaque_type("_SYMCRYPT_RSAKEY")
+        .opaque_type("_SYMCRYPT_MAC");
+
+    let bindings = builder
         .generate_comments(true)
         .derive_default(true)
         .generate()
@@ -118,7 +133,7 @@ fn main() {
         .write_to_file(&bindings_file)
         .expect("Couldn't write bindings!");
 
-    fix_bindings_for_windows(triple, &bindings_file);
+    fix_bindings_for_windows(&bindings_file);
 }
 
 fn get_parent_n(path: &Path, n: usize) -> PathBuf {
@@ -149,32 +164,29 @@ fn get_rust_version_from_cargo_metadata() -> String {
 }
 
 #[allow(clippy::collapsible_if)]
-fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
-    if triple.contains("windows") {
-        println!("Fixing bindings for Windows");
-        let link_str = "#[link(name = \"symcrypt\", kind = \"dylib\")]";
-        let regex_exp1 = regex::Regex::new(r"pub static \w+: \[SYMCRYPT_OID; \d+usize\];").unwrap();
-        let regex_exp2 = regex::Regex::new(r"pub static \w+: PCSYMCRYPT_\w+;").unwrap();
-        let bindings_content =
-            std::fs::read_to_string(bindings_file).expect("Unable to read bindings file");
+fn fix_bindings_for_windows(bindings_file: &str) {
+    println!("Fixing bindings for Windows");
+    let link_str = r#"#[cfg_attr(target_os = "windows", link(name = "symcrypt", kind = "dylib"))]"#;
+    let regex_exp1 = regex::Regex::new(r"pub static \w+: \[SYMCRYPT_OID; \d+usize\];").unwrap();
+    let regex_exp2 = regex::Regex::new(r"pub static \w+: PCSYMCRYPT_\w+;").unwrap();
+    let bindings_content =
+        std::fs::read_to_string(bindings_file).expect("Unable to read bindings file");
 
-        let mut out_content = Vec::new();
-        let lines: Vec<&str> = bindings_content.lines().collect();
-        out_content.push(lines[0]);
+    let mut out_content = Vec::new();
+    let lines: Vec<&str> = bindings_content.lines().collect();
+    out_content.push(lines[0]);
 
-        for i in 1..lines.len() {
-            if lines[i - 1].contains("extern \"C\" {") {
-                if regex_exp1.is_match(lines[i]) || regex_exp2.is_match(lines[i]) {
-                    out_content.pop();
-                    out_content.push(link_str);
-                    out_content.push(lines[i - 1]);
-                }
+    for i in 1..lines.len() {
+        if lines[i - 1].contains("extern \"C\" {") {
+            if regex_exp1.is_match(lines[i]) || regex_exp2.is_match(lines[i]) {
+                out_content.pop();
+                out_content.push(link_str);
+                out_content.push(lines[i - 1]);
             }
-            out_content.push(lines[i]);
         }
-
-        out_content.push(""); // Add an empty line at the end
-        std::fs::write(bindings_file, out_content.join("\n"))
-            .expect("Unable to write bindings file");
+        out_content.push(lines[i]);
     }
+
+    out_content.push(""); // Add an empty line at the end
+    std::fs::write(bindings_file, out_content.join("\n")).expect("Unable to write bindings file");
 }

@@ -1,3 +1,5 @@
+#![allow(improper_ctypes)] // bindgen uses u128 for opaque types which is not officially stable yet
+
 #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
 mod x86_64_pc_windows_msvc;
 #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
