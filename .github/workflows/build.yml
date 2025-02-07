@@ -55,6 +55,7 @@ jobs:
         }
 
     - uses: taiki-e/install-action@cargo-hack
+      if: matrix.run-tests
 
     - uses: Swatinem/rust-cache@v2
 
