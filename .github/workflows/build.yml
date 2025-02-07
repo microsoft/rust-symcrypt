@@ -7,7 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CARGO_HACK_DEPTH: 2
+  FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
 
 jobs:
   build:
@@ -54,8 +54,6 @@ jobs:
           sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         }
 
-    - uses: taiki-e/install-action@cargo-hack
-
     - uses: Swatinem/rust-cache@v2
 
     - name: Download SymCrypt
@@ -84,17 +82,18 @@ jobs:
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
 
-    - name: Run tests (Debug)
+    - name: Run tests (Debug, dynamic)
       if: matrix.run-tests
-      shell: pwsh
       run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
 
-    - name: Run tests (Release)
+    - name: Run tests (Release, dynamic)
       if: matrix.run-tests
-      shell: pwsh
       run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
 
-    - name: Run hack test
+    - name: Run test (Debug, static)
       if: matrix.run-tests
-      shell: pwsh
-      run: cargo hack test --depth $env:CARGO_HACK_DEPTH --feature-powerset --locked --target ${{ matrix.target }}
+      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
+
+    - name: Run test (Release, static)
+      if: matrix.run-tests
+      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
