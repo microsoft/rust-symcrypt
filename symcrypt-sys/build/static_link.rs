@@ -9,6 +9,7 @@ pub fn compile_and_link_symcrypt() -> std::io::Result<()> {
     let options = SymCryptOptions::new();
     println!("Build config: {:?}", options);
 
+    // Required Windows bcrypt dependency for BCryptGenRandom
     const ADDITIONAL_DEPENDENCIES: &[&str] = &[
         #[cfg(windows)]
         "bcrypt",

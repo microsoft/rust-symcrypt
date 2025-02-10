@@ -24,6 +24,8 @@ fn link_symcrypt_dynamically() -> std::io::Result<()> {
         // Look for the .lib file during link time. We are searching the Windows/System32 path which is set as a current default to match
         // the long term placement of a Windows shipped symcrypt.dll
 
+        // TODO: Update this info 
+        
         let lib_path = std::env::var("SYMCRYPT_LIB_PATH")
             .unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set, for more information please see: https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide"));
         println!("cargo:rustc-link-search=native={}", lib_path);
@@ -47,6 +49,10 @@ fn link_symcrypt_dynamically() -> std::io::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
+
+
+        //TODO: update this info 
+
         // Note: Linux support is based off of the Azure Linux distro.
         // This has been tested on Ubuntu 22.04.03 LTS on WSL and has confirmed working but support for other distros
         // aside from Azure Linux is not guaranteed so YMMV.
