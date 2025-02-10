@@ -27,3 +27,4 @@ pkcs1-encrypt-decrypt = []
 
 [dev-dependencies]
 hex = "0.4.3"
+rand = "0.9.0"
