@@ -3,7 +3,7 @@ use std::{mem, ptr::{addr_of, addr_of_mut}};
 use internal::{GcmInitializedStream, GcmInitializedStreamRefMut};
 use symcrypt_sys::{SymCryptGcmAuthPart, SymCryptGcmDecrypt, SymCryptGcmDecryptFinal, SymCryptGcmDecryptPart, SymCryptGcmEncrypt, SymCryptGcmEncryptFinal, SymCryptGcmEncryptPart, SymCryptGcmExpandKey, SymCryptGcmInit, SymCryptWipe, SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR, SYMCRYPT_GCM_EXPANDED_KEY, SYMCRYPT_GCM_STATE};
 
-use crate::{cipher::{convert_cipher, BlockCipherType}, errors::SymCryptError};
+use crate::{cipher::{convert_cipher, BlockCipherType}, errors::SymCryptError, symcrypt_init};
 
 
 ///
@@ -41,6 +41,7 @@ impl GcmUnexpandedKey {
     /// `key_data` is a `&[u8]` that contains the key to initialize with.
     /// 
     pub fn expand_key(&mut self, cipher_type: BlockCipherType, key_data: &[u8]) -> Result<GcmExpandedKey, SymCryptError> {
+        symcrypt_init();
         let cipher = convert_cipher(cipher_type);
 
         //
