@@ -17,12 +17,20 @@ fn symcrypt_init() {
     static INIT: Once = Once::new();
     unsafe {
         // SAFETY: FFI calls, blocking from being run again.
+        #[cfg(feature = "dynamic")]
         INIT.call_once(|| {
             symcrypt_sys::SymCryptModuleInit(
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
             )
         });
+
+        #[cfg(not(feature = "dynamic"))]
+        println!("static mode");
+        // INIT.call_once(|| { 
+        //     symcrypt_sys::SymCryptInit()
+        // });
+
     }
 }
 
@@ -30,11 +38,11 @@ fn symcrypt_init() {
 pub fn symcrypt_random(buff: &mut [u8]) {
     symcrypt_init();
    
-    // Commenting out for custom random testing. In the future; dynamic will call SymCryptRandom and static will call custom impl.
-    // unsafe {
-    //     // SAFETY: FFI calls
-    //     symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
-    // }
+ //Commenting out for custom random testing. In the future; dynamic will call SymCryptRandom and static will call custom impl.
+    unsafe {
+        // SAFETY: FFI calls
+        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
+    }
 }
 
 /// `NumberFormat` is an enum that contains a friendly representation of endianess
