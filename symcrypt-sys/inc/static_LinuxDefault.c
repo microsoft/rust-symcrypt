@@ -1,3 +1,10 @@
+//
+// static_LinuxDefault.c
+// Default implementation for Linux static shared object.
+//
+// Copyright (c) Microsoft Corporation. Licensed under the MIT license.
+//
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>

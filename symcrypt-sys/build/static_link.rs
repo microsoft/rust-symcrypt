@@ -250,7 +250,6 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
 
     let mut module_files = vec![];
 
-
     match options.triple() {
         Triple::x86_64_pc_windows_msvc | Triple::aarch64_pc_windows_msvc => {
             base_files.push("env_windowsUserModeWin8_1.c");

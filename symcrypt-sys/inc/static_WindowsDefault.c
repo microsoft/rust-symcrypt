@@ -1,6 +1,6 @@
 //
-// module.c
-// Main file for SymCrypt Windows user-mode module, symcrypt.dll
+// static_WindowsDefault.c
+// Default implementation for Windows static shared object.
 //
 // Copyright (c) Microsoft Corporation. Licensed under the MIT license.
 //
@@ -16,8 +16,6 @@
 #include <symcrypt_low_level.h>
 
 SYMCRYPT_ENVIRONMENT_WINDOWS_USERMODE_LATEST;
-
-#define SYMCRYPT_FIPS_STATUS_INDICATOR
 
 PVOID
 SYMCRYPT_CALL

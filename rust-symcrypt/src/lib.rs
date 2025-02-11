@@ -31,9 +31,7 @@ fn symcrypt_init() {
         #[cfg(not(feature = "dynamic"))]
         {
             println!("static mode");
-            INIT.call_once(|| { 
-                symcrypt_sys::SymCryptInit()
-            });
+            INIT.call_once(|| symcrypt_sys::SymCryptInit());
         }
     }
 }
@@ -44,7 +42,7 @@ pub fn symcrypt_random(buff: &mut [u8]) {
 
     unsafe {
         // SAFETY: FFI calls
-        
+
         #[cfg(feature = "dynamic")]
         // If calling dynamically, we will use SymCryptRandom that is provided by the SymCrypt library.
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
@@ -52,9 +50,8 @@ pub fn symcrypt_random(buff: &mut [u8]) {
         #[cfg(not(feature = "dynamic"))]
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
 
-
         // TODO: Investigate if we should use getrandom here instead of SymCryptRandom
-        // potentially use rand::get_random() here as to not have a mismatch. Although it is possible to expose a version 
+        // potentially use rand::get_random() here as to not have a mismatch. Although it is possible to expose a version
         // of SymCryptRandom in static mode, There could be a potential issue with mixing function definitions between
         // the dynamic and static modes.
     }
