@@ -6,7 +6,6 @@ pub mod cipher;
 pub mod ecc;
 pub mod errors;
 pub mod gcm;
-pub mod gcm2;
 pub mod hash;
 pub mod hkdf;
 pub mod hmac;
