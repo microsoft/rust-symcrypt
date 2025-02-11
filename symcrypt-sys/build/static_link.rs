@@ -1,4 +1,3 @@
-use super::jitterentropy::compile_and_link_jitterentropy;
 use super::triple::Triple;
 
 const LIB_NAME: &str = "symcrypt";
@@ -24,10 +23,6 @@ pub fn compile_and_link_symcrypt() -> std::io::Result<()> {
         println!("cargo:rustc-link-lib=dylib={dep}");
     }
 
-    if options.need_jitterentropy() {
-        compile_and_link_jitterentropy(options.triple());
-    }
-
     Ok(())
 }
 
@@ -50,12 +45,6 @@ impl SymCryptOptions {
     }
     fn triple(&self) -> Triple {
         self.triple.clone()
-    }
-    fn need_jitterentropy(&self) -> bool {
-        matches!(
-            self.triple,
-            Triple::x86_64_unknown_linux_gnu | Triple::aarch64_unknown_linux_gnu
-        )
     }
 
     fn preconfigure_cc(&self) -> cc::Build {
@@ -95,10 +84,6 @@ impl SymCryptOptions {
                 cc.include("symcrypt/modules/linux/common");
                 cc.flag("-Wno-incompatible-pointer-types");
             }
-        }
-
-        if self.need_jitterentropy() {
-            cc.include("symcrypt/3rdparty/jitterentropy-library");
         }
 
         cc
@@ -266,48 +251,21 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
     let mut module_files = vec![];
 
 
-    /// TODO: 
-    /// remove env_usermode_win7
-    /// remove module.c from windows branch
-    /// create "test.c" for windows branch / combine windows callbacks etc to test.c
-    /// add symcryptinit for static linking
     match options.triple() {
         Triple::x86_64_pc_windows_msvc | Triple::aarch64_pc_windows_msvc => {
-            base_files.push("env_windowsUserModeWin7.c");
             base_files.push("env_windowsUserModeWin8_1.c");
             base_files.push("IEEE802_11SaeCustom.c");
-            module_files.push("symcrypt/modules/windows/user/module.c");
+            //module_files.push("symcrypt/modules/windows/user/module.c");
+            module_files.push("inc/static_WindowsDefault.c");
         }
         Triple::x86_64_unknown_linux_gnu => {
             base_files.push("linux/intrinsics.c");
             base_files.push("env_posixUserMode.c");
-            module_files.push("inc/test.c");
+            module_files.push("inc/static_LinuxDefault.c");
         }
         Triple::aarch64_unknown_linux_gnu => {
             base_files.push("env_posixUserMode.c");
-
-            // generic
-            // not needed for generic non fips.
-            module_files.push("symcrypt/modules/linux/generic/statusindicator.c");
-            module_files.push("symcrypt/modules/linux/common/optional/rngfipsjitter.c");
-            module_files.push("symcrypt/modules/linux/common/optional/rngforkdetection.c");
-            module_files.push("symcrypt/modules/linux/common/optional/rngsecureurandom.c");
-            
-            // Required for SYMCRYPT_ENVIRONMENT_POSIX_USERMODE, could move this to custom test.c file.
-            module_files.push("symcrypt/modules/linux/common/optional/module_linuxUserMode.c");
-
-            // Required for SymCryptCallBackAlloc/Free
-            module_files.push("symcrypt/modules/linux/common/callbacks_pthread.c");
-
-            // Enable integrity verification if compiling for AMD64 or ARM64 or ARM
-            module_files.push("symcrypt/modules/linux/common/integrity.c"); //not needed
-
-            // symcrypt_module_linux_common
-
-            // module.c mainly exposes SymCryptModuleInit which we've copied to test.c
-            module_files.push("symcrypt/modules/linux/common/module.c");
-            // rng.c is not required since we're creating our own random, this file exposes SymCryptRandom, which we should just be able to replace
-            module_files.push("symcrypt/modules/linux/common/rng.c");
+            module_files.push("inc/static_LinuxDefault.c");
         }
     }
 

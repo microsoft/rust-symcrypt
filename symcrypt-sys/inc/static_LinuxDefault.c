@@ -8,7 +8,6 @@
 #include <errno.h>
 
 SYMCRYPT_ENVIRONMENT_POSIX_USERMODE
-// add SymCryptINit() for static link
 
 PVOID
 SYMCRYPT_CALL
@@ -27,15 +26,13 @@ SymCryptCallbackFree( VOID * pMem )
     free( pMem );
 }
 
-// from linux docs
-
+// From Linux docs on getrandom:
 // RETURN VALUE         top
 //        On success, getrandom() returns the number of bytes that were
 //        copied to the buffer buf.  This may be less than the number of
 //        bytes requested via buflen if either GRND_RANDOM was specified in
 //        flags and insufficient entropy was present in the random source or
 //        the system call was interrupted by a signal.
-
 //        On error, -1 is returned, and errno is set to indicate the error.
 SYMCRYPT_ERROR
 SYMCRYPT_CALL
@@ -46,24 +43,18 @@ SymCryptCallbackRandom(unsigned char *pbBuffer, size_t cbBuffer)
 
     while (total_received < cbBuffer) {
         result = getrandom(pbBuffer + total_received, cbBuffer - total_received, 0);
-
         if (result < 0) {
             if (errno == EINTR) {
-                // Interrupted by a signal, retry the call
+                // Buffer is not yet full, continue to get more entropy
                 continue;
             }
             //return SYMCRYPT_INTERNAL_ERROR; // Other errors, fail
             SymCryptFatal( 'vers' );
-
         }
-
         total_received += (size_t)result;
     }
-
     return SYMCRYPT_NO_ERROR;
 }
-
-
 
 VOID 
 SYMCRYPT_CALL

@@ -18,19 +18,23 @@ fn symcrypt_init() {
     unsafe {
         // SAFETY: FFI calls, blocking from being run again.
         #[cfg(feature = "dynamic")]
-        INIT.call_once(|| {
-            symcrypt_sys::SymCryptModuleInit(
-                symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
-                symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
-            )
-        });
+        {
+            println!("dynamic mode");
+            INIT.call_once(|| {
+                symcrypt_sys::SymCryptModuleInit(
+                    symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
+                    symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
+                )
+            });
+        }
 
         #[cfg(not(feature = "dynamic"))]
-        println!("static mode");
-        // INIT.call_once(|| { 
-        //     symcrypt_sys::SymCryptInit()
-        // });
-
+        {
+            println!("static mode");
+            INIT.call_once(|| { 
+                symcrypt_sys::SymCryptInit()
+            });
+        }
     }
 }
 
@@ -46,8 +50,13 @@ pub fn symcrypt_random(buff: &mut [u8]) {
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
 
         #[cfg(not(feature = "dynamic"))]
-        // If calling statically, we will use a custom random implementation.
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
+
+
+        // TODO: Investigate if we should use getrandom here instead of SymCryptRandom
+        // potentially use rand::get_random() here as to not have a mismatch. Although it is possible to expose a version 
+        // of SymCryptRandom in static mode, There could be a potential issue with mixing function definitions between
+        // the dynamic and static modes.
     }
 }
 

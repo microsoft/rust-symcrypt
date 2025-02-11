@@ -4,9 +4,6 @@ pub mod static_link;
 #[cfg(not(feature = "dynamic"))]
 pub mod triple;
 
-#[cfg(not(feature = "dynamic"))]
-pub mod jitterentropy;
-
 fn main() -> std::io::Result<()> {
     #[cfg(feature = "dynamic")]
     link_symcrypt_dynamically()?;
@@ -25,7 +22,7 @@ fn link_symcrypt_dynamically() -> std::io::Result<()> {
         // the long term placement of a Windows shipped symcrypt.dll
 
         // TODO: Update this info 
-        
+
         let lib_path = std::env::var("SYMCRYPT_LIB_PATH")
             .unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set, for more information please see: https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide"));
         println!("cargo:rustc-link-search=native={}", lib_path);
