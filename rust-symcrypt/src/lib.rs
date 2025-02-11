@@ -37,10 +37,16 @@ fn symcrypt_init() {
 /// Takes in a a buffer called `buff` and fills it with random bytes. This function cannot fail.
 pub fn symcrypt_random(buff: &mut [u8]) {
     symcrypt_init();
-   
- //Commenting out for custom random testing. In the future; dynamic will call SymCryptRandom and static will call custom impl.
+
     unsafe {
         // SAFETY: FFI calls
+        
+        #[cfg(feature = "dynamic")]
+        // If calling dynamically, we will use SymCryptRandom that is provided by the SymCrypt library.
+        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
+
+        #[cfg(not(feature = "dynamic"))]
+        // If calling statically, we will use a custom random implementation.
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
     }
 }
