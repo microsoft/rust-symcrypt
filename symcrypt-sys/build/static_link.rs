@@ -315,7 +315,7 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
 
     // Pre-Configure the cc compiler based on the target triple
     let mut cc = options.preconfigure_cc();
-    
+
     // Add in the intermediates that were previously compiled, will be empty for most targets
     cc.objects(intermediates);
 
@@ -355,11 +355,11 @@ set_source_files_properties(sha256-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx
 set_source_files_properties(sha512-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mbmi2")
 "#;
 
-/// Compiles the SymCrypt custom intermediates 
-/// 
+/// Compiles the SymCrypt custom intermediates
+///
 /// Currently this is only required for x86_64_unknown_linux_gnu,
 /// but can be modified to include other targets as needed.
-/// 
+///
 /// If the target is not `x86_64_unknown_linux_gnu`, it returns empty vectors
 fn compile_symcrypt_intermediates(
     symcrypt_options: &SymCryptOptions,
