@@ -4199,9 +4199,6 @@ extern "C" {
     pub fn SymCryptStoreMsbFirstUint64(src: UINT64, pbDst: PBYTE, cbDst: SIZE_T) -> SYMCRYPT_ERROR;
 }
 extern "C" {
-    pub fn SymCryptInit();
-}
-extern "C" {
     pub fn SymCryptModuleInit(api: UINT32, minor: UINT32);
 }
 extern "C" {

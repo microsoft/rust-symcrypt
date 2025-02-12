@@ -57,7 +57,6 @@ fn main() {
 
         // INIT FUNCTIONS
         .allowlist_function("SymCryptModuleInit")
-        //.allowlist_function("SymCryptInit")
         .allowlist_var("^(SYMCRYPT_CODE_VERSION.*)$")
         // HASH FUNCTIONS
         .allowlist_function("^SymCrypt(?:Sha3_(?:256|384|512)|Sha(?:256|384|512|1)|Md5)(?:Init|Append|Result|StateCopy)?$")
