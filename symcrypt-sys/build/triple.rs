@@ -1,5 +1,7 @@
 #[allow(non_camel_case_types)]
 #[derive(Debug, PartialEq, Eq, Clone)]
+
+/// The `Triple` enum represents the target architecture and operating system.
 pub enum Triple {
     x86_64_pc_windows_msvc,
     aarch64_pc_windows_msvc,
@@ -9,6 +11,7 @@ pub enum Triple {
 
 impl Triple {
     pub fn get_target_triple() -> Self {
+        // Extract target OS and architecture from environment variables
         let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
         let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
 

@@ -1,10 +1,17 @@
 use super::triple::Triple;
+use std::collections::HashSet;
 
 const LIB_NAME: &str = "symcrypt";
 
+/// Compiles and links the SymCrypt library statically.
+/// This is the entery point for building SymCrypt statically.
+///
+/// - Determines the build configuration based on target architecture.
+/// - Calls `compile_symcrypt_static()` to actually build SymCrypt.
+/// - Outputs necessary metadata for Cargo (`cargo:rustc-link-lib=...`).
+///
+/// Based on SymCrypt's `CMakeLists.txt`, but adapted for Rust.
 pub fn compile_and_link_symcrypt() -> std::io::Result<()> {
-    // based on SymCrypt/lib/CMakeLists.txt
-
     let options = SymCryptOptions::new();
     println!("Build config: {:?}", options);
 
@@ -16,9 +23,11 @@ pub fn compile_and_link_symcrypt() -> std::io::Result<()> {
     println!("cargo:rerun-if-changed=upstream");
     println!("Compiling SymCrypt...");
 
+    // Compile and Build SymCrypt with provided SymCryptOptions
     compile_symcrypt_static(LIB_NAME, &options)?;
     println!("cargo:rustc-link-lib=static={LIB_NAME}");
 
+    // Link additional dependencies
     for dep in ADDITIONAL_DEPENDENCIES {
         println!("cargo:rustc-link-lib=dylib={dep}");
     }
@@ -26,18 +35,27 @@ pub fn compile_and_link_symcrypt() -> std::io::Result<()> {
     Ok(())
 }
 
+// TODO: update -symcrypt_fips_build comment
+
+/// Holds configuration options for compiling SymCrypt.
+///
+/// - `triple`: The target triple
+/// - `symcrypt_use_asm`: Whether to enable assembly optimizations.
+/// - `symcrypt_fips_build`: Whether to build in FIPS mode PLACEHOLDER
+/// - `preconfiged_cc`: Returns a Pre-configured `cc` object for the target triple.
 #[derive(Debug)]
 struct SymCryptOptions {
     triple: Triple,
     symcrypt_use_asm: bool,
-    //symcrypt_fips_build: bool,
+    //symcrypt_fips_build: bool, // TODO: Determine if we should expose FIPS build option?
 }
+
 impl SymCryptOptions {
     fn new() -> Self {
         Self {
             triple: Triple::get_target_triple(),
-            symcrypt_use_asm: false,
-            //symcrypt_fips_build: false,
+            symcrypt_use_asm: false, // FIXME: Turn this to true when we get ASM checked in
+                                     //symcrypt_fips_build: false, // TODO: Determine if we should expose FIPS build option?
         }
     }
     fn use_asm(&self) -> bool {
@@ -47,42 +65,44 @@ impl SymCryptOptions {
         self.triple.clone()
     }
 
+    // Returns a cc object that has been preconfigured for the target triple
     fn preconfigure_cc(&self) -> cc::Build {
         let mut cc = cc::Build::new();
         cc.target(self.triple.to_triple())
             .include("inc")
             .include("symcrypt/inc")
             .include("symcrypt/lib")
-            .warnings(false);
+            .warnings(false); // Ignore noisy warnings from SymCrypt
 
         if !self.symcrypt_use_asm {
             cc.define("SYMCRYPT_IGNORE_PLATFORM", None);
         }
 
+        // Set specific flags for each target
         match self.triple {
             Triple::x86_64_pc_windows_msvc => {
-                cc.asm_flag("/DSYMCRYPT_MASM");
+                cc.asm_flag("/DSYMCRYPT_MASM"); // TODO: figure out what these flags do
             }
             Triple::aarch64_pc_windows_msvc => {
                 cc.define("_ARM64_", None);
             }
             Triple::x86_64_unknown_linux_gnu => {
-                cc.include("symcrypt/modules/linux/common");
+                cc.include("symcrypt/modules/linux/common"); // TODO: remove?
                 cc.flag("-mpclmul");
-                cc.flag("-Wno-incompatible-pointer-types"); // Should we create parent Enum for Windows / Linux?
-                                                            /*
-                                                            cc.flag("-mpclmul")
-                                                                .flag("-mssse3")
-                                                                .flag("-mxsave")
-                                                                .flag("-maes")
-                                                                .flag("-msha")
-                                                                .flag("-mrdrnd")
-                                                                .flag("-mrdseed");
-                                                            */
+                cc.flag("-Wno-incompatible-pointer-types");
+                /*
+                cc.flag("-mpclmul")
+                    .flag("-mssse3")
+                    .flag("-mxsave")
+                    .flag("-maes")
+                    .flag("-msha")
+                    .flag("-mrdrnd")
+                    .flag("-mrdseed");
+                */
             }
             Triple::aarch64_unknown_linux_gnu => {
-                cc.include("symcrypt/modules/linux/common");
-                cc.flag("-Wno-incompatible-pointer-types");
+                cc.include("symcrypt/modules/linux/common"); // TODO: remove?
+                cc.flag("-Wno-incompatible-pointer-types"); // Ignore noisy SymCrypt errors
             }
         }
 
@@ -225,29 +245,25 @@ xmss.c
 xtsaes.c
 ";
 
-// only for x86_64_unknown_linux_gnu
-const SPECIAL_FLAGS: &str = r#"
-set_source_files_properties(aes-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mvaes;-mvpclmulqdq")
-set_source_files_properties(sha256Par-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2")
-set_source_files_properties(sha512Par-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2")
-set_source_files_properties(sha256-xmm.c PROPERTIES COMPILE_OPTIONS "-mssse3")
-set_source_files_properties(sha256-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mbmi2")
-set_source_files_properties(sha512-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mbmi2")
-"#;
-
 fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io::Result<()> {
-    let (already_compiled_files, intermediates) = compile_intermediates(&options);
+    // Compile intermediates required this is currently only required for x86_64_unknown_linux_gnu
+    let (already_compiled_files, intermediates) = compile_symcrypt_intermediates(&options);
 
+    // Convert already compiled files to a HashSet for faster lookups
+    let already_compiled_set: HashSet<&str> = already_compiled_files.iter().cloned().collect();
+
+    // Prepares list of files to be compiled, excluding already compiled files for x86_64_unknown_linux_gnu
     let mut base_files: Vec<&'static str> = CMAKE_SOURCES_COMMON
         .lines()
+        .map(str::trim) // Trim once instead of inside filter
         .filter(|line| {
-            let line = line.trim();
-            !(line.is_empty() || line.starts_with("#") || already_compiled_files.contains(&line))
+            !line.is_empty() && !line.starts_with("#") && !already_compiled_set.contains(line)
         })
         .collect();
 
     base_files.push("env_generic.c"); // symcrypt_generic
 
+    // Add module-specific files for each target
     let mut module_files = vec![];
 
     match options.triple() {
@@ -257,7 +273,7 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
             module_files.push("inc/static_WindowsDefault.c");
         }
         Triple::x86_64_unknown_linux_gnu => {
-            base_files.push("linux/intrinsics.c");
+            base_files.push("linux/intrinsics.c"); // TODO: Confirm that its Only required for Linux x86_64
             base_files.push("env_posixUserMode.c");
             module_files.push("inc/static_LinuxDefault.c");
         }
@@ -267,6 +283,7 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
         }
     }
 
+    // Add assembly pre generated ASM files to be compiled
     let asm_files = match options.triple() {
         Triple::x86_64_pc_windows_msvc => vec![
             "aesasm.asm",
@@ -296,50 +313,82 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
         }
     };
 
+    // Pre-Configure the cc compiler based on the target triple
     let mut cc = options.preconfigure_cc();
+    
+    // Add in the intermediates that were previously compiled, will be empty for most targets
     cc.objects(intermediates);
 
+    // Add base files to be compiled
     for file in base_files {
         cc.file(format!("{SOURCE_DIR}/{file}"));
     }
 
+    // Add assembly files to be compiled
     if options.use_asm() {
         for file in asm_files {
             cc.file(format!(
-                "{SOURCE_DIR}/asm/{}/{file}",
+                "{SOURCE_DIR}/asm/{}/{file}", // TODO: replace with right file path when ASM checked in.
                 options.triple.to_triple()
             ));
         }
     }
+
+    // Add module-specific files to be compiled
     cc.files(module_files);
 
     println!("Files to compile: {}", cc.get_files().count());
+
+    // Compiles all files and returns the compiled library
     cc.compile(lib_name);
 
     Ok(())
 }
 
-fn compile_intermediates(
+// Special compile files for x86_64_unknown_linux_gnu
+const X86_64_LINUX_CUSTOM_COMPILE_FILES: &str = r#"
+set_source_files_properties(aes-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mvaes;-mvpclmulqdq")
+set_source_files_properties(sha256Par-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2")
+set_source_files_properties(sha512Par-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2")
+set_source_files_properties(sha256-xmm.c PROPERTIES COMPILE_OPTIONS "-mssse3")
+set_source_files_properties(sha256-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mbmi2")
+set_source_files_properties(sha512-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mbmi2")
+"#;
+
+/// Compiles the SymCrypt custom intermediates 
+/// 
+/// Currently this is only required for x86_64_unknown_linux_gnu,
+/// but can be modified to include other targets as needed.
+/// 
+/// If the target is not `x86_64_unknown_linux_gnu`, it returns empty vectors
+fn compile_symcrypt_intermediates(
     symcrypt_options: &SymCryptOptions,
 ) -> (Vec<&'static str>, Vec<std::path::PathBuf>) {
     let mut files = vec![];
     let mut intermediates = vec![];
 
+    // Only compile intermediates for x86_64_unknown_linux_gnu.
+    // Can modify with additional targets as needed.
     if symcrypt_options.triple() != Triple::x86_64_unknown_linux_gnu {
-        return (files, intermediates);
+        return (files, intermediates); // No intermediates to compile
     }
 
-    for line in SPECIAL_FLAGS.lines() {
+    // Fetch preconfigured cc based on the target triple.
+    let mut cc = symcrypt_options.preconfigure_cc();
+
+    for line in X86_64_LINUX_CUSTOM_COMPILE_FILES.lines() {
         if line.trim().is_empty() || line.trim().starts_with("#") {
             continue;
         }
 
         let line = line
             .strip_prefix("set_source_files_properties(")
-            .unwrap()
+            .expect("Malformed input: missing prefix")
             .strip_suffix(")")
-            .unwrap();
+            .expect("Malformed input: missing suffix");
 
+        // Example of parts:
+        // [aes-ymm.c, PROPERTIES, COMPILE_OPTIONS, "-mavx;-mavx2;-mvaes;-mvpclmulqdq"]
         let parts: Vec<&str> = line.split_whitespace().collect();
         if parts.len() < 4 {
             continue;
@@ -348,21 +397,26 @@ fn compile_intermediates(
         let file = parts[0];
         println!("Compiling {file} with custom options: {}", parts[3]);
 
+        // Isolate the compile options
         let options = parts[3]
             .trim_matches('"')
             .split(';')
             .filter(|s| !s.is_empty());
 
-        let mut cc = symcrypt_options.preconfigure_cc();
+        // Push intermediates to the cc object to be compiled
         cc.file(format!("{SOURCE_DIR}/{file}"));
         for option in options {
             cc.flag(option);
         }
-        let mut result = cc.compile_intermediates();
 
+        // Add the file to the list of files to be replaced by compiled intermediates.
         files.push(file);
-        intermediates.append(&mut result);
     }
 
+    // Use cc's compile_intermediates() to batch generate intermediate files without linking
+    let mut result = cc.compile_intermediates();
+    intermediates.append(&mut result);
+
+    // Return files to be replaced by intermediates.
     (files, intermediates)
 }

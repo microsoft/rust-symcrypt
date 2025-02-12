@@ -16,6 +16,9 @@
 
 SYMCRYPT_ENVIRONMENT_POSIX_USERMODE;
 
+// Exposing SymCryptModuleInit and under the covers calling SymCryptInit.
+// Doing this allows us to use less #[cfg] attributes in the Rust code, and does not expose
+// SymCryptInit to the public symcrypt-sys API.
 VOID
 SYMCRYPT_CALL
 SymCryptModuleInit(
