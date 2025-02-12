@@ -254,7 +254,6 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
         Triple::x86_64_pc_windows_msvc | Triple::aarch64_pc_windows_msvc => {
             base_files.push("env_windowsUserModeWin8_1.c");
             base_files.push("IEEE802_11SaeCustom.c");
-            //module_files.push("symcrypt/modules/windows/user/module.c");
             module_files.push("inc/static_WindowsDefault.c");
         }
         Triple::x86_64_unknown_linux_gnu => {
