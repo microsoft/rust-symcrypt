@@ -14,7 +14,7 @@
 #include <sys/random.h>
 #include <errno.h>
 
-SYMCRYPT_ENVIRONMENT_POSIX_USERMODE
+SYMCRYPT_ENVIRONMENT_POSIX_USERMODE;
 
 VOID
 SYMCRYPT_CALL
@@ -55,7 +55,7 @@ SymCryptCallbackRandom(unsigned char *pbBuffer, size_t cbBuffer)
                 // Buffer is not yet full, continue to get more entropy
                 continue;
             }
-            return SYMCRYPT_EXTERNAL_FAILURE
+            return SYMCRYPT_EXTERNAL_FAILURE;
         }
         total_received += (size_t)result;
     }
@@ -76,14 +76,14 @@ SymCryptRandom( PBYTE pbRandom, SIZE_T cbRandom) {
     size_t total_received = 0;
     ssize_t result;
 
-    while (total_received < cbBuffer) {
-        result = getrandom(pbBuffer + total_received, cbBuffer - total_received, 0);
+    while (total_received < cbRandom) {
+        result = getrandom(pbRandom + total_received, cbRandom - total_received, 0);
         if (result < 0) {
             if (errno == EINTR) {
                 // Buffer is not yet full, continue to get more entropy
                 continue;
             }
-            SymCryptFatal("rngs");
+            SymCryptFatal(' rngs ');
         }
         total_received += (size_t)result;
     }
