@@ -17,22 +17,13 @@ fn symcrypt_init() {
     static INIT: Once = Once::new();
     unsafe {
         // SAFETY: FFI calls, blocking from being run again.
-        #[cfg(feature = "dynamic")]
-        {
-            println!("dynamic mode");
-            INIT.call_once(|| {
-                symcrypt_sys::SymCryptModuleInit(
-                    symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
-                    symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
-                )
-            });
-        }
-
-        #[cfg(not(feature = "dynamic"))]
-        {
-            println!("static mode");
-            INIT.call_once(|| symcrypt_sys::SymCryptInit());
-        }
+        // Under the covers, the default static lib implementation exposes SymCryptModuleInit, but calls SymCryptInit for static linking
+        INIT.call_once(|| {
+            symcrypt_sys::SymCryptModuleInit(
+                symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
+                symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
+            )
+        });
     }
 }
 
@@ -41,19 +32,10 @@ pub fn symcrypt_random(buff: &mut [u8]) {
     symcrypt_init();
 
     unsafe {
-        // SAFETY: FFI calls
-
-        #[cfg(feature = "dynamic")]
-        // If calling dynamically, we will use SymCryptRandom that is provided by the SymCrypt library.
+        // SAFETY: FFI call
+        // Under the covers, the default static lib implementation calls BCryptGenRandom on windows and sys/getrandom on linux
+        // but calls SymCryptRandom for dynamic linking
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
-
-        #[cfg(not(feature = "dynamic"))]
-        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
-
-        // TODO: Investigate if we should use getrandom here instead of SymCryptRandom
-        // potentially use rand::get_random() here as to not have a mismatch. Although it is possible to expose a version
-        // of SymCryptRandom in static mode, There could be a potential issue with mixing function definitions between
-        // the dynamic and static modes.
     }
 }
 

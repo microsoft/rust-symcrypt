@@ -16,6 +16,14 @@
 
 SYMCRYPT_ENVIRONMENT_POSIX_USERMODE
 
+VOID
+SYMCRYPT_CALL
+SymCryptModuleInit(
+    _In_ UINT32 api,
+    _In_ UINT32 minor) {
+    SymCryptInit();
+}
+
 PVOID
 SYMCRYPT_CALL
 SymCryptCallbackAlloc( SIZE_T nBytes )
@@ -33,14 +41,6 @@ SymCryptCallbackFree( VOID * pMem )
     free( pMem );
 }
 
-// From Linux docs on getrandom:
-// RETURN VALUE         top
-//        On success, getrandom() returns the number of bytes that were
-//        copied to the buffer buf.  This may be less than the number of
-//        bytes requested via buflen if either GRND_RANDOM was specified in
-//        flags and insufficient entropy was present in the random source or
-//        the system call was interrupted by a signal.
-//        On error, -1 is returned, and errno is set to indicate the error.
 SYMCRYPT_ERROR
 SYMCRYPT_CALL
 SymCryptCallbackRandom(unsigned char *pbBuffer, size_t cbBuffer)
@@ -55,25 +55,36 @@ SymCryptCallbackRandom(unsigned char *pbBuffer, size_t cbBuffer)
                 // Buffer is not yet full, continue to get more entropy
                 continue;
             }
-            //return SYMCRYPT_INTERNAL_ERROR; // Other errors, fail
-            SymCryptFatal( 'vers' );
+            return SYMCRYPT_EXTERNAL_FAILURE
         }
         total_received += (size_t)result;
     }
     return SYMCRYPT_NO_ERROR;
 }
 
+// From Linux docs on getrandom:
+// RETURN VALUE         top
+//        On success, getrandom() returns the number of bytes that were
+//        copied to the buffer buf.  This may be less than the number of
+//        bytes requested via buflen if either GRND_RANDOM was specified in
+//        flags and insufficient entropy was present in the random source or
+//        the system call was interrupted by a signal.
+//        On error, -1 is returned, and errno is set to indicate the error.
 VOID 
 SYMCRYPT_CALL
 SymCryptRandom( PBYTE pbRandom, SIZE_T cbRandom) {
-    SIZE_T result;
-    result = getrandom( pbRandom, cbRandom, 0 );
-    if (result != cbRandom )
-    {
-        // If the entropy pool has been initialized and the request size is small
-        // (buflen <= 256), then getrandom() will not fail with EINTR,
-        // but we check anyway as it's not safe to continue if we don't
-        // receive the right amount of entropy.
-        SymCryptFatal( 'rngs' );
+    size_t total_received = 0;
+    ssize_t result;
+
+    while (total_received < cbBuffer) {
+        result = getrandom(pbBuffer + total_received, cbBuffer - total_received, 0);
+        if (result < 0) {
+            if (errno == EINTR) {
+                // Buffer is not yet full, continue to get more entropy
+                continue;
+            }
+            SymCryptFatal("rngs");
+        }
+        total_received += (size_t)result;
     }
 }

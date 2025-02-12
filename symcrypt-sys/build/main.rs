@@ -18,11 +18,7 @@ fn main() -> std::io::Result<()> {
 fn link_symcrypt_dynamically() -> std::io::Result<()> {
     #[cfg(target_os = "windows")]
     {
-        // Look for the .lib file during link time. We are searching the Windows/System32 path which is set as a current default to match
-        // the long term placement of a Windows shipped symcrypt.dll
-
-        // TODO: Update this info
-
+        // Look for the .lib file during link time. We are searching the PATH for symcrypt.dll
         let lib_path = std::env::var("SYMCRYPT_LIB_PATH")
             .unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set, for more information please see: https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide"));
         println!("cargo:rustc-link-search=native={}", lib_path);
@@ -37,27 +33,18 @@ fn link_symcrypt_dynamically() -> std::io::Result<()> {
         // 5. The directories that are listed in the PATH environment variable.
 
         // For more info please see: https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order
-
-        // For the least invasive usage, we suggest putting the symcrypt.dll inside of same folder as the .exe file.
-
-        // Note: This process is a band-aid. Long-term SymCrypt will be shipped with Windows which will make this process much more
-        // streamlined.
     }
 
     #[cfg(target_os = "linux")]
     {
-        //TODO: update this info
 
-        // Note: Linux support is based off of the Azure Linux distro.
-        // This has been tested on Ubuntu 22.04.03 LTS on WSL and has confirmed working but support for other distros
-        // aside from Azure Linux is not guaranteed so YMMV.
         println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on Linux
 
-        // You must put the included symcrypt.so files in your usr/lib/x86_64-linux-gnu/ path.
-        // This is where the Linux ld linker will look for the symcrypt.so files.
+        // If you are using AL3, you can get the required symcrypt.so via tdnf 
+        // If you are using Ubuntu, you can get the required symcrypt.so via PMC. Please see the quick start guide for more information.
 
-        // Note: This process is a band-aid. Long-term, our long term solution is to package manage SymCrypt for a subset of
-        // Linux distros.
+        // If you are using a different Linux distro, you will need to configure your distro's LD linker to find the required symcrypt.so files.
+        // As an example, on Ubuntu you can place your symcrypt.so files in your usr/lib/x86_64-linux-gnu/ path.
     }
 
     Ok(())

@@ -35,7 +35,6 @@ $PSNativeCommandUseErrorActionPreference = $True
 Push-Location "$PSScriptRoot/.." # Move to the root of the project
 
 git submodule update --init
-git -C symcrypt-sys/symcrypt/3rdparty/jitterentropy-library submodule update --init
 
 python3 "./symcrypt-sys/symcrypt/scripts/version.py" --build-info
 mv -Force "./symcrypt-sys/symcrypt/inc/buildInfo.h" "./symcrypt-sys/inc/"

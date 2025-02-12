@@ -17,6 +17,14 @@
 
 SYMCRYPT_ENVIRONMENT_WINDOWS_USERMODE_LATEST;
 
+VOID
+SYMCRYPT_CALL
+SymCryptModuleInit(
+    _In_ UINT32 api,
+    _In_ UINT32 minor) {
+    SymCryptInit();
+}
+
 PVOID
 SYMCRYPT_CALL
 SymCryptCallbackAlloc( SIZE_T nBytes )
