@@ -37,10 +37,9 @@ fn link_symcrypt_dynamically() -> std::io::Result<()> {
 
     #[cfg(target_os = "linux")]
     {
-
         println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on Linux
 
-        // If you are using AL3, you can get the required symcrypt.so via tdnf 
+        // If you are using AL3, you can get the required symcrypt.so via tdnf
         // If you are using Ubuntu, you can get the required symcrypt.so via PMC. Please see the quick start guide for more information.
 
         // If you are using a different Linux distro, you will need to configure your distro's LD linker to find the required symcrypt.so files.
