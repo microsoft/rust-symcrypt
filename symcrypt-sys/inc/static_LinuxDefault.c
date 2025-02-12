@@ -86,7 +86,7 @@ SymCryptRandom( PBYTE pbRandom, SIZE_T cbRandom) {
                 // Buffer is not yet full, continue to get more entropy
                 continue;
             }
-            SymCryptFatal(' rngs ');
+            SymCryptFatal( 'rngs' );
         }
         total_received += (size_t)result;
     }
