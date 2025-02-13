@@ -85,7 +85,7 @@ pub struct GcmExpandedKey {
 }
 
 /// [`GcmInnerKey`] is a struct that holds the underlying SymCrypt state for GCM.
-#[derive(Default)]
+#[derive(Clone, Copy, Default)]
 struct GcmInnerKey {
     // inner represents the actual state of the hash from SymCrypt
     inner: symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY,
@@ -118,13 +118,13 @@ impl GcmInnerKey {
     }
 }
 
-impl Drop for GcmInnerKey {
+impl Drop for GcmExpandedKey {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.inner) as *mut c_void, // Using addr_of_mut! so we don't access in the inner field
-                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T, // Using size_of_val! so we don't access in the inner field
+                self.expanded_key.as_mut().get_inner_mut() as *mut c_void,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY>() as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -273,7 +273,8 @@ fn gcm_expand_key(
 ///
 /// This type represents an uninitialized SYMCRYPT_GCM_EXPANDED_KEY.
 ///
-pub struct GcmUninitializedKey(mem::MaybeUninit<GcmInnerKey>);
+#[derive(Clone, Copy, Default)]
+pub struct GcmUninitializedKey(GcmInnerKey);
 
 impl GcmUninitializedKey {
     ///
@@ -293,25 +294,16 @@ impl GcmUninitializedKey {
         symcrypt_init();
 
         unsafe {
-            let default_key = self.0.write(GcmInnerKey::default());
-
             gcm_expand_key(
                 key_data,
-                &mut default_key.inner as *mut _,
+                ptr::addr_of_mut!(self.0.inner),
                 convert_cipher(cipher_type),
             )?;
 
             // SAFETY: GcmExpandedKeyHandle holds the only reference to the initialized
             // key and will uninitialize it when dropped.
-            let pinned_key = Pin::new_unchecked(default_key);
-            Ok(GcmExpandedKeyHandle::new(pinned_key))
+            Ok(GcmExpandedKeyHandle::new(Pin::new_unchecked(&mut self.0)))
         }
-    }
-}
-
-impl Default for GcmUninitializedKey {
-    fn default() -> Self {
-        Self(mem::MaybeUninit::zeroed())
     }
 }
 
@@ -463,7 +455,10 @@ impl Drop for GcmExpandedKeyHandle<'_> {
         //
 
         unsafe {
-            std::ptr::drop_in_place(self.0.as_mut().get_unchecked_mut() as *mut _);
+            symcrypt_sys::SymCryptWipe(
+                self.0.as_mut().get_inner_mut() as *mut c_void,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY>() as symcrypt_sys::SIZE_T,
+            );
         }
     }
 }
@@ -685,7 +680,8 @@ impl<'a> From<&'a GcmExpandedKey> for GcmExpandedKeyRef<'a> {
 ///
 /// This type represents an uninitialized SYMCRYPT_GCM_STATE.
 ///
-pub struct GcmStream(mem::MaybeUninit<internal::GcmInnerStream>);
+#[derive(Clone, Copy, Default)]
+pub struct GcmStream(internal::GcmInnerStream);
 
 impl GcmStream {
     //
@@ -705,16 +701,14 @@ impl GcmStream {
         //
 
         unsafe {
-            let mut pinned_state =
-                Pin::new_unchecked(self.0.write(internal::GcmInnerStream::default()));
             symcrypt_sys::SymCryptGcmInit(
-                pinned_state.as_mut().get_inner_mut(),
+                ptr::addr_of_mut!(self.0.inner),
                 expanded_key.0.get_inner(),
                 nonce.as_ptr(),
                 nonce.len() as symcrypt_sys::SIZE_T,
             );
 
-            internal::GcmInitializedStream::new(pinned_state)
+            internal::GcmInitializedStream::new(Pin::new_unchecked(&mut self.0))
         }
     }
 
@@ -767,12 +761,6 @@ impl GcmStream {
         nonce: &[u8; 12],
     ) -> GcmEncryptionStream<'a> {
         GcmEncryptionStream(self.initialize(expanded_key, nonce))
-    }
-}
-
-impl Default for GcmStream {
-    fn default() -> Self {
-        Self(mem::MaybeUninit::zeroed())
     }
 }
 
@@ -1150,13 +1138,12 @@ mod internal {
         mem,
         ops::{Deref, DerefMut},
         pin::Pin,
-        ptr,
     };
 
-    #[derive(Default)]
+    #[derive(Clone, Copy, Default)]
     pub struct GcmInnerStream {
         // inner represents the actual state of the hash from SymCrypt
-        inner: symcrypt_sys::SYMCRYPT_GCM_STATE,
+        pub inner: symcrypt_sys::SYMCRYPT_GCM_STATE,
 
         // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
         // This prevents the struct from implementing the Unpin trait, enforcing that any
@@ -1173,18 +1160,6 @@ mod internal {
         pub fn get_inner_mut(self: Pin<&mut Self>) -> *mut symcrypt_sys::SYMCRYPT_GCM_STATE {
             // SAFETY: Accessing the inner state of the pinned data
             unsafe { &mut self.get_unchecked_mut().inner as *mut _ }
-        }
-    }
-
-    impl Drop for GcmInnerStream {
-        fn drop(&mut self) {
-            unsafe {
-                // SAFETY: FFI calls
-                symcrypt_sys::SymCryptWipe(
-                    ptr::addr_of_mut!(self.inner) as *mut c_void, // Using addr_of_mut! so we don't access in the inner field
-                    mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T, // Using size_of_val! so we don't access in the inner field
-                );
-            }
         }
     }
 
@@ -1236,7 +1211,11 @@ mod internal {
             //
 
             unsafe {
-                std::ptr::drop_in_place(self.0.as_mut().get_unchecked_mut() as *mut _);
+                symcrypt_sys::SymCryptWipe(
+                    self.0.as_mut().get_inner_mut() as *mut c_void,
+                    mem::size_of::<symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY>()
+                        as symcrypt_sys::SIZE_T,
+                );
             }
         }
     }
