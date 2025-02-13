@@ -17,17 +17,6 @@
 
 SYMCRYPT_ENVIRONMENT_WINDOWS_USERMODE_LATEST;
 
-// Exposing SymCryptModuleInit and under the covers calling SymCryptInit.
-// Doing this allows us to use less #[cfg] attributes in the Rust code, and does not expose
-// SymCryptInit to the public symcrypt-sys API.
-VOID
-SYMCRYPT_CALL
-SymCryptModuleInit(
-    _In_ UINT32 api,
-    _In_ UINT32 minor) {
-    SymCryptInit();
-}
-
 PVOID
 SYMCRYPT_CALL
 SymCryptCallbackAlloc( SIZE_T nBytes )
@@ -40,19 +29,6 @@ SYMCRYPT_CALL
 SymCryptCallbackFree(PVOID ptr)
 {
     _aligned_free( ptr );
-}
-
-VOID
-SYMCRYPT_CALL
-SymCryptRandom(
-    _Out_writes_bytes_( cbBuffer )  PBYTE   pbBuffer,
-                                    SIZE_T  cbBuffer )
-{
-    NTSTATUS status = BCryptGenRandom( BCRYPT_RNG_ALG_HANDLE, pbBuffer, (ULONG) cbBuffer, 0 );
-    if (!NT_SUCCESS(status))
-    {
-        SymCryptFatal(status);
-    }
 }
 
 SYMCRYPT_ERROR

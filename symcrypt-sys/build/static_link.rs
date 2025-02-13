@@ -87,7 +87,7 @@ impl SymCryptOptions {
                 cc.flag("/Zp8"); // Structure packing alignment
                 cc.flag("/WX"); // Treat warnings as errors
                 cc.flag("/guard:cf"); // Control Flow Guard
-                cc.flag("/dynamicbase"); // Enable ASLR
+                                      // cc.flag("/dynamicbase"); // Enable ASLR
                 cc.flag("/EHsc"); // Exception handling
             }
             Triple::aarch64_pc_windows_msvc => {
@@ -258,7 +258,7 @@ xtsaes.c
 
 fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io::Result<()> {
     // Compile intermediates required this is currently only required for x86_64_unknown_linux_gnu
-    let (already_compiled_files, intermediates) = compile_symcrypt_intermediates(&options);
+    let (already_compiled_files, intermediates) = compile_symcrypt_intermediates(options);
 
     // Convert already compiled files to a HashSet for faster lookups
     let already_compiled_set: HashSet<&str> = already_compiled_files.iter().cloned().collect();
