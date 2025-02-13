@@ -77,7 +77,7 @@ impl SymCryptOptions {
         if !self.symcrypt_use_asm {
             cc.define("SYMCRYPT_IGNORE_PLATFORM", None); // TODO: Fix when we get ASM
         }
-        
+
         // Set specific flags for each target
         match self.triple {
             Triple::x86_64_pc_windows_msvc => {
