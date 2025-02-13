@@ -4474,6 +4474,11 @@ extern "C" {
 extern "C" {
     pub fn SymCryptStoreMsbFirstUint64(src: UINT64, pbDst: PBYTE, cbDst: SIZE_T) -> SYMCRYPT_ERROR;
 }
+#[cfg(not(feature = "dynamic"))]
+extern "C" {
+    pub fn SymCryptInit();
+}
+#[cfg(feature = "dynamic")]
 extern "C" {
     pub fn SymCryptModuleInit(api: UINT32, minor: UINT32);
 }
@@ -5078,8 +5083,13 @@ extern "C" {
 extern "C" {
     pub fn SymCryptHkdfSelfTest();
 }
+#[cfg(feature = "dynamic")]
 extern "C" {
     pub fn SymCryptRandom(pbRandom: PBYTE, cbRandom: SIZE_T);
+}
+#[cfg(not(feature = "dynamic"))]
+extern "C" {
+    pub fn SymCryptCallbackRandom(pbBuffer: PBYTE, cbBuffer: SIZE_T) -> SYMCRYPT_ERROR;
 }
 pub const _SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST: _SYMCRYPT_NUMBER_FORMAT = 1;
 pub const _SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST: _SYMCRYPT_NUMBER_FORMAT = 2;
