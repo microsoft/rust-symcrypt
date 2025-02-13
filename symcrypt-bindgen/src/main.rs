@@ -228,6 +228,11 @@ fn fix_symcrypt_bindings(bindings_file: &str) {
         i += 1;
     }
 
+    // Append newline for linux bindings
+    if !out_content.last().unwrap_or(&String::new()).ends_with('\n') {
+        out_content.push("".to_string()); 
+    }
+
     // Write the modified content back
     std::fs::write(bindings_file, out_content.join("\n")).expect("Unable to write bindings file");
 }
