@@ -78,9 +78,15 @@ impl SymCryptOptions {
             cc.define("SYMCRYPT_IGNORE_PLATFORM", None); // TODO: Fix when we get ASM
         }
 
-        // Set min C version to C11.
-        cc.flag("-std=c11");
-
+        // Set C11 standard for Windows and GNU targets.
+        match self.triple {
+            Triple::x86_64_pc_windows_msvc | Triple::aarch64_pc_windows_msvc => {
+                cc.flag("-std=c11");
+            }
+            Triple::aarch64_unknown_linux_gnu | Triple::x86_64_unknown_linux_gnu => {
+                cc.flag("-std=gnu11");
+            }
+        }
         // Set specific flags for each target
         match self.triple {
             Triple::x86_64_pc_windows_msvc => {
