@@ -85,6 +85,7 @@ pub struct GcmExpandedKey {
 }
 
 /// [`GcmInnerKey`] is a struct that holds the underlying SymCrypt state for GCM.
+#[derive(Clone, Copy, Default)]
 struct GcmInnerKey {
     // inner represents the actual state of the hash from SymCrypt
     inner: symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY,
@@ -98,10 +99,7 @@ struct GcmInnerKey {
 impl GcmInnerKey {
     /// Creates a new GcmInnerKey and returns a pinned Box<Self>
     fn new() -> Pin<Box<Self>> {
-        Box::pin(GcmInnerKey {
-            inner: symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY::default(),
-            _pinned: PhantomPinned,
-        })
+        Box::pin(GcmInnerKey::default())
     }
 
     /// Provides a mutable pointer to the inner SymCrypt state.
@@ -120,13 +118,13 @@ impl GcmInnerKey {
     }
 }
 
-impl Drop for GcmInnerKey {
+impl Drop for GcmExpandedKey {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.inner) as *mut c_void, // Using addr_of_mut! so we don't access in the inner field
-                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T, // Using size_of_val! so we don't access in the inner field
+                self.expanded_key.as_mut().get_inner_mut() as *mut c_void,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY>() as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -155,6 +153,14 @@ impl GcmExpandedKey {
             key_length: key.len(),
         };
         Ok(gcm_expanded_key)
+    }
+
+    ///
+    /// Creates a borrowed reference to the underlying SYMCRYPT_GCM_EXPANDED_KEY.
+    ///
+    #[inline(always)]
+    pub fn as_ref(&self) -> GcmExpandedKeyRef {
+        self.into()
     }
 
     /// `encrypt_in_place` performs an in-place encryption on the `&mut buffer` that is passed. This call cannot fail.
@@ -264,6 +270,831 @@ fn gcm_expand_key(
     }
 }
 
+///
+/// This type represents an uninitialized SYMCRYPT_GCM_EXPANDED_KEY.
+///
+#[derive(Clone, Copy, Default)]
+pub struct GcmUninitializedKey(GcmInnerKey);
+
+impl GcmUninitializedKey {
+    ///
+    /// `expand_key` will initialize this SYMCRYPT_GCM_EXPANDED_KEY to using the probided
+    /// cipher type and key.
+    ///
+    /// `cipher_type` is a `BlockCipherType` that determines the cipher to use for this key.
+    /// The only supported cipher type is [`BlockCipherType::AesBlock`]
+    ///
+    /// `key_data` is a `&[u8]` that contains the key to initialize with.
+    ///
+    pub fn expand_key(
+        &mut self,
+        cipher_type: BlockCipherType,
+        key_data: &[u8],
+    ) -> Result<GcmExpandedKeyHandle, SymCryptError> {
+        symcrypt_init();
+
+        unsafe {
+            gcm_expand_key(
+                key_data,
+                ptr::addr_of_mut!(self.0.inner),
+                convert_cipher(cipher_type),
+            )?;
+
+            // SAFETY: GcmExpandedKeyHandle holds the only reference to the initialized
+            // key and will uninitialize it when dropped.
+            Ok(GcmExpandedKeyHandle::new(Pin::new_unchecked(&mut self.0)))
+        }
+    }
+}
+
+///
+/// This type represents an owned pointer to an initialized SYMCRYPT_GCM_EXPANDED_KEY
+/// that is used to:
+/// 1. Provide a guarantee that the underlying storage is initialized.
+/// 2. Prevent the underlying storage from being moved.
+/// 3. Zero the underlying storage when dropped.
+///
+pub struct GcmExpandedKeyHandle<'a>(Pin<&'a mut GcmInnerKey>);
+
+impl<'a> GcmExpandedKeyHandle<'a> {
+    //
+    // `new` creates a new handle to an initialized GcmInnerKey.
+    //
+    // # Safety
+    //
+    // The caller must ensure that this is the only pointer to the inner key.
+    //
+    unsafe fn new(pinned_key: Pin<&'a mut GcmInnerKey>) -> Self {
+        Self(pinned_key)
+    }
+
+    ///
+    /// Creates a borrowed reference to the underlying SYMCRYPT_GCM_EXPANDED_KEY storage.
+    ///
+    #[inline(always)]
+    pub fn as_ref(&self) -> GcmExpandedKeyRef {
+        self.into()
+    }
+
+    ///
+    /// `decrypt` performs a decryption of the data in `source` and writes the decrypted data to `destination`.
+    /// This call can fail and the caller must check the result.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the decryption. It must match the nonce used during encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided. If you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `source` is a `&[u8]` that contains the cipher text to be decrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the decrypted plain text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    /// `tag` is a `&[u8]` that contains the authentication tag generated during encryption. This is used to verify the integrity of the cipher text.
+    ///
+    /// If decryption succeeds, the function will return `Ok(())`, and `buffer` will contain the plain text. If it fails, an error of type `SymCryptError` will be returned.
+    ///
+    #[inline(always)]
+    pub fn decrypt(
+        &self,
+        nonce: &[u8; 12],
+        auth_data: &[u8],
+        source: &[u8],
+        destination: &mut [u8],
+        tag: &[u8],
+    ) -> Result<(), SymCryptError> {
+        self.as_ref()
+            .decrypt(nonce, auth_data, source, destination, tag)
+    }
+
+    ///
+    /// `decrypt_in_place` performs an in-place decryption on the `&mut buffer` that is passed. This call can fail and the caller must check the result.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the decryption. It must match the nonce used during encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided. If you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `buffer` is a `&mut [u8]` that contains the cipher text data to be decrypted. After the decryption has been completed,
+    /// `buffer` will be over-written to contain the plain text data.
+    ///
+    /// `tag` is a `&[u8]` that contains the authentication tag generated during encryption. This is used to verify the integrity of the cipher text.
+    ///
+    /// If decryption succeeds, the function will return `Ok(())`, and `buffer` will contain the plain text. If it fails, an error of type `SymCryptError` will be returned.
+    ///
+    #[inline(always)]
+    pub fn decrypt_in_place(
+        &self,
+        nonce: &[u8; 12],
+        auth_data: &[u8],
+        buffer: &mut [u8],
+        tag: &[u8],
+    ) -> Result<(), SymCryptError> {
+        self.as_ref()
+            .decrypt_in_place(nonce, auth_data, buffer, tag)
+    }
+
+    ///
+    /// `encrypt` performs an encryption of the data in `source` and writes the encrypted data to `destination`.
+    /// This call cannot fail.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `source` is a `&[u8]` that contains the plain text to be encrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the encrypted cipher text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to. Tag size must be 12, 13, 14, 15, 16 per SP800-38D.
+    /// Tag sizes of 4 and 8 are not supported.
+    ///
+    #[inline(always)]
+    pub fn encrypt(
+        &self,
+        nonce: &[u8; 12],
+        auth_data: &[u8],
+        source: &[u8],
+        destination: &mut [u8],
+        tag: &mut [u8],
+    ) {
+        self.as_ref()
+            .encrypt(nonce, auth_data, source, destination, tag);
+    }
+
+    ///
+    /// `encrypt_in_place` performs an in-place encryption on the `&mut buffer` that is passed. This call cannot fail.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `buffer` is a `&mut [u8]` that contains the plain text data to be encrypted. After the encryption has been completed,
+    /// `buffer` will be over-written to contain the cipher text data.
+    ///
+    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to. Tag size must be 12, 13, 14, 15, 16 per SP800-38D.
+    /// Tag sizes of 4 and 8 are not supported.
+    ///
+    #[inline(always)]
+    pub fn encrypt_in_place(
+        &self,
+        nonce: &[u8; 12],
+        auth_data: &[u8],
+        buffer: &mut [u8],
+        tag: &mut [u8],
+    ) {
+        self.as_ref()
+            .encrypt_in_place(nonce, auth_data, buffer, tag);
+    }
+}
+
+impl Drop for GcmExpandedKeyHandle<'_> {
+    fn drop(&mut self) {
+        //
+        // SAFETY: Is is safe to uninitialize the underlying storage as this
+        // is the only reference to it and we are being dropped.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptWipe(
+                self.0.as_mut().get_inner_mut() as *mut c_void,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY>() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+///
+/// This type represents a borrowed handle to an initialized SYMCRYPT_GCM_EXPANDED_KEY
+/// that is used to:
+/// 1. Provide a guarantee that the underlying storage is initialized.
+/// 2. Prevent the underlying storage from being moved.
+///
+/// This type does not zero the underlying storage when dropped.
+///
+pub struct GcmExpandedKeyRef<'a>(Pin<&'a GcmInnerKey>);
+
+impl GcmExpandedKeyRef<'_> {
+    ///
+    /// `decrypt` performs a decryption of the data in `source` and writes the decrypted data to `destination`.
+    /// This call can fail and the caller must check the result.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the decryption. It must match the nonce used during encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided. If you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `source` is a `&[u8]` that contains the cipher text to be decrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the decrypted plain text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    /// `tag` is a `&[u8]` that contains the authentication tag generated during encryption. This is used to verify the integrity of the cipher text.
+    ///
+    /// If decryption succeeds, the function will return `Ok(())`, and `buffer` will contain the plain text. If it fails, an error of type `SymCryptError` will be returned.
+    ///
+    pub fn decrypt(
+        &self,
+        nonce: &[u8; 12],
+        auth_data: &[u8],
+        source: &[u8],
+        destination: &mut [u8],
+        tag: &[u8],
+    ) -> Result<(), SymCryptError> {
+        assert_eq!(source.len(), destination.len());
+
+        //
+        // SAFETY: The underlying SYMCRYPT_GCM_EXPANDED_KEY is guaranteed to be initialized
+        // by the caller of `GcmExpandedKeyHandle::new` and we have asserted that both `source`
+        // and `destination` are of the same length.
+        //
+
+        unsafe {
+            let result = symcrypt_sys::SymCryptGcmDecrypt(
+                self.0.get_inner(),
+                nonce.as_ptr(),
+                nonce.len() as symcrypt_sys::SIZE_T,
+                auth_data.as_ptr(),
+                auth_data.len() as symcrypt_sys::SIZE_T,
+                source.as_ptr(),
+                destination.as_mut_ptr(),
+                destination.len() as symcrypt_sys::SIZE_T,
+                tag.as_ptr(),
+                tag.len() as symcrypt_sys::SIZE_T,
+            );
+
+            match result {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
+                error => Err(error.into()),
+            }
+        }
+    }
+
+    ///
+    /// `decrypt_in_place` performs an in-place decryption on the `&mut buffer` that is passed. This call can fail and the caller must check the result.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the decryption. It must match the nonce used during encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided. If you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `buffer` is a `&mut [u8]` that contains the cipher text data to be decrypted. After the decryption has been completed,
+    /// `buffer` will be over-written to contain the plain text data.
+    ///
+    /// `tag` is a `&[u8]` that contains the authentication tag generated during encryption. This is used to verify the integrity of the cipher text.
+    ///
+    /// If decryption succeeds, the function will return `Ok(())`, and `buffer` will contain the plain text. If it fails, an error of type `SymCryptError` will be returned.
+    ///
+    pub fn decrypt_in_place(
+        &self,
+        nonce: &[u8; 12],
+        auth_data: &[u8],
+        buffer: &mut [u8],
+        tag: &[u8],
+    ) -> Result<(), SymCryptError> {
+        //
+        // SAFETY: The underlying SYMCRYPT_GCM_EXPANDED_KEY is guaranteed to be initialized
+        // by the caller of `GcmExpandedKeyHandle::new`.
+        //
+
+        unsafe {
+            let result = symcrypt_sys::SymCryptGcmDecrypt(
+                self.0.get_inner(),
+                nonce.as_ptr(),
+                nonce.len() as symcrypt_sys::SIZE_T,
+                auth_data.as_ptr(),
+                auth_data.len() as symcrypt_sys::SIZE_T,
+                buffer.as_ptr(),
+                buffer.as_mut_ptr(),
+                buffer.len() as symcrypt_sys::SIZE_T,
+                tag.as_ptr(),
+                tag.len() as symcrypt_sys::SIZE_T,
+            );
+
+            match result {
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
+                error => Err(error.into()),
+            }
+        }
+    }
+
+    ///
+    /// `encrypt` performs an encryption of the data in `source` and writes the encrypted data to `destination`.
+    /// This call cannot fail.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `source` is a `&[u8]` that contains the plain text to be encrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the encrypted cipher text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to. Tag size must be 12, 13, 14, 15, 16 per SP800-38D.
+    /// Tag sizes of 4 and 8 are not supported.
+    ///
+    pub fn encrypt(
+        &self,
+        nonce: &[u8; 12],
+        auth_data: &[u8],
+        source: &[u8],
+        destination: &mut [u8],
+        tag: &mut [u8],
+    ) {
+        assert_eq!(source.len(), destination.len());
+
+        //
+        // SAFETY: The underlying SYMCRYPT_GCM_EXPANDED_KEY is guaranteed to be initialized
+        // by the caller of `GcmExpandedKeyHandle::new` and we have asserted that both `source`
+        // and `destination` are of the same length.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmEncrypt(
+                self.0.get_inner(),
+                nonce.as_ptr(),
+                nonce.len() as symcrypt_sys::SIZE_T,
+                auth_data.as_ptr(),
+                auth_data.len() as symcrypt_sys::SIZE_T,
+                source.as_ptr(),
+                destination.as_mut_ptr(),
+                destination.len() as symcrypt_sys::SIZE_T,
+                tag.as_mut_ptr(),
+                tag.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    ///
+    /// `encrypt_in_place` performs an in-place encryption on the `&mut buffer` that is passed. This call cannot fail.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the encryption.
+    ///
+    /// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide any auth data, input an empty array.
+    ///
+    /// `buffer` is a `&mut [u8]` that contains the plain text data to be encrypted. After the encryption has been completed,
+    /// `buffer` will be over-written to contain the cipher text data.
+    ///
+    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to. Tag size must be 12, 13, 14, 15, 16 per SP800-38D.
+    /// Tag sizes of 4 and 8 are not supported.
+    ///
+    pub fn encrypt_in_place(
+        &self,
+        nonce: &[u8; 12],
+        auth_data: &[u8],
+        buffer: &mut [u8],
+        tag: &mut [u8],
+    ) {
+        //
+        // SAFETY: The underlying SYMCRYPT_GCM_EXPANDED_KEY is guaranteed to be initialized
+        // by the caller of `GcmExpandedKeyHandle::new`.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmEncrypt(
+                self.0.get_inner(),
+                nonce.as_ptr(),
+                nonce.len() as symcrypt_sys::SIZE_T,
+                auth_data.as_ptr(),
+                auth_data.len() as symcrypt_sys::SIZE_T,
+                buffer.as_ptr(),
+                buffer.as_mut_ptr(),
+                buffer.len() as symcrypt_sys::SIZE_T,
+                tag.as_mut_ptr(),
+                tag.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+impl<'a, 'b> From<&'a GcmExpandedKeyHandle<'b>> for GcmExpandedKeyRef<'a> {
+    fn from(value: &'a GcmExpandedKeyHandle<'b>) -> Self {
+        GcmExpandedKeyRef(value.0.as_ref())
+    }
+}
+
+impl<'a> From<&'a GcmExpandedKey> for GcmExpandedKeyRef<'a> {
+    fn from(value: &'a GcmExpandedKey) -> Self {
+        GcmExpandedKeyRef(value.expanded_key.as_ref())
+    }
+}
+
+///
+/// This type represents an uninitialized SYMCRYPT_GCM_STATE.
+///
+#[derive(Clone, Copy, Default)]
+pub struct GcmStream(internal::GcmInnerStream);
+
+impl GcmStream {
+    //
+    // `initialize` initializes the underlying `SYMCRYPT_GCM_STATE` with the provided key and nonce.
+    //
+    // `expanded_key` provides a borrowed reference to an initialized `SYMCRYPT_GCM_EXPANDED_KEY`
+    //
+    // `nonce` is a `&[u8; 12]` that is used as the nonce.
+    //
+    fn initialize<'a>(
+        &'a mut self,
+        expanded_key: GcmExpandedKeyRef<'a>,
+        nonce: &[u8; 12],
+    ) -> internal::GcmInitializedStream<'a> {
+        //
+        // SAFETY: FFI call to initialize repr(C) struct.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmInit(
+                ptr::addr_of_mut!(self.0.inner),
+                expanded_key.0.get_inner(),
+                nonce.as_ptr(),
+                nonce.len() as symcrypt_sys::SIZE_T,
+            );
+
+            internal::GcmInitializedStream::new(Pin::new_unchecked(&mut self.0))
+        }
+    }
+
+    ///
+    /// Initializes this GcmStream as a GcmAuthStream using the provided key, and nonce.
+    ///
+    /// `expanded_key` is a `GcmExpandedKeyRef` that provides a handle to the key to use
+    /// for operations.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce.
+    ///
+    #[inline(always)]
+    pub fn as_auth_stream<'a>(
+        &'a mut self,
+        expanded_key: GcmExpandedKeyRef<'a>,
+        nonce: &[u8; 12],
+    ) -> GcmAuthStream<'a> {
+        GcmAuthStream(self.initialize(expanded_key, nonce))
+    }
+
+    ///
+    /// Initializes this GcmStream as a GcmDecryptionStream using the provided key, and nonce.
+    ///
+    /// `expanded_key` is a `GcmExpandedKeyRef` that provides a handle to the key to use
+    /// for operations.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce.
+    ///
+    #[inline(always)]
+    pub fn as_decryption_stream<'a>(
+        &'a mut self,
+        expanded_key: GcmExpandedKeyRef<'a>,
+        nonce: &[u8; 12],
+    ) -> GcmDecryptionStream<'a> {
+        GcmDecryptionStream(self.initialize(expanded_key, nonce))
+    }
+
+    ///
+    /// Initializes this GcmStream as a GcmEncryptionStream using the provided key, and nonce.
+    ///
+    /// `expanded_key` is a `GcmExpandedKeyRef` that provides a handle to the key to use
+    /// for operations.
+    ///
+    /// `nonce` is a `&[u8; 12]` that is used as the nonce.
+    ///
+    #[inline(always)]
+    pub fn as_encryption_stream<'a>(
+        &'a mut self,
+        expanded_key: GcmExpandedKeyRef<'a>,
+        nonce: &[u8; 12],
+    ) -> GcmEncryptionStream<'a> {
+        GcmEncryptionStream(self.initialize(expanded_key, nonce))
+    }
+}
+
+///
+/// This type represents a handle to an initialized GcmStream that can be used to autheticate,
+/// but not encrypt or decrypt, data. It can later be converted to a GcmDecryptionStream or
+/// GcmEncryptionStream.
+///
+pub struct GcmAuthStream<'a>(internal::GcmInitializedStream<'a>);
+
+impl<'a> GcmAuthStream<'a> {
+    ///
+    /// `as_ref_mut` creates a new borrowed handle to the underlying GcmStream.
+    ///
+    #[inline(always)]
+    pub fn as_ref_mut(&mut self) -> GcmAuthStreamRefMut {
+        GcmAuthStreamRefMut(self.0.as_ref_mut())
+    }
+
+    ///
+    /// `authenticate` authenticates, but does not otherwise encrypt or decrypt, the provided data.
+    ///
+    /// `data` is a `&[u8]` that contains the data to authenticate.
+    ///
+    #[inline(always)]
+    pub fn authenticate(&mut self, data: &[u8]) {
+        self.as_ref_mut().authenticate(data);
+    }
+
+    ///
+    /// `to_decryption_stream` converts this GcmAuthStream into a GcmDecryptionStream
+    ///
+    #[inline(always)]
+    pub fn to_decryption_stream(self) -> GcmDecryptionStream<'a> {
+        GcmDecryptionStream(self.0)
+    }
+
+    ///
+    /// `to_encryption_stream` converts this GcmAuthStream into a GcmEncryptionStream
+    ///
+    #[inline(always)]
+    pub fn to_encryption_stream(self) -> GcmEncryptionStream<'a> {
+        GcmEncryptionStream(self.0)
+    }
+}
+
+///
+/// This type represents a borrowed mutable handle to an initialized GcmStream that can be used to
+/// autheticate, but not encrypt or decrypt, data.
+///
+pub struct GcmAuthStreamRefMut<'a>(internal::GcmInitializedStreamRefMut<'a>);
+
+impl GcmAuthStreamRefMut<'_> {
+    ///
+    /// `authenticate` authenticates, but does not otherwise encrypt or decrypt, the provided data.
+    ///
+    /// `data` is a `&[u8]` that contains the data to authenticate.
+    ///
+    pub fn authenticate(&mut self, data: &[u8]) {
+        //
+        // SAFETY: The internal stream is guaranteed to still be initialized while
+        // self is alive.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmAuthPart(
+                self.0.as_mut().get_inner_mut(),
+                data.as_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+///
+/// This type represents a handle to an initialized GcmStream that can be used to decrypt data.
+///
+pub struct GcmDecryptionStream<'a>(internal::GcmInitializedStream<'a>);
+
+impl GcmDecryptionStream<'_> {
+    ///
+    /// `as_ref_mut` creates a new borrowed handle to the underlying GcmStream.
+    ///
+    #[inline(always)]
+    pub fn as_ref_mut(&mut self) -> GcmDecryptionStreamRefMut {
+        GcmDecryptionStreamRefMut(self.0.as_ref_mut())
+    }
+
+    ///
+    /// `complete` finishes this decryption stream and validates that the provided tag matches
+    /// the generated tag.
+    ///
+    /// `tag` is a `&[u8]` that contains the authentication tag generated during encryption.
+    /// This is used to verify the integrity of the cipher text.
+    ///
+    pub fn complete(mut self, tag: &[u8]) -> Result<(), SymCryptError> {
+        //
+        // SAFETY: The internal stream is guaranteed to still be initialized while
+        // self is alive.
+        //
+
+        let result = unsafe {
+            symcrypt_sys::SymCryptGcmDecryptFinal(
+                self.0.as_mut().get_inner_mut(),
+                tag.as_ptr(),
+                tag.len() as symcrypt_sys::SIZE_T,
+            )
+        };
+
+        self.0.drop_without_zero();
+        match result {
+            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
+            error => Err(error.into()),
+        }
+    }
+
+    ///
+    /// `decrypt` performs a decryption of the data in `source` and writes the decrypted data to `destination`.
+    /// This is a partial decryption of the cipher text and the results of the plain text are not validated
+    /// until `complete` is called.
+    ///
+    /// `source` is a `&[u8]` that contains the cipher text to be decrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the decrypted plain text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    #[inline(always)]
+    pub fn decrypt(&mut self, source: &[u8], destination: &mut [u8]) {
+        self.as_ref_mut().decrypt(source, destination);
+    }
+
+    ///
+    /// `decrypt_in_place` performs an in-place decryption on the `&mut buffer` that is passed.
+    /// This is a partial decryption of the cipher text and the results of the plain text are not validated
+    /// until `complete` is called.
+    ///
+    /// `source` is a `&[u8]` that contains the cipher text to be decrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the decrypted plain text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    #[inline(always)]
+    pub fn decrypt_in_place(&mut self, data: &mut [u8]) {
+        self.as_ref_mut().decrypt_in_place(data);
+    }
+}
+
+///
+/// This type represents a borrowed mutable handle to an initialized GcmStream that can be used to
+/// decrypt data.
+///
+pub struct GcmDecryptionStreamRefMut<'a>(internal::GcmInitializedStreamRefMut<'a>);
+
+impl GcmDecryptionStreamRefMut<'_> {
+    ///
+    /// `decrypt` performs a decryption of the data in `source` and writes the decrypted data to `destination`.
+    /// This is a partial decryption of the cipher text and the results of the plain text are not validated
+    /// until `complete` is called.
+    ///
+    /// `source` is a `&[u8]` that contains the cipher text to be decrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the decrypted plain text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    pub fn decrypt(&mut self, source: &[u8], destination: &mut [u8]) {
+        assert_eq!(source.len(), destination.len());
+
+        //
+        // SAFETY: The internal stream is guaranteed to still be initialized while
+        // self is alive and we've asserted that the source and destination buffers
+        // are the same length.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmDecryptPart(
+                self.0.as_mut().get_inner_mut(),
+                source.as_ptr(),
+                destination.as_mut_ptr(),
+                destination.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    ///
+    /// `decrypt_in_place` performs an in-place decryption on the `&mut buffer` that is passed.
+    /// This is a partial decryption of the cipher text and the results of the plain text are not validated
+    /// until `complete` is called.
+    ///
+    /// `source` is a `&[u8]` that contains the cipher text to be decrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the decrypted plain text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    pub fn decrypt_in_place(&mut self, data: &mut [u8]) {
+        //
+        // SAFETY: The internal stream is guaranteed to still be initialized while
+        // self is alive.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmDecryptPart(
+                self.0.as_mut().get_inner_mut(),
+                data.as_ptr(),
+                data.as_mut_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
+///
+/// This type represents a handle to an initialized GcmStream that can be used to
+/// encrypt data.
+///
+pub struct GcmEncryptionStream<'a>(internal::GcmInitializedStream<'a>);
+
+impl GcmEncryptionStream<'_> {
+    ///
+    /// `as_ref_mut` creates a new borrowed handle to the underlying GcmStream.
+    ///
+    #[inline(always)]
+    pub fn as_ref_mut(&mut self) -> GcmEncryptionStreamRefMut {
+        GcmEncryptionStreamRefMut(self.0.as_ref_mut())
+    }
+
+    ///
+    /// `complete` finishes this encryption stream and returns the generated tag for validating
+    /// decryption.
+    ///
+    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to.
+    /// Tag size must be 12, 13, 14, 15, 16 per SP800-38D.
+    /// Tag sizes of 4 and 8 are not supported.
+    ///
+    pub fn complete(mut self, tag: &mut [u8]) {
+        //
+        // SAFETY: The internal stream is guaranteed to still be initialized while
+        // self is alive.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmEncryptFinal(
+                self.0.as_mut().get_inner_mut(),
+                tag.as_mut_ptr(),
+                tag.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+
+        self.0.drop_without_zero();
+    }
+
+    ///
+    /// `encrypt` performs an encryption of the data in `source` and writes the encrypted data to `destination`.
+    ///
+    ///
+    /// `source` is a `&[u8]` that contains the plain text to be encrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the encrypted cipher text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    #[inline(always)]
+    pub fn encrypt(&mut self, source: &[u8], destination: &mut [u8]) {
+        self.as_ref_mut().encrypt(source, destination);
+    }
+
+    ///
+    /// `encrypt_in_place` performs an in-place encryption on the `&mut buffer` that is passed.
+    ///
+    /// `buffer` is a `&mut [u8]` that contains the plain text data to be encrypted. After the encryption has been completed,
+    /// `buffer` will be over-written to contain the cipher text data.
+    ///
+    #[inline(always)]
+    pub fn encrypt_in_place(&mut self, data: &mut [u8]) {
+        self.as_ref_mut().encrypt_in_place(data);
+    }
+}
+
+///
+/// This type represents a borrowed mutable handle to an initialized GcmStream that can be used to
+/// encrypt data.
+///
+pub struct GcmEncryptionStreamRefMut<'a>(internal::GcmInitializedStreamRefMut<'a>);
+
+impl GcmEncryptionStreamRefMut<'_> {
+    ///
+    /// `encrypt` performs an encryption of the data in `source` and writes the encrypted data to `destination`.
+    ///
+    ///
+    /// `source` is a `&[u8]` that contains the plain text to be encrypted.
+    ///
+    /// `destination` is a `&mut [u8]` that after decryption will contain the encrypted cipher text.
+    /// `destination` must be of the same length as `source`.
+    ///
+    pub fn encrypt(&mut self, source: &[u8], destination: &mut [u8]) {
+        assert_eq!(source.len(), destination.len());
+
+        //
+        // SAFETY: The internal stream is guaranteed to still be initialized while
+        // self is alive and we've asserted that the source and destination buffers
+        // are the same length.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmEncryptPart(
+                self.0.as_mut().get_inner_mut(),
+                source.as_ptr(),
+                destination.as_mut_ptr(),
+                destination.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+
+    ///
+    /// `encrypt_in_place` performs an in-place encryption on the `&mut buffer` that is passed.
+    ///
+    /// `buffer` is a `&mut [u8]` that contains the plain text data to be encrypted. After the encryption has been completed,
+    /// `buffer` will be over-written to contain the cipher text data.
+    ///
+    pub fn encrypt_in_place(&mut self, data: &mut [u8]) {
+        //
+        // SAFETY: The internal stream is guaranteed to still be initialized while
+        // self is alive.
+        //
+
+        unsafe {
+            symcrypt_sys::SymCryptGcmEncryptPart(
+                self.0.as_mut().get_inner_mut(),
+                data.as_ptr(),
+                data.as_mut_ptr(),
+                data.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+    }
+}
+
 /// [`validate_gcm_parameters`] is a utility function that validates the input parameters for a GCM call.
 ///
 /// `cipher` will only accept [`BlockCipherType::AesBlock`]
@@ -295,6 +1126,146 @@ pub fn validate_gcm_parameters(
         ) {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
             err => Err(err.into()),
+        }
+    }
+}
+
+mod internal {
+
+    use std::{
+        ffi::c_void,
+        marker::PhantomPinned,
+        mem,
+        ops::{Deref, DerefMut},
+        pin::Pin,
+    };
+
+    #[derive(Clone, Copy, Default)]
+    pub struct GcmInnerStream {
+        // inner represents the actual state of the hash from SymCrypt
+        pub inner: symcrypt_sys::SYMCRYPT_GCM_STATE,
+
+        // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
+        // This prevents the struct from implementing the Unpin trait, enforcing that any
+        // references to this structure remain valid throughout its lifetime.
+        _pinned: PhantomPinned,
+    }
+
+    impl GcmInnerStream {
+        /// Provides a mutable pointer to the inner SymCrypt state.
+        ///
+        /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
+        /// The pointer returned is pinned and cannot be moved
+        /// This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
+        pub fn get_inner_mut(self: Pin<&mut Self>) -> *mut symcrypt_sys::SYMCRYPT_GCM_STATE {
+            // SAFETY: Accessing the inner state of the pinned data
+            unsafe { &mut self.get_unchecked_mut().inner as *mut _ }
+        }
+    }
+
+    ///
+    /// This type represents a handle to an initialized GcmStream that
+    /// is used to:
+    /// 1. Provide a guarantee that the underlying storage is initialized.
+    /// 2. Prevent the underlying storage from being moved or copied.
+    /// 3. Zero the underlying storage when dropped.
+    ///
+    pub struct GcmInitializedStream<'a>(Pin<&'a mut GcmInnerStream>);
+
+    impl<'a> GcmInitializedStream<'a> {
+        //
+        // `new` creates a new handle to an initialized GcmStream.
+        //
+        // # Safety
+        //
+        // The caller must ensure that this is the only pointer to the inner stream.
+        //
+        pub unsafe fn new(inner: Pin<&'a mut GcmInnerStream>) -> Self {
+            Self(inner)
+        }
+
+        //
+        // `as_ref_mut` creates a new borrowed handle to the underlying GcmStream.
+        //
+        #[inline(always)]
+        pub fn as_ref_mut(&mut self) -> GcmInitializedStreamRefMut {
+            GcmInitializedStreamRefMut::new(self)
+        }
+
+        //
+        // `drop_without_zero` will drop this handle to an GcmStream without
+        // zeroing out the underlying storage. The caller should ensure that
+        // the storage was (or will be) zeroed.
+        //
+        #[inline(always)]
+        pub fn drop_without_zero(self) {
+            mem::forget(self);
+        }
+    }
+
+    impl Drop for GcmInitializedStream<'_> {
+        fn drop(&mut self) {
+            //
+            // SAFETY: Is is safe to uninitialize the underlying storage as this
+            // is the only reference to it and we are being dropped.
+            //
+
+            unsafe {
+                symcrypt_sys::SymCryptWipe(
+                    self.0.as_mut().get_inner_mut() as *mut c_void,
+                    mem::size_of::<symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY>()
+                        as symcrypt_sys::SIZE_T,
+                );
+            }
+        }
+    }
+
+    impl<'a> Deref for GcmInitializedStream<'a> {
+        type Target = Pin<&'a mut GcmInnerStream>;
+
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+
+    impl DerefMut for GcmInitializedStream<'_> {
+        fn deref_mut(&mut self) -> &mut Self::Target {
+            &mut self.0
+        }
+    }
+
+    ///
+    /// This type represents a borrowed handle to an initialized GcmStream that
+    /// is used to:
+    /// 1. Provide a guarantee that the underlying storage is initialized.
+    /// 2. Prevent the underlying storage from being moved or copied.
+    ///
+    /// This type does not zero the underlying storage when dropped.
+    ///
+    pub struct GcmInitializedStreamRefMut<'a>(Pin<&'a mut GcmInnerStream>);
+
+    impl<'a> GcmInitializedStreamRefMut<'a> {
+        //
+        // `new` creates a new borrowed mutable reference to an initialized GcmStream
+        // from an existing owned reference.
+        //
+        #[inline(always)]
+        pub fn new(inner: &'a mut GcmInitializedStream) -> Self {
+            Self(inner.0.as_mut())
+        }
+    }
+
+    impl<'a> Deref for GcmInitializedStreamRefMut<'a> {
+        type Target = Pin<&'a mut GcmInnerStream>;
+
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+
+    impl DerefMut for GcmInitializedStreamRefMut<'_> {
+        fn deref_mut(&mut self) -> &mut Self::Target {
+            &mut self.0
         }
     }
 }
@@ -424,5 +1395,127 @@ mod test {
         let cipher = BlockCipherType::AesBlock;
         let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
         assert_eq!(gcm_state.key_len(), 16);
+    }
+
+    #[test]
+    fn test_invalid_aes_key() {
+        let key_data = &[];
+
+        let mut key_storage = GcmUninitializedKey::default();
+
+        match key_storage.expand_key(BlockCipherType::AesBlock, key_data) {
+            Err(SymCryptError::WrongKeySize) => {}
+            Ok(_) => panic!("Incorrectly returned success when generating auth stream"),
+            Err(error) => panic!("Invalid result when generating auth stream: {:?}", error),
+        };
+    }
+
+    #[test]
+    fn test_encrypt_decrypt_part() -> Result<(), SymCryptError> {
+        let mut key = GcmUninitializedKey::default();
+        let key = key.expand_key(
+            BlockCipherType::AesBlock,
+            &hex::decode("feffe9928665731c6d6a8f9467308308").unwrap(),
+        )?;
+
+        let mut nonce = [0; 12];
+        rand::fill(&mut nonce);
+
+        let mut orig_data = [0; 1024];
+        rand::fill(&mut orig_data);
+
+        let (expected_encrypted, expected_tag) = {
+            let mut encrypted_data = orig_data;
+            let mut tag = [0; 16];
+
+            key.encrypt_in_place(&nonce, &[], &mut encrypted_data, &mut tag);
+            (encrypted_data, tag)
+        };
+
+        let mut gcm_stream = GcmStream::default();
+        for chunk_size in 1..orig_data.len() {
+            let mut encryption_stream = gcm_stream.as_encryption_stream(key.as_ref(), &nonce);
+
+            let mut encrypted_data = [0; 1024];
+            let mut tag = [0; 16];
+            for (source, destination) in orig_data
+                .chunks(chunk_size)
+                .zip(encrypted_data.chunks_mut(chunk_size))
+            {
+                encryption_stream.encrypt(source, destination);
+            }
+
+            encryption_stream.complete(&mut tag);
+            assert_eq!(expected_encrypted, encrypted_data);
+            assert_eq!(expected_tag, tag);
+        }
+
+        for chunk_size in 1..orig_data.len() {
+            let mut decryption_stream = gcm_stream.as_decryption_stream(key.as_ref(), &nonce);
+
+            let mut decrypted_data = [0; 1024];
+            for (source, destination) in expected_encrypted
+                .chunks(chunk_size)
+                .zip(decrypted_data.chunks_mut(chunk_size))
+            {
+                decryption_stream.decrypt(source, destination);
+            }
+
+            decryption_stream.complete(&expected_tag)?;
+            assert_eq!(orig_data, decrypted_data);
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_encrypt_decrypt_part_inplace() -> Result<(), SymCryptError> {
+        let mut key = GcmUninitializedKey::default();
+        let key = key.expand_key(
+            BlockCipherType::AesBlock,
+            &hex::decode("feffe9928665731c6d6a8f9467308308").unwrap(),
+        )?;
+
+        let mut nonce = [0; 12];
+        rand::fill(&mut nonce);
+
+        let mut orig_data = [0; 1024];
+        rand::fill(&mut orig_data);
+
+        let (expected_encrypted, expected_tag) = {
+            let mut encrypted_data = orig_data;
+            let mut tag = [0; 16];
+            key.encrypt_in_place(&nonce, &[], &mut encrypted_data, &mut tag);
+            (encrypted_data, tag)
+        };
+
+        let mut gcm_stream = GcmStream::default();
+        for chunk_size in 1..orig_data.len() {
+            let mut encryption_stream = gcm_stream.as_encryption_stream(key.as_ref(), &nonce);
+
+            let mut encrypted_data = orig_data;
+            let mut tag = [0; 16];
+            for window in encrypted_data.chunks_mut(chunk_size) {
+                encryption_stream.encrypt_in_place(window);
+            }
+
+            encryption_stream.complete(&mut tag);
+            assert_eq!(expected_encrypted, encrypted_data);
+            assert_eq!(expected_tag, tag);
+        }
+
+        for chunk_size in 1..orig_data.len() {
+            let mut decryption_stream = gcm_stream.as_decryption_stream(key.as_ref(), &nonce);
+
+            let mut decrypted_data = expected_encrypted;
+            for window in decrypted_data.chunks_mut(chunk_size) {
+                decryption_stream.decrypt_in_place(window);
+            }
+
+            decryption_stream.complete(&expected_tag)?;
+            assert_eq!(orig_data, decrypted_data);
+        }
+
+        Ok(())
     }
 }
