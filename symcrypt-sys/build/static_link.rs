@@ -75,33 +75,47 @@ impl SymCryptOptions {
             .warnings(false); // Ignore noisy warnings from SymCrypt
 
         if !self.symcrypt_use_asm {
-            cc.define("SYMCRYPT_IGNORE_PLATFORM", None);
+            cc.define("SYMCRYPT_IGNORE_PLATFORM", None); // TODO: Fix when we get ASM
         }
+
+        // Set min C version to C11.
+        cc.flag("-std=c11");
 
         // Set specific flags for each target
         match self.triple {
             Triple::x86_64_pc_windows_msvc => {
-                cc.asm_flag("/DSYMCRYPT_MASM"); // TODO: figure out what these flags do
+                cc.define("_AMD64_", None);
+                // cc.asm_flag("/DSYMCRYPT_MASM"); // MASM assembly TODO: enable for ASM
+                cc.flag("/MP"); // Multi-threaded compilation
+                cc.flag("/Zp8"); // Structure packing alignment
+                cc.flag("/WX"); // Treat warnings as errors
+                cc.flag("/guard:cf"); // Control Flow Guard
+                cc.flag("/dynamicbase"); // Enable ASLR
+                cc.flag("/EHsc"); // Exception handling
             }
             Triple::aarch64_pc_windows_msvc => {
                 cc.define("_ARM64_", None);
             }
             Triple::x86_64_unknown_linux_gnu => {
-                cc.include("symcrypt/modules/linux/common"); // TODO: remove?
                 cc.flag("-mpclmul");
-                cc.flag("-Wno-incompatible-pointer-types");
-                /*
-                cc.flag("-mpclmul")
-                    .flag("-mssse3")
-                    .flag("-mxsave")
-                    .flag("-maes")
-                    .flag("-msha")
-                    .flag("-mrdrnd")
-                    .flag("-mrdseed");
-                */
+                cc.flag("-Wno-incompatible-pointer-types"); // Ignore noisy SymCrypt errors
+                                                            // From SymCrypt-Platforms.cmake
+                cc.flag("-mssse3");
+                cc.flag("-mxsave");
+                cc.flag("-maes");
+                cc.flag("-msha");
+                cc.flag("-mrdrnd");
+                cc.flag("-mrdseed");
+                cc.flag("-mbmi2");
+                cc.flag("-fstack-protector-strong");
+                cc.flag("-Wstack-protector");
+                cc.flag("-fno-plt");
+                cc.flag("-fno-builtin-bcmp");
+                cc.flag("-fno-unroll-loops");
             }
             Triple::aarch64_unknown_linux_gnu => {
-                cc.include("symcrypt/modules/linux/common"); // TODO: remove?
+                cc.flag("-march=armv8-a+simd+crypto"); // Enable a baseline of features for the compiler to support everywhere.
+                cc.flag("-flax-vector-conversions"); //  Setting -flax-vector-conversions to build Arm64 intrinsics code with GCC.
                 cc.flag("-Wno-incompatible-pointer-types"); // Ignore noisy SymCrypt errors
             }
         }
@@ -273,7 +287,7 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
             module_files.push("inc/static_WindowsDefault.c");
         }
         Triple::x86_64_unknown_linux_gnu => {
-            base_files.push("linux/intrinsics.c"); // TODO: Confirm that its Only required for Linux x86_64
+            base_files.push("linux/intrinsics.c"); // Only needed for x86_64_unknown_linux_gnu
             base_files.push("env_posixUserMode.c");
             module_files.push("inc/static_LinuxDefault.c");
         }
