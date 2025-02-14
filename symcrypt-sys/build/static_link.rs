@@ -78,42 +78,75 @@ impl SymCryptOptions {
             cc.define("SYMCRYPT_IGNORE_PLATFORM", None); // TODO: Fix when we get ASM
         }
 
-        // Set specific flags for each target
+        // Set specific flags for operating system
+
+        match self.triple {
+            // Target all Windows targets
+            Triple::x86_64_pc_windows_msvc | Triple::aarch64_pc_windows_msvc => {
+                // From SymCrypt-Platforms.cmake
+                cc.flag("/MP") // Multi-threaded compilation
+                    .flag("/Zp8") // Structure packing alignment
+                    .flag("/WX") // Treat warnings as errors
+                    .flag("/guard:cf") // Control Flow Guard
+                    .flag("/wd5105") // Disable warning caused by Windows SDK headers
+                    .flag("/EHsc"); // Exception handling
+                                    // .flag("/dynamicbase"); // Enabling ASLR produces lots of warnings
+
+                // From lib/CmakeLists.txt
+                // cc.asm_flag("/DSYMCRYPT_MASM"); // TODO: enable for ASM
+            }
+
+            // Target all Linux targets
+            Triple::x86_64_unknown_linux_gnu | Triple::aarch64_unknown_linux_gnu => {
+                // From lib/CmakeLists.txt
+                // Stack Protection ON by default for linux
+                cc.flag("-fstack-protector-strong")
+                    .flag("-Wstack-protector")
+                    .flag("--param=ssp-buffer-size=4")
+                    .flag("-fstack-clash-protection")
+                    .flag("-Wno-incompatible-pointer-types"); // Ignore noisy SymCrypt errors
+
+                // From lib/CmakeLists.txt
+                // cc.flag("-x assembler-with-cpp"); // TODO: enable for ASM
+
+                // From SymCrypt-Platforms.cmake
+                cc.flag("-Wno-unknown-pragmas")
+                    .flag("-Werror")
+                    .flag("-Wno-deprecated-declarations")
+                    .flag("-Wno-deprecated")
+                    .flag("-g")
+                    .flag("-Wno-multichar")
+                    .flag("-fPIC") // PIC is enabled by default on Linux
+                    .flag("-fno-plt")
+                    .flag("-fno-builtin-bcmp")
+                    .flag("-fno-unroll-loops");
+            }
+        }
+
+        // Set specific flags for each triple
         match self.triple {
             Triple::x86_64_pc_windows_msvc => {
-                cc.define("_AMD64_", None);
-                // cc.asm_flag("/DSYMCRYPT_MASM"); // MASM assembly TODO: enable for ASM
-                cc.flag("/MP"); // Multi-threaded compilation
-                cc.flag("/Zp8"); // Structure packing alignment
-                cc.flag("/WX"); // Treat warnings as errors
-                cc.flag("/guard:cf"); // Control Flow Guard
-                                      // cc.flag("/dynamicbase"); // Enable ASLR
-                cc.flag("/EHsc"); // Exception handling
+                // From SymCrypt-Platforms.cmake
+                cc.define("_AMD64_", None).flag("/Gz"); // Set default to __stdcall, only for X86
             }
             Triple::aarch64_pc_windows_msvc => {
                 cc.define("_ARM64_", None);
             }
             Triple::x86_64_unknown_linux_gnu => {
-                cc.flag("-mpclmul");
-                cc.flag("-Wno-incompatible-pointer-types"); // Ignore noisy SymCrypt errors
-                                                            // From SymCrypt-Platforms.cmake
-                cc.flag("-mssse3");
-                cc.flag("-mxsave");
-                cc.flag("-maes");
-                cc.flag("-msha");
-                cc.flag("-mrdrnd");
-                cc.flag("-mrdseed");
-                cc.flag("-mbmi2");
-                cc.flag("-fstack-protector-strong");
-                cc.flag("-Wstack-protector");
-                cc.flag("-fno-plt");
-                cc.flag("-fno-builtin-bcmp");
-                cc.flag("-fno-unroll-loops");
+                // From SymCrypt-Platforms.cmake
+                // Only for x86_64_unknown_linux_gnu
+                cc.flag("-mssse3")
+                    .flag("-mxsave")
+                    .flag("-maes")
+                    .flag("-mpclmul")
+                    .flag("-msha")
+                    .flag("-mrdrnd")
+                    .flag("-mrdseed");
             }
             Triple::aarch64_unknown_linux_gnu => {
-                cc.flag("-march=armv8-a+simd+crypto"); // Enable a baseline of features for the compiler to support everywhere.
-                cc.flag("-flax-vector-conversions"); //  Setting -flax-vector-conversions to build Arm64 intrinsics code with GCC.
-                cc.flag("-Wno-incompatible-pointer-types"); // Ignore noisy SymCrypt errors
+                // From SymCrypt-Platforms.cmake
+                cc.flag("-march=armv8-a+simd+crypto") // Enable a baseline of features for the compiler to support everywhere.
+                    .flag("-flax-vector-conversions"); //  Setting -flax-vector-conversions to build Arm64 intrinsics code with GCC.
             }
         }
 
@@ -122,7 +155,7 @@ impl SymCryptOptions {
 }
 
 const SOURCE_DIR: &str = "symcrypt/lib";
-const CMAKE_SOURCES_COMMON: &str = "
+const SOURCES_COMMON: &str = "
 3des.c
 a_dispatch.c
 aes-asm.c
@@ -264,7 +297,7 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
     let already_compiled_set: HashSet<&str> = already_compiled_files.iter().cloned().collect();
 
     // Prepares list of files to be compiled, excluding already compiled files for x86_64_unknown_linux_gnu
-    let mut base_files: Vec<&'static str> = CMAKE_SOURCES_COMMON
+    let mut base_files: Vec<&'static str> = SOURCES_COMMON
         .lines()
         .map(str::trim) // Trim once instead of inside filter
         .filter(|line| {
@@ -295,19 +328,22 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
     }
 
     // Add assembly pre generated ASM files to be compiled
+    // ASM files come from lib/CMakeLists.txt
     let asm_files = match options.triple() {
         Triple::x86_64_pc_windows_msvc => vec![
-            "aesasm.asm",
-            "fdef_asm.asm",
-            "fdef_mulx.asm",
-            "fdef369_asm.asm",
-            "sha256xmm_asm.asm",
-            "sha256ymm_asm.asm",
-            "sha512ymm_asm.asm",
-            "sha512ymm_avx512vl_asm.asm",
-            "wipe.asm",
+            "aesasm-gas.asm",
+            "fdef_asm-gas.asm",
+            "fdef369_asm-gas.asm",
+            "fdef_mulx-gas.asm",
+            "wipe-gas.asm",
+            "sha256xmm_asm-gas.asm",
+            "sha256ymm_asm-gas.asm",
+            "sha512ymm_asm-gas.asm",
+            "sha512ymm_avx512vl_asm-gas.asm",
         ],
-        Triple::aarch64_pc_windows_msvc => vec!["fdef_asm.asm", "fdef369_asm.asm", "wipe.asm"],
+        Triple::aarch64_pc_windows_msvc => {
+            vec!["fdef_asm-gas.asm", "fdef369_asm-gas.asm", "wipe-gas.asm"]
+        }
         Triple::x86_64_unknown_linux_gnu => vec![
             "aesasm-gas.asm",
             "fdef_asm-gas.asm",
@@ -358,13 +394,15 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
 
 // Special compile files for x86_64_unknown_linux_gnu
 const X86_64_LINUX_CUSTOM_COMPILE_FILES: &str = r#"
-set_source_files_properties(aes-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mvaes;-mvpclmulqdq")
-set_source_files_properties(sha256Par-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2")
-set_source_files_properties(sha512Par-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2")
-set_source_files_properties(sha256-xmm.c PROPERTIES COMPILE_OPTIONS "-mssse3")
-set_source_files_properties(sha256-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mbmi2")
-set_source_files_properties(sha512-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mbmi2")
+aes-ymm.c "-mavx;-mavx2;-mvaes;-mvpclmulqdq"
+sha256Par-ymm.c "-mavx;-mavx2"
+sha512Par-ymm.c "-mavx;-mavx2"
+sha256-xmm.c "-mssse3"
+sha256-ymm.c "-mavx;-mavx2;-mbmi2"
+sha512-ymm.c "-mavx;-mavx2;-mbmi2"
 "#;
+
+//set_source_files_properties(sha512-ymm.c PROPERTIES COMPILE_OPTIONS "-mavx;-mavx2;-mbmi2")
 
 /// Compiles the SymCrypt custom intermediates
 ///
@@ -392,24 +430,18 @@ fn compile_symcrypt_intermediates(
             continue;
         }
 
-        let line = line
-            .strip_prefix("set_source_files_properties(")
-            .expect("Malformed input: missing prefix")
-            .strip_suffix(")")
-            .expect("Malformed input: missing suffix");
-
         // Example of parts:
-        // [aes-ymm.c, PROPERTIES, COMPILE_OPTIONS, "-mavx;-mavx2;-mvaes;-mvpclmulqdq"]
+        // [aes-ymm.c, "-mavx;-mavx2;-mvaes;-mvpclmulqdq"]
         let parts: Vec<&str> = line.split_whitespace().collect();
-        if parts.len() < 4 {
+        if parts.len() < 2 {
             continue;
         }
 
         let file = parts[0];
-        println!("Compiling {file} with custom options: {}", parts[3]);
+        println!("Compiling {file} with custom options: {}", parts[1]);
 
         // Isolate the compile options
-        let options = parts[3]
+        let options = parts[1]
             .trim_matches('"')
             .split(';')
             .filter(|s| !s.is_empty());
