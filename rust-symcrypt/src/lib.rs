@@ -34,11 +34,12 @@ fn symcrypt_init() {
         INIT.call_once(|| {
             symcrypt_sys::SymCryptInit();
         });
-        // call symcrypt Init, only expose this for static linking. Add a regex to add a cfg feature to the bindings for this.
     }
 }
 
-/// Takes in a a buffer called `buff` and fills it with random bytes. This function cannot fail.
+/// Takes in a buffer called `buff` and fills it with random bytes. This function 
+/// is never expected to fail, but failure (due to OS dependencies) will crash the application.
+/// There is no recoverable failure mode.
 ///
 /// If calling `symcrypt_random` with a dynamically linked module, `SymCryptRandom` will be called.
 ///
