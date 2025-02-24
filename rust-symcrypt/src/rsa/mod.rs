@@ -549,7 +549,7 @@ mod test {
             .rev()
             .enumerate()
             .fold(0, |v, (byte_offset, byte)| {
-                v | (*byte as u64) << (8 * byte_offset)
+                v | ((*byte as u64) << (8 * byte_offset))
             });
 
         assert_eq!(pub_exp_exported, pub_exp);

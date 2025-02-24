@@ -57,6 +57,7 @@ fn main() {
 
         // INIT FUNCTIONS
         .allowlist_function("SymCryptModuleInit")
+        .allowlist_function("SymCryptInit")
         .allowlist_var("^(SYMCRYPT_CODE_VERSION.*)$")
         // HASH FUNCTIONS
         .allowlist_function("^SymCrypt(?:Sha3_(?:256|384|512)|Sha(?:256|384|512|1)|Md5)(?:Init|Append|Result|StateCopy)?$")
@@ -106,6 +107,7 @@ fn main() {
         // UTILITY FUNCTIONS
         .allowlist_function("SymCryptWipe")
         .allowlist_function("SymCryptRandom")
+        .allowlist_function("SymCryptCallbackRandom") 
         .allowlist_function("SymCryptLoadMsbFirstUint64")
         .allowlist_function("SymCryptStoreMsbFirstUint64")    
 
@@ -118,6 +120,10 @@ fn main() {
         .write_to_file(&bindings_file)
         .expect("Couldn't write bindings!");
 
+    // For dynamic linking, we expose SymCryptModuleInit, for static linking, we expose SymCryptInit.
+    fix_symcrypt_bindings(&bindings_file);
+
+    // For dynamic linking, we need to add a link attribute to the bindings.
     fix_bindings_for_windows(triple, &bindings_file);
 }
 
@@ -152,7 +158,8 @@ fn get_rust_version_from_cargo_metadata() -> String {
 fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
     if triple.contains("windows") {
         println!("Fixing bindings for Windows");
-        let link_str = "#[link(name = \"symcrypt\", kind = \"dylib\")]";
+        let link_str =
+            r#"#[cfg_attr(feature = "dynamic", link(name = "symcrypt", kind = "dylib"))]"#;
         let regex_exp1 = regex::Regex::new(r"pub static \w+: \[SYMCRYPT_OID; \d+usize\];").unwrap();
         let regex_exp2 = regex::Regex::new(r"pub static \w+: PCSYMCRYPT_\w+;").unwrap();
         let bindings_content =
@@ -177,4 +184,55 @@ fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
         std::fs::write(bindings_file, out_content.join("\n"))
             .expect("Unable to write bindings file");
     }
+}
+
+#[allow(clippy::collapsible_if)]
+fn fix_symcrypt_bindings(bindings_file: &str) {
+    println!("Fixing bindings to expose SymCryptInit or SymCryptModuleInit and SymCryptRandom");
+
+    let bindings_content =
+        std::fs::read_to_string(bindings_file).expect("Unable to read bindings file");
+
+    let mut out_content = Vec::new();
+    let lines: Vec<&str> = bindings_content.lines().collect();
+    let mut i = 0;
+
+    // With Dynamic, we want to expose SymCryptModuleInit and SymCryptRandom
+    // With Static, we want to expose SymCryptInit and SymCryptCallbackRandom
+    while i < lines.len() {
+        if lines[i].trim() == "extern \"C\" {" {
+            if i + 1 < lines.len() {
+                let next_line = lines[i + 1].trim();
+
+                let cfg_attr = match next_line {
+                    line if line == "pub fn SymCryptInit();"
+                        || line.starts_with("pub fn SymCryptCallbackRandom(") =>
+                    {
+                        "#[cfg(not(feature = \"dynamic\"))]"
+                    }
+                    line if line.starts_with("pub fn SymCryptModuleInit(")
+                        || line.starts_with("pub fn SymCryptRandom(") =>
+                    {
+                        "#[cfg(feature = \"dynamic\")]"
+                    }
+                    _ => "",
+                };
+
+                if !cfg_attr.is_empty() {
+                    out_content.push(cfg_attr.to_string());
+                }
+            }
+        }
+
+        out_content.push(lines[i].to_string());
+        i += 1;
+    }
+
+    // Append newline for linux bindings
+    if !out_content.last().unwrap_or(&String::new()).ends_with('\n') {
+        out_content.push("".to_string());
+    }
+
+    // Write the modified content back
+    std::fs::write(bindings_file, out_content.join("\n")).expect("Unable to write bindings file");
 }

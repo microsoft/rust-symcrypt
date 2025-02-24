@@ -15,23 +15,51 @@ pub mod rsa;
 fn symcrypt_init() {
     // Subsequent calls to `symcrypt_init()` after the first will not be invoked per .call_once docs https://doc.rust-lang.org/std/sync/struct.Once.html
     static INIT: Once = Once::new();
+
+    // `symcrypt_init` calls `SymCryptModuleInit` or `SymCryptInit` depending on the feature flag
+    // We have also set feature flags on the bindings themselves to only expose the functions we need.
+    // This is to try and eliminate footguns like calling SymCryptModuleInit on a statically linked module.
     unsafe {
         // SAFETY: FFI calls, blocking from being run again.
+
+        #[cfg(feature = "dynamic")]
         INIT.call_once(|| {
             symcrypt_sys::SymCryptModuleInit(
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_MINOR,
             )
         });
+
+        #[cfg(not(feature = "dynamic"))]
+        INIT.call_once(|| {
+            symcrypt_sys::SymCryptInit();
+        });
     }
 }
 
-/// Takes in a a buffer called `buff` and fills it with random bytes. This function cannot fail.
+/// Takes in a buffer called `buff` and fills it with random bytes. This function
+/// is never expected to fail, but failure (due to OS dependencies) will crash the application.
+/// There is no recoverable failure mode.
+///
+/// If calling `symcrypt_random` with a dynamically linked module, `SymCryptRandom` will be called.
+///
+/// If calling `symcrypt_random` with a statically linked module, `SymCryptCallbackRandom` will be called.
 pub fn symcrypt_random(buff: &mut [u8]) {
     symcrypt_init();
+
+    // `symcrypt_random` calls `SymCryptRandom` or `SymCryptCallbackRandom` depending on the feature flag
+    // We have also set feature flags on the bindings themselves to only expose the functions we need.
+    // This is to try and eliminate footguns like calling SymCryptRandom on a statically linked module.
     unsafe {
-        // SAFETY: FFI calls
+        // SAFETY: FFI call
+
+        // Call SymCryptRandom for dynamic linking
+        #[cfg(feature = "dynamic")]
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
+
+        // Call SymCryptCallbackRandom for static linking
+        #[cfg(not(feature = "dynamic"))]
+        symcrypt_sys::SymCryptCallbackRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
     }
 }
 

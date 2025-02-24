@@ -6,13 +6,20 @@ license = "MIT OR Apache-2.0"
 description = "Rust/C Bindings for SymCrypt"
 edition.workspace = true
 rust-version.workspace = true
-build = "build.rs"
+build = "build/main.rs"
 homepage = "https://github.com/microsoft/SymCrypt"
 repository = "https://github.com/microsoft/rust-symcrypt"
 readme = "README.md"
-exclude = ["symcrypt/*", "inc/*"]
+exclude = ["symcrypt/*", "inc/*"] # FIXME: update this before merging to main branch
+#links = "symcrypt" # FIXME: uncomment this before merging to main branch
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+dynamic = []
+
 [dependencies]
 libc = "0.2.0"
+
+[build-dependencies]
+cc = { version = "1.2.10" } # FIXME: enable parallel feature before merging to main branch
