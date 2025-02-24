@@ -37,7 +37,7 @@ fn symcrypt_init() {
     }
 }
 
-/// Takes in a buffer called `buff` and fills it with random bytes. This function 
+/// Takes in a buffer called `buff` and fills it with random bytes. This function
 /// is never expected to fail, but failure (due to OS dependencies) will crash the application.
 /// There is no recoverable failure mode.
 ///
