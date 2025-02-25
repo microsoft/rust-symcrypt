@@ -7,7 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FEATURES_TO_TEST: md5, sha1, pkcs1-encrypt-decrypt
+  FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
 
 jobs:
   build:
@@ -54,6 +54,9 @@ jobs:
           sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
         }
 
+    - name: Debug build
+      run: cargo build --locked --verbose --target ${{ matrix.target }}
+    
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
 
@@ -72,4 +75,3 @@ jobs:
     - name: Run test (Release, static)
       if: matrix.run-tests
       run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
-      

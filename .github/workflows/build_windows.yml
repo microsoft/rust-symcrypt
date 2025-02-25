@@ -7,7 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FEATURES_TO_TEST: md5, sha1, pkcs1-encrypt-decrypt
+  FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
 
 jobs:
   build:
@@ -52,6 +52,9 @@ jobs:
           echo "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
           echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
           echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV  
+    
+    - name: Debug build
+      run: cargo build --locked --verbose --target ${{ matrix.target }}
 
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
