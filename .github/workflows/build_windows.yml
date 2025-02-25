@@ -1,0 +1,76 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  FEATURES_TO_TEST: md5, sha1, pkcs1-encrypt-decrypt
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
+          runs-on: windows-latest
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-amd64-release-103.8.0-53be637d.zip"
+          run-tests: true
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
+          runs-on: windows-latest
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-arm64-release-103.8.0-53be637d.zip"
+          run-tests: false # Windows doesn't support ARM64 emulation
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.target }}    
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.target }}
+
+    steps:
+    - uses: actions/checkout@v4 # Checks out SymCrypt based on Github submodule
+      with:
+        submodules: true
+
+    - uses: Swatinem/rust-cache@v2
+    
+    # Install host architecture, required for cross-compilation since there is no arm64-windows-msvc runner
+    - name: Install host target
+      shell: pwsh
+      run: |
+        rustup target add ${{ matrix.target }}
+
+    - name: Download SymCrypt and Set Environment Variables
+      shell: pwsh
+      run: |
+          Invoke-WebRequest -Uri ${{ matrix.symcrypt }} -OutFile symcrypt.zip
+          New-Item -ItemType Directory -Force -Path symcrypt
+          Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
+          echo "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
+          echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
+          echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV  
+
+    - name: Debug build
+      run: cargo build --workspace --exclude examples --locked --verbose --target ${{ matrix.target }}
+    
+    - name: Release build
+      run: cargo build --workspace --exclude examples --release --locked --verbose --target ${{ matrix.target }}
+
+    - name: Run tests (Debug, dynamic)
+      if: matrix.run-tests
+      run: cargo test --workspace --exclude examples --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run tests (Release, dynamic)
+      if: matrix.run-tests
+      run: cargo test --workspace --exclude examples --release --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run test (Debug, static)
+      if: matrix.run-tests
+      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }} --test full_test
+
+    - name: Run test (Release, static)
+      if: matrix.run-tests
+      run: cargo test --release --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }} --test full_test

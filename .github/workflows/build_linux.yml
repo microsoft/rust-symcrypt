@@ -1,0 +1,78 @@
+name: Build Linux
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  FEATURES_TO_TEST: md5, sha1, pkcs1-encrypt-decrypt
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - target: x86_64-unknown-linux-gnu
+          os: ubuntu-latest
+          runs-on: ubuntu-latest
+          run-tests: true
+        - target: aarch64-unknown-linux-gnu
+          os: ubuntu-24.04-arm
+          runs-on: ubuntu-24.04-arm
+          run-tests: true
+          
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.target }}    
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.target }}
+    
+    steps:
+    - uses: actions/checkout@v4 # Checks out SymCrypt based on Github submodule
+      with:
+        submodules: true
+
+    - uses: Swatinem/rust-cache@v2
+
+    # Download SymCrypt via PMC
+    - name: Install SymCrypt via PMC
+      shell: bash
+      run: |
+        curl -sSL -O https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb
+        sudo dpkg -i packages-microsoft-prod.deb
+        sudo apt-get update
+        sudo apt-get install -y symcrypt
+    
+    - name: Install host target
+      shell: pwsh
+      run: |
+        rustup target add ${{ matrix.target }}
+        if ("${{ matrix.target }}" -match "aarch64-unknown-linux-gnu") {
+          sudo apt update
+          sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        }
+
+    - name: Debug build
+      run: cargo build --locked --verbose --target ${{ matrix.target }}
+    
+    - name: Release build
+      run: cargo build --release --locked --verbose --target ${{ matrix.target }}
+
+
+    - name: Run tests (Debug, dynamic)
+      if: matrix.run-tests
+      run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run tests (Release, dynamic)
+      if: matrix.run-tests
+      run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run test (Debug, static)
+      if: matrix.run-tests
+      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --target ${{ matrix.target }}
+
+    - name: Run test (Release, static)
+      if: matrix.run-tests
+      run: cargo test --release --features ${{ env.FEATURES_TO_TEST }} --target ${{ matrix.target }}
