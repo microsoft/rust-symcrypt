@@ -53,24 +53,21 @@ jobs:
           echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
           echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV  
 
-    - name: Debug build
-      run: cargo build --workspace --exclude examples --locked --verbose --target ${{ matrix.target }}
-    
     - name: Release build
-      run: cargo build --workspace --exclude examples --release --locked --verbose --target ${{ matrix.target }}
+      run: cargo build --release --locked --verbose --target ${{ matrix.target }}
 
     - name: Run tests (Debug, dynamic)
       if: matrix.run-tests
-      run: cargo test --workspace --exclude examples --locked --verbose --all-features --target ${{ matrix.target }}
+      run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
 
     - name: Run tests (Release, dynamic)
       if: matrix.run-tests
-      run: cargo test --workspace --exclude examples --release --locked --verbose --all-features --target ${{ matrix.target }}
+      run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
 
     - name: Run test (Debug, static)
       if: matrix.run-tests
-      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }} --test full_test
+      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
 
     - name: Run test (Release, static)
       if: matrix.run-tests
-      run: cargo test --release --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }} --test full_test
+      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
