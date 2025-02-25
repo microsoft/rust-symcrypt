@@ -4,18 +4,18 @@ This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https:/
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**`symcrypt` version `0.5.1` is based off of `SymCrypt v103.4.2`.**. You must use a version that is greater than or equal to `SymCrypt v103.4.2`. 
+**`symcrypt` version `0.6.0` is based off of `SymCrypt v103.8.0`.** You must use a version that is greater than or equal to `SymCrypt v103.8.0`. 
 
 To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
 
 
 ### Supported Configurations
 
-| Operating Environment | Architecture      | Dynamic Linking |
-| --------------------- | ----------------- | ----------- |
-| Windows user mode     | AMD64, ARM64      | ✅          | 
-| Ubuntu       | AMD64, ARM64      | ✅          | 
-| Azure Linux 3         | AMD64, ARM64      | ✅          |
+| Operating Environment | Architecture      | Dynamic Linking | Static Linking |
+| --------------------- | ----------------- | --------------- | -------------- |
+| Windows user mode     | AMD64, ARM64      | ✅              | ✅            |
+| Ubuntu                | AMD64, ARM64      | ✅              | ✅            |
+| Azure Linux 3         | AMD64, ARM64      | ✅              | ✅            |
 
 ## Supported APIs
 
@@ -65,7 +65,28 @@ To enable either `Md5` or `Sha1`, or `Pkcs1 Encrypt/Decrypt` pass the `md5` or `
 
 ## Quick Start Guide
 
-`symcrypt` requires the `SymCrypt` library to be present at both build time and run time.
+As of version `0.6.0`,  the `symcrypt` crate can take advantage of both static and dynamic linking.
+
+---
+
+## Static Linking:
+
+**NOTE: Static linking is highly experimental and should not be used in production and or release builds. If you are Microsoft employee please contact the SymCrypt team for more info.**
+
+Static linking works by building the `SymCrypt` library from source and static linking to lib that is produced.
+
+Static linking is enabled by default and does not require any additional configuration. You can skip to the `Usage` section below. 
+
+---
+## Dynamic Linking:
+
+To enable Dynamic linking, you must enable the `dynamic` feature flag.
+
+```cargo
+[dependencies]
+symcrypt = {vesrion = "0.6.0", features = ["dynamic"]}
+hex = "0.4.3"
+```
 
 ### Windows:
 Download the latest `symcrypt.dll` and `symcrypt.lib` for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
@@ -76,7 +97,7 @@ Set the required `SYMCRYPT_LIB_PATH` environment variable. You can do this by us
 
 You will need to restart `terminal` / `cmd` after setting the environment variable.
 
-For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page.
+For more information please see `INSTALL.md`.
 
 ### Linux:
 
@@ -86,18 +107,16 @@ SymCrypt is pre-installed on Azure Linux 3 machines. Please ensure that you have
 
 #### Other distros:
 
-For Ubuntu, you can install SymCrypt via package manager by connecting to PMC. 
+For Ubuntu, you can install SymCrypt via package manager by connecting to PMC ( Example shown for Ubuntu `24.04` ):
 
-1. [Connect to PMC](https://learn.microsoft.com/en-us/linux/packages)
-2. `sudo apt-get install symcrypt`
+1. `curl -sSL -O https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb` 
+2. `sudo dpkg -i packages-microsoft-prod.deb`
+3. `sudo apt-get update`
+4. `sudo apt-get install symcrypt`
 
-Alternatively, you can manually install the lib files: 
+For more info on connecting to PMC please see: [Connecting to PMC](https://learn.microsoft.com/en-us/linux/packages) 
 
-Download the latest `libsymcrypt.so*` files for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them in your machines `$LD_LIBRARY_PATH`.
-
-For more information please see the `INSTALL.md` file on the [`rust-symcrypt`](https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt) page
-
-**Note:** This path may be different depending on your flavour of Linux, and architecture. The goal is to place the `libsymcrypt.so*` files in a location where the your Linux distro can find the required libs at build/run time.
+If you want to try connecting with another flavour of Linux, or for more info please see `INSTALL.md`
 
 ---
 
@@ -108,15 +127,24 @@ There are unit tests attached to each file that show how to use each function. I
 
 ### Instructions:  
 
-add symcrypt to your `Cargo.toml` file.
+Add symcrypt to your `Cargo.toml` file.
 
+If static linking:
 ```cargo
 [dependencies]
-symcrypt = "0.5.1"
+symcrypt = "0.6.0"
 hex = "0.4.3"
 ```
 
-include symcrypt in your code  
+
+If dynamic linking:
+```cargo
+[dependencies]
+symcrypt = {vesrion = "0.6.0", features = ["dynamic"]}
+hex = "0.4.3"
+```
+
+Include symcrypt in your code  
 
 ```rust
 use symcrypt::hash::sha256; 
