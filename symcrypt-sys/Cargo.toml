@@ -16,7 +16,7 @@ exclude = ["symcrypt/*", "inc/*"] # FIXME: update this before merging to main br
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-dynamic = []
+static = []
 
 [dependencies]
 libc = "0.2.0"

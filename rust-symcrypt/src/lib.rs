@@ -22,7 +22,7 @@ fn symcrypt_init() {
     unsafe {
         // SAFETY: FFI calls, blocking from being run again.
 
-        #[cfg(feature = "dynamic")]
+        #[cfg(not(feature = "static"))]
         INIT.call_once(|| {
             symcrypt_sys::SymCryptModuleInit(
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
@@ -30,7 +30,7 @@ fn symcrypt_init() {
             )
         });
 
-        #[cfg(not(feature = "dynamic"))]
+        #[cfg(feature = "static")]
         INIT.call_once(|| {
             symcrypt_sys::SymCryptInit();
         });
@@ -54,11 +54,11 @@ pub fn symcrypt_random(buff: &mut [u8]) {
         // SAFETY: FFI call
 
         // Call SymCryptRandom for dynamic linking
-        #[cfg(feature = "dynamic")]
+        #[cfg(not(feature = "static"))]
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
 
         // Call SymCryptCallbackRandom for static linking
-        #[cfg(not(feature = "dynamic"))]
+        #[cfg(feature = "static")]
         symcrypt_sys::SymCryptCallbackRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
     }
 }

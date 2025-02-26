@@ -1,20 +1,20 @@
-#[cfg(not(feature = "dynamic"))]
+#[cfg(feature = "static")]
 pub mod static_link;
 
-#[cfg(not(feature = "dynamic"))]
+#[cfg(feature = "static")]
 pub mod triple;
 
 fn main() -> std::io::Result<()> {
-    #[cfg(feature = "dynamic")]
+    #[cfg(not(feature = "static"))]
     link_symcrypt_dynamically()?;
 
-    #[cfg(not(feature = "dynamic"))]
+    #[cfg(feature = "static")]
     static_link::compile_and_link_symcrypt()?;
 
     Ok(())
 }
 
-#[cfg(feature = "dynamic")]
+#[cfg(not(feature = "static"))]
 fn link_symcrypt_dynamically() -> std::io::Result<()> {
     #[cfg(target_os = "windows")]
     {

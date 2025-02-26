@@ -24,7 +24,7 @@ default = []
 md5 = []
 sha1 = []
 pkcs1-encrypt-decrypt = []
-dynamic = ["symcrypt-sys/dynamic"]
+static = ["symcrypt-sys/static"]
 
 [dev-dependencies]
 hex = "0.4.3"
