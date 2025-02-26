@@ -53,11 +53,11 @@ pub fn symcrypt_random(buff: &mut [u8]) {
     unsafe {
         // SAFETY: FFI call
 
-        // Call SymCryptRandom for dynamic linking
+        // Call SymCryptRandom when dynamic linking
         #[cfg(not(feature = "static"))]
         symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
 
-        // Call SymCryptCallbackRandom for static linking
+        // Call SymCryptCallbackRandom when static linking
         #[cfg(feature = "static")]
         symcrypt_sys::SymCryptCallbackRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
     }
