@@ -20,7 +20,7 @@ You must also configure your system to pick up the SymCrypt lib on your machine,
 
 In your `Cargo.toml`
 ```Rust
-symcrypt-sys = "0.4.0"
+symcrypt-sys = "0.5.0"
 ```
 Then you can call the underlying SymCrypt code directly via the FFIs.
 ```Rust
