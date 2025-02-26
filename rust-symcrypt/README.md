@@ -10,12 +10,15 @@ To view a detailed list of changes please see the [releases page](https://github
 
 
 ### Supported Configurations
-
 | Operating Environment | Architecture      | Dynamic Linking | Static Linking |
 | --------------------- | ----------------- | --------------- | -------------- |
-| Windows user mode     | AMD64, ARM64      | ✅              | ✅            |
-| Ubuntu                | AMD64, ARM64      | ✅              | ✅            |
-| Azure Linux 3         | AMD64, ARM64      | ✅              | ✅            |
+| Windows user mode     | AMD64, ARM64      | ✅              | ✅  **        |
+| Ubuntu                | AMD64, ARM64      | ✅              | ✅  **        |
+| Azure Linux 3         | AMD64, ARM64      | ✅              | ✅  **        |
+
+**Note:** ** Static linking is exper,emta; 
+
+
 
 ## Supported APIs
 
