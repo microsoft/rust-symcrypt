@@ -4198,11 +4198,11 @@ extern "C" {
 extern "C" {
     pub fn SymCryptStoreMsbFirstUint64(src: UINT64, pbDst: PBYTE, cbDst: SIZE_T) -> SYMCRYPT_ERROR;
 }
-#[cfg(not(feature = "dynamic"))]
+#[cfg(feature = "static")]
 extern "C" {
     pub fn SymCryptInit();
 }
-#[cfg(feature = "dynamic")]
+#[cfg(not(feature = "static"))]
 extern "C" {
     pub fn SymCryptModuleInit(api: UINT32, minor: UINT32);
 }
@@ -4793,11 +4793,11 @@ extern "C" {
 extern "C" {
     pub fn SymCryptHkdfSelfTest();
 }
-#[cfg(feature = "dynamic")]
+#[cfg(not(feature = "static"))]
 extern "C" {
     pub fn SymCryptRandom(pbRandom: PBYTE, cbRandom: SIZE_T);
 }
-#[cfg(not(feature = "dynamic"))]
+#[cfg(feature = "static")]
 extern "C" {
     pub fn SymCryptCallbackRandom(pbBuffer: PBYTE, cbBuffer: SIZE_T) -> SYMCRYPT_ERROR;
 }
