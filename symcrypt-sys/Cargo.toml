@@ -1,7 +1,7 @@
 [package]
 name = "symcrypt-sys"
 authors = ["Microsoft"]
-version = "0.4.0"
+version = "0.5.0"
 license = "MIT OR Apache-2.0"
 description = "Rust/C Bindings for SymCrypt"
 edition.workspace = true
@@ -16,7 +16,7 @@ exclude = ["symcrypt/*", "inc/*"] # FIXME: update this before merging to main br
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-dynamic = []
+static = []
 
 [dependencies]
 libc = "0.2.0"

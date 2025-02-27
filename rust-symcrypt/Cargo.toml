@@ -1,7 +1,7 @@
 [package]
 name = "symcrypt"
 authors = ["nnmkhang"]
-version = "0.5.1"
+version = "0.6.0"
 license = "MIT OR Apache-2.0"
 description = "Friendly and Idiomatic Wrappers for SymCrypt"
 edition.workspace = true
@@ -15,7 +15,7 @@ readme = "README.md"
 [dependencies]
 # uses '../symcrypt-sys' when compiled locally, and uses
 # crates.io versioning when published
-symcrypt-sys = {path = "../symcrypt-sys", version = "0.4.0"}
+symcrypt-sys = {path = "../symcrypt-sys", version = "0.5.0"}
 libc = "0.2.0"
 lazy_static = "1.4.0"
 
@@ -24,7 +24,7 @@ default = []
 md5 = []
 sha1 = []
 pkcs1-encrypt-decrypt = []
-dynamic = ["symcrypt-sys/dynamic"]
+static = ["symcrypt-sys/static"]
 
 [dev-dependencies]
 hex = "0.4.3"

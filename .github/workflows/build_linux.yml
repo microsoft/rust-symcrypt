@@ -60,18 +60,18 @@ jobs:
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
 
-    - name: Run tests (Debug, dynamic)
+    - name: Run tests (Debug, static)
       if: matrix.run-tests
       run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
 
-    - name: Run tests (Release, dynamic)
+    - name: Run tests (Release, static)
       if: matrix.run-tests
       run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
 
-    - name: Run test (Debug, static)
+    - name: Run test (Debug, dynamic)
       if: matrix.run-tests
       run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
 
-    - name: Run test (Release, static)
+    - name: Run test (Release, dynamic)
       if: matrix.run-tests
       run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
