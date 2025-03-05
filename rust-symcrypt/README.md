@@ -30,35 +30,29 @@ Hashing:
 - Sha3_256 ( stateful/stateless )
 - Sha3_384 ( stateful/stateless )
 - Sha3_512 ( stateful/stateless )
-
 HMAC:
 - HmacMd5 ( stateful/stateless )
 - HmacSha1 ( stateful/stateless )
 - HmacSha256 ( stateful/stateless )
 - HmacSha384 ( stateful/stateless )
 - HmacSha512 ( stateful/stateless )
-
 HKDF:
 - HmacMd5
 - HmacSha1
 - HmacSha256
 - HmacSha384
 - HmacSha512
-
 Encryption: 
 - AES-GCM Encrypt/Decrypt
 - ChaCha20-Poly1305 Encrypt/Decrypt
 - AES-CBC Encrypt/Decrypt
-
 ECC:
 - ECDH Secret Agreement ( NistP256, NistP384, NistP521, Curve25519)
 - ECDSA Sign / Verify ( NistP256, NistP384, NistP521 )
-
 RSA: 
 - PKCS1 ( Sign, Verify, Encrypt, Decrypt )
 - PSS ( Sign, Verify )
 - OAEP ( Encrypt, Decrypt )
-
 **Note**: `Md5` and `Sha1`, and `PKCS1 Encrypt/Decrypt` are considered weak crypto, and are only added for interop purposes.
 To enable either `Md5` or `Sha1`, or `Pkcs1 Encrypt/Decrypt` pass the `md5` or `sha1` or `pkcs1-encrypt-decrypt` flag into your `Cargo.toml`. 
 
@@ -88,7 +82,6 @@ hex = "0.4.3"
 
 ### Windows:
 Download the latest `symcrypt.dll` and `symcrypt.lib` for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
-
 Set the required `SYMCRYPT_LIB_PATH` environment variable. You can do this by using the following command:
 `setx SYMCRYPT_LIB_PATH "<your-path-to-symcrypt-lib-folder>"`
 
