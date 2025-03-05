@@ -1,6 +1,6 @@
 [package]
 name = "symcrypt"
-authors = ["nnmkhang"]
+authors = ["Microsoft"]
 version = "0.6.0"
 license = "MIT OR Apache-2.0"
 description = "Friendly and Idiomatic Wrappers for SymCrypt"
