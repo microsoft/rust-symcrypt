@@ -40,5 +40,3 @@ After installing and unzipping SymCrypt on a Linux distro, the required `libsymc
 `~/Your-Path-To-SymCrypt-Release-Download/lib/`
 
 The `symcrypt` crate needs to be able to link with these libs during build/run time. In order to mimic the installation path for other libraries, you must place the `libsymcrypt.so*` files into linker load path. The way that this is set will vary between distros. On most distros it set via the environment variable `$LD_LIBRARY_PATH`.
-
-**Note:** While the `symcrypt` crate has only been tested on `Ubuntu`, working with other distros should be similar. The goal is to place the `libsymcrypt.so*` files in a location where the your Linux distro can find the required libs at build/run time. The path may be different depending on your flavour of Linux, and architecture.

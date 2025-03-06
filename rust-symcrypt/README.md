@@ -88,6 +88,7 @@ hex = "0.4.3"
 
 ### Windows:
 Download the latest `symcrypt.dll` and `symcrypt.lib` for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
+
 Set the required `SYMCRYPT_LIB_PATH` environment variable. You can do this by using the following command:
 `setx SYMCRYPT_LIB_PATH "<your-path-to-symcrypt-lib-folder>"`
 
