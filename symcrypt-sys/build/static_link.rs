@@ -15,12 +15,17 @@ pub fn compile_and_link_symcrypt() -> std::io::Result<()> {
     let options = SymCryptOptions::new();
     println!("Build config: {:?}", options);
 
+    // Rebuild if any of these files change
+    println!("cargo:rerun-if-changed=../symcrypt/lib/");
+    println!("cargo:rerun-if-changed=../symcrypt/inc/");
+    println!("cargo:rerun-if-changed=../inc/");
+
     // Required Windows bcrypt dependency for BCryptGenRandom
     const ADDITIONAL_DEPENDENCIES: &[&str] = &[
         #[cfg(windows)]
         "bcrypt",
     ];
-    println!("cargo:rerun-if-changed=upstream");
+
     println!("Compiling SymCrypt...");
 
     // Compile and Build SymCrypt with provided SymCryptOptions
