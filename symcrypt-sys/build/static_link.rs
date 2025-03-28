@@ -1,5 +1,6 @@
 use super::triple::Triple;
-use std::collections::HashSet;
+use std::{collections::HashSet, process::Command};
+use std::io::{self, Write};
 
 const LIB_NAME: &str = "symcrypt";
 
@@ -54,8 +55,11 @@ impl SymCryptOptions {
     fn new() -> Self {
         Self {
             triple: Triple::get_target_triple(),
-            symcrypt_use_asm: false, // FIXME: Turn this to true when we get ASM checked in
-                                     //symcrypt_fips_build: false, // TODO: Determine if we should expose FIPS build option?
+            symcrypt_use_asm: std::env::var("SYMCRYPT_USE_ASM")
+                .map_or(true, |use_asm_str| {
+                    use_asm_str == "1"
+                }), 
+            //symcrypt_fips_build: false, // TODO: Determine if we should expose FIPS build option?
         }
     }
     fn use_asm(&self) -> bool {
@@ -105,11 +109,13 @@ impl SymCryptOptions {
                     .flag("--param=ssp-buffer-size=4")
                     .flag("-fstack-clash-protection")
                     .flag("-Wno-incompatible-pointer-types"); // Ignore noisy SymCrypt errors
-
-                // From lib/CmakeLists.txt
-                // cc.flag("-x assembler-with-cpp"); // TODO: enable for ASM
-
+                
                 // From SymCrypt-Platforms.cmake
+                if self.symcrypt_use_asm {
+                    cc.asm_flag("-xassembler-with-cpp")
+                        .asm_flag("-Wno-unused-command-line-argument");
+                }
+
                 cc.flag("-Wno-unknown-pragmas")
                     .flag("-Werror")
                     .flag("-Wno-deprecated-declarations")
@@ -289,6 +295,103 @@ xmss.c
 xtsaes.c
 ";
 
+const AMD64_WINDOWS_CPPASM_SOURCES: &str = "
+aesasm-masm.cppasm
+fdef_asm-masm.cppasm
+fdef369_asm-masm.cppasm
+fdef_mulx-masm.cppasm
+wipe-masm.cppasm
+sha256xmm_asm-masm.cppasm
+sha256ymm_asm-masm.cppasm
+sha512ymm_asm-masm.cppasm
+sha512ymm_avx512vl_asm-masm.cppasm
+";
+
+const ARM64_WINDOWS_CPPASM_SOURCES: &str = "
+fdef_asm-armasm64.cppasm
+fdef369_asm-armasm64.cppasm
+wipe-armasm64.cppasm
+";
+
+const AMD64_LINUX_CPPASM_SOURCES: &str = "
+aesasm-gas.cppasm
+fdef_asm-gas.cppasm
+fdef369_asm-gas.cppasm
+fdef_mulx-gas.cppasm
+wipe-gas.cppasm
+sha256xmm_asm-gas.cppasm
+sha256ymm_asm-gas.cppasm
+sha512ymm_asm-gas.cppasm
+sha512ymm_avx512vl_asm-gas.cppasm
+";
+
+const ARM64_LINUX_CPPASM_SOURCES: &str = "
+fdef_asm-gas.cppasm
+fdef369_asm-gas.cppasm
+wipe-gas.cppasm
+";
+
+fn process_symcrypt_cppasm(cppasm_sources: &str, arch: &str, is_windows: bool, source_files: &mut Vec<String>) -> std::io::Result<()> {
+    let arch_upper = arch.to_uppercase();
+
+    // Prepares list of files to be compiled
+    let cppasm_files: Vec<& str> = cppasm_sources
+        .lines()
+        .map(str::trim) // Trim once instead of inside filter
+        .filter(|line| {
+            !line.is_empty() && !line.starts_with("#")
+        })
+        .collect();    
+
+    for cppasm_file in cppasm_files {
+        // Get the file name without extension
+        let asm_out = format!("{arch}/{}", cppasm_file.replace("cppasm", "asm"));
+        let output: std::process::Output;
+
+        if is_windows
+        {
+            output = Command::new("cc")
+                .arg("/nologo")
+                .arg("/EP")
+                .arg(format!("/Fi{SOURCE_DIR}/{asm_out}"))
+                .arg(format!("{SOURCE_DIR}/{arch}/linux_gnu/{cppasm_file}"))
+                .arg(format!("-Isymcrypt/inc"))
+                .arg(format!("-I{SOURCE_DIR}"))
+                .arg(format!("-I{SOURCE_DIR}/{arch}"))
+                .arg(format!("-DSYMCRYPT_MASM"))
+                .arg(format!("-DSYMCRYPT_CPU_{arch_upper}"))
+                .output()?;
+        } else {            
+            output = Command::new("cc")
+                .arg("-E")
+                .arg("-P")
+                .arg("-xc")
+                .arg(format!("{SOURCE_DIR}/{arch}/linux_gnu/{cppasm_file}"))
+                .arg(format!("-o{SOURCE_DIR}/{asm_out}"))
+                .arg(format!("-Isymcrypt/inc"))
+                .arg(format!("-I{SOURCE_DIR}"))
+                .arg(format!("-I{SOURCE_DIR}/{arch}"))
+                .arg(format!("-DSYMCRYPT_GAS"))
+                .arg(format!("-DSYMCRYPT_CPU_{arch_upper}"))
+                .output()?;
+        }
+
+        if output.status.success() {
+            println!("Preprocessed {cppasm_file} to {asm_out}: {}", output.status);
+        } else {
+            io::stderr().write_all(&output.stderr)?;
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("Failed to preprocess {cppasm_file}. cc exited with: {}", output.status),
+            ));
+        }
+
+        source_files.push(asm_out);
+    }
+
+    Ok(())
+}
+
 fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io::Result<()> {
     // Compile intermediates required this is currently only required for x86_64_unknown_linux_gnu
     let (already_compiled_files, intermediates) = compile_symcrypt_intermediates(options);
@@ -297,68 +400,54 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
     let already_compiled_set: HashSet<&str> = already_compiled_files.iter().cloned().collect();
 
     // Prepares list of files to be compiled, excluding already compiled files for x86_64_unknown_linux_gnu
-    let mut base_files: Vec<&'static str> = SOURCES_COMMON
+    let mut base_files: Vec<String> = SOURCES_COMMON
         .lines()
         .map(str::trim) // Trim once instead of inside filter
         .filter(|line| {
             !line.is_empty() && !line.starts_with("#") && !already_compiled_set.contains(line)
         })
+        .map(String::from)
         .collect();
 
-    base_files.push("env_generic.c"); // symcrypt_generic
+    base_files.push("env_generic.c".to_string()); // symcrypt_generic
 
     // Add module-specific files for each target
     let mut module_files = vec![];
 
     match options.triple() {
         Triple::x86_64_pc_windows_msvc | Triple::aarch64_pc_windows_msvc => {
-            base_files.push("env_windowsUserModeWin8_1.c");
-            base_files.push("IEEE802_11SaeCustom.c");
+            base_files.push("env_windowsUserModeWin8_1.c".to_string());
+            base_files.push("IEEE802_11SaeCustom.c".to_string());
             module_files.push("inc/static_WindowsDefault.c");
         }
         Triple::x86_64_unknown_linux_gnu => {
-            base_files.push("linux/intrinsics.c"); // Only needed for x86_64_unknown_linux_gnu
-            base_files.push("env_posixUserMode.c");
+            base_files.push("linux/intrinsics.c".to_string()); // Only needed for x86_64_unknown_linux_gnu
+            base_files.push("env_posixUserMode.c".to_string());
             module_files.push("inc/static_LinuxDefault.c");
         }
         Triple::aarch64_unknown_linux_gnu => {
-            base_files.push("env_posixUserMode.c");
+            base_files.push("env_posixUserMode.c".to_string());
             module_files.push("inc/static_LinuxDefault.c");
         }
     }
 
-    // Add assembly pre generated ASM files to be compiled
-    // ASM files come from lib/CMakeLists.txt
-    let asm_files = match options.triple() {
-        Triple::x86_64_pc_windows_msvc => vec![
-            "aesasm-gas.asm",
-            "fdef_asm-gas.asm",
-            "fdef369_asm-gas.asm",
-            "fdef_mulx-gas.asm",
-            "wipe-gas.asm",
-            "sha256xmm_asm-gas.asm",
-            "sha256ymm_asm-gas.asm",
-            "sha512ymm_asm-gas.asm",
-            "sha512ymm_avx512vl_asm-gas.asm",
-        ],
-        Triple::aarch64_pc_windows_msvc => {
-            vec!["fdef_asm-gas.asm", "fdef369_asm-gas.asm", "wipe-gas.asm"]
-        }
-        Triple::x86_64_unknown_linux_gnu => vec![
-            "aesasm-gas.asm",
-            "fdef_asm-gas.asm",
-            "fdef369_asm-gas.asm",
-            "fdef_mulx-gas.asm",
-            "wipe-gas.asm",
-            "sha256xmm_asm-gas.asm",
-            "sha256ymm_asm-gas.asm",
-            "sha512ymm_asm-gas.asm",
-            "sha512ymm_avx512vl_asm-gas.asm",
-        ],
-        Triple::aarch64_unknown_linux_gnu => {
-            vec!["fdef_asm-gas.asm", "fdef369_asm-gas.asm", "wipe-gas.asm"]
-        }
-    };
+    if options.use_asm() {
+        // Preprocess cppasm files to asm
+        match options.triple() {
+            Triple::x86_64_pc_windows_msvc => {
+                process_symcrypt_cppasm(AMD64_WINDOWS_CPPASM_SOURCES, "amd64", true, &mut base_files)?
+            }
+            Triple::aarch64_pc_windows_msvc => {
+                process_symcrypt_cppasm(ARM64_WINDOWS_CPPASM_SOURCES, "arm64", true, &mut base_files)?
+            }
+            Triple::x86_64_unknown_linux_gnu => {
+                process_symcrypt_cppasm(AMD64_LINUX_CPPASM_SOURCES, "amd64", false, &mut base_files)?
+            }
+            Triple::aarch64_unknown_linux_gnu => {
+                process_symcrypt_cppasm(ARM64_LINUX_CPPASM_SOURCES, "arm64", false, &mut base_files)?
+            }
+        };
+    }
 
     // Pre-Configure the cc compiler based on the target triple
     let mut cc = options.preconfigure_cc();
@@ -369,16 +458,6 @@ fn compile_symcrypt_static(lib_name: &str, options: &SymCryptOptions) -> std::io
     // Add base files to be compiled
     for file in base_files {
         cc.file(format!("{SOURCE_DIR}/{file}"));
-    }
-
-    // Add assembly files to be compiled
-    if options.use_asm() {
-        for file in asm_files {
-            cc.file(format!(
-                "{SOURCE_DIR}/asm/{}/{file}", // TODO: replace with right file path when ASM checked in.
-                options.triple.to_triple()
-            ));
-        }
     }
 
     // Add module-specific files to be compiled
