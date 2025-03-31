@@ -1,5 +1,5 @@
 use super::triple::Triple;
-use std::{collections::HashSet, process::Command};
+use std::{collections::HashSet};
 use std::io::{self, Write};
 
 const LIB_NAME: &str = "symcrypt";
@@ -332,8 +332,6 @@ wipe-gas.cppasm
 ";
 
 fn process_symcrypt_cppasm(cppasm_sources: &str, arch: &str, is_windows: bool, source_files: &mut Vec<String>) -> std::io::Result<()> {
-    let arch_upper = arch.to_uppercase();
-
     // Prepares list of files to be compiled
     let cppasm_files: Vec<& str> = cppasm_sources
         .lines()
@@ -346,45 +344,41 @@ fn process_symcrypt_cppasm(cppasm_sources: &str, arch: &str, is_windows: bool, s
     for cppasm_file in cppasm_files {
         // Get the file name without extension
         let asm_out = format!("{arch}/{}", cppasm_file.replace("cppasm", "asm"));
-        let output: std::process::Output;
+        let bytes: Vec<u8>;
+        let mut cc = cc::Build::new();
+        cc.file(format!("{SOURCE_DIR}/{arch}/linux_gnu/{cppasm_file}"))
+            .include(format!("symcrypt/inc"))
+            .include(format!("{SOURCE_DIR}"))
+            .include(format!("{SOURCE_DIR}/{arch}"))
+            .define(format!("SYMCRYPT_CPU_{}", arch.to_uppercase()).as_str(), None);
 
         if is_windows
         {
-            output = Command::new("cc")
-                .arg("/nologo")
-                .arg("/EP")
-                .arg(format!("/Fi{SOURCE_DIR}/{asm_out}"))
-                .arg(format!("{SOURCE_DIR}/{arch}/linux_gnu/{cppasm_file}"))
-                .arg(format!("-Isymcrypt/inc"))
-                .arg(format!("-I{SOURCE_DIR}"))
-                .arg(format!("-I{SOURCE_DIR}/{arch}"))
-                .arg(format!("-DSYMCRYPT_MASM"))
-                .arg(format!("-DSYMCRYPT_CPU_{arch_upper}"))
-                .output()?;
-        } else {            
-            output = Command::new("cc")
-                .arg("-E")
-                .arg("-P")
-                .arg("-xc")
-                .arg(format!("{SOURCE_DIR}/{arch}/linux_gnu/{cppasm_file}"))
-                .arg(format!("-o{SOURCE_DIR}/{asm_out}"))
-                .arg(format!("-Isymcrypt/inc"))
-                .arg(format!("-I{SOURCE_DIR}"))
-                .arg(format!("-I{SOURCE_DIR}/{arch}"))
-                .arg(format!("-DSYMCRYPT_GAS"))
-                .arg(format!("-DSYMCRYPT_CPU_{arch_upper}"))
-                .output()?;
+            cc.flag("/nologo")
+                .flag("/P")
+                .define("-DSYMCRYPT_MASM", None);
+        } else {     
+            cc.flag("-P")
+                .flag("-xc")
+                .define("SYMCRYPT_GAS", None);
         }
 
-        if output.status.success() {
-            println!("Preprocessed {cppasm_file} to {asm_out}: {}", output.status);
-        } else {
-            io::stderr().write_all(&output.stderr)?;
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!("Failed to preprocess {cppasm_file}. cc exited with: {}", output.status),
-            ));
+        match cc.try_expand() {
+            Ok(out) => {
+                bytes = out;
+            }
+            Err(e) => {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    format!("Failed to preprocess {cppasm_file}. cc exited with: {}", e),
+                ));
+            }
         }
+            
+        let mut asm_fout = std::fs::File::create(format!("{SOURCE_DIR}/{asm_out}"))?;
+        asm_fout.write_all(&bytes)?;
+
+        println!("Preprocessed {cppasm_file} to {asm_out}.");
 
         source_files.push(asm_out);
     }
