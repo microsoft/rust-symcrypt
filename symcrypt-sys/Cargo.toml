@@ -23,3 +23,4 @@ libc = "0.2.0"
 
 [build-dependencies]
 cc = { version = "1.2.10" } # FIXME: enable parallel feature before merging to main branch
+chrono = "0.4"
