@@ -64,10 +64,23 @@ jobs:
           rustc --version --verbose
           Write-Output "=== SymCrypt DLL ==="
           Get-ChildItem "$env:GITHUB_WORKSPACE\symcrypt" -Recurse -Filter "symcrypt.*"
-          Write-Output "=== DLL Dependencies ==="
-          dumpbin /dependents "$env:GITHUB_WORKSPACE\symcrypt\dll\symcrypt.dll" 2>$null || Write-Output "dumpbin not available"
           Write-Output "=== OS Version ==="
           [System.Environment]::OSVersion
+          Write-Output "=== Direct DLL load test ==="
+          try {
+            Add-Type @"
+              using System;
+              using System.Runtime.InteropServices;
+              public class SymCryptDiag {
+                [DllImport("symcrypt.dll", CallingConvention = CallingConvention.Cdecl)]
+                public static extern void SymCryptModuleInit(uint api, uint minor);
+              }
+          "@
+            [SymCryptDiag]::SymCryptModuleInit(103, 8)
+            Write-Output "SymCryptModuleInit(103, 8) succeeded"
+          } catch {
+            Write-Output "SymCryptModuleInit(103, 8) FAILED: $_"
+          }
 
     - name: Debug build
       run: cargo build --locked --verbose --target ${{ matrix.target }}
