@@ -3,19 +3,17 @@ This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https:/
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**`symcrypt` version `0.6.0` is based off of `SymCrypt v103.8.0`.** You must use a version that is greater than or equal to `SymCrypt v103.8.0`. 
+**`symcrypt` version `0.5.1` is based off of `SymCrypt v103.8.0`.** You must use a version that is greater than or equal to `SymCrypt v103.8.0`.
 
 To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
 
 
 ### Supported Configurations
-| Operating Environment | Architecture      | Dynamic Linking | Static Linking |
-| --------------------- | ----------------- | --------------- | -------------- |
-| Windows user mode     | AMD64, ARM64      | ✅              | ✅  ⚠️       |
-| Ubuntu                | AMD64, ARM64      | ✅              | ✅  ⚠️       |
-| Azure Linux 3         | AMD64, ARM64      | ✅              | ✅  ⚠️       |
-
-**Note:** ⚠️ Static linking is meant to be used for rapid development and testing. Static linking does not offer FIPS and is **not to be used in Microsoft production or release builds.** For more information please see the `Quick Start Guide` below. 
+| Operating Environment | Architecture |
+| --------------------- | ------------ |
+| Windows user mode     | AMD64, ARM64 |
+| Ubuntu                | AMD64, ARM64 |
+| Azure Linux 3         | AMD64, ARM64 |
 
 ---
 
@@ -42,47 +40,29 @@ HKDF:
 - HmacSha256
 - HmacSha384
 - HmacSha512
-Encryption: 
+Encryption:
 - AES-GCM Encrypt/Decrypt
 - ChaCha20-Poly1305 Encrypt/Decrypt
 - AES-CBC Encrypt/Decrypt
 ECC:
 - ECDH Secret Agreement ( NistP256, NistP384, NistP521, Curve25519)
 - ECDSA Sign / Verify ( NistP256, NistP384, NistP521 )
-RSA: 
+RSA:
 - PKCS1 ( Sign, Verify, Encrypt, Decrypt )
 - PSS ( Sign, Verify )
 - OAEP ( Encrypt, Decrypt )
 **Note**: `Md5` and `Sha1`, and `PKCS1 Encrypt/Decrypt` are considered weak crypto, and are only added for interop purposes.
-To enable either `Md5` or `Sha1`, or `Pkcs1 Encrypt/Decrypt` pass the `md5` or `sha1` or `pkcs1-encrypt-decrypt` flag into your `Cargo.toml`. 
+To enable either `Md5` or `Sha1`, or `Pkcs1 Encrypt/Decrypt` pass the `md5` or `sha1` or `pkcs1-encrypt-decrypt` flag into your `Cargo.toml`.
 
 ---
 
 ## Quick Start Guide
 
-As of version `0.6.0`,  the `symcrypt` crate can take advantage of both static and dynamic linking. Static linking is enabled by default.
-
----
-## Static Linking:
-
-**NOTE: Static linking should not be used in production and or release builds for Microsoft 1st Party. If you are Microsoft employee please contact the SymCrypt team for more info.**
-
-Static linking works by building the `SymCrypt` library from source and static linking to lib that is produced, this will result in longer build times and larger binaries but gives the added benefit of not worrying about the distribution of a dynamic library. Static linking is enabled by default.
----
-
-## Dynamic Linking:
-
-Dynamic linking assumes is required for FIPS. If the `dynamic` flag is set, the `symcrypt` crate will operate under the assumption that you have followed following instructions for configuring your system to do a dynamic link of the `SymCrypt` library. 
-
-```cargo
-[dependencies]
-symcrypt = {vesrion = "0.6.0", features = ["dynamic"]}
-hex = "0.4.3"
-``` 
+The `symcrypt` crate uses dynamic linking. This requires the `SymCrypt` library to be available on your system at build and runtime.
 
 ### Windows:
 Download the latest `symcrypt.dll` and `symcrypt.lib` for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
-Set the required `SYMCRYPT_LIB_PATH` environment variable. You can do this by using the following command:
+Set the required `SYMCRYPT_LIB_PATH` environment variable:
 `setx SYMCRYPT_LIB_PATH "<your-path-to-symcrypt-lib-folder>"`
 
 You will need to restart `terminal` / `cmd` after setting the environment variable.
@@ -98,44 +78,34 @@ SymCrypt is pre-installed on Azure Linux 3 machines. Please ensure that you have
 
 For Ubuntu, you can install SymCrypt via package manager by connecting to PMC ( Example shown for Ubuntu `24.04` ):
 
-1. `curl -sSL -O https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb` 
+1. `curl -sSL -O https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb`
 2. `sudo dpkg -i packages-microsoft-prod.deb`
 3. `sudo apt-get update`
 4. `sudo apt-get install symcrypt`
 
-For more info on connecting to PMC please see: [Connecting to PMC](https://learn.microsoft.com/en-us/linux/packages) 
+For more info on connecting to PMC please see: [Connecting to PMC](https://learn.microsoft.com/en-us/linux/packages)
 
 If you want to try connecting with another flavour of Linux, or for more info please see `INSTALL.md`
 
 ---
 
 ## Usage
-There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash. 
+There are unit tests attached to each file that show how to use each function. Included is some sample code to do a stateless Sha256 hash.
 **Note:** This code snippet also uses the [hex](https://crates.io/crates/hex) crate.
 
-### Instructions:  
+### Instructions:
 
-Add symcrypt to your `Cargo.toml` file.
-
-If static linking:
+Add symcrypt to your `Cargo.toml` file:
 ```cargo
 [dependencies]
-symcrypt = {vesrion = "0.6.0"}
+symcrypt = "0.5.1"
 hex = "0.4.3"
 ```
 
-
-If dynamic linking:
-```cargo
-[dependencies]
-symcrypt = {vesrion = "0.6.0", features = ["dynamic"]}
-hex = "0.4.3"
-```
-
-Include symcrypt in your code  
+Include symcrypt in your code:
 
 ```rust
-use symcrypt::hash::sha256; 
+use symcrypt::hash::sha256;
 use hex;
 let data = hex::decode("641ec2cf711e").unwrap();
 let expected: &str = "cfdbd6c9acf9842ce04e8e6a0421838f858559cf22d2ea8a38bd07d5e4692233";

@@ -1,4 +1,4 @@
-# Detailed Build and Install for Dynamic Linking
+# Detailed Build and Install
 
 This page provides more detailed installation instructions for dynamic linking on Windows and Linux.
 
