@@ -64,6 +64,6 @@ If you are a maintainer cutting a release, follow the steps in [`rust-symcrypt/D
 
 ---
 
-## Reporting Issues
+## Support and Reporting Issues
 
-Please open a GitHub issue. For security vulnerabilities, follow the process in [`SECURITY.md`](SECURITY.md).
+If you have a question, bug report, or feature request, please [open a GitHub issue](https://github.com/microsoft/rust-symcrypt/issues). For security vulnerabilities, follow the process in [`SECURITY.md`](SECURITY.md).
