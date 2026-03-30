@@ -38,7 +38,7 @@ jobs:
       with:
         submodules: true
 
-    - uses: Swatinem/rust-cache@v2
+    # - uses: Swatinem/rust-cache@v2  # temporarily disabled to rule out stale cache
     
     # Install host architecture, required for cross-compilation since there is no arm64-windows-msvc runner
     - name: Install host target
@@ -62,25 +62,16 @@ jobs:
       run: |
           Write-Output "=== Rust ==="
           rustc --version --verbose
-          Write-Output "=== SymCrypt DLL ==="
-          Get-ChildItem "$env:GITHUB_WORKSPACE\symcrypt" -Recurse -Filter "symcrypt.*"
           Write-Output "=== OS Version ==="
           [System.Environment]::OSVersion
-          Write-Output "=== Direct DLL load test ==="
-          try {
-            Add-Type @"
-              using System;
-              using System.Runtime.InteropServices;
-              public class SymCryptDiag {
-                [DllImport("symcrypt.dll", CallingConvention = CallingConvention.Cdecl)]
-                public static extern void SymCryptModuleInit(uint api, uint minor);
-              }
-          "@
-            [SymCryptDiag]::SymCryptModuleInit(103, 8)
-            Write-Output "SymCryptModuleInit(103, 8) succeeded"
-          } catch {
-            Write-Output "SymCryptModuleInit(103, 8) FAILED: $_"
-          }
+          Write-Output "=== Downloaded DLL hash ==="
+          Get-FileHash "$env:GITHUB_WORKSPACE\symcrypt\dll\symcrypt.dll" -Algorithm SHA256
+          Write-Output "=== Other symcrypt.dll on system ==="
+          Get-ChildItem -Path C:\ -Filter "symcrypt.dll" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName, Length
+          Write-Output "=== PATH ==="
+          $env:PATH -split ';' | Select-Object -First 10
+          Write-Output "=== VC Runtimes installed ==="
+          Get-ChildItem "C:\Windows\System32\vcruntime*.dll" -ErrorAction SilentlyContinue | Select-Object Name, Length
 
     - name: Debug build
       run: cargo build --locked --verbose --target ${{ matrix.target }}
