@@ -54,8 +54,21 @@ jobs:
           Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
           echo "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
           echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
-          echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV  
-    
+          echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV
+
+    - name: Diagnostics
+      if: matrix.run-tests
+      shell: pwsh
+      run: |
+          Write-Output "=== Rust ==="
+          rustc --version --verbose
+          Write-Output "=== SymCrypt DLL ==="
+          Get-ChildItem "$env:GITHUB_WORKSPACE\symcrypt" -Recurse -Filter "symcrypt.*"
+          Write-Output "=== DLL Dependencies ==="
+          dumpbin /dependents "$env:GITHUB_WORKSPACE\symcrypt\dll\symcrypt.dll" 2>$null || Write-Output "dumpbin not available"
+          Write-Output "=== OS Version ==="
+          [System.Environment]::OSVersion
+
     - name: Debug build
       run: cargo build --locked --verbose --target ${{ matrix.target }}
 
@@ -64,8 +77,8 @@ jobs:
 
     - name: Run tests (Debug)
       if: matrix.run-tests
-      run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
+      run: cargo test --locked --verbose --all-features --target ${{ matrix.target }} -- --no-capture
 
     - name: Run tests (Release)
       if: matrix.run-tests
-      run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
+      run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }} -- --no-capture
