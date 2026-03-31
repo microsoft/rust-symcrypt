@@ -64,20 +64,65 @@ jobs:
           rustc --version --verbose
           Write-Output "=== OS Version ==="
           [System.Environment]::OSVersion
-          Write-Output "=== Downloaded DLL hash ==="
-          Get-FileHash "$env:GITHUB_WORKSPACE\symcrypt\dll\symcrypt.dll" -Algorithm SHA256
-          Write-Output "=== Other symcrypt.dll on system ==="
-          Get-ChildItem -Path C:\ -Filter "symcrypt.dll" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName, Length
-          Write-Output "=== PATH ==="
-          $env:PATH -split ';' | Select-Object -First 10
-          Write-Output "=== VC Runtimes installed ==="
-          Get-ChildItem "C:\Windows\System32\vcruntime*.dll" -ErrorAction SilentlyContinue | Select-Object Name, Length
+          Write-Output "=== Downloaded DLL ==="
+          $ourDll = "$env:GITHUB_WORKSPACE\symcrypt\dll\symcrypt.dll"
+          Get-FileHash $ourDll -Algorithm SHA256
+          (Get-Item $ourDll).VersionInfo | Format-List FileVersion,ProductVersion
+          Write-Output "=== All symcrypt.dll on system ==="
+          Get-ChildItem -Path C:\ -Filter "symcrypt.dll" -Recurse -ErrorAction SilentlyContinue |
+            ForEach-Object { [PSCustomObject]@{
+              Path = $_.FullName
+              Size = $_.Length
+              FileVersion = $_.VersionInfo.FileVersion
+              SHA256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+            }} | Format-Table -AutoSize
+          Write-Output "=== DLL search order test ==="
+          Add-Type -TypeDefinition @"
+          using System;
+          using System.Runtime.InteropServices;
+          public class DllHelper {
+              [DllImport("kernel32.dll", SetLastError=true)]
+              public static extern IntPtr LoadLibrary(string lpFileName);
+              [DllImport("kernel32.dll")]
+              public static extern bool FreeLibrary(IntPtr hModule);
+              [DllImport("kernel32.dll", SetLastError=true)]
+              public static extern uint GetModuleFileName(IntPtr hModule, System.Text.StringBuilder lpFilename, uint nSize);
+          }
+          "@
+          $h = [DllHelper]::LoadLibrary("symcrypt.dll")
+          if ($h -ne [IntPtr]::Zero) {
+              $sb = New-Object System.Text.StringBuilder 260
+              [void][DllHelper]::GetModuleFileName($h, $sb, 260)
+              Write-Output "Windows loads symcrypt.dll from: $($sb.ToString())"
+              [void][DllHelper]::FreeLibrary($h)
+          } else {
+              Write-Output "Failed to load symcrypt.dll (error: $([System.Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
+          }
 
     - name: Debug build
       run: cargo build --locked --verbose --target ${{ matrix.target }}
 
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
+
+    # Copy our SymCrypt DLL next to test binaries so it takes priority over any
+    # system-installed symcrypt.dll in System32 (DLL search checks the application
+    # directory before PATH and System32).
+    - name: Stage SymCrypt DLL for tests
+      if: matrix.run-tests
+      shell: pwsh
+      run: |
+          $src = "$env:GITHUB_WORKSPACE\symcrypt\dll\symcrypt.dll"
+          $targets = @(
+            "target\${{ matrix.target }}\debug\deps",
+            "target\${{ matrix.target }}\release\deps"
+          )
+          foreach ($dir in $targets) {
+            if (Test-Path $dir) {
+              Copy-Item $src $dir -Force
+              Write-Output "Copied symcrypt.dll -> $dir"
+            }
+          }
 
     - name: Run tests (Debug)
       if: matrix.run-tests
