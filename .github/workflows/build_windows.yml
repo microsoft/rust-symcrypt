@@ -56,6 +56,21 @@ jobs:
           echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
           echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV
 
+    - name: Override system SymCrypt DLL
+      if: matrix.run-tests
+      shell: pwsh
+      run: |
+          $sysDll = "C:\Windows\System32\symcrypt.dll"
+          if (Test-Path $sysDll) {
+            $sysVer = (Get-Item $sysDll).VersionInfo.FileVersion
+            Write-Output "System symcrypt.dll version: $sysVer"
+            Copy-Item "$env:GITHUB_WORKSPACE\symcrypt\dll\symcrypt.dll" $sysDll -Force
+            $newVer = (Get-Item $sysDll).VersionInfo.FileVersion
+            Write-Output "Replaced with our symcrypt.dll version: $newVer"
+          } else {
+            Write-Output "No system symcrypt.dll found — no override needed"
+          }
+
     - name: Diagnostics
       if: matrix.run-tests
       shell: pwsh
