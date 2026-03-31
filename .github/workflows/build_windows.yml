@@ -21,12 +21,12 @@ jobs:
         - target: x86_64-pc-windows-msvc
           os: windows-latest
           runs-on: windows-latest
-          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-amd64-release-103.8.0-53be637d.zip"
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-amd64-release-103.11.0-748c20f1.zip"
           run-tests: true
         - target: aarch64-pc-windows-msvc
           os: windows-latest
           runs-on: windows-latest
-          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-arm64-release-103.8.0-53be637d.zip"
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-arm64-release-103.11.0-748c20f1.zip"
           run-tests: false # Windows doesn't support ARM64 emulation
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.target }}    
