@@ -1,25 +1,11 @@
-#[cfg(not(feature = "dynamic"))]
-pub mod static_link;
+#[cfg(target_os = "windows")]
+use std::env;
 
-#[cfg(not(feature = "dynamic"))]
-pub mod triple;
-
-fn main() -> std::io::Result<()> {
-    #[cfg(feature = "dynamic")]
-    link_symcrypt_dynamically()?;
-
-    #[cfg(not(feature = "dynamic"))]
-    static_link::compile_and_link_symcrypt()?;
-
-    Ok(())
-}
-
-#[cfg(feature = "dynamic")]
-fn link_symcrypt_dynamically() -> std::io::Result<()> {
+fn main() {
     #[cfg(target_os = "windows")]
     {
         // Look for the .lib file during link time. We are searching the PATH for symcrypt.dll
-        let lib_path = std::env::var("SYMCRYPT_LIB_PATH")
+        let lib_path = env::var("SYMCRYPT_LIB_PATH")
             .unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set, for more information please see: https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide"));
         println!("cargo:rustc-link-search=native={}", lib_path);
 
@@ -39,12 +25,11 @@ fn link_symcrypt_dynamically() -> std::io::Result<()> {
     {
         println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on Linux
 
-        // If you are using AL3, you can get the required symcrypt.so via tdnf
-        // If you are using Ubuntu, you can get the required symcrypt.so via PMC. Please see the quick start guide for more information.
+        // If you are using Azure Linux 3, you can get the required symcrypt.so via tdnf.
+        // If you are using Ubuntu, you can get the required symcrypt.so via PMC.
+        // Please see the quick start guide for more information.
 
-        // If you are using a different Linux distro, you will need to configure your distro's LD linker to find the required symcrypt.so files.
-        // As an example, on Ubuntu you can place your symcrypt.so files in your usr/lib/x86_64-linux-gnu/ path.
+        // If you are using a different Linux distro, you will need to configure your distro's
+        // LD linker to find the required symcrypt.so files.
     }
-
-    Ok(())
 }
