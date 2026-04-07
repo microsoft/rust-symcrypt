@@ -6,11 +6,10 @@
 
 
 
-
 ### ✅ Admin Checklist
+- [ ] PR targets the active `release/X.Y.Z` branch.
 - [ ] Review the PR description and ensure all necessary details are included.
 - [ ] Update/add unit tests for changed code.
 - [ ] Update/add documentation for new or changed APIs.
-- [ ] Run `cargo test --all-features` on `Windows` and `WSL`.
 
-Check the Developer Guidelines in [DEVELOPER.md](./DEVELOPER.md) for more info.
+Check the guidelines in [`CONTRIBUTING.md`](../CONTRIBUTING.md) for more info.
