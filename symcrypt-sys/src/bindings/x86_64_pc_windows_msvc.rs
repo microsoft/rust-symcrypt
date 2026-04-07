@@ -1228,35 +1228,35 @@ impl Default for _SYMCRYPT_OID {
 }
 pub type SYMCRYPT_OID = _SYMCRYPT_OID;
 pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
@@ -4195,9 +4195,11 @@ impl Default for _SYMCRYPT_ECKEY {
 pub type SYMCRYPT_ECKEY = _SYMCRYPT_ECKEY;
 pub type PSYMCRYPT_ECKEY = *mut SYMCRYPT_ECKEY;
 pub type PCSYMCRYPT_ECKEY = *const SYMCRYPT_ECKEY;
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptWipe(pbData: PVOID, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptLoadMsbFirstUint64(
         pbSrc: PCBYTE,
@@ -4205,173 +4207,216 @@ extern "C" {
         pDst: PUINT64,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptStoreMsbFirstUint64(src: UINT64, pbDst: PBYTE, cbDst: SIZE_T) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptModuleInit(api: UINT32, minor: UINT32);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptMd5(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptMd5Init(pState: PSYMCRYPT_MD5_STATE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptMd5Append(pState: PSYMCRYPT_MD5_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptMd5Result(pState: PSYMCRYPT_MD5_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptMd5StateCopy(pSrc: PCSYMCRYPT_MD5_STATE, pDst: PSYMCRYPT_MD5_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptMd5Algorithm: PCSYMCRYPT_HASH;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha1(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha1Init(pState: PSYMCRYPT_SHA1_STATE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha1Append(pState: PSYMCRYPT_SHA1_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha1Result(pState: PSYMCRYPT_SHA1_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha1StateCopy(pSrc: PCSYMCRYPT_SHA1_STATE, pDst: PSYMCRYPT_SHA1_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha1Algorithm: PCSYMCRYPT_HASH;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha256(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha256Init(pState: PSYMCRYPT_SHA256_STATE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha256Append(pState: PSYMCRYPT_SHA256_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha256Result(pState: PSYMCRYPT_SHA256_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha256StateCopy(pSrc: PCSYMCRYPT_SHA256_STATE, pDst: PSYMCRYPT_SHA256_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha256Algorithm: PCSYMCRYPT_HASH;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha384(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha384Init(pState: PSYMCRYPT_SHA384_STATE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha384Append(pState: PSYMCRYPT_SHA384_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha384Result(pState: PSYMCRYPT_SHA384_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha384StateCopy(pSrc: PCSYMCRYPT_SHA384_STATE, pDst: PSYMCRYPT_SHA384_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha384Algorithm: PCSYMCRYPT_HASH;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha512(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha512Init(pState: PSYMCRYPT_SHA512_STATE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha512Append(pState: PSYMCRYPT_SHA512_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha512Result(pState: PSYMCRYPT_SHA512_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha512StateCopy(pSrc: PCSYMCRYPT_SHA512_STATE, pDst: PSYMCRYPT_SHA512_STATE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha512Algorithm: PCSYMCRYPT_HASH;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_256(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_256Init(pState: PSYMCRYPT_SHA3_256_STATE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_256Append(pState: PSYMCRYPT_SHA3_256_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_256Result(pState: PSYMCRYPT_SHA3_256_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_256StateCopy(
         pSrc: PCSYMCRYPT_SHA3_256_STATE,
         pDst: PSYMCRYPT_SHA3_256_STATE,
     );
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha3_256Algorithm: PCSYMCRYPT_HASH;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_384(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_384Init(pState: PSYMCRYPT_SHA3_384_STATE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_384Append(pState: PSYMCRYPT_SHA3_384_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_384Result(pState: PSYMCRYPT_SHA3_384_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_384StateCopy(
         pSrc: PCSYMCRYPT_SHA3_384_STATE,
         pDst: PSYMCRYPT_SHA3_384_STATE,
     );
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha3_384Algorithm: PCSYMCRYPT_HASH;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_512(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_512Init(pState: PSYMCRYPT_SHA3_512_STATE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_512Append(pState: PSYMCRYPT_SHA3_512_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_512Result(pState: PSYMCRYPT_SHA3_512_STATE, pbResult: PBYTE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptSha3_512StateCopy(
         pSrc: PCSYMCRYPT_SHA3_512_STATE,
         pDst: PSYMCRYPT_SHA3_512_STATE,
     );
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptSha3_512Algorithm: PCSYMCRYPT_HASH;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacMd5ExpandKey(
         pExpandedKey: PSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
@@ -4379,6 +4424,7 @@ extern "C" {
         cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacMd5(
         pExpandedKey: PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
@@ -4387,6 +4433,7 @@ extern "C" {
         pbResult: PBYTE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacMd5StateCopy(
         pSrc: PCSYMCRYPT_HMAC_MD5_STATE,
@@ -4394,22 +4441,26 @@ extern "C" {
         pDst: PSYMCRYPT_HMAC_MD5_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacMd5Init(
         pState: PSYMCRYPT_HMAC_MD5_STATE,
         pExpandedKey: PCSYMCRYPT_HMAC_MD5_EXPANDED_KEY,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacMd5Append(pState: PSYMCRYPT_HMAC_MD5_STATE, pbData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacMd5Result(pState: PSYMCRYPT_HMAC_MD5_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptHmacMd5Algorithm: PCSYMCRYPT_MAC;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha1ExpandKey(
         pExpandedKey: PSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
@@ -4417,6 +4468,7 @@ extern "C" {
         cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha1(
         pExpandedKey: PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
@@ -4425,6 +4477,7 @@ extern "C" {
         pbResult: PBYTE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha1StateCopy(
         pSrc: PCSYMCRYPT_HMAC_SHA1_STATE,
@@ -4432,12 +4485,14 @@ extern "C" {
         pDst: PSYMCRYPT_HMAC_SHA1_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha1Init(
         pState: PSYMCRYPT_HMAC_SHA1_STATE,
         pExpandedKey: PCSYMCRYPT_HMAC_SHA1_EXPANDED_KEY,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha1Append(
         pState: PSYMCRYPT_HMAC_SHA1_STATE,
@@ -4445,13 +4500,15 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha1Result(pState: PSYMCRYPT_HMAC_SHA1_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptHmacSha1Algorithm: PCSYMCRYPT_MAC;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha256ExpandKey(
         pExpandedKey: PSYMCRYPT_HMAC_SHA256_EXPANDED_KEY,
@@ -4459,6 +4516,7 @@ extern "C" {
         cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha256(
         pExpandedKey: PCSYMCRYPT_HMAC_SHA256_EXPANDED_KEY,
@@ -4467,6 +4525,7 @@ extern "C" {
         pbResult: PBYTE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha256StateCopy(
         pSrc: PCSYMCRYPT_HMAC_SHA256_STATE,
@@ -4474,12 +4533,14 @@ extern "C" {
         pDst: PSYMCRYPT_HMAC_SHA256_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha256Init(
         pState: PSYMCRYPT_HMAC_SHA256_STATE,
         pExpandedKey: PCSYMCRYPT_HMAC_SHA256_EXPANDED_KEY,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha256Append(
         pState: PSYMCRYPT_HMAC_SHA256_STATE,
@@ -4487,13 +4548,15 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha256Result(pState: PSYMCRYPT_HMAC_SHA256_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptHmacSha256Algorithm: PCSYMCRYPT_MAC;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha384ExpandKey(
         pExpandedKey: PSYMCRYPT_HMAC_SHA384_EXPANDED_KEY,
@@ -4501,6 +4564,7 @@ extern "C" {
         cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha384(
         pExpandedKey: PCSYMCRYPT_HMAC_SHA384_EXPANDED_KEY,
@@ -4509,6 +4573,7 @@ extern "C" {
         pbResult: PBYTE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha384StateCopy(
         pSrc: PCSYMCRYPT_HMAC_SHA384_STATE,
@@ -4516,12 +4581,14 @@ extern "C" {
         pDst: PSYMCRYPT_HMAC_SHA384_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha384Init(
         pState: PSYMCRYPT_HMAC_SHA384_STATE,
         pExpandedKey: PCSYMCRYPT_HMAC_SHA384_EXPANDED_KEY,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha384Append(
         pState: PSYMCRYPT_HMAC_SHA384_STATE,
@@ -4529,13 +4596,15 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha384Result(pState: PSYMCRYPT_HMAC_SHA384_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptHmacSha384Algorithm: PCSYMCRYPT_MAC;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha512ExpandKey(
         pExpandedKey: PSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
@@ -4543,6 +4612,7 @@ extern "C" {
         cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha512(
         pExpandedKey: PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
@@ -4551,6 +4621,7 @@ extern "C" {
         pbResult: PBYTE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha512StateCopy(
         pSrc: PCSYMCRYPT_HMAC_SHA512_STATE,
@@ -4558,12 +4629,14 @@ extern "C" {
         pDst: PSYMCRYPT_HMAC_SHA512_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha512Init(
         pState: PSYMCRYPT_HMAC_SHA512_STATE,
         pExpandedKey: PCSYMCRYPT_HMAC_SHA512_EXPANDED_KEY,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha512Append(
         pState: PSYMCRYPT_HMAC_SHA512_STATE,
@@ -4571,13 +4644,15 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHmacSha512Result(pState: PSYMCRYPT_HMAC_SHA512_STATE, pbResult: PBYTE);
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptHmacSha512Algorithm: PCSYMCRYPT_MAC;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptChaCha20Poly1305Encrypt(
         pbKey: PCBYTE,
@@ -4593,6 +4668,7 @@ extern "C" {
         cbTag: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptChaCha20Poly1305Decrypt(
         pbKey: PCBYTE,
@@ -4608,6 +4684,7 @@ extern "C" {
         cbTag: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptAesExpandKey(
         pExpandedKey: PSYMCRYPT_AES_EXPANDED_KEY,
@@ -4615,6 +4692,7 @@ extern "C" {
         cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptAesCbcEncrypt(
         pExpandedKey: PCSYMCRYPT_AES_EXPANDED_KEY,
@@ -4624,6 +4702,7 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptAesCbcDecrypt(
         pExpandedKey: PCSYMCRYPT_AES_EXPANDED_KEY,
@@ -4633,10 +4712,11 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptAesBlockCipher: PCSYMCRYPT_BLOCKCIPHER;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmValidateParameters(
         pBlockCipher: PCSYMCRYPT_BLOCKCIPHER,
@@ -4646,6 +4726,7 @@ extern "C" {
         cbTag: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmExpandKey(
         pExpandedKey: PSYMCRYPT_GCM_EXPANDED_KEY,
@@ -4654,6 +4735,7 @@ extern "C" {
         cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmEncrypt(
         pExpandedKey: PCSYMCRYPT_GCM_EXPANDED_KEY,
@@ -4668,6 +4750,7 @@ extern "C" {
         cbTag: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmDecrypt(
         pExpandedKey: PCSYMCRYPT_GCM_EXPANDED_KEY,
@@ -4682,6 +4765,7 @@ extern "C" {
         cbTag: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmInit(
         pState: PSYMCRYPT_GCM_STATE,
@@ -4690,6 +4774,7 @@ extern "C" {
         cbNonce: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmStateCopy(
         pSrc: PCSYMCRYPT_GCM_STATE,
@@ -4697,9 +4782,11 @@ extern "C" {
         pDst: PSYMCRYPT_GCM_STATE,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmAuthPart(pState: PSYMCRYPT_GCM_STATE, pbAuthData: PCBYTE, cbData: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmEncryptPart(
         pState: PSYMCRYPT_GCM_STATE,
@@ -4708,9 +4795,11 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmEncryptFinal(pState: PSYMCRYPT_GCM_STATE, pbTag: PBYTE, cbTag: SIZE_T);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmDecryptPart(
         pState: PSYMCRYPT_GCM_STATE,
@@ -4719,6 +4808,7 @@ extern "C" {
         cbData: SIZE_T,
     );
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptGcmDecryptFinal(
         pState: PSYMCRYPT_GCM_STATE,
@@ -4726,6 +4816,7 @@ extern "C" {
         cbTag: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptTlsPrf1_2ExpandKey(
         pExpandedKey: PSYMCRYPT_TLSPRF1_2_EXPANDED_KEY,
@@ -4734,6 +4825,7 @@ extern "C" {
         cbKey: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptTlsPrf1_2Derive(
         pExpandedKey: PCSYMCRYPT_TLSPRF1_2_EXPANDED_KEY,
@@ -4745,6 +4837,7 @@ extern "C" {
         cbResult: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptTlsPrf1_2(
         macAlgorithm: PCSYMCRYPT_MAC,
@@ -4758,6 +4851,7 @@ extern "C" {
         cbResult: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHkdfExpandKey(
         pExpandedKey: PSYMCRYPT_HKDF_EXPANDED_KEY,
@@ -4768,6 +4862,7 @@ extern "C" {
         cbSalt: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHkdfExtractPrk(
         macAlgorithm: PCSYMCRYPT_MAC,
@@ -4779,6 +4874,7 @@ extern "C" {
         cbPrk: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHkdfPrkExpandKey(
         pExpandedKey: PSYMCRYPT_HKDF_EXPANDED_KEY,
@@ -4787,6 +4883,7 @@ extern "C" {
         cbPrk: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHkdfDerive(
         pExpandedKey: PCSYMCRYPT_HKDF_EXPANDED_KEY,
@@ -4796,6 +4893,7 @@ extern "C" {
         cbResult: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHkdf(
         macAlgorithm: PCSYMCRYPT_MAC,
@@ -4809,9 +4907,11 @@ extern "C" {
         cbResult: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptHkdfSelfTest();
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRandom(pbRandom: PBYTE, cbRandom: SIZE_T);
 }
@@ -4945,51 +5045,65 @@ pub const _SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_X: _SYMCRYPT_ECPOINT_
 pub const _SYMCRYPT_ECPOINT_FORMAT_SYMCRYPT_ECPOINT_FORMAT_XY: _SYMCRYPT_ECPOINT_FORMAT = 2;
 pub type _SYMCRYPT_ECPOINT_FORMAT = ::std::os::raw::c_int;
 pub use self::_SYMCRYPT_ECPOINT_FORMAT as SYMCRYPT_ECPOINT_FORMAT;
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyAllocate(
         pParams: PCSYMCRYPT_RSA_PARAMS,
         flags: UINT32,
     ) -> PSYMCRYPT_RSAKEY;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyFree(pkObj: PSYMCRYPT_RSAKEY);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEcurveAllocate(
         pParams: PCSYMCRYPT_ECURVE_PARAMS,
         flags: UINT32,
     ) -> PSYMCRYPT_ECURVE;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEcurveFree(pCurve: PSYMCRYPT_ECURVE);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEckeyAllocate(pCurve: PCSYMCRYPT_ECURVE) -> PSYMCRYPT_ECKEY;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEckeyFree(pkObj: PSYMCRYPT_ECKEY);
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyHasPrivateKey(pkRsakey: PCSYMCRYPT_RSAKEY) -> BOOLEAN;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeySizeofModulus(pkRsakey: PCSYMCRYPT_RSAKEY) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyModulusBits(pkRsakey: PCSYMCRYPT_RSAKEY) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeySizeofPublicExponent(pRsakey: PCSYMCRYPT_RSAKEY, index: UINT32) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeySizeofPrime(pkRsakey: PCSYMCRYPT_RSAKEY, index: UINT32) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyGetNumberOfPublicExponents(pkRsakey: PCSYMCRYPT_RSAKEY) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyGetNumberOfPrimes(pkRsakey: PCSYMCRYPT_RSAKEY) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyGenerate(
         pkRsakey: PSYMCRYPT_RSAKEY,
@@ -4998,6 +5112,7 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeySetValue(
         pbModulus: PCBYTE,
@@ -5012,6 +5127,7 @@ extern "C" {
         pkRsakey: PSYMCRYPT_RSAKEY,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeySetValueFromPrivateExponent(
         pbModulus: PCBYTE,
@@ -5024,6 +5140,7 @@ extern "C" {
         pkRsakey: PSYMCRYPT_RSAKEY,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyGetValue(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5038,6 +5155,7 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyGetCrtValue(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5052,40 +5170,45 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsakeyExtendKeyUsage(
         pkRsakey: PSYMCRYPT_RSAKEY,
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEcurveSizeofFieldElement(pCurve: PCSYMCRYPT_ECURVE) -> UINT32;
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP256: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP384: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsNistP521: PCSYMCRYPT_ECURVE_PARAMS;
 }
-#[link(name = "symcrypt", kind = "dylib")]
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub static SymCryptEcurveParamsCurve25519: PCSYMCRYPT_ECURVE_PARAMS;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEckeySizeofPublicKey(
         pkEckey: PCSYMCRYPT_ECKEY,
         ecPointFormat: SYMCRYPT_ECPOINT_FORMAT,
     ) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEckeySizeofPrivateKey(pkEckey: PCSYMCRYPT_ECKEY) -> UINT32;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEckeySetValue(
         pbPrivateKey: PCBYTE,
@@ -5098,9 +5221,11 @@ extern "C" {
         pEckey: PSYMCRYPT_ECKEY,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEckeySetRandom(flags: UINT32, pEckey: PSYMCRYPT_ECKEY) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEckeyGetValue(
         pEckey: PCSYMCRYPT_ECKEY,
@@ -5113,6 +5238,7 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsaPkcs1Encrypt(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5125,6 +5251,7 @@ extern "C" {
         pcbDst: *mut SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsaPkcs1Decrypt(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5137,6 +5264,7 @@ extern "C" {
         pcbDst: *mut SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsaOaepEncrypt(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5152,6 +5280,7 @@ extern "C" {
         pcbDst: *mut SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsaOaepDecrypt(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5167,6 +5296,7 @@ extern "C" {
         pcbDst: *mut SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsaPkcs1Sign(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5181,6 +5311,7 @@ extern "C" {
         pcbSignature: *mut SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsaPkcs1Verify(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5194,6 +5325,7 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsaPssSign(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5208,6 +5340,7 @@ extern "C" {
         pcbSignature: *mut SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptRsaPssVerify(
         pkRsakey: PCSYMCRYPT_RSAKEY,
@@ -5221,6 +5354,7 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEcDsaSign(
         pKey: PCSYMCRYPT_ECKEY,
@@ -5232,6 +5366,7 @@ extern "C" {
         cbSignature: SIZE_T,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEcDsaVerify(
         pKey: PCSYMCRYPT_ECKEY,
@@ -5243,6 +5378,7 @@ extern "C" {
         flags: UINT32,
     ) -> SYMCRYPT_ERROR;
 }
+#[link(name = "symcrypt", kind = "raw-dylib")]
 extern "C" {
     pub fn SymCryptEcDhSecretAgreement(
         pkPrivate: PCSYMCRYPT_ECKEY,

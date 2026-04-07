@@ -1,35 +1,44 @@
-#[cfg(target_os = "windows")]
-use std::env;
-
 fn main() {
+    // Declare custom_lib_name as a valid cfg so rustc doesn't warn about it.
+    println!("cargo:rustc-check-cfg=cfg(custom_lib_name)");
+
     #[cfg(target_os = "windows")]
     {
-        // Look for the .lib file during link time. We are searching the PATH for symcrypt.dll
-        let lib_path = env::var("SYMCRYPT_LIB_PATH")
-            .unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set, for more information please see: https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide"));
-        println!("cargo:rustc-link-search=native={}", lib_path);
+        // raw-dylib handles Windows linking via #[link] attributes in the bindings.
+        // No .lib file or SYMCRYPT_LIB_PATH needed.
 
-        println!("cargo:rustc-link-lib=dylib=symcrypt");
+        // When SYMCRYPT_LIB_NAME is set, generate modified bindings with custom DLL name.
+        println!("cargo:rerun-if-env-changed=SYMCRYPT_LIB_NAME");
+        if let Ok(lib_name) = std::env::var("SYMCRYPT_LIB_NAME") {
+            let out_dir = std::env::var("OUT_DIR").unwrap();
+            let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
 
-        // During run time, the OS will handle finding the symcrypt.dll file. The places Windows will look will be:
-        // 1. The folder from which the application loaded.
-        // 2. The system folder. Use the GetSystemDirectory function to retrieve the path of this folder.
-        // 3. The Windows folder. Use the GetWindowsDirectory function to get the path of this folder.
-        // 4. The current folder.
-        // 5. The directories that are listed in the PATH environment variable.
+            let binding_filename = match target_arch.as_str() {
+                "x86_64" => "x86_64_pc_windows_msvc.rs",
+                "aarch64" => "aarch64_pc_windows_msvc.rs",
+                _ => panic!("Unsupported Windows architecture: {}", target_arch),
+            };
 
-        // For more info please see: https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order
+            let src_path = format!(
+                "{}/src/bindings/{}",
+                std::env::var("CARGO_MANIFEST_DIR").unwrap(),
+                binding_filename
+            );
+            let content = std::fs::read_to_string(&src_path)
+                .unwrap_or_else(|e| panic!("Failed to read {}: {}", src_path, e));
+            let modified = content.replace(
+                "name = \"symcrypt\"",
+                &format!("name = \"{}\"", lib_name),
+            );
+            let dest_path = format!("{}/bindings.rs", out_dir);
+            std::fs::write(&dest_path, modified).unwrap();
+            println!("cargo:rustc-env=SYMCRYPT_BINDINGS_PATH={}", dest_path);
+            println!("cargo:rustc-cfg=custom_lib_name");
+        }
     }
 
     #[cfg(target_os = "linux")]
     {
-        println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on Linux
-
-        // If you are using Azure Linux 3, you can get the required symcrypt.so via tdnf.
-        // If you are using Ubuntu, you can get the required symcrypt.so via PMC.
-        // Please see the quick start guide for more information.
-
-        // If you are using a different Linux distro, you will need to configure your distro's
-        // LD linker to find the required symcrypt.so files.
+        println!("cargo:rustc-link-lib=dylib=symcrypt");
     }
 }

@@ -148,29 +148,19 @@ fn get_rust_version_from_cargo_metadata() -> String {
         .unwrap()
 }
 
-#[allow(clippy::collapsible_if)]
 fn fix_bindings_for_windows(triple: &str, bindings_file: &str) {
     if triple.contains("windows") {
-        println!("Fixing bindings for Windows");
-        let link_str = "#[link(name = \"symcrypt\", kind = \"dylib\")]";
-        let regex_exp1 = regex::Regex::new(r"pub static \w+: \[SYMCRYPT_OID; \d+usize\];").unwrap();
-        let regex_exp2 = regex::Regex::new(r"pub static \w+: PCSYMCRYPT_\w+;").unwrap();
+        println!("Fixing bindings for Windows: adding raw-dylib link attributes");
+        let link_str = "#[link(name = \"symcrypt\", kind = \"raw-dylib\")]";
         let bindings_content =
             std::fs::read_to_string(bindings_file).expect("Unable to read bindings file");
 
         let mut out_content = Vec::new();
-        let lines: Vec<&str> = bindings_content.lines().collect();
-        out_content.push(lines[0]);
-
-        for i in 1..lines.len() {
-            if lines[i - 1].contains("extern \"C\" {") {
-                if regex_exp1.is_match(lines[i]) || regex_exp2.is_match(lines[i]) {
-                    out_content.pop();
-                    out_content.push(link_str);
-                    out_content.push(lines[i - 1]);
-                }
+        for line in bindings_content.lines() {
+            if line.starts_with("extern \"C\" {") {
+                out_content.push(link_str);
             }
-            out_content.push(lines[i]);
+            out_content.push(line);
         }
 
         out_content.push(""); // Add an empty line at the end

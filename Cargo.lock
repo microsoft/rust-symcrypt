@@ -391,7 +391,6 @@ dependencies = [
  "anyhow",
  "bindgen",
  "cmd_lib",
- "regex",
  "serde_json",
 ]
 
