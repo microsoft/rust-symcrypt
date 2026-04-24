@@ -1,35 +1,49 @@
-#[cfg(target_os = "windows")]
-use std::env;
+fn env_var_for_target(name: &str) -> Option<String> {
+    let prefix = std::env::var("TARGET")
+        .unwrap()
+        .to_uppercase()
+        .replace('-', "_");
+    let prefixed = format!("{prefix}_{name}");
 
-fn main() {
-    #[cfg(target_os = "windows")]
-    {
-        // Look for the .lib file during link time. We are searching the PATH for symcrypt.dll
-        let lib_path = env::var("SYMCRYPT_LIB_PATH")
-            .unwrap_or_else(|_| panic!("SYMCRYPT_LIB_PATH environment variable not set, for more information please see: https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide"));
-        println!("cargo:rustc-link-search=native={}", lib_path);
-
-        println!("cargo:rustc-link-lib=dylib=symcrypt");
-
-        // During run time, the OS will handle finding the symcrypt.dll file. The places Windows will look will be:
-        // 1. The folder from which the application loaded.
-        // 2. The system folder. Use the GetSystemDirectory function to retrieve the path of this folder.
-        // 3. The Windows folder. Use the GetWindowsDirectory function to get the path of this folder.
-        // 4. The current folder.
-        // 5. The directories that are listed in the PATH environment variable.
-
-        // For more info please see: https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order
+    fn env_inner(name: &str) -> Option<String> {
+        let var = std::env::var_os(name);
+        let var = var.map(|x| x.to_string_lossy().into());
+        println!("cargo:rerun-if-env-changed={name}");
+        // Debug prints
+        match var {
+            Some(ref v) => println!("{} = {}", name, v),
+            None => println!("{name} unset"),
+        }
+        var
     }
 
-    #[cfg(target_os = "linux")]
-    {
-        println!("cargo:rustc-link-lib=dylib=symcrypt"); // the "lib" prefix for libsymcrypt is implied on Linux
+    env_inner(&prefixed).or_else(|| env_inner(name))
+}
 
-        // If you are using Azure Linux 3, you can get the required symcrypt.so via tdnf.
-        // If you are using Ubuntu, you can get the required symcrypt.so via PMC.
-        // Please see the quick start guide for more information.
+fn main() {
+    // Optionally allow callers to override where the linker/loader looks for
+    // libsymcrypt by setting SYMCRYPT_LIB_PATH (or the target-specific
+    // variant, e.g. X86_64_UNKNOWN_LINUX_GNU_SYMCRYPT_LIB_PATH). This is
+    // useful when libsymcrypt is not installed in a default library
+    // search path, or when cross-compiling.
+    if let Some(lib_path) = env_var_for_target("SYMCRYPT_LIB_PATH") {
+        println!("cargo:rustc-link-search=native={}", lib_path);
+    } else {
+        #[cfg(windows)]
+        panic!("SYMCRYPT_LIB_PATH environment variable not set, for more information please see: https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide")
+    }
 
-        // If you are using a different Linux distro, you will need to configure your distro's
-        // LD linker to find the required symcrypt.so files.
+    if let Some(static_link) = env_var_for_target("SYMCRYPT_STATIC") {
+        if static_link != "0" {
+            // Order matters: generic references common/module symbols.
+            println!("cargo:rustc-link-lib=static=symcrypt_generic");
+            println!("cargo:rustc-link-lib=static=symcrypt_module_posix_common");
+            println!("cargo:rustc-link-lib=static=symcrypt_common");
+            println!("cargo:rustc-link-lib=static=symcrypt_posixusermode");
+        } else {
+            println!("cargo:rustc-link-lib=dylib=symcrypt");
+        }
+    } else {
+        println!("cargo:rustc-link-lib=dylib=symcrypt");
     }
 }
