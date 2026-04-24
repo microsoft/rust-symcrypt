@@ -64,7 +64,7 @@ To enable either `Md5` or `Sha1`, or `Pkcs1 Encrypt/Decrypt` pass the `md5` or `
 
 ## Quick Start Guide
 
-The `symcrypt` crate uses dynamic linking. This requires the `SymCrypt` library to be available on your system at build and runtime.
+The `symcrypt` crate links against the `SymCrypt` library dynamically by default. This requires the `SymCrypt` library to be available on your system at build and runtime. Experimental static linking is also available, see [`INSTALL.md`](./INSTALL.md#static-linking) for details.
 
 ### Windows:
 Download the latest `symcrypt.dll` and `symcrypt.lib` for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
