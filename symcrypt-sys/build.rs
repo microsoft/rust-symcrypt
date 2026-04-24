@@ -35,11 +35,7 @@ fn main() {
 
     if let Some(static_link) = env_var_for_target("SYMCRYPT_STATIC") {
         if static_link != "0" {
-            // Order matters: generic references common/module symbols.
-            println!("cargo:rustc-link-lib=static=symcrypt_generic");
-            println!("cargo:rustc-link-lib=static=symcrypt_module_posix_common");
-            println!("cargo:rustc-link-lib=static=symcrypt_common");
-            println!("cargo:rustc-link-lib=static=symcrypt_posixusermode");
+            println!("cargo:rustc-link-lib=static=symcrypt");
         } else {
             println!("cargo:rustc-link-lib=dylib=symcrypt");
         }
