@@ -66,5 +66,5 @@ This is useful when cross-compiling or when a single host needs different values
 
 > **Experimental.** Static linking is a work-in-progress and not recommended for production use. The interface may change.
 
-Static linking can be enabled by setting the environment veriable `SYMCRYPT_STATIC` to any non-zero value (e.g. `1`). When enabled, the build script will attempt to statically link SymCrypt into the final binary,   instead of creating a dynamic link directive. Set `SYMCRYPT_LIB_PATH` to the directory containing the static `symcrypt` library. As SymCrypt's build system does not output a single static libsymcrypt library by default, acquiring such a file is left as an exercise to the reader.
+Static linking can be enabled by setting the environment veriable `SYMCRYPT_STATIC` to any non-zero value (e.g. `1`). When enabled, the build script will attempt to statically link SymCrypt into the final binary, instead of creating a dynamic link directive. Set `SYMCRYPT_LIB_PATH` to the directory containing the static `symcrypt` library. As SymCrypt's build system does not output a single static libsymcrypt library by default, acquiring such an object is left as an exercise to the reader.
 
