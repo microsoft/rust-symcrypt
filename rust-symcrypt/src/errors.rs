@@ -1,12 +1,13 @@
 //! Friendly rust errors for SYMCRYPT_ERROR. For more info on SYMCRYPT_ERRORS please refer to symcrypt.h
 
 use std::convert::From;
+use std::error;
 use std::fmt;
 use symcrypt_sys;
 
 /// `SymCryptError` is an enum that enumerates all of the errors from `SymCrypt`.
 #[non_exhaustive]
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum SymCryptError {
     NoError,
     Unused,
@@ -110,3 +111,5 @@ impl fmt::Display for SymCryptError {
         write!(f, "{}", message)
     }
 }
+
+impl error::Error for SymCryptError {}
