@@ -1,22 +1,30 @@
 #![doc = include_str!("../README.md")]
-use std::sync::Once;
 
-pub mod chacha;
-pub mod cipher;
-pub mod ecc;
 pub mod errors;
-pub mod gcm;
 pub mod hash;
+pub mod gcm;
+
+mod backend;
+
+// Modules not yet ported to the backend model — only available on Linux/SymCrypt
+#[cfg(not(windows))]
+pub mod chacha;
+#[cfg(not(windows))]
+pub mod cipher;
+#[cfg(not(windows))]
+pub mod ecc;
+#[cfg(not(windows))]
 pub mod hkdf;
+#[cfg(not(windows))]
 pub mod hmac;
+#[cfg(not(windows))]
 pub mod rsa;
 
-// symcrypt_init must be called before any other API can be called. All subsequent calls to symcrypt_init will be no-ops
+#[cfg(not(windows))]
 fn symcrypt_init() {
-    // Subsequent calls to `symcrypt_init()` after the first will not be invoked per .call_once docs https://doc.rust-lang.org/std/sync/struct.Once.html
+    use std::sync::Once;
     static INIT: Once = Once::new();
     unsafe {
-        // SAFETY: FFI calls, blocking from being run again.
         INIT.call_once(|| {
             symcrypt_sys::SymCryptModuleInit(
                 symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
@@ -26,29 +34,44 @@ fn symcrypt_init() {
     }
 }
 
-/// Takes in a buffer called `buff` and fills it with random bytes. This function
-/// is never expected to fail, but failure (due to OS dependencies) will crash the application.
-/// There is no recoverable failure mode.
+/// Fills `buff` with cryptographically secure random bytes.
+/// This function cannot fail under normal OS conditions.
 pub fn symcrypt_random(buff: &mut [u8]) {
-    symcrypt_init();
-    unsafe {
-        // SAFETY: FFI call
-        symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
+    #[cfg(not(windows))]
+    {
+        symcrypt_init();
+        unsafe {
+            symcrypt_sys::SymCryptRandom(buff.as_mut_ptr(), buff.len() as symcrypt_sys::SIZE_T);
+        }
+    }
+    #[cfg(windows)]
+    {
+        use windows_sys::Win32::Security::Cryptography::*;
+        let status = unsafe {
+            BCryptGenRandom(
+                std::ptr::null_mut(),
+                buff.as_mut_ptr(),
+                buff.len() as u32,
+                BCRYPT_USE_SYSTEM_PREFERRED_RNG,
+            )
+        };
+        assert!(
+            status >= 0,
+            "BCryptGenRandom failed: 0x{:08X}",
+            status as u32
+        );
     }
 }
 
-/// `NumberFormat` is an enum that contains a friendly representation of endianess
-///
-/// `LSB`: Bytes are ordered from the least significant to the most significant, commonly referred to as "little-endian".
-///
-/// `MSB`: Bytes are ordered from the most significant to the least significant, commonly referred to as "big-endian".
+/// Byte order for numeric representations.
+#[cfg(not(windows))]
 pub enum NumberFormat {
     LSB,
     MSB,
 }
 
+#[cfg(not(windows))]
 impl NumberFormat {
-    /// Converts `NumberFormat` to the corresponding `SYMCRYPT_NUMBER_FORMAT`
     fn to_symcrypt_format(&self) -> symcrypt_sys::SYMCRYPT_NUMBER_FORMAT {
         match self {
             NumberFormat::LSB => {

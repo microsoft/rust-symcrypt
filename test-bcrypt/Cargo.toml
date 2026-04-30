@@ -1,0 +1,9 @@
+[package]
+name = "test-bcrypt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+symcrypt = { path = "../rust-symcrypt" }
+sha2 = "0.10"
+hex = "0.4"

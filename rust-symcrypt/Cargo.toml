@@ -13,8 +13,13 @@ categories = ["cryptography", "api-bindings"]
 keywords = ["symcrypt", "crypto", "fips", "encryption", "hashing"]
 
 [dependencies]
-symcrypt-sys = { workspace = true }
 libc = { workspace = true }
+
+[target.'cfg(not(windows))'.dependencies]
+symcrypt-sys = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Security_Cryptography"] }
 
 [features]
 default = []

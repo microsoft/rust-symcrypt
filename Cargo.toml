@@ -4,6 +4,12 @@ members = [
     "symcrypt-bindgen",
     "symcrypt-sys"
 ]
+default-members = [
+    "rust-symcrypt",
+]
+exclude = [
+    "test-bcrypt",
+]
 resolver = "2"
 
 [workspace.package]

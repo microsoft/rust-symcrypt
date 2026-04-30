@@ -102,6 +102,7 @@ unsafe impl Sync for AesExpandedKey {}
 unsafe impl Send for BlockCipherType {}
 unsafe impl Sync for BlockCipherType {}
 
+#[allow(dead_code)]
 pub(crate) fn convert_cipher(cipher: BlockCipherType) -> symcrypt_sys::PCSYMCRYPT_BLOCKCIPHER {
     match cipher {
         // SAFETY: FFI calls

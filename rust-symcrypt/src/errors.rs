@@ -1,10 +1,8 @@
-//! Friendly rust errors for SYMCRYPT_ERROR. For more info on SYMCRYPT_ERRORS please refer to symcrypt.h
+//! Friendly rust errors for cryptographic operations.
 
-use std::convert::From;
 use std::fmt;
-use symcrypt_sys;
 
-/// `SymCryptError` is an enum that enumerates all of the errors from `SymCrypt`.
+/// `SymCryptError` enumerates all possible errors from the cryptographic backends.
 #[non_exhaustive]
 #[derive(Debug, PartialEq)]
 pub enum SymCryptError {
@@ -29,10 +27,11 @@ pub enum SymCryptError {
     IncompatibleFormat,
     ValueTooLarge,
     SessionReplayFailure,
-    UnknownError(symcrypt_sys::SYMCRYPT_ERROR), // Catch-all for unknown error codes
+    NotSupported,
+    UnknownError(i32),
 }
 
-/// Matches raw `SymCrypt` error to the [`SymCryptError`] enum.
+#[cfg(not(windows))]
 impl From<symcrypt_sys::SYMCRYPT_ERROR> for SymCryptError {
     fn from(err: symcrypt_sys::SYMCRYPT_ERROR) -> Self {
         match err {
@@ -75,12 +74,28 @@ impl From<symcrypt_sys::SYMCRYPT_ERROR> for SymCryptError {
             symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_SESSION_REPLAY_FAILURE => {
                 SymCryptError::SessionReplayFailure
             }
-            _ => SymCryptError::UnknownError(err),
+            _ => SymCryptError::UnknownError(err as i32),
         }
     }
 }
 
-/// Implements `Display` for the [`SymCryptError`] enum to allow for better print usage.
+/// Maps BCrypt NTSTATUS codes to SymCryptError.
+#[cfg(windows)]
+pub(crate) fn map_ntstatus(status: i32) -> SymCryptError {
+    use windows_sys::Win32::Foundation::*;
+
+    match status {
+        STATUS_SUCCESS => SymCryptError::NoError,
+        STATUS_INVALID_PARAMETER => SymCryptError::InvalidArgument,
+        STATUS_BUFFER_TOO_SMALL => SymCryptError::BufferTooSmall,
+        STATUS_NO_MEMORY => SymCryptError::MemoryAllocationFailure,
+        STATUS_NOT_SUPPORTED => SymCryptError::NotSupported,
+        STATUS_AUTH_TAG_MISMATCH => SymCryptError::AuthenticationFailure,
+        STATUS_INVALID_SIGNATURE => SymCryptError::SignatureVerificationFailure,
+        _ => SymCryptError::UnknownError(status),
+    }
+}
+
 impl fmt::Display for SymCryptError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let message = match *self {
@@ -105,6 +120,7 @@ impl fmt::Display for SymCryptError {
             SymCryptError::IncompatibleFormat => "Incompatible format",
             SymCryptError::ValueTooLarge => "Value too large",
             SymCryptError::SessionReplayFailure => "Session replay failure",
+            SymCryptError::NotSupported => "Not supported",
             SymCryptError::UnknownError(code) => return write!(f, "Unknown error: {}", code),
         };
         write!(f, "{}", message)

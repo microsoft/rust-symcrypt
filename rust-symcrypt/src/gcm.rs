@@ -1,376 +1,79 @@
-//! Galois Counter Mode functions. For further documentation please refer to symcrypt.h
+//! AES-GCM authenticated encryption.
 //!
 //! # Examples
 //!
 //! ## Encrypt in place
-//!
 //! ```rust
-//! use symcrypt::cipher::BlockCipherType;
 //! use symcrypt::gcm::GcmExpandedKey;
 //!
-//! // Set up input
 //! let p_key = hex::decode("feffe9928665731c6d6a8f9467308308").unwrap();
 //! let mut tag = [0u8; 16];
-//!
-//! let mut nonce_array = [0u8; 12];
-//! hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce_array).unwrap();
-//!
+//! let mut nonce = [0u8; 12];
+//! hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce).unwrap();
 //! let auth_data = hex::decode("feedfacedeadbeeffeedfacedeadbeefabaddad2").unwrap();
-//! let expected_result = "42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091";
 //!
 //! let mut buffer = [0u8; 60];
 //! hex::decode_to_slice("d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39", &mut buffer).unwrap();
 //!
-//! let expected_tag = "5bc94fbc3221a5db94fae95ae7121a47";
-//! let cipher = BlockCipherType::AesBlock;
-//!
-//! // Perform encryption in place
-//! let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
-//! gcm_state.encrypt_in_place(&nonce_array, &auth_data, &mut buffer, &mut tag);
-//!
-//! assert_eq!(hex::encode(buffer), expected_result);
-//! assert_eq!(hex::encode(tag), expected_tag);
+//! let gcm_state = GcmExpandedKey::new(&p_key).unwrap();
+//! gcm_state.encrypt_in_place(&nonce, &auth_data, &mut buffer, &mut tag);
 //! ```
-//!
-//! ## Decrypt in place
-//! ```rust
-//! use symcrypt::cipher::BlockCipherType;
-//! use symcrypt::gcm::GcmExpandedKey;
-//!
-//! // Set up input
-//! let p_key = hex::decode("feffe9928665731c6d6a8f9467308308").unwrap();
-//! let cipher = BlockCipherType::AesBlock;
-//!
-//! let mut nonce_array = [0u8; 12];
-//! hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce_array).unwrap();
-//!
-//! let auth_data = hex::decode("feedfacedeadbeeffeedfacedeadbeefabaddad2").unwrap();
-//! let expected_result = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39";
 
-//! let mut tag = [0u8; 16];
-//! hex::decode_to_slice("5bc94fbc3221a5db94fae95ae7121a47", &mut tag).unwrap();
+#[cfg(windows)]
+use crate::backend::bcrypt::gcm as imp;
+#[cfg(not(windows))]
+use crate::backend::symcrypt::gcm as imp;
 
-//! let mut buffer = [0u8; 60];
-//! hex::decode_to_slice("42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091", &mut buffer).unwrap();
-//!
-//! // Perform the decryption in place
-//! let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
-//! gcm_state
-//!     .decrypt_in_place(&nonce_array, &auth_data, &mut buffer, &mut tag)
-//!     .unwrap();
-//! assert_eq!(hex::encode(buffer), expected_result);
-//! ```
-//!
-use crate::cipher::{convert_cipher, BlockCipherType};
-use crate::errors::SymCryptError;
-use crate::symcrypt_init;
-use core::ffi::c_void;
-use std::marker::PhantomPinned;
-use std::mem;
-use std::pin::Pin;
-use std::ptr;
-use symcrypt_sys;
-
-/// [`GcmExpandedKey`] is a struct that holds the Gcm expanded key from SymCrypt.
-pub struct GcmExpandedKey {
-    // expanded_key holds the key from SymCrypt which is Pin<Box<>>'d since the memory address for Self is moved around when
-    // returning from GcmExpandedKey::new()
-
-    // key_length holds the length of the expanded key. This value is normally 16 or 32 bytes.
-
-    // SymCrypt expects the address for its structs to stay static through the structs lifetime to guarantee that structs are not memcpy'd as
-    // doing so would lead to use-after-free and inconsistent states.
-    expanded_key: Pin<Box<GcmInnerKey>>,
-    key_length: usize,
-}
-
-/// [`GcmInnerKey`] is a struct that holds the underlying SymCrypt state for GCM.
-struct GcmInnerKey {
-    // inner represents the actual state of the hash from SymCrypt
-    inner: symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY,
-
-    // _pinned is a marker to ensure that instances of the inner state cannot be moved once pinned.
-    // This prevents the struct from implementing the Unpin trait, enforcing that any
-    // references to this structure remain valid throughout its lifetime.
-    _pinned: PhantomPinned,
-}
-
-impl GcmInnerKey {
-    /// Creates a new GcmInnerKey and returns a pinned Box<Self>
-    fn new() -> Pin<Box<Self>> {
-        Box::pin(GcmInnerKey {
-            inner: symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY::default(),
-            _pinned: PhantomPinned,
-        })
-    }
-
-    /// Provides a mutable pointer to the inner SymCrypt state.
-    ///
-    /// This is primarily meant to be used while making calls to the underlying SymCrypt APIs.
-    /// The pointer returned is pinned and cannot be moved
-    /// This function returns pointer to pinned data, which means callers must not use the pointer to move the data out of its location.
-    fn get_inner_mut(self: Pin<&mut Self>) -> *mut symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY {
-        // SAFETY: Accessing the inner state of the pinned data
-        unsafe { &mut self.get_unchecked_mut().inner as *mut _ }
-    }
-
-    // Safe method to access the inner state immutably
-    pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY {
-        &self.inner as *const _
-    }
-}
-
-impl Drop for GcmInnerKey {
-    fn drop(&mut self) {
-        unsafe {
-            // SAFETY: FFI calls
-            symcrypt_sys::SymCryptWipe(
-                ptr::addr_of_mut!(self.inner) as *mut c_void, // Using addr_of_mut! so we don't access in the inner field
-                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T, // Using size_of_val! so we don't access in the inner field
-            );
-        }
-    }
-}
-
-/// `encrypt_in_place` and `decrypt_in_place` take in an allocated `buffer` as an in/out parameter for performance reasons.
-/// This is for scenarios such as encrypting over a stream of data; allocating and copying data from a return will be costly performance wise.
-impl GcmExpandedKey {
-    /// `new` takes in a reference to a key and a [`BlockCipherType`] and returns an expanded key that is Pin<Box<>>'d.
-    ///
-    /// This function can fail and will propagate the error back to the caller. This call will fail if the wrong key size is provided.
-    ///
-    /// The only accepted Cipher for GCM is [`BlockCipherType::AesBlock`]
-    pub fn new(key: &[u8], cipher: BlockCipherType) -> Result<Self, SymCryptError> {
-        symcrypt_init();
-        let mut expanded_key = GcmInnerKey::new(); // Get expanded_key that is already Pin<Box<T>>'d
-
-        // Use as_mut() to get a Pin<&mut GcmInnerKey> and then call get_inner_mut to get *mut
-        gcm_expand_key(
-            key,
-            expanded_key.as_mut().get_inner_mut(),
-            convert_cipher(cipher),
-        )?;
-        let gcm_expanded_key = GcmExpandedKey {
-            expanded_key,
-            key_length: key.len(),
-        };
-        Ok(gcm_expanded_key)
-    }
-
-    /// `encrypt_in_place` performs an in-place encryption on the `&mut buffer` that is passed. This call cannot fail.
-    ///
-    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the encryption.
-    ///
-    /// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide any auth data, input an empty array.
-    ///
-    /// `buffer` is a `&mut [u8]` that contains the plain text data to be encrypted. After the encryption has been completed,
-    /// `buffer` will be over-written to contain the cipher text data.
-    ///
-    /// `tag` is a `&mut [u8]` which is the buffer where the resulting tag will be written to. Tag size must be 12, 13, 14, 15, 16 per SP800-38D.
-    /// Tag sizes of 4 and 8 are not supported.
-    pub fn encrypt_in_place(
-        &self,
-        nonce: &[u8; 12],
-        auth_data: &[u8],
-        buffer: &mut [u8],
-        tag: &mut [u8],
-    ) {
-        symcrypt_init();
-        unsafe {
-            // SAFETY: FFI calls
-            symcrypt_sys::SymCryptGcmEncrypt(
-                self.expanded_key.get_inner(),
-                nonce.as_ptr(),
-                nonce.len() as symcrypt_sys::SIZE_T,
-                auth_data.as_ptr(),
-                auth_data.len() as symcrypt_sys::SIZE_T,
-                buffer.as_ptr(),
-                buffer.as_mut_ptr(),
-                buffer.len() as symcrypt_sys::SIZE_T,
-                tag.as_mut_ptr(),
-                tag.len() as symcrypt_sys::SIZE_T,
-            );
-        }
-    }
-
-    /// `decrypt_in_place` performs an in-place decryption on the `&mut buffer` that is passed. This call can fail and the caller must check the result.
-    ///
-    /// `nonce` is a `&[u8; 12]` that is used as the nonce for the decryption. It must match the nonce used during encryption.
-    ///
-    /// `auth_data` is an optional `&[u8]` that can be provided. If you do not wish to provide any auth data, input an empty array.
-    ///
-    /// `buffer` is a `&mut [u8]` that contains the cipher text data to be decrypted. After the decryption has been completed,
-    /// `buffer` will be over-written to contain the plain text data.
-    ///
-    /// `tag` is a `&[u8]` that contains the authentication tag generated during encryption. This is used to verify the integrity of the cipher text.
-    ///
-    /// If decryption succeeds, the function will return `Ok(())`, and `buffer` will contain the plain text. If it fails, an error of type `SymCryptError` will be returned.
-    pub fn decrypt_in_place(
-        &self,
-        nonce: &[u8; 12],
-        auth_data: &[u8],
-        buffer: &mut [u8],
-        tag: &[u8],
-    ) -> Result<(), SymCryptError> {
-        symcrypt_init();
-        unsafe {
-            // SAFETY: FFI calls
-            match symcrypt_sys::SymCryptGcmDecrypt(
-                self.expanded_key.get_inner(),
-                nonce.as_ptr(),
-                nonce.len() as symcrypt_sys::SIZE_T,
-                auth_data.as_ptr(),
-                auth_data.len() as symcrypt_sys::SIZE_T,
-                buffer.as_ptr(),
-                buffer.as_mut_ptr(),
-                buffer.len() as symcrypt_sys::SIZE_T,
-                tag.as_ptr(),
-                tag.len() as symcrypt_sys::SIZE_T,
-            ) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
-                err => Err(err.into()),
-            }
-        }
-    }
-
-    /// `key_len` returns a the length of the [`GcmExpandedKey`] as a `usize`.
-    pub fn key_len(&self) -> usize {
-        self.key_length
-    }
-}
-
-// No custom Send / Sync impl. needed for GcmExpandedKey since the
-// underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
-unsafe impl Send for GcmExpandedKey {}
-unsafe impl Sync for GcmExpandedKey {}
-
-// Internal function to expand the SymCrypt Gcm Key.
-fn gcm_expand_key(
-    key: &[u8],
-    expanded_key: *mut symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY,
-    cipher: *const symcrypt_sys::SYMCRYPT_BLOCKCIPHER,
-) -> Result<(), SymCryptError> {
-    unsafe {
-        // SAFETY: FFI calls
-        match symcrypt_sys::SymCryptGcmExpandKey(
-            expanded_key,
-            cipher,
-            key.as_ptr(),
-            key.len() as symcrypt_sys::SIZE_T,
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
-            err => Err(err.into()),
-        }
-    }
-}
-
-/// [`validate_gcm_parameters`] is a utility function that validates the input parameters for a GCM call.
-///
-/// `cipher` will only accept [`BlockCipherType::AesBlock`]
-///
-/// `nonce` is a `&[u8; 12]`  that represents a nonce array.
-///
-/// `auth_data` is an optional `&[u8]` that can be provided, if you do not wish to provide
-/// any auth data, input an empty array.
-///
-/// `data` is a `&[u8]` that represents the data array to be encrypted
-///
-/// `tag` is a `&[u8]` that represents the tag buffer, the size of the tag buffer will be checked and must be 12, 13, 14, 15, 16 per SP800-38D.
-/// Tag sizes of 4 and 8 are not supported.
-pub fn validate_gcm_parameters(
-    cipher: BlockCipherType,
-    nonce: &[u8; 12], // GCM nonce length must be 12 bytes
-    auth_data: &[u8],
-    data: &[u8],
-    tag: &[u8],
-) -> Result<(), SymCryptError> {
-    unsafe {
-        // SAFETY: FFI calls
-        match symcrypt_sys::SymCryptGcmValidateParameters(
-            convert_cipher(cipher),
-            nonce.len() as symcrypt_sys::SIZE_T,
-            auth_data.len() as symcrypt_sys::UINT64,
-            data.len() as symcrypt_sys::UINT64,
-            tag.len() as symcrypt_sys::SIZE_T,
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(()),
-            err => Err(err.into()),
-        }
-    }
-}
+pub use imp::GcmExpandedKey;
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::cipher::BlockCipherType;
-
-    #[test]
-    fn test_gcm_expand_key_will_fail_wrong_key_size() {
-        let p_key = hex::decode("feffe9928665731c6d6a8f9467308308ad").unwrap();
-        let cipher = BlockCipherType::AesBlock;
-
-        let result = GcmExpandedKey::new(&p_key, cipher);
-
-        match result {
-            Ok(_) => {
-                panic!("Test passed when it should fail");
-            }
-            Err(err) => {
-                assert_eq!(err, SymCryptError::WrongKeySize);
-            }
-        }
-    }
 
     #[test]
     fn test_gcm_encrypt() {
         let p_key = hex::decode("feffe9928665731c6d6a8f9467308308").unwrap();
-        let mut nonce_array = [0u8; 12];
-        hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce_array).unwrap();
+        let mut nonce = [0u8; 12];
+        hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce).unwrap();
         let auth_data = hex::decode("feedfacedeadbeeffeedfacedeadbeefabaddad2").unwrap();
-        let expected_result = "42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091";
+        let expected_ct = "42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091";
+        let expected_tag = "5bc94fbc3221a5db94fae95ae7121a47";
 
         let mut buffer = [0u8; 60];
         hex::decode_to_slice("d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39", &mut buffer).unwrap();
-
         let mut tag = [0u8; 16];
 
-        let expected_tag = "5bc94fbc3221a5db94fae95ae7121a47";
-        let cipher = BlockCipherType::AesBlock;
+        let gcm = GcmExpandedKey::new(&p_key).unwrap();
+        gcm.encrypt_in_place(&nonce, &auth_data, &mut buffer, &mut tag);
 
-        let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
-        gcm_state.encrypt_in_place(&nonce_array, &auth_data, &mut buffer, &mut tag);
-
-        assert_eq!(hex::encode(buffer), expected_result);
+        assert_eq!(hex::encode(buffer), expected_ct);
         assert_eq!(hex::encode(tag), expected_tag);
     }
 
     #[test]
     fn test_gcm_decrypt() {
         let p_key = hex::decode("feffe9928665731c6d6a8f9467308308").unwrap();
-        let mut nonce_array = [0u8; 12];
-        hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce_array).unwrap();
+        let mut nonce = [0u8; 12];
+        hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce).unwrap();
         let auth_data = hex::decode("feedfacedeadbeeffeedfacedeadbeefabaddad2").unwrap();
-        let expected_result = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39";
+        let expected_pt = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39";
 
         let mut tag = [0u8; 16];
         hex::decode_to_slice("5bc94fbc3221a5db94fae95ae7121a47", &mut tag).unwrap();
 
         let mut buffer = [0u8; 60];
         hex::decode_to_slice("42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091", &mut buffer).unwrap();
-        let cipher = BlockCipherType::AesBlock;
 
-        let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
-        gcm_state
-            .decrypt_in_place(&nonce_array, &auth_data, &mut buffer, &tag)
-            .unwrap();
-        assert_eq!(hex::encode(buffer), expected_result);
+        let gcm = GcmExpandedKey::new(&p_key).unwrap();
+        gcm.decrypt_in_place(&nonce, &auth_data, &mut buffer, &tag).unwrap();
+        assert_eq!(hex::encode(buffer), expected_pt);
     }
 
     #[test]
-    fn test_gcm_decrypt_will_fail_wrong_tag() {
+    fn test_gcm_decrypt_wrong_tag() {
         let p_key = hex::decode("feffe9928665731c6d6a8f9467308308").unwrap();
-        let mut nonce_array = [0u8; 12];
-        hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce_array).unwrap();
+        let mut nonce = [0u8; 12];
+        hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce).unwrap();
         let auth_data = hex::decode("feedfacedeadbeeffeedfacedeadbeefabaddad2").unwrap();
 
         let mut tag = [0u8; 16];
@@ -378,51 +81,23 @@ mod test {
 
         let mut buffer = [0u8; 60];
         hex::decode_to_slice("42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091", &mut buffer).unwrap();
-        let cipher = BlockCipherType::AesBlock;
 
-        let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
-        let result = gcm_state.decrypt_in_place(&nonce_array, &auth_data, &mut buffer, &tag);
-
-        match result {
-            Ok(_) => {
-                panic!("Test passed when it should fail");
-            }
-            Err(err) => {
-                assert_eq!(err, SymCryptError::AuthenticationFailure);
-            }
-        }
+        let gcm = GcmExpandedKey::new(&p_key).unwrap();
+        let result = gcm.decrypt_in_place(&nonce, &auth_data, &mut buffer, &tag);
+        assert!(result.is_err());
     }
 
     #[test]
-    fn test_validate_parameters() {
-        let mut nonce_array = [0u8; 12];
-        hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce_array).unwrap();
-        let auth_data = hex::decode("feedfacedeadbeeffeedfacedeadbeefabaddad2").unwrap();
-        let expected_tag = hex::decode("5bc94fbc3221a5db94fae95ae7121a47").unwrap();
-        let pt = hex::decode("d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39").unwrap();
-        let cipher = BlockCipherType::AesBlock;
-
-        validate_gcm_parameters(cipher, &nonce_array, &auth_data, &pt, &expected_tag).unwrap();
+    fn test_gcm_wrong_key_size() {
+        let p_key = hex::decode("feffe9928665731c6d6a8f9467308308ad").unwrap();
+        let result = GcmExpandedKey::new(&p_key);
+        assert_eq!(result.unwrap_err(), crate::errors::SymCryptError::WrongKeySize);
     }
 
     #[test]
-    fn test_validate_parameters_fail() {
-        let mut nonce_array = [0u8; 12];
-        hex::decode_to_slice("cafebabefacedbaddecaf888", &mut nonce_array).unwrap();
-        let auth_data = hex::decode("feedfacedeadbeeffeedfacedeadbeefabaddad2").unwrap();
-        let expected_tag = hex::decode("5bc94fbc3242121a47").unwrap();
-        let pt = hex::decode("d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39").unwrap();
-        let cipher = BlockCipherType::AesBlock;
-
-        let result = validate_gcm_parameters(cipher, &nonce_array, &auth_data, &pt, &expected_tag);
-        assert_eq!(result.unwrap_err(), SymCryptError::WrongTagSize);
-    }
-
-    #[test]
-    fn test_gcm_expanded_key_get_key_length() {
+    fn test_gcm_key_len() {
         let p_key = hex::decode("feffe9928665731c6d6a8f9467308308").unwrap();
-        let cipher = BlockCipherType::AesBlock;
-        let gcm_state = GcmExpandedKey::new(&p_key, cipher).unwrap();
-        assert_eq!(gcm_state.key_len(), 16);
+        let gcm = GcmExpandedKey::new(&p_key).unwrap();
+        assert_eq!(gcm.key_len(), 16);
     }
 }
