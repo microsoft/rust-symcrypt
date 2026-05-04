@@ -134,11 +134,9 @@ mod test {
     fn test_sp800_108_different_context_differs() {
         let key = hex::decode("0001020304050607").unwrap();
         let res1 =
-            sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", b"A", 32)
-                .unwrap();
+            sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", b"A", 32).unwrap();
         let res2 =
-            sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", b"B", 32)
-                .unwrap();
+            sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", b"B", 32).unwrap();
         assert_ne!(res1, res2);
     }
 
