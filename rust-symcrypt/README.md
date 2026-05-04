@@ -43,6 +43,12 @@ HKDF:
 - HmacSha384
 - HmacSha512
 
+SP800-108 Counter Mode KDF:
+- HmacSha1
+- HmacSha256
+- HmacSha384
+- HmacSha512
+
 Encryption:
 - AES-GCM Encrypt/Decrypt
 - ChaCha20-Poly1305 Encrypt/Decrypt

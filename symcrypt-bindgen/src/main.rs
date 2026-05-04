@@ -76,7 +76,9 @@ fn main() {
         .allowlist_function("^SymCryptAesExpandKey$")
         .allowlist_var("SYMCRYPT_AES_BLOCK_SIZE")
         // HKDF FUNCTIONS
-        .allowlist_function("^(SymCryptHkdf.*)$") 
+        .allowlist_function("^(SymCryptHkdf.*)$")
+        // SP800-108 FUNCTIONS
+        .allowlist_function("^(SymCryptSp800_108.*)$")
         // ECDH KEY AGREEMENT FUNCTIONS
         .allowlist_function("^SymCryptEcurve(Allocate|Free|SizeofFieldElement)$")
         .allowlist_var("^SymCryptEcurveParams(NistP256|NistP384|NistP521|Curve25519)$")
