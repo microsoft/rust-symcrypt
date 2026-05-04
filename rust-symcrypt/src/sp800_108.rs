@@ -7,46 +7,36 @@
 //! ```rust
 //! use symcrypt::sp800_108::sp800_108_counter_mode;
 //! use symcrypt::hmac::HmacAlgorithm;
+//! use hex::*;
 //!
-//! let key_material = [0x0bu8; 32];
-//! let label = b"test-label";
-//! let context = b"test-context";
+//! // Setup the initial keying material.
+//! let key = hex::decode("0001020304050607").unwrap();
+//! let label = b"Label";
 //!
-//! let res = sp800_108_counter_mode(
-//!     HmacAlgorithm::HmacSha256,
-//!     &key_material,
-//!     label,
-//!     context,
-//!     32,
-//! ).unwrap();
-//! assert_eq!(res.len(), 32);
+//! let context = hex::decode("101112131415161718191a1b1c1d1e1f").unwrap();
+//! let hmac_algorithm = HmacAlgorithm::HmacSha256;
 //!
-//! // SP800-108 is deterministic: identical inputs produce identical output.
-//! let res2 = sp800_108_counter_mode(
-//!     HmacAlgorithm::HmacSha256,
-//!     &key_material,
-//!     label,
-//!     context,
-//!     32,
-//! ).unwrap();
-//! assert_eq!(res, res2);
+//! let expected = "00264bbb14974054";
+//! let res = sp800_108_counter_mode(hmac_algorithm, &key, label, &context, 8).unwrap();
+//! assert_eq!(res.len(), 8);
+//! assert_eq!(expected, hex::encode(res));
 //! ```
 //!
-//! ## SP800-108 with HmacSha384, empty label and context
+//! ## SP800-108 Counter Mode with empty label and context
+//!
+//! `label` and `context` are both optional and may be passed as empty slices when not used.
 //!
 //! ```rust
 //! use symcrypt::sp800_108::sp800_108_counter_mode;
 //! use symcrypt::hmac::HmacAlgorithm;
+//! use hex::*;
 //!
-//! let key_material = [0x0bu8; 32];
-//! let res = sp800_108_counter_mode(
-//!     HmacAlgorithm::HmacSha384,
-//!     &key_material,
-//!     &[],
-//!     &[],
-//!     48,
-//! ).unwrap();
-//! assert_eq!(res.len(), 48);
+//! // Setup the initial keying material (KI)
+//! let key = hex::decode("0001020304050607").unwrap();
+//! let hmac_algorithm = HmacAlgorithm::HmacSha256;
+//!
+//! let res = sp800_108_counter_mode(hmac_algorithm, &key, &[], &[], 32).unwrap();
+//! assert_eq!(res.len(), 32);
 //! ```
 //!
 use crate::errors::SymCryptError;
@@ -58,11 +48,11 @@ use symcrypt_sys;
 ///
 /// `hmac_algorithm` is an [`HmacAlgorithm`] selecting the HMAC PRF used internally by the KDF.
 ///
-/// `key_material` is a `&[u8]` containing the secret key (KI in NIST terminology).
+/// `key_material` is a `&[u8]` containing the secret key.
 ///
-/// `label` is a `&[u8]` containing an application-specific label. May be empty.
+/// `label` is a `&[u8]` containing an application-specific label. You can pass an empty slice.
 ///
-/// `context` is a `&[u8]` containing application-specific context bytes. May be empty.
+/// `context` is a `&[u8]` containing application-specific context bytes. You can pass an empty slice.
 ///
 /// `output_key_size` is a `u64` specifying the desired length of the derived key in bytes.
 /// The returned `Vec<u8>` will have exactly this length.
@@ -96,142 +86,66 @@ pub fn sp800_108_counter_mode(
 #[cfg(test)]
 mod test {
     use super::*;
+    use hex;
 
     #[test]
-    fn test_sp800_108_sha256_basic() {
-        let key_material = [0x0bu8; 32];
-        let label = b"label";
-        let context = b"context";
-
-        let res = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha256,
-            &key_material,
-            label,
-            context,
-            32,
-        )
-        .unwrap();
-        assert_eq!(res.len(), 32);
+    fn test_sp800_108_hmac_sha256_kat() {
+        let key = hex::decode("0001020304050607").unwrap();
+        let context = hex::decode("101112131415161718191a1b1c1d1e1f").unwrap();
+        let expected = "00264bbb14974054";
+        let res =
+            sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", &context, 8).unwrap();
+        assert_eq!(hex::encode(res), expected);
     }
 
     #[test]
-    fn test_sp800_108_sha256_deterministic() {
-        let key_material = [0x42u8; 16];
-        let label = b"derive-key";
-        let context = b"session-1";
+    fn test_sp800_108_hmac_sha384_kat() {
+        let key = hex::decode("0001020304050607").unwrap();
+        let context = hex::decode("101112131415161718191a1b1c1d1e1f").unwrap();
+        let expected = "c7102787d896bc89";
+        let res =
+            sp800_108_counter_mode(HmacAlgorithm::HmacSha384, &key, b"Label", &context, 8).unwrap();
+        assert_eq!(hex::encode(res), expected);
+    }
 
-        let res1 = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha256,
-            &key_material,
-            label,
-            context,
-            64,
-        )
-        .unwrap();
-        let res2 = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha256,
-            &key_material,
-            label,
-            context,
-            64,
-        )
-        .unwrap();
+    #[test]
+    fn test_sp800_108_hmac_sha512_kat() {
+        let key = hex::decode("0001020304050607").unwrap();
+        let context = hex::decode("101112131415161718191a1b1c1d1e1f").unwrap();
+        let expected = "db3a18d96c4ad41e";
+        let res =
+            sp800_108_counter_mode(HmacAlgorithm::HmacSha512, &key, b"Label", &context, 8).unwrap();
+        assert_eq!(hex::encode(res), expected);
+    }
+
+    #[test]
+    fn test_sp800_108_deterministic() {
+        let key = hex::decode("0001020304050607").unwrap();
+        let context = hex::decode("101112131415161718191a1b1c1d1e1f").unwrap();
+        let res1 = sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", &context, 64)
+            .unwrap();
+        let res2 = sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", &context, 64)
+            .unwrap();
         assert_eq!(res1, res2);
         assert_eq!(res1.len(), 64);
     }
 
     #[test]
-    fn test_sp800_108_sha256_different_context_differs() {
-        let key_material = [0x42u8; 16];
-        let label = b"derive-key";
-
-        let res1 = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha256,
-            &key_material,
-            label,
-            b"session-1",
-            32,
-        )
-        .unwrap();
-        let res2 = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha256,
-            &key_material,
-            label,
-            b"session-2",
-            32,
-        )
-        .unwrap();
+    fn test_sp800_108_different_context_differs() {
+        let key = hex::decode("0001020304050607").unwrap();
+        let res1 =
+            sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", b"A", 32)
+                .unwrap();
+        let res2 =
+            sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, b"Label", b"B", 32)
+                .unwrap();
         assert_ne!(res1, res2);
     }
 
     #[test]
-    fn test_sp800_108_sha384() {
-        let key_material = [0x0bu8; 48];
-        let res = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha384,
-            &key_material,
-            b"label",
-            b"context",
-            48,
-        )
-        .unwrap();
-        assert_eq!(res.len(), 48);
-    }
-
-    #[test]
-    fn test_sp800_108_sha512() {
-        let key_material = [0x0bu8; 64];
-        let res = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha512,
-            &key_material,
-            b"label",
-            b"context",
-            64,
-        )
-        .unwrap();
-        assert_eq!(res.len(), 64);
-    }
-
-    #[test]
     fn test_sp800_108_empty_label_and_context() {
-        let key_material = [0x0bu8; 32];
-        let res = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha256,
-            &key_material,
-            &[],
-            &[],
-            32,
-        )
-        .unwrap();
+        let key = hex::decode("0001020304050607").unwrap();
+        let res = sp800_108_counter_mode(HmacAlgorithm::HmacSha256, &key, &[], &[], 32).unwrap();
         assert_eq!(res.len(), 32);
-    }
-
-    #[test]
-    fn test_sp800_108_short_output() {
-        let key_material = [0x0bu8; 32];
-        let res = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha256,
-            &key_material,
-            b"label",
-            b"context",
-            8,
-        )
-        .unwrap();
-        assert_eq!(res.len(), 8);
-    }
-
-    #[cfg(feature = "sha1")]
-    #[test]
-    fn test_sp800_108_sha1() {
-        let key_material = [0x0bu8; 20];
-        let res = sp800_108_counter_mode(
-            HmacAlgorithm::HmacSha1,
-            &key_material,
-            b"label",
-            b"context",
-            20,
-        )
-        .unwrap();
-        assert_eq!(res.len(), 20);
     }
 }

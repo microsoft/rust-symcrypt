@@ -1812,6 +1812,36 @@ const _: () = {
 #[repr(C)]
 #[repr(align(16))]
 #[derive(Copy, Clone)]
+pub struct _SYMCRYPT_SP800_108_EXPANDED_KEY {
+    pub macKey: SYMCRYPT_MAC_EXPANDED_KEY,
+    pub macAlg: PCSYMCRYPT_MAC,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_SP800_108_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_SP800_108_EXPANDED_KEY>() - 560usize];
+    ["Alignment of _SYMCRYPT_SP800_108_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_SP800_108_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_SP800_108_EXPANDED_KEY::macKey"]
+        [::std::mem::offset_of!(_SYMCRYPT_SP800_108_EXPANDED_KEY, macKey) - 0usize];
+    ["Offset of field: _SYMCRYPT_SP800_108_EXPANDED_KEY::macAlg"]
+        [::std::mem::offset_of!(_SYMCRYPT_SP800_108_EXPANDED_KEY, macAlg) - 544usize];
+};
+impl Default for _SYMCRYPT_SP800_108_EXPANDED_KEY {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_SP800_108_EXPANDED_KEY = _SYMCRYPT_SP800_108_EXPANDED_KEY;
+pub type PSYMCRYPT_SP800_108_EXPANDED_KEY = *mut _SYMCRYPT_SP800_108_EXPANDED_KEY;
+pub type PCSYMCRYPT_SP800_108_EXPANDED_KEY = *const SYMCRYPT_SP800_108_EXPANDED_KEY;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Copy, Clone)]
 pub struct _SYMCRYPT_TLSPRF1_2_EXPANDED_KEY {
     pub macKey: SYMCRYPT_MAC_EXPANDED_KEY,
     pub macAlg: PCSYMCRYPT_MAC,
@@ -3044,6 +3074,50 @@ unsafe extern "C" {
         pbTag: PCBYTE,
         cbTag: SIZE_T,
     ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptSp800_108ExpandKey(
+        pExpandedKey: PSYMCRYPT_SP800_108_EXPANDED_KEY,
+        macAlgorithm: PCSYMCRYPT_MAC,
+        pbKey: PCBYTE,
+        cbKey: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptSp800_108Derive(
+        pExpandedKey: PCSYMCRYPT_SP800_108_EXPANDED_KEY,
+        pbLabel: PCBYTE,
+        cbLabel: SIZE_T,
+        pbContext: PCBYTE,
+        cbContext: SIZE_T,
+        pbResult: PBYTE,
+        cbResult: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptSp800_108(
+        macAlgorithm: PCSYMCRYPT_MAC,
+        pbKey: PCBYTE,
+        cbKey: SIZE_T,
+        pbLabel: PCBYTE,
+        cbLabel: SIZE_T,
+        pbContext: PCBYTE,
+        cbContext: SIZE_T,
+        pbResult: PBYTE,
+        cbResult: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptSp800_108_HmacSha1SelfTest();
+}
+unsafe extern "C" {
+    pub fn SymCryptSp800_108_HmacSha256SelfTest();
+}
+unsafe extern "C" {
+    pub fn SymCryptSp800_108_HmacSha384SelfTest();
+}
+unsafe extern "C" {
+    pub fn SymCryptSp800_108_HmacSha512SelfTest();
 }
 unsafe extern "C" {
     pub fn SymCryptTlsPrf1_2ExpandKey(
