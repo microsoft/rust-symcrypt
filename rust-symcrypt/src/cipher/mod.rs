@@ -20,8 +20,11 @@ use crate::errors::SymCryptError;
 use crate::symcrypt_init;
 use symcrypt_sys;
 
+use core::ffi::c_void;
 use std::marker::PhantomPinned;
+use std::mem;
 use std::pin::Pin;
+use std::ptr;
 
 // export ciphers
 pub mod cbc;
@@ -34,7 +37,7 @@ pub const AES_BLOCK_SIZE: u32 = symcrypt_sys::SYMCRYPT_AES_BLOCK_SIZE;
 pub enum BlockCipherType {
     AesBlock,
 }
-struct AesInnerKey {
+pub(crate) struct AesInnerKey {
     inner: symcrypt_sys::SYMCRYPT_AES_EXPANDED_KEY,
     _pinned: PhantomPinned,
 }
@@ -58,6 +61,18 @@ impl AesInnerKey {
 
     pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_AES_EXPANDED_KEY {
         &self.inner as *const _
+    }
+}
+
+impl Drop for AesInnerKey {
+    fn drop(&mut self) {
+        unsafe {
+            // SAFETY: FFI calls
+            symcrypt_sys::SymCryptWipe(
+                ptr::addr_of_mut!(self.inner) as *mut c_void,
+                mem::size_of_val(&self.inner) as symcrypt_sys::SIZE_T,
+            );
+        }
     }
 }
 
