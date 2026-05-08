@@ -41,6 +41,7 @@
 //!
 use crate::errors::SymCryptError;
 use crate::hmac::HmacAlgorithm;
+use crate::symcrypt_init;
 use symcrypt_sys;
 
 /// `sp800_108_counter_mode()` derives a key using the NIST SP800-108 Counter Mode KDF and returns
@@ -63,6 +64,7 @@ pub fn sp800_108_counter_mode(
     context: &[u8],
     output_key_size: u64,
 ) -> Result<Vec<u8>, SymCryptError> {
+    symcrypt_init();
     let mut result = vec![0u8; output_key_size as usize];
     unsafe {
         // UNSAFE: FFI calls
