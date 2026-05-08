@@ -1,6 +1,7 @@
 #![doc = include_str!("../README.md")]
 use std::sync::Once;
 
+pub mod aes_kw;
 pub mod chacha;
 pub mod cipher;
 pub mod ecc;
@@ -11,6 +12,7 @@ pub mod hkdf;
 pub mod hmac;
 pub mod rsa;
 pub mod sp800_108;
+pub mod xts;
 
 // symcrypt_init must be called before any other API can be called. All subsequent calls to symcrypt_init will be no-ops
 fn symcrypt_init() {
