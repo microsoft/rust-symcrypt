@@ -27,7 +27,9 @@ use std::pin::Pin;
 use std::ptr;
 
 // export ciphers
+pub mod aes_kw;
 pub mod cbc;
+pub mod xts;
 
 /// 16
 pub const AES_BLOCK_SIZE: u32 = symcrypt_sys::SYMCRYPT_AES_BLOCK_SIZE;

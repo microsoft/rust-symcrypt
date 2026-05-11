@@ -1,42 +1,40 @@
-//! AES Key Wrap (KW) and AES Key Wrap with Padding (KWP) — NIST SP 800-38F.
+//! AES Key Wrap (KW) and AES Key Wrap with Padding (KWP). See symcrypt.h for more info.
 //!
-//! - **AES-KW** (RFC 3394): wraps plaintext whose length is a multiple of 8 bytes and at least 16
+//! - **AES-KW**: wraps plaintext whose length is a multiple of 8 bytes and at least 16
 //!   bytes. The output is always plaintext length + 8 bytes.
-//! - **AES-KWP** (RFC 5649): wraps plaintext of any non-zero length. Output is rounded up to the
+//! - **AES-KWP**: wraps plaintext of any non-zero length. Output is rounded up to the
 //!   next multiple of 8 bytes plus 8 bytes for the integrity check value.
 //!
 //! The wrapping key passed to either constructor must be a valid AES key length: 16, 24, or 32
 //! bytes. The wrapping key is independent of which mode is used.
 //!
-//! The SymCrypt header notes that AES-KW(P) is significantly slower than other AES modes
-//! (`~12x AES-CBC` per `symcrypt.h:6615`); it is provided for compatibility with key-wrap formats,
-//! not as a general-purpose cipher.
+//! AES-KW(P) is significantly slower than other AES modes, use of this cipher is not recommended.
 //!
 //! # Examples
 //!
 //! ## AES-KW
 //! ```rust
-//! use symcrypt::aes_kw::AesKwKey;
+//! use symcrypt::cipher::aes_kw::AesKwKey;
 //!
 //! let wrapping_key = hex::decode("ABF3A659F6D4AF5EAB250BF05A0B623C").unwrap();
 //! let plaintext = hex::decode("6B95ECAA3C712FACF175DD06FF88704A").unwrap();
 //!
 //! let kw = AesKwKey::new(&wrapping_key).unwrap();
-//! let ciphertext = kw.wrap(&plaintext).unwrap();
-//! let recovered = kw.unwrap(&ciphertext).unwrap();
+//! let ciphertext = kw.encrypt(&plaintext).unwrap();
+//! let recovered = kw.decrypt(&ciphertext).unwrap();
 //! assert_eq!(recovered, plaintext);
 //! ```
 //!
 //! ## AES-KWP
 //! ```rust
-//! use symcrypt::aes_kw::AesKwpKey;
+//! use symcrypt::cipher::aes_kw::AesKwpKey;
 //!
 //! let wrapping_key = hex::decode("A19C08545013B997639E7D4C227324AC").unwrap();
 //! let plaintext = hex::decode("25").unwrap(); // arbitrary length, even 1 byte
 //!
 //! let kwp = AesKwpKey::new(&wrapping_key).unwrap();
-//! let ciphertext = kwp.wrap(&plaintext).unwrap();
-//! let recovered = kwp.unwrap(&ciphertext).unwrap();
+//! let ciphertext = kwp.encrypt(&plaintext).unwrap();
+//! let recovered = kwp.decrypt(&ciphertext).unwrap();
 //! assert_eq!(recovered, plaintext);
 //! ```
 
@@ -49,17 +47,12 @@ use symcrypt_sys;
 const KW_SEMIBLOCK: usize = 8;
 const KW_MIN_PLAINTEXT_LEN: usize = 16;
 
-/// [`AesKwKey`] wraps an expanded AES key for use with AES-KW (RFC 3394).
-///
-/// Plaintexts must be a multiple of 8 bytes and at least 16 bytes; the wrap output is exactly
-/// `plaintext.len() + 8` bytes.
+/// [`AesKwKey`] wraps an expanded AES key for use with AES-KW.
 pub struct AesKwKey {
     expanded_key: Pin<Box<AesInnerKey>>,
 }
 
-/// [`AesKwpKey`] wraps an expanded AES key for use with AES-KWP (RFC 5649).
-///
-/// Plaintexts may be any non-zero length. Output size is `((len+7)/8)*8 + 8`.
+/// [`AesKwpKey`] wraps an expanded AES key for use with AES-KWP.
 pub struct AesKwpKey {
     expanded_key: Pin<Box<AesInnerKey>>,
 }
@@ -88,11 +81,11 @@ impl AesKwKey {
         Ok(AesKwKey { expanded_key })
     }
 
-    /// `wrap()` wraps `plaintext` and returns the ciphertext.
+    /// `encrypt()` wraps `plaintext` using AES-KW and returns the ciphertext.
     ///
     /// `plaintext.len()` must be a multiple of 8 and at least 16. The returned `Vec` has length
     /// `plaintext.len() + 8`.
-    pub fn wrap(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
+    pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         symcrypt_init();
         if plaintext.len() < KW_MIN_PLAINTEXT_LEN || plaintext.len() % KW_SEMIBLOCK != 0 {
             return Err(SymCryptError::WrongDataSize);
@@ -118,11 +111,11 @@ impl AesKwKey {
         }
     }
 
-    /// `unwrap()` unwraps `ciphertext` and returns the recovered plaintext.
+    /// `decrypt()` unwraps `ciphertext` using AES-KW and returns the recovered plaintext.
     ///
     /// `ciphertext.len()` must be a multiple of 8 and at least 24. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check fails.
-    pub fn unwrap(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
+    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         symcrypt_init();
         if ciphertext.len() < KW_MIN_PLAINTEXT_LEN + KW_SEMIBLOCK
             || ciphertext.len() % KW_SEMIBLOCK != 0
@@ -160,10 +153,10 @@ impl AesKwpKey {
         Ok(AesKwpKey { expanded_key })
     }
 
-    /// `wrap()` wraps `plaintext` (any non-zero length) and returns the ciphertext.
+    /// `encrypt()` wraps `plaintext` (any non-zero length) using AES-KWP and returns the ciphertext.
     ///
     /// The output length is `((plaintext.len() + 7) / 8) * 8 + 8`.
-    pub fn wrap(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
+    pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         symcrypt_init();
         if plaintext.is_empty() {
             return Err(SymCryptError::WrongDataSize);
@@ -190,11 +183,11 @@ impl AesKwpKey {
         }
     }
 
-    /// `unwrap()` unwraps `ciphertext` and returns the recovered plaintext.
+    /// `decrypt()` unwraps `ciphertext` using AES-KWP and returns the recovered plaintext.
     ///
     /// `ciphertext.len()` must be a multiple of 8 and at least 16. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check or padding check fails.
-    pub fn unwrap(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
+    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         symcrypt_init();
         if ciphertext.len() < KW_SEMIBLOCK * 2 || ciphertext.len() % KW_SEMIBLOCK != 0 {
             return Err(SymCryptError::WrongDataSize);
@@ -246,22 +239,22 @@ mod test {
     // -------- AES-KW --------
 
     #[test]
-    fn test_aes_kw_kat_wrap() {
+    fn test_aes_kw_kat_encrypt() {
         let key = hex::decode(KW_KEY_HEX).unwrap();
         let pt = hex::decode(KW_PT_HEX).unwrap();
         let expected_ct = hex::decode(KW_CT_HEX).unwrap();
         let kw = AesKwKey::new(&key).unwrap();
-        let ct = kw.wrap(&pt).unwrap();
+        let ct = kw.encrypt(&pt).unwrap();
         assert_eq!(ct, expected_ct);
     }
 
     #[test]
-    fn test_aes_kw_kat_unwrap() {
+    fn test_aes_kw_kat_decrypt() {
         let key = hex::decode(KW_KEY_HEX).unwrap();
         let ct = hex::decode(KW_CT_HEX).unwrap();
         let expected_pt = hex::decode(KW_PT_HEX).unwrap();
         let kw = AesKwKey::new(&key).unwrap();
-        let pt = kw.unwrap(&ct).unwrap();
+        let pt = kw.decrypt(&ct).unwrap();
         assert_eq!(pt, expected_pt);
     }
 
@@ -270,9 +263,9 @@ mod test {
         let key = vec![0xA5u8; 32];
         let pt = vec![0x11u8; 32];
         let kw = AesKwKey::new(&key).unwrap();
-        let ct = kw.wrap(&pt).unwrap();
+        let ct = kw.encrypt(&pt).unwrap();
         assert_eq!(ct.len(), pt.len() + 8);
-        let recovered = kw.unwrap(&ct).unwrap();
+        let recovered = kw.decrypt(&ct).unwrap();
         assert_eq!(recovered, pt);
     }
 
@@ -290,7 +283,7 @@ mod test {
         let key = vec![0u8; 16];
         let pt = vec![0u8; 8]; // KW requires >=16
         let kw = AesKwKey::new(&key).unwrap();
-        assert_eq!(kw.wrap(&pt).unwrap_err(), SymCryptError::WrongDataSize);
+        assert_eq!(kw.encrypt(&pt).unwrap_err(), SymCryptError::WrongDataSize);
     }
 
     #[test]
@@ -298,17 +291,17 @@ mod test {
         let key = vec![0u8; 16];
         let pt = vec![0u8; 17];
         let kw = AesKwKey::new(&key).unwrap();
-        assert_eq!(kw.wrap(&pt).unwrap_err(), SymCryptError::WrongDataSize);
+        assert_eq!(kw.encrypt(&pt).unwrap_err(), SymCryptError::WrongDataSize);
     }
 
     #[test]
-    fn test_aes_kw_unwrap_corrupted_fails() {
+    fn test_aes_kw_decrypt_corrupted_fails() {
         let key = hex::decode(KW_KEY_HEX).unwrap();
         let mut ct = hex::decode(KW_CT_HEX).unwrap();
         ct[0] ^= 0xFF; // corrupt the integrity check
         let kw = AesKwKey::new(&key).unwrap();
         assert_eq!(
-            kw.unwrap(&ct).unwrap_err(),
+            kw.decrypt(&ct).unwrap_err(),
             SymCryptError::AuthenticationFailure
         );
     }
@@ -316,23 +309,23 @@ mod test {
     // -------- AES-KWP --------
 
     #[test]
-    fn test_aes_kwp_kat_wrap_one_byte() {
+    fn test_aes_kwp_kat_encrypt_one_byte() {
         let key = hex::decode(KWP_KEY_HEX).unwrap();
         let pt = hex::decode(KWP_PT_HEX).unwrap();
         let expected_ct = hex::decode(KWP_CT_HEX).unwrap();
         let kwp = AesKwpKey::new(&key).unwrap();
-        let ct = kwp.wrap(&pt).unwrap();
+        let ct = kwp.encrypt(&pt).unwrap();
         assert_eq!(ct, expected_ct);
         assert_eq!(ct.len(), 16);
     }
 
     #[test]
-    fn test_aes_kwp_kat_unwrap_one_byte() {
+    fn test_aes_kwp_kat_decrypt_one_byte() {
         let key = hex::decode(KWP_KEY_HEX).unwrap();
         let ct = hex::decode(KWP_CT_HEX).unwrap();
         let expected_pt = hex::decode(KWP_PT_HEX).unwrap();
         let kwp = AesKwpKey::new(&key).unwrap();
-        let pt = kwp.unwrap(&ct).unwrap();
+        let pt = kwp.decrypt(&ct).unwrap();
         assert_eq!(pt, expected_pt);
     }
 
@@ -342,11 +335,11 @@ mod test {
         let kwp = AesKwpKey::new(&key).unwrap();
         for len in [1usize, 7, 8, 9, 15, 16, 17, 31, 33, 100] {
             let pt: Vec<u8> = (0..len).map(|i| i as u8).collect();
-            let ct = kwp.wrap(&pt).unwrap();
+            let ct = kwp.encrypt(&pt).unwrap();
             // Output is the next multiple-of-8 of plaintext length, plus 8 bytes for the IV.
             let expected_ct_len = pt.len().next_multiple_of(8) + 8;
             assert_eq!(ct.len(), expected_ct_len, "len={}", len);
-            let recovered = kwp.unwrap(&ct).unwrap();
+            let recovered = kwp.decrypt(&ct).unwrap();
             assert_eq!(recovered, pt, "round-trip mismatch at len={}", len);
         }
     }
@@ -355,17 +348,17 @@ mod test {
     fn test_aes_kwp_empty_plaintext_fails() {
         let key = vec![0u8; 16];
         let kwp = AesKwpKey::new(&key).unwrap();
-        assert_eq!(kwp.wrap(&[]).unwrap_err(), SymCryptError::WrongDataSize);
+        assert_eq!(kwp.encrypt(&[]).unwrap_err(), SymCryptError::WrongDataSize);
     }
 
     #[test]
-    fn test_aes_kwp_unwrap_corrupted_fails() {
+    fn test_aes_kwp_decrypt_corrupted_fails() {
         let key = hex::decode(KWP_KEY_HEX).unwrap();
         let mut ct = hex::decode(KWP_CT_HEX).unwrap();
         ct[0] ^= 0xFF;
         let kwp = AesKwpKey::new(&key).unwrap();
         assert_eq!(
-            kwp.unwrap(&ct).unwrap_err(),
+            kwp.decrypt(&ct).unwrap_err(),
             SymCryptError::AuthenticationFailure
         );
     }
