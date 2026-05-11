@@ -155,7 +155,7 @@ impl AesKwpKey {
 
     /// `encrypt()` wraps `plaintext` (any non-zero length) using AES-KWP and returns the ciphertext.
     ///
-    /// The output length is `((plaintext.len() + 7) / 8) * 8 + 8`.
+    /// The output length is `plaintext.len() + 16 - (plaintext.len() % 8) - ((plaintext.len() % 8) == 0 ? 8 : 0)`.
     pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         symcrypt_init();
         if plaintext.is_empty() {
@@ -226,12 +226,10 @@ unsafe impl Sync for AesKwpKey {}
 mod test {
     use super::*;
 
-    // KAT vector from kat_keywrap.dat (AesKw section, AES-128 wrapping key, 16-byte plaintext).
     const KW_KEY_HEX: &str = "ABF3A659F6D4AF5EAB250BF05A0B623C";
     const KW_PT_HEX: &str = "6B95ECAA3C712FACF175DD06FF88704A";
     const KW_CT_HEX: &str = "7AD5368CC43D2EF691B666CE24C4B52DCEB1442A53EA1A16";
 
-    // KAT vector from kat_keywrap.dat (AesKwp section, AES-128 wrapping key, 1-byte plaintext).
     const KWP_KEY_HEX: &str = "A19C08545013B997639E7D4C227324AC";
     const KWP_PT_HEX: &str = "25";
     const KWP_CT_HEX: &str = "E641A9489F50E6DBF21B29FA995AFCA4";
