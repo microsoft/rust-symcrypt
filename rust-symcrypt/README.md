@@ -59,11 +59,6 @@ Key Wrap (NIST SP 800-38F):
 - AES-KW (RFC 3394) — wraps 8-byte-aligned plaintext, output is plaintext + 8 bytes
 - AES-KWP (RFC 5649) — wraps any non-zero-length plaintext
 
-**Note**: AES-KW(P) has no general-purpose equivalent in the Windows BCrypt / CNG API
-(BCrypt only exposes the RFC 3565 key-blob format via `BCryptExportKey`, and KWP not at
-all). A future BCrypt-backed variant of this crate is expected to return a `NotSupported`
-runtime error for AES-KW(P) on Windows until that gap is addressed upstream.
-
 ECC:
 - ECDH Secret Agreement ( NistP256, NistP384, NistP521, Curve25519)
 - ECDSA Sign / Verify ( NistP256, NistP384, NistP521 )
