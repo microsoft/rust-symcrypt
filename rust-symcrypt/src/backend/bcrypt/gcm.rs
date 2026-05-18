@@ -1,45 +1,5 @@
 use crate::errors::SymCryptError;
-use std::sync::LazyLock;
 use windows_sys::Win32::Security::Cryptography::*;
-
-struct AlgHandle(BCRYPT_ALG_HANDLE);
-
-// SAFETY: BCrypt algorithm handles are thread-safe for concurrent use after opening.
-unsafe impl Send for AlgHandle {}
-unsafe impl Sync for AlgHandle {}
-
-impl Drop for AlgHandle {
-    fn drop(&mut self) {
-        unsafe {
-            BCryptCloseAlgorithmProvider(self.0, 0);
-        }
-    }
-}
-
-// BCrypt can fail here (NTSTATUS); SymCrypt has no equivalent 
-fn open_algorithm(alg_id: *const u16, flags: u32) -> AlgHandle {
-    let mut handle: BCRYPT_ALG_HANDLE = std::ptr::null_mut();
-    let _status = unsafe {
-        BCryptOpenAlgorithmProvider(&mut handle, alg_id, std::ptr::null(), flags)
-    };
-    AlgHandle(handle)
-}
-
-static AES_GCM_ALG: LazyLock<AlgHandle> = LazyLock::new(|| {
-    let handle = open_algorithm(BCRYPT_AES_ALGORITHM, 0);
-    // BCrypt can fail here (NTSTATUS); SymCrypt has no equivalent, block cipher is a static pointer.
-    let gcm_mode_bytes = 32u32;
-    let _status = unsafe {
-        BCryptSetProperty(
-            handle.0,
-            BCRYPT_CHAINING_MODE,
-            BCRYPT_CHAIN_MODE_GCM as *const u8,
-            gcm_mode_bytes,
-            0,
-        )
-    };
-    handle
-});
 
 #[derive(Debug)]
 pub struct GcmExpandedKey {
@@ -90,7 +50,7 @@ impl GcmExpandedKey {
         let mut key_handle: BCRYPT_KEY_HANDLE = std::ptr::null_mut();
         let status = unsafe {
             BCryptGenerateSymmetricKey(
-                AES_GCM_ALG.0,
+                BCRYPT_AES_GCM_ALG_HANDLE,
                 &mut key_handle,
                 std::ptr::null_mut(),
                 0,
