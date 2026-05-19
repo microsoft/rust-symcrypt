@@ -38,14 +38,12 @@
 //! assert_eq!(recovered, plaintext);
 //! ```
 
-use crate::cipher::AesInnerKey;
+use crate::cipher::{expand_aes_key, AesInnerKey};
 use crate::errors::SymCryptError;
-use crate::symcrypt_init;
 use std::pin::Pin;
 use symcrypt_sys;
 
 const KW_SEMIBLOCK: usize = 8;
-const KW_MIN_PLAINTEXT_LEN: usize = 16;
 
 /// [`AesKwKey`] wraps an expanded AES key for use with AES-KW.
 pub struct AesKwKey {
@@ -57,28 +55,11 @@ pub struct AesKwpKey {
     expanded_key: Pin<Box<AesInnerKey>>,
 }
 
-fn expand_aes_key(key: &[u8]) -> Result<Pin<Box<AesInnerKey>>, SymCryptError> {
-    let mut expanded_key = AesInnerKey::new();
-    unsafe {
-        // SAFETY: FFI call. Returns WrongKeySize for non-AES key lengths.
-        match symcrypt_sys::SymCryptAesExpandKey(
-            expanded_key.as_mut().get_inner_mut(),
-            key.as_ptr(),
-            key.len() as symcrypt_sys::SIZE_T,
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(expanded_key),
-            err => Err(err.into()),
-        }
-    }
-}
-
 impl AesKwKey {
     /// `new()` returns an [`AesKwKey`] or a [`SymCryptError`] if the key is the wrong size.
     /// Accepted key sizes are 16, 24, or 32 bytes (AES-128/192/256).
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
-        symcrypt_init();
-        let expanded_key = expand_aes_key(key)?;
-        Ok(AesKwKey { expanded_key })
+        Ok(AesKwKey { expanded_key: expand_aes_key(key)? })
     }
 
     /// `encrypt()` wraps `plaintext` using AES-KW and returns the ciphertext.
@@ -86,10 +67,6 @@ impl AesKwKey {
     /// `plaintext.len()` must be a multiple of 8 and at least 16. The returned `Vec` has length
     /// `plaintext.len() + 8`.
     pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        symcrypt_init();
-        if plaintext.len() < KW_MIN_PLAINTEXT_LEN || plaintext.len() % KW_SEMIBLOCK != 0 {
-            return Err(SymCryptError::WrongDataSize);
-        }
         let mut ciphertext = vec![0u8; plaintext.len() + KW_SEMIBLOCK];
         let mut written: symcrypt_sys::SIZE_T = 0;
         unsafe {
@@ -116,12 +93,6 @@ impl AesKwKey {
     /// `ciphertext.len()` must be a multiple of 8 and at least 24. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check fails.
     pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        symcrypt_init();
-        if ciphertext.len() < KW_MIN_PLAINTEXT_LEN + KW_SEMIBLOCK
-            || ciphertext.len() % KW_SEMIBLOCK != 0
-        {
-            return Err(SymCryptError::WrongDataSize);
-        }
         let mut plaintext = vec![0u8; ciphertext.len() - KW_SEMIBLOCK];
         let mut written: symcrypt_sys::SIZE_T = 0;
         unsafe {
@@ -148,19 +119,13 @@ impl AesKwpKey {
     /// `new()` returns an [`AesKwpKey`] or a [`SymCryptError`] if the key is the wrong size.
     /// Accepted key sizes are 16, 24, or 32 bytes (AES-128/192/256).
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
-        symcrypt_init();
-        let expanded_key = expand_aes_key(key)?;
-        Ok(AesKwpKey { expanded_key })
+        Ok(AesKwpKey { expanded_key: expand_aes_key(key)? })
     }
 
     /// `encrypt()` wraps `plaintext` (any non-zero length) using AES-KWP and returns the ciphertext.
     ///
     /// The output length is `plaintext.len() + 16 - (plaintext.len() % 8) - ((plaintext.len() % 8) == 0 ? 8 : 0)`.
     pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        symcrypt_init();
-        if plaintext.is_empty() {
-            return Err(SymCryptError::WrongDataSize);
-        }
         let padded_len = plaintext.len().next_multiple_of(KW_SEMIBLOCK);
         let mut ciphertext = vec![0u8; padded_len + KW_SEMIBLOCK];
         let mut written: symcrypt_sys::SIZE_T = 0;
@@ -188,10 +153,6 @@ impl AesKwpKey {
     /// `ciphertext.len()` must be a multiple of 8 and at least 16. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check or padding check fails.
     pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        symcrypt_init();
-        if ciphertext.len() < KW_SEMIBLOCK * 2 || ciphertext.len() % KW_SEMIBLOCK != 0 {
-            return Err(SymCryptError::WrongDataSize);
-        }
         // The header guarantees the plaintext fits in cbSrc - 8 bytes; the actual length comes
         // back via pcbResult, after which we truncate.
         let mut plaintext = vec![0u8; ciphertext.len() - KW_SEMIBLOCK];
@@ -281,7 +242,7 @@ mod test {
         let key = vec![0u8; 16];
         let pt = vec![0u8; 8]; // KW requires >=16
         let kw = AesKwKey::new(&key).unwrap();
-        assert_eq!(kw.encrypt(&pt).unwrap_err(), SymCryptError::WrongDataSize);
+        assert_eq!(kw.encrypt(&pt).unwrap_err(), SymCryptError::InvalidArgument);
     }
 
     #[test]
@@ -289,7 +250,7 @@ mod test {
         let key = vec![0u8; 16];
         let pt = vec![0u8; 17];
         let kw = AesKwKey::new(&key).unwrap();
-        assert_eq!(kw.encrypt(&pt).unwrap_err(), SymCryptError::WrongDataSize);
+        assert_eq!(kw.encrypt(&pt).unwrap_err(), SymCryptError::InvalidArgument);
     }
 
     #[test]
@@ -346,7 +307,7 @@ mod test {
     fn test_aes_kwp_empty_plaintext_fails() {
         let key = vec![0u8; 16];
         let kwp = AesKwpKey::new(&key).unwrap();
-        assert_eq!(kwp.encrypt(&[]).unwrap_err(), SymCryptError::WrongDataSize);
+        assert_eq!(kwp.encrypt(&[]).unwrap_err(), SymCryptError::InvalidArgument);
     }
 
     #[test]

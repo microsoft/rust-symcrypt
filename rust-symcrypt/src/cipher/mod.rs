@@ -87,26 +87,29 @@ pub struct AesExpandedKey {
 impl AesExpandedKey {
     /// `new()` returns an `AesExpandedKey` or a [`SymCryptError`] if the operation fails.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
-        symcrypt_init();
-        let mut expanded_key = AesInnerKey::new();
-
-        unsafe {
-            // SAFETY: FFI call
-            match symcrypt_sys::SymCryptAesExpandKey(
-                expanded_key.as_mut().get_inner_mut(),
-                key.as_ptr(),
-                key.len() as symcrypt_sys::SIZE_T,
-            ) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                    Ok(AesExpandedKey { expanded_key })
-                }
-                err => Err(err.into()),
-            }
-        }
+        Ok(AesExpandedKey { expanded_key: expand_aes_key(key)? })
     }
 
     pub fn get_block_size() -> u32 {
         AES_BLOCK_SIZE
+    }
+}
+
+/// Shared key-expansion helper. Used by (e.g. AES-KW, AES-KWP) so that the SymCrypt 
+/// `SymCryptAesExpandKey` call lives in one place.
+pub(crate) fn expand_aes_key(key: &[u8]) -> Result<Pin<Box<AesInnerKey>>, SymCryptError> {
+    symcrypt_init();
+    let mut expanded_key = AesInnerKey::new();
+    unsafe {
+        // SAFETY: FFI call. Returns WrongKeySize for non-AES key lengths.
+        match symcrypt_sys::SymCryptAesExpandKey(
+            expanded_key.as_mut().get_inner_mut(),
+            key.as_ptr(),
+            key.len() as symcrypt_sys::SIZE_T,
+        ) {
+            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(expanded_key),
+            err => Err(err.into()),
+        }
     }
 }
 

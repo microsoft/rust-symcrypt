@@ -56,7 +56,7 @@ Encryption:
 - XTS-AES-256 Encrypt/Decrypt
 
 Key Wrap (NIST SP 800-38F):
-- AES-KW (RFC 3394) — wraps 8-byte-aligned plaintext, output is plaintext + 8 bytes
+- AES-KW (RFC 3394) — Wraps plaintext that is a multiple of 8 bytes. Output length is the length of the plaintext + 8 bytes.
 - AES-KWP (RFC 5649) — wraps any non-zero-length plaintext
 
 ECC:
