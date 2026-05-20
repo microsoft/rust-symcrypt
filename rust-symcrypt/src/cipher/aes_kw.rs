@@ -93,7 +93,8 @@ impl AesKwKey {
     /// `ciphertext.len()` must be a multiple of 8 and at least 24. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check fails.
     pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        let mut plaintext = vec![0u8; ciphertext.len() - KW_SEMIBLOCK];
+        // SymCrypt will handle invalid data sizes
+        let mut plaintext = vec![0u8; ciphertext.len()];
         let mut written: symcrypt_sys::SIZE_T = 0;
         unsafe {
             // SAFETY: FFI call.
@@ -153,9 +154,8 @@ impl AesKwpKey {
     /// `ciphertext.len()` must be a multiple of 8 and at least 16. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check or padding check fails.
     pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        // The header guarantees the plaintext fits in cbSrc - 8 bytes; the actual length comes
-        // back via pcbResult, after which we truncate.
-        let mut plaintext = vec![0u8; ciphertext.len() - KW_SEMIBLOCK];
+        // SymCrypt will handle invalid data sizes
+        let mut plaintext = vec![0u8; ciphertext.len()];
         let mut written: symcrypt_sys::SIZE_T = 0;
         unsafe {
             // SAFETY: FFI call.

@@ -53,7 +53,7 @@ Encryption:
 - AES-GCM Encrypt/Decrypt
 - ChaCha20-Poly1305 Encrypt/Decrypt
 - AES-CBC Encrypt/Decrypt
-- XTS-AES-256 Encrypt/Decrypt
+- XTS-AES Encrypt/Decrypt (128, 192, 256-bit keys)
 
 Key Wrap (NIST SP 800-38F):
 - AES-KW (RFC 3394) — Wraps plaintext that is a multiple of 8 bytes. Output length is the length of the plaintext + 8 bytes.

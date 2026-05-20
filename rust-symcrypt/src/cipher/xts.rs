@@ -1,11 +1,15 @@
-//! XTS-AES-256 (NIST SP 800-38E) functions. For further documentation please refer to symcrypt.h
+//! XTS-AES (NIST SP 800-38E) functions. For further documentation please refer to symcrypt.h
+//!
+//! Supports XTS-AES-128, XTS-AES-192, and XTS-AES-256. The key passed to [`XtsAesKey::new`]
+//! must be two equal-length AES keys concatenated (32, 48, or 64 bytes total). Per FIPS the
+//! two halves must be unequal.
 //!
 //! # Examples
 //!
 //! ## Encrypt in place
 //!
 //! ```rust
-//! use symcrypt::cipher::xts::XtsAes256Key;
+//! use symcrypt::cipher::xts::XtsAesKey;
 //!
 //! // Set up input. Two AES-256 keys concatenated; per FIPS the halves must be unequal.
 //! let key = hex::decode("\
@@ -21,14 +25,14 @@
 //! let plaintext = buffer;
 //!
 //! // Perform encryption in place with data_unit_size = 32 and tweak = 0xff.
-//! let xts = XtsAes256Key::new(&key).unwrap();
+//! let xts = XtsAesKey::new(&key).unwrap();
 //! xts.encrypt_in_place(32, 0xff, &mut buffer).unwrap();
 //!
 //! ```
 //!
 //! ## Decrypt in place
 //! ```rust
-//! use symcrypt::cipher::xts::XtsAes256Key;
+//! use symcrypt::cipher::xts::XtsAesKey;
 //!
 //! // Set up input
 //! let key = hex::decode("\
@@ -41,7 +45,7 @@
 //! // (data_unit_size, tweak) so we have something to decrypt.
 //! let mut buffer = [0u8; 32];
 //! hex::decode_to_slice(expected_result, &mut buffer).unwrap();
-//! let xts = XtsAes256Key::new(&key).unwrap();
+//! let xts = XtsAesKey::new(&key).unwrap();
 //! xts.encrypt_in_place(32, 0xff, &mut buffer).unwrap();
 //!
 //! // Perform the decryption in place
@@ -58,27 +62,27 @@ use std::pin::Pin;
 use std::ptr;
 use symcrypt_sys;
 
-const XTS_AES_256_KEY_LEN: usize = 64;
 const XTS_DATA_UNIT_MIN: u64 = 16;
 const XTS_DATA_UNIT_MAX: u64 = 1 << 24;
 
-/// [`XtsAes256Key`] holds the expanded XTS-AES-256 key from SymCrypt.
+/// [`XtsAesKey`] holds an expanded XTS-AES key from SymCrypt.
 ///
-/// The expanded key is `Pin<Box<>>`'d because SymCrypt requires the underlying state to remain at a
-/// fixed address for its lifetime.
-pub struct XtsAes256Key {
-    expanded_key: Pin<Box<XtsAes256InnerKey>>,
+/// Accepts 32-byte (AES-128), 48-byte (AES-192), or 64-byte (AES-256) keys, each consisting
+/// of two equal-length AES keys concatenated. The expanded key is `Pin<Box<>>`'d because
+/// SymCrypt requires the underlying state to remain at a fixed address for its lifetime.
+pub struct XtsAesKey {
+    expanded_key: Pin<Box<XtsAesInnerKey>>,
 }
 
-/// [`XtsAes256InnerKey`] wraps the raw SymCrypt XTS expanded key.
-struct XtsAes256InnerKey {
+/// Wraps the raw SymCrypt XTS expanded key.
+struct XtsAesInnerKey {
     inner: symcrypt_sys::SYMCRYPT_XTS_AES_EXPANDED_KEY,
     _pinned: PhantomPinned,
 }
 
-impl XtsAes256InnerKey {
+impl XtsAesInnerKey {
     fn new() -> Pin<Box<Self>> {
-        Box::pin(XtsAes256InnerKey {
+        Box::pin(XtsAesInnerKey {
             inner: symcrypt_sys::SYMCRYPT_XTS_AES_EXPANDED_KEY::default(),
             _pinned: PhantomPinned,
         })
@@ -100,7 +104,7 @@ impl XtsAes256InnerKey {
     }
 }
 
-impl Drop for XtsAes256InnerKey {
+impl Drop for XtsAesInnerKey {
     fn drop(&mut self) {
         unsafe {
             // SAFETY: FFI calls
@@ -112,17 +116,15 @@ impl Drop for XtsAes256InnerKey {
     }
 }
 
-impl XtsAes256Key {
-    /// `new()` returns a new [`XtsAes256Key`] or a [`SymCryptError`] if the operation fails.
+impl XtsAesKey {
+    /// `new()` returns a new [`XtsAesKey`] or a [`SymCryptError`] if the operation fails.
     ///
-    /// `key` must be exactly 64 bytes, two AES-256 keys concatenated. The two halves
-    /// must be unequal; if they are equal, [`SymCryptError::FipsFailure`] is returned.
+    /// `key` must be 32, 48, or 64 bytes (two equal-length AES keys concatenated for
+    /// XTS-AES-128, XTS-AES-192, or XTS-AES-256 respectively). The two halves must be
+    /// unequal; if they are equal, [`SymCryptError::FipsFailure`] is returned.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
         symcrypt_init();
-        if key.len() != XTS_AES_256_KEY_LEN {
-            return Err(SymCryptError::WrongKeySize);
-        }
-        let mut expanded_key = XtsAes256InnerKey::new();
+        let mut expanded_key = XtsAesInnerKey::new();
         unsafe {
             // SAFETY: FFI call.
             match symcrypt_sys::SymCryptXtsAesExpandKeyEx(
@@ -131,13 +133,13 @@ impl XtsAes256Key {
                 key.len() as symcrypt_sys::SIZE_T,
                 0, // FIPS mode on. Enforces the key-halves-not-equal check.
             ) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(XtsAes256Key { expanded_key }),
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(XtsAesKey { expanded_key }),
                 err => Err(err.into()),
             }
         }
     }
 
-    /// `encrypt` encrypts `plaintext` into `ciphertext` using XTS-AES-256 with a 64-bit tweak.
+    /// `encrypt` encrypts `plaintext` into `ciphertext` using XTS-AES with a 64-bit tweak.
     ///
     /// `data_unit_size` is the size in bytes of each data unit, typically 512. It must be at least
     /// 16 and at most 2^24. `plaintext.len()` must be a multiple of `data_unit_size`.
@@ -157,7 +159,6 @@ impl XtsAes256Key {
         if plaintext.len() != ciphertext.len() {
             return Err(SymCryptError::WrongDataSize);
         }
-        symcrypt_init();
         unsafe {
             // SAFETY: FFI call.
             symcrypt_sys::SymCryptXtsAesEncrypt(
@@ -172,7 +173,7 @@ impl XtsAes256Key {
         Ok(())
     }
 
-    /// `encrypt_in_place` encrypts `buffer` in place using XTS-AES-256 with a 64-bit tweak.
+    /// `encrypt_in_place` encrypts `buffer` in place using XTS-AES with a 64-bit tweak.
     ///
     /// `data_unit_size` is the size in bytes of each data unit, typically 512.
     /// It must be at least 16 and at most 2^24. `buffer.len()` must be a multiple of `data_unit_size`.
@@ -188,7 +189,6 @@ impl XtsAes256Key {
         buffer: &mut [u8],
     ) -> Result<(), SymCryptError> {
         validate_xts_args(data_unit_size, buffer.len())?;
-        symcrypt_init();
         unsafe {
             // SAFETY: FFI call.
             symcrypt_sys::SymCryptXtsAesEncrypt(
@@ -203,7 +203,7 @@ impl XtsAes256Key {
         Ok(())
     }
 
-    /// `decrypt` decrypts `ciphertext` into `plaintext` using XTS-AES-256 with a 64-bit tweak.
+    /// `decrypt` decrypts `ciphertext` into `plaintext` using XTS-AES with a 64-bit tweak.
     ///
     /// `data_unit_size` is the size in bytes of each data unit, typically 512. It must be at least
     /// 16 and at most 2^24. `ciphertext.len()` must be a multiple of `data_unit_size`.
@@ -223,7 +223,6 @@ impl XtsAes256Key {
         if ciphertext.len() != plaintext.len() {
             return Err(SymCryptError::WrongDataSize);
         }
-        symcrypt_init();
         unsafe {
             // SAFETY: FFI call.
             symcrypt_sys::SymCryptXtsAesDecrypt(
@@ -238,7 +237,7 @@ impl XtsAes256Key {
         Ok(())
     }
 
-    /// `decrypt_in_place` decrypts `buffer` in place using XTS-AES-256 with a 64-bit tweak.
+    /// `decrypt_in_place` decrypts `buffer` in place using XTS-AES with a 64-bit tweak.
     ///
     /// `data_unit_size` is the size in bytes of each data unit, typically 512.
     /// It must be at least 16 and at most 2^24. `buffer.len()` must be a multiple of `data_unit_size`.
@@ -254,7 +253,6 @@ impl XtsAes256Key {
         buffer: &mut [u8],
     ) -> Result<(), SymCryptError> {
         validate_xts_args(data_unit_size, buffer.len())?;
-        symcrypt_init();
         unsafe {
             // SAFETY: FFI call.
             symcrypt_sys::SymCryptXtsAesDecrypt(
@@ -268,14 +266,137 @@ impl XtsAes256Key {
         }
         Ok(())
     }
+
+    /// `encrypt_with_128b_tweak` encrypts `plaintext` into `ciphertext` using XTS-AES with a
+    /// 128-bit tweak.
+    ///
+    /// `data_unit_size` is the size in bytes of each data unit, typically 512. It must be at least
+    /// 16 and at most 2^24. `plaintext.len()` must be a multiple of `data_unit_size`.
+    /// `tweak` is a `&[u8; 16]` containing the 128-bit tweak for the first data unit; it is
+    /// incremented as a 128-bit integer for each subsequent data unit.
+    pub fn encrypt_with_128b_tweak(
+        &self,
+        data_unit_size: u64,
+        tweak: &[u8; 16],
+        plaintext: &[u8],
+        ciphertext: &mut [u8],
+    ) -> Result<(), SymCryptError> {
+        validate_xts_args(data_unit_size, plaintext.len())?;
+        if plaintext.len() != ciphertext.len() {
+            return Err(SymCryptError::WrongDataSize);
+        }
+        unsafe {
+            // SAFETY: FFI call.
+            symcrypt_sys::SymCryptXtsAesEncryptWith128bTweak(
+                self.expanded_key.get_inner(),
+                data_unit_size as symcrypt_sys::SIZE_T,
+                tweak.as_ptr(),
+                plaintext.as_ptr(),
+                ciphertext.as_mut_ptr(),
+                plaintext.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+        Ok(())
+    }
+
+    /// `encrypt_in_place_with_128b_tweak` encrypts `buffer` in place using XTS-AES with a
+    /// 128-bit tweak.
+    ///
+    /// `data_unit_size` is the size in bytes of each data unit, typically 512.
+    /// It must be at least 16 and at most 2^24. `buffer.len()` must be a multiple of `data_unit_size`.
+    /// `tweak` is a `&[u8; 16]` containing the 128-bit tweak for the first data unit; it is
+    /// incremented as a 128-bit integer for each subsequent data unit.
+    pub fn encrypt_in_place_with_128b_tweak(
+        &self,
+        data_unit_size: u64,
+        tweak: &[u8; 16],
+        buffer: &mut [u8],
+    ) -> Result<(), SymCryptError> {
+        validate_xts_args(data_unit_size, buffer.len())?;
+        unsafe {
+            // SAFETY: FFI call.
+            symcrypt_sys::SymCryptXtsAesEncryptWith128bTweak(
+                self.expanded_key.get_inner(),
+                data_unit_size as symcrypt_sys::SIZE_T,
+                tweak.as_ptr(),
+                buffer.as_ptr(),
+                buffer.as_mut_ptr(),
+                buffer.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+        Ok(())
+    }
+
+    /// `decrypt_with_128b_tweak` decrypts `ciphertext` into `plaintext` using XTS-AES with a
+    /// 128-bit tweak.
+    ///
+    /// `data_unit_size` is the size in bytes of each data unit, typically 512. It must be at least
+    /// 16 and at most 2^24. `ciphertext.len()` must be a multiple of `data_unit_size`.
+    /// `tweak` is a `&[u8; 16]` containing the 128-bit tweak for the first data unit; it is
+    /// incremented as a 128-bit integer for each subsequent data unit.
+    pub fn decrypt_with_128b_tweak(
+        &self,
+        data_unit_size: u64,
+        tweak: &[u8; 16],
+        ciphertext: &[u8],
+        plaintext: &mut [u8],
+    ) -> Result<(), SymCryptError> {
+        validate_xts_args(data_unit_size, ciphertext.len())?;
+        if ciphertext.len() != plaintext.len() {
+            return Err(SymCryptError::WrongDataSize);
+        }
+        unsafe {
+            // SAFETY: FFI call.
+            symcrypt_sys::SymCryptXtsAesDecryptWith128bTweak(
+                self.expanded_key.get_inner(),
+                data_unit_size as symcrypt_sys::SIZE_T,
+                tweak.as_ptr(),
+                ciphertext.as_ptr(),
+                plaintext.as_mut_ptr(),
+                ciphertext.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+        Ok(())
+    }
+
+    /// `decrypt_in_place_with_128b_tweak` decrypts `buffer` in place using XTS-AES with a
+    /// 128-bit tweak.
+    ///
+    /// `data_unit_size` is the size in bytes of each data unit, typically 512.
+    /// It must be at least 16 and at most 2^24. `buffer.len()` must be a multiple of `data_unit_size`.
+    /// `tweak` is a `&[u8; 16]` containing the 128-bit tweak for the first data unit; it is
+    /// incremented as a 128-bit integer for each subsequent data unit.
+    pub fn decrypt_in_place_with_128b_tweak(
+        &self,
+        data_unit_size: u64,
+        tweak: &[u8; 16],
+        buffer: &mut [u8],
+    ) -> Result<(), SymCryptError> {
+        validate_xts_args(data_unit_size, buffer.len())?;
+        unsafe {
+            // SAFETY: FFI call.
+            symcrypt_sys::SymCryptXtsAesDecryptWith128bTweak(
+                self.expanded_key.get_inner(),
+                data_unit_size as symcrypt_sys::SIZE_T,
+                tweak.as_ptr(),
+                buffer.as_ptr(),
+                buffer.as_mut_ptr(),
+                buffer.len() as symcrypt_sys::SIZE_T,
+            );
+        }
+        Ok(())
+    }
 }
 
-// No custom Send / Sync impl. needed for XtsAes256Key since the
+// No custom Send / Sync impl. needed for XtsAesKey since the
 // underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
-unsafe impl Send for XtsAes256Key {}
-unsafe impl Sync for XtsAes256Key {}
+unsafe impl Send for XtsAesKey {}
+unsafe impl Sync for XtsAesKey {}
 
 fn validate_xts_args(data_unit_size: u64, data_len: usize) -> Result<(), SymCryptError> {
+    if data_len == 0 {
+        return Err(SymCryptError::WrongDataSize);
+    }
     if !(XTS_DATA_UNIT_MIN..=XTS_DATA_UNIT_MAX).contains(&data_unit_size) {
         return Err(SymCryptError::InvalidArgument);
     }
@@ -327,7 +448,7 @@ mod test {
         assert_eq!(plaintext.len(), 512);
         assert_eq!(expected_ciphertext.len(), 512);
 
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
 
         let mut buffer = plaintext.clone();
         xts.encrypt_in_place(512, 0xff, &mut buffer).unwrap();
@@ -340,7 +461,7 @@ mod test {
     #[test]
     fn test_xts_aes_256_round_trip_single_unit() {
         let key = hex::decode(KEY_HEX).unwrap();
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
 
         let original: Vec<u8> = (0..64u8).collect();
         let mut buffer = original.clone();
@@ -355,7 +476,7 @@ mod test {
     #[test]
     fn test_xts_aes_256_round_trip_multiple_units() {
         let key = hex::decode(KEY_HEX).unwrap();
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
 
         let original: Vec<u8> = (0..=255u8).collect(); // 256 bytes
         let mut buffer = original.clone();
@@ -368,7 +489,7 @@ mod test {
     #[test]
     fn test_xts_aes_256_different_tweaks_produce_different_ciphertext() {
         let key = hex::decode(KEY_HEX).unwrap();
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
 
         let plaintext: Vec<u8> = (0..64u8).collect();
         let mut a = plaintext.clone();
@@ -380,12 +501,30 @@ mod test {
     }
 
     #[test]
-    fn test_xts_aes_256_wrong_key_size() {
-        let key = vec![0u8; 32]; // XTS-AES-128 length, not allowed here
-        match XtsAes256Key::new(&key) {
+    fn test_xts_aes_wrong_key_size() {
+        // 17 bytes is not a valid AES key pair size.
+        // SymCrypt splits into two 8-byte halves, which AES rejects as WrongKeySize.
+        let key: Vec<u8> = (0..17u8).collect();
+        match XtsAesKey::new(&key) {
             Ok(_) => panic!("expected WrongKeySize"),
             Err(err) => assert_eq!(err, SymCryptError::WrongKeySize),
         }
+    }
+
+    #[test]
+    fn test_xts_aes_128_round_trip() {
+        // 32 bytes = two AES-128 keys
+        let key: Vec<u8> = (0..32u8).collect();
+        let xts = XtsAesKey::new(&key).unwrap();
+
+        let original: Vec<u8> = (0..64u8).collect();
+        let mut buffer = original.clone();
+
+        xts.encrypt_in_place(64, 0, &mut buffer).unwrap();
+        assert_ne!(buffer, original);
+
+        xts.decrypt_in_place(64, 0, &mut buffer).unwrap();
+        assert_eq!(buffer, original);
     }
 
     #[test]
@@ -396,7 +535,7 @@ mod test {
             key[i] = i as u8;
             key[i + 32] = i as u8;
         }
-        match XtsAes256Key::new(&key) {
+        match XtsAesKey::new(&key) {
             Ok(_) => panic!("expected FIPS-related failure on equal key halves"),
             Err(err) => assert!(
                 matches!(
@@ -412,7 +551,7 @@ mod test {
     #[test]
     fn test_xts_aes_256_invalid_data_unit_size() {
         let key = hex::decode(KEY_HEX).unwrap();
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
         let mut buffer = [0u8; 64];
 
         // data_unit_size below 16
@@ -421,9 +560,19 @@ mod test {
     }
 
     #[test]
+    fn test_xts_aes_empty_buffer_fails() {
+        let key = hex::decode(KEY_HEX).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
+        let mut buffer = [0u8; 0];
+
+        let r = xts.encrypt_in_place(16, 0, &mut buffer);
+        assert_eq!(r.unwrap_err(), SymCryptError::WrongDataSize);
+    }
+
+    #[test]
     fn test_xts_aes_256_buffer_not_multiple_of_data_unit() {
         let key = hex::decode(KEY_HEX).unwrap();
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
         let mut buffer = [0u8; 80]; // 80 is not a multiple of 64
 
         let r = xts.encrypt_in_place(64, 0, &mut buffer);
@@ -433,7 +582,7 @@ mod test {
     #[test]
     fn test_xts_aes_256_out_of_place_round_trip() {
         let key = hex::decode(KEY_HEX).unwrap();
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
 
         let plaintext: Vec<u8> = (0..64u8).collect();
         let mut ciphertext = vec![0u8; plaintext.len()];
@@ -449,7 +598,7 @@ mod test {
     #[test]
     fn test_xts_aes_256_out_of_place_matches_in_place() {
         let key = hex::decode(KEY_HEX).unwrap();
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
 
         let plaintext: Vec<u8> = (0..=255u8).collect();
 
@@ -467,11 +616,68 @@ mod test {
     #[test]
     fn test_xts_aes_256_out_of_place_size_mismatch() {
         let key = hex::decode(KEY_HEX).unwrap();
-        let xts = XtsAes256Key::new(&key).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
 
         let plaintext = vec![0u8; 64];
         let mut ciphertext = vec![0u8; 32]; // wrong size
         let r = xts.encrypt(64, 0, &plaintext, &mut ciphertext);
         assert_eq!(r.unwrap_err(), SymCryptError::WrongDataSize);
+    }
+
+    // -------- 128-bit tweak --------
+
+    #[test]
+    fn test_xts_aes_128b_tweak_in_place_round_trip() {
+        let key = hex::decode(KEY_HEX).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
+
+        let tweak: [u8; 16] = [0xff; 16];
+        let original: Vec<u8> = (0..64u8).collect();
+        let mut buffer = original.clone();
+
+        xts.encrypt_in_place_with_128b_tweak(64, &tweak, &mut buffer).unwrap();
+        assert_ne!(buffer, original);
+
+        xts.decrypt_in_place_with_128b_tweak(64, &tweak, &mut buffer).unwrap();
+        assert_eq!(buffer, original);
+    }
+
+    #[test]
+    fn test_xts_aes_128b_tweak_out_of_place_round_trip() {
+        let key = hex::decode(KEY_HEX).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
+
+        let tweak: [u8; 16] = [0x01; 16];
+        let plaintext: Vec<u8> = (0..64u8).collect();
+        let mut ciphertext = vec![0u8; plaintext.len()];
+
+        xts.encrypt_with_128b_tweak(64, &tweak, &plaintext, &mut ciphertext).unwrap();
+        assert_ne!(ciphertext, plaintext);
+
+        let mut recovered = vec![0u8; ciphertext.len()];
+        xts.decrypt_with_128b_tweak(64, &tweak, &ciphertext, &mut recovered).unwrap();
+        assert_eq!(recovered, plaintext);
+    }
+
+    #[test]
+    fn test_xts_aes_128b_tweak_differs_from_64b_tweak() {
+        let key = hex::decode(KEY_HEX).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
+
+        let plaintext: Vec<u8> = (0..64u8).collect();
+
+        // 64-bit tweak = 0xff
+        let mut ct_64 = plaintext.clone();
+        xts.encrypt_in_place(64, 0xff, &mut ct_64).unwrap();
+
+        // 128-bit tweak with high 64 bits set (differs from 64-bit variant which zeros the high half)
+        let tweak_128: [u8; 16] = [
+            0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        ];
+        let mut ct_128 = plaintext.clone();
+        xts.encrypt_in_place_with_128b_tweak(64, &tweak_128, &mut ct_128).unwrap();
+
+        assert_ne!(ct_64, ct_128);
     }
 }
