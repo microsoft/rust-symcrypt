@@ -635,10 +635,12 @@ mod test {
         let original: Vec<u8> = (0..64u8).collect();
         let mut buffer = original.clone();
 
-        xts.encrypt_in_place_with_128b_tweak(64, &tweak, &mut buffer).unwrap();
+        xts.encrypt_in_place_with_128b_tweak(64, &tweak, &mut buffer)
+            .unwrap();
         assert_ne!(buffer, original);
 
-        xts.decrypt_in_place_with_128b_tweak(64, &tweak, &mut buffer).unwrap();
+        xts.decrypt_in_place_with_128b_tweak(64, &tweak, &mut buffer)
+            .unwrap();
         assert_eq!(buffer, original);
     }
 
@@ -651,11 +653,13 @@ mod test {
         let plaintext: Vec<u8> = (0..64u8).collect();
         let mut ciphertext = vec![0u8; plaintext.len()];
 
-        xts.encrypt_with_128b_tweak(64, &tweak, &plaintext, &mut ciphertext).unwrap();
+        xts.encrypt_with_128b_tweak(64, &tweak, &plaintext, &mut ciphertext)
+            .unwrap();
         assert_ne!(ciphertext, plaintext);
 
         let mut recovered = vec![0u8; ciphertext.len()];
-        xts.decrypt_with_128b_tweak(64, &tweak, &ciphertext, &mut recovered).unwrap();
+        xts.decrypt_with_128b_tweak(64, &tweak, &ciphertext, &mut recovered)
+            .unwrap();
         assert_eq!(recovered, plaintext);
     }
 
@@ -672,11 +676,12 @@ mod test {
 
         // 128-bit tweak with high 64 bits set (differs from 64-bit variant which zeros the high half)
         let tweak_128: [u8; 16] = [
-            0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00,
         ];
         let mut ct_128 = plaintext.clone();
-        xts.encrypt_in_place_with_128b_tweak(64, &tweak_128, &mut ct_128).unwrap();
+        xts.encrypt_in_place_with_128b_tweak(64, &tweak_128, &mut ct_128)
+            .unwrap();
 
         assert_ne!(ct_64, ct_128);
     }

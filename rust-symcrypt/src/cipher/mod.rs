@@ -87,7 +87,9 @@ pub struct AesExpandedKey {
 impl AesExpandedKey {
     /// `new()` returns an `AesExpandedKey` or a [`SymCryptError`] if the operation fails.
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
-        Ok(AesExpandedKey { expanded_key: expand_aes_key(key)? })
+        Ok(AesExpandedKey {
+            expanded_key: expand_aes_key(key)?,
+        })
     }
 
     pub fn get_block_size() -> u32 {
@@ -95,7 +97,7 @@ impl AesExpandedKey {
     }
 }
 
-/// Shared key-expansion helper. Used by (e.g. AES-KW, AES-KWP) so that the SymCrypt 
+/// Shared key-expansion helper. Used by (e.g. AES-KW, AES-KWP) so that the SymCrypt
 /// `SymCryptAesExpandKey` call lives in one place.
 pub(crate) fn expand_aes_key(key: &[u8]) -> Result<Pin<Box<AesInnerKey>>, SymCryptError> {
     symcrypt_init();

@@ -59,7 +59,9 @@ impl AesKwKey {
     /// `new()` returns an [`AesKwKey`] or a [`SymCryptError`] if the key is the wrong size.
     /// Accepted key sizes are 16, 24, or 32 bytes (AES-128/192/256).
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
-        Ok(AesKwKey { expanded_key: expand_aes_key(key)? })
+        Ok(AesKwKey {
+            expanded_key: expand_aes_key(key)?,
+        })
     }
 
     /// `encrypt()` wraps `plaintext` using AES-KW and returns the ciphertext.
@@ -120,7 +122,9 @@ impl AesKwpKey {
     /// `new()` returns an [`AesKwpKey`] or a [`SymCryptError`] if the key is the wrong size.
     /// Accepted key sizes are 16, 24, or 32 bytes (AES-128/192/256).
     pub fn new(key: &[u8]) -> Result<Self, SymCryptError> {
-        Ok(AesKwpKey { expanded_key: expand_aes_key(key)? })
+        Ok(AesKwpKey {
+            expanded_key: expand_aes_key(key)?,
+        })
     }
 
     /// `encrypt()` wraps `plaintext` (any non-zero length) using AES-KWP and returns the ciphertext.
@@ -307,7 +311,10 @@ mod test {
     fn test_aes_kwp_empty_plaintext_fails() {
         let key = vec![0u8; 16];
         let kwp = AesKwpKey::new(&key).unwrap();
-        assert_eq!(kwp.encrypt(&[]).unwrap_err(), SymCryptError::InvalidArgument);
+        assert_eq!(
+            kwp.encrypt(&[]).unwrap_err(),
+            SymCryptError::InvalidArgument
+        );
     }
 
     #[test]
