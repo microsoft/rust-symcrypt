@@ -10,9 +10,10 @@
 //!
 //! AES-KW(P) is significantly slower than other AES modes, use of this cipher is not recommended.
 //!
-//! The recovered plaintext returned by [`AesKwKey::decrypt`] and [`AesKwpKey::decrypt`] is
-//! held in a [`zeroize::Zeroizing<Vec<u8>>`] so the backing buffer is wiped on drop and
-//! recovered key material does not linger in the allocator after the value goes out of scope.
+//! The plaintext recovered by [`AesKwKey::decrypt`] and [`AesKwpKey::decrypt`] is returned in a
+//! plain [`Vec<u8>`]. The recovered bytes are sensitive key material, and it is the caller's
+//! responsibility to wipe the buffer (for example with [`zeroize`](https://crates.io/crates/zeroize))
+//! when it is no longer needed; simply dropping the `Vec` does **not** clear its memory.
 //!
 //! # Examples
 //!
@@ -26,7 +27,7 @@
 //! let kw = AesKwKey::new(&wrapping_key).unwrap();
 //! let ciphertext = kw.encrypt(&plaintext).unwrap();
 //! let recovered = kw.decrypt(&ciphertext).unwrap();
-//! assert_eq!(*recovered, plaintext);
+//! assert_eq!(recovered, plaintext);
 //! ```
 //!
 //! ## AES-KWP
@@ -39,14 +40,13 @@
 //! let kwp = AesKwpKey::new(&wrapping_key).unwrap();
 //! let ciphertext = kwp.encrypt(&plaintext).unwrap();
 //! let recovered = kwp.decrypt(&ciphertext).unwrap();
-//! assert_eq!(*recovered, plaintext);
+//! assert_eq!(recovered, plaintext);
 //! ```
 
 use crate::cipher::{expand_aes_key, AesInnerKey};
 use crate::errors::SymCryptError;
 use std::pin::Pin;
 use symcrypt_sys;
-use zeroize::Zeroizing;
 
 const KW_SEMIBLOCK: usize = 8;
 
@@ -123,8 +123,11 @@ impl AesKwKey {
     ///
     /// `ciphertext.len()` must be a multiple of 8 and at least 24. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check fails.
-    /// The plaintext is held in a [`Zeroizing<Vec<u8>>`] that wipes its backing buffer on drop.
-    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Zeroizing<Vec<u8>>, SymCryptError> {
+    ///
+    /// The returned `Vec<u8>` holds sensitive key material. Dropping it does **not** wipe the
+    /// underlying memory; callers should explicitly zero the buffer (e.g. with the
+    /// [`zeroize`](https://crates.io/crates/zeroize) crate) once it is no longer needed.
+    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         // SymCrypt's SymCryptAesKwDecrypt writes exactly `ciphertext.len() - 8` bytes on
         // success and requires `cbDst >= cbSrc - 8`.
         let mut plaintext = vec![0u8; ciphertext.len().saturating_sub(KW_SEMIBLOCK)];
@@ -141,7 +144,7 @@ impl AesKwKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     plaintext.truncate(written as usize);
-                    Ok(Zeroizing::new(plaintext))
+                    Ok(plaintext)
                 }
                 err => Err(err.into()),
             }
@@ -189,9 +192,11 @@ impl AesKwpKey {
     ///
     /// `ciphertext.len()` must be a multiple of 8 and at least 16. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check or padding check fails.
-    /// The recovered plaintext is held in a [`Zeroizing<Vec<u8>>`] that wipes its backing
-    /// buffer on drop.
-    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Zeroizing<Vec<u8>>, SymCryptError> {
+    ///
+    /// The returned `Vec<u8>` holds sensitive key material. Dropping it does **not** wipe the
+    /// underlying memory; callers should explicitly zero the buffer (e.g. with the
+    /// [`zeroize`](https://crates.io/crates/zeroize) crate) once it is no longer needed.
+    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
         // SymCrypt's SymCryptAesKwpDecrypt requires `cbDst >= cbSrc - 15`, and the actual
         // plaintext length is always `<= cbSrc - 8`. Allocate that upper bound; the buffer
         // is truncated to the real plaintext length on success.
@@ -209,7 +214,7 @@ impl AesKwpKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     plaintext.truncate(written as usize);
-                    Ok(Zeroizing::new(plaintext))
+                    Ok(plaintext)
                 }
                 err => Err(err.into()),
             }
@@ -254,7 +259,7 @@ mod test {
         let expected_pt = hex::decode(KW_PT_HEX).unwrap();
         let kw = AesKwKey::new(&key).unwrap();
         let pt = kw.decrypt(&ct).unwrap();
-        assert_eq!(*pt, expected_pt);
+        assert_eq!(pt, expected_pt);
     }
 
     #[test]
@@ -265,7 +270,7 @@ mod test {
         let ct = kw.encrypt(&pt).unwrap();
         assert_eq!(ct.len(), pt.len() + 8);
         let recovered = kw.decrypt(&ct).unwrap();
-        assert_eq!(*recovered, pt);
+        assert_eq!(recovered, pt);
     }
 
     #[test]
@@ -325,7 +330,7 @@ mod test {
         let expected_pt = hex::decode(KWP_PT_HEX).unwrap();
         let kwp = AesKwpKey::new(&key).unwrap();
         let pt = kwp.decrypt(&ct).unwrap();
-        assert_eq!(*pt, expected_pt);
+        assert_eq!(pt, expected_pt);
     }
 
     #[test]
@@ -339,7 +344,7 @@ mod test {
             let expected_ct_len = pt.len().next_multiple_of(8) + 8;
             assert_eq!(ct.len(), expected_ct_len, "len={}", len);
             let recovered = kwp.decrypt(&ct).unwrap();
-            assert_eq!(*recovered, pt, "round-trip mismatch at len={}", len);
+            assert_eq!(recovered, pt, "round-trip mismatch at len={}", len);
         }
     }
 
