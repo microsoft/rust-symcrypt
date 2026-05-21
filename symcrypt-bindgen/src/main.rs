@@ -75,6 +75,10 @@ fn main() {
         .allowlist_var("SymCryptAesBlockCipher")
         .allowlist_function("^SymCryptAesExpandKey$")
         .allowlist_var("SYMCRYPT_AES_BLOCK_SIZE")
+        // XTS-AES FUNCTIONS
+        .allowlist_function("^SymCryptXtsAes(ExpandKey|ExpandKeyEx|KeyCopy|Encrypt|Decrypt|EncryptWith128bTweak|DecryptWith128bTweak)$")
+        // AES-KW and AES-KWP FUNCTIONS (SP 800-38F)
+        .allowlist_function("^SymCryptAes(Kw|Kwp)(Encrypt|Decrypt)$")
         // HKDF FUNCTIONS
         .allowlist_function("^(SymCryptHkdf.*)$")
         // SP800-108 FUNCTIONS

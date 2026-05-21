@@ -53,6 +53,11 @@ Encryption:
 - AES-GCM Encrypt/Decrypt
 - ChaCha20-Poly1305 Encrypt/Decrypt
 - AES-CBC Encrypt/Decrypt
+- XTS-AES Encrypt/Decrypt (128, 192, 256-bit keys)
+
+Key Wrap (NIST SP 800-38F):
+- AES-KW (RFC 3394) — Wraps plaintext that is a multiple of 8 bytes. Output length is the length of the plaintext + 8 bytes.
+- AES-KWP (RFC 5649) — wraps any non-zero-length plaintext
 
 ECC:
 - ECDH Secret Agreement ( NistP256, NistP384, NistP521, Curve25519)

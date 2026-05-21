@@ -1438,6 +1438,36 @@ impl Default for _SYMCRYPT_AES_CMAC_EXPANDED_KEY {
 pub type SYMCRYPT_AES_CMAC_EXPANDED_KEY = _SYMCRYPT_AES_CMAC_EXPANDED_KEY;
 #[repr(C)]
 #[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_XTS_AES_EXPANDED_KEY {
+    pub key1: SYMCRYPT_AES_EXPANDED_KEY,
+    pub key2: SYMCRYPT_AES_EXPANDED_KEY,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_XTS_AES_EXPANDED_KEY"]
+        [::std::mem::size_of::<_SYMCRYPT_XTS_AES_EXPANDED_KEY>() - 992usize];
+    ["Alignment of _SYMCRYPT_XTS_AES_EXPANDED_KEY"]
+        [::std::mem::align_of::<_SYMCRYPT_XTS_AES_EXPANDED_KEY>() - 16usize];
+    ["Offset of field: _SYMCRYPT_XTS_AES_EXPANDED_KEY::key1"]
+        [::std::mem::offset_of!(_SYMCRYPT_XTS_AES_EXPANDED_KEY, key1) - 0usize];
+    ["Offset of field: _SYMCRYPT_XTS_AES_EXPANDED_KEY::key2"]
+        [::std::mem::offset_of!(_SYMCRYPT_XTS_AES_EXPANDED_KEY, key2) - 496usize];
+};
+impl Default for _SYMCRYPT_XTS_AES_EXPANDED_KEY {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_XTS_AES_EXPANDED_KEY = _SYMCRYPT_XTS_AES_EXPANDED_KEY;
+pub type PSYMCRYPT_XTS_AES_EXPANDED_KEY = *mut _SYMCRYPT_XTS_AES_EXPANDED_KEY;
+pub type PCSYMCRYPT_XTS_AES_EXPANDED_KEY = *const SYMCRYPT_XTS_AES_EXPANDED_KEY;
+#[repr(C)]
+#[repr(align(16))]
 #[derive(Copy, Clone)]
 pub union _SYMCRYPT_MAC_EXPANDED_KEY {
     pub md5Key: SYMCRYPT_HMAC_MD5_EXPANDED_KEY,
@@ -3207,6 +3237,107 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn SymCryptRandom(pbRandom: PBYTE, cbRandom: SIZE_T);
+}
+unsafe extern "C" {
+    pub fn SymCryptXtsAesExpandKey(
+        pExpandedKey: PSYMCRYPT_XTS_AES_EXPANDED_KEY,
+        pbKey: PCBYTE,
+        cbKey: SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptXtsAesExpandKeyEx(
+        pExpandedKey: PSYMCRYPT_XTS_AES_EXPANDED_KEY,
+        pbKey: PCBYTE,
+        cbKey: SIZE_T,
+        flags: UINT32,
+    ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptXtsAesKeyCopy(
+        pSrc: PCSYMCRYPT_XTS_AES_EXPANDED_KEY,
+        pDst: PSYMCRYPT_XTS_AES_EXPANDED_KEY,
+    );
+}
+unsafe extern "C" {
+    pub fn SymCryptXtsAesEncrypt(
+        pExpandedKey: PCSYMCRYPT_XTS_AES_EXPANDED_KEY,
+        cbDataUnit: SIZE_T,
+        tweak: UINT64,
+        pbSrc: PCBYTE,
+        pbDst: PBYTE,
+        cbData: SIZE_T,
+    );
+}
+unsafe extern "C" {
+    pub fn SymCryptXtsAesDecrypt(
+        pExpandedKey: PCSYMCRYPT_XTS_AES_EXPANDED_KEY,
+        cbDataUnit: SIZE_T,
+        tweak: UINT64,
+        pbSrc: PCBYTE,
+        pbDst: PBYTE,
+        cbData: SIZE_T,
+    );
+}
+unsafe extern "C" {
+    pub fn SymCryptXtsAesEncryptWith128bTweak(
+        pExpandedKey: PCSYMCRYPT_XTS_AES_EXPANDED_KEY,
+        cbDataUnit: SIZE_T,
+        pbTweak: PCBYTE,
+        pbSrc: PCBYTE,
+        pbDst: PBYTE,
+        cbData: SIZE_T,
+    );
+}
+unsafe extern "C" {
+    pub fn SymCryptXtsAesDecryptWith128bTweak(
+        pExpandedKey: PCSYMCRYPT_XTS_AES_EXPANDED_KEY,
+        cbDataUnit: SIZE_T,
+        pbTweak: PCBYTE,
+        pbSrc: PCBYTE,
+        pbDst: PBYTE,
+        cbData: SIZE_T,
+    );
+}
+unsafe extern "C" {
+    pub fn SymCryptAesKwEncrypt(
+        pExpandedKey: PCSYMCRYPT_AES_EXPANDED_KEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+        pcbResult: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptAesKwDecrypt(
+        pExpandedKey: PCSYMCRYPT_AES_EXPANDED_KEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+        pcbResult: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptAesKwpEncrypt(
+        pExpandedKey: PCSYMCRYPT_AES_EXPANDED_KEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+        pcbResult: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
+}
+unsafe extern "C" {
+    pub fn SymCryptAesKwpDecrypt(
+        pExpandedKey: PCSYMCRYPT_AES_EXPANDED_KEY,
+        pbSrc: PCBYTE,
+        cbSrc: SIZE_T,
+        pbDst: PBYTE,
+        cbDst: SIZE_T,
+        pcbResult: *mut SIZE_T,
+    ) -> SYMCRYPT_ERROR;
 }
 pub const _SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_LSB_FIRST: _SYMCRYPT_NUMBER_FORMAT = 1;
 pub const _SYMCRYPT_NUMBER_FORMAT_SYMCRYPT_NUMBER_FORMAT_MSB_FIRST: _SYMCRYPT_NUMBER_FORMAT = 2;
