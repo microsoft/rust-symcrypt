@@ -394,11 +394,17 @@ unsafe impl Send for XtsAesKey {}
 unsafe impl Sync for XtsAesKey {}
 
 fn validate_xts_args(data_unit_size: u64, data_len: usize) -> Result<(), SymCryptError> {
-    if data_len == 0 {
-        return Err(SymCryptError::WrongDataSize);
-    }
     if !(XTS_DATA_UNIT_MIN..=XTS_DATA_UNIT_MAX).contains(&data_unit_size) {
         return Err(SymCryptError::InvalidArgument);
+    }
+    // SP 800-38E requires each data unit to be a multiple of the AES block size.
+    // SymCrypt's XTS encrypt/decrypt functions return VOID and only debug-assert
+    // alignment, so this check has to live in the wrapper.
+    if data_unit_size % (symcrypt_sys::SYMCRYPT_AES_BLOCK_SIZE as u64) != 0 {
+        return Err(SymCryptError::InvalidArgument);
+    }
+    if data_len == 0 {
+        return Err(SymCryptError::WrongDataSize);
     }
     if (data_len as u64) % data_unit_size != 0 {
         return Err(SymCryptError::WrongDataSize);
@@ -560,13 +566,37 @@ mod test {
     }
 
     #[test]
+    fn test_xts_aes_data_unit_size_not_block_aligned() {
+        let key = hex::decode(KEY_HEX).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
+        let mut buffer = [0u8; 64];
+
+        let r = xts.encrypt_in_place(17, 0, &mut buffer);
+        assert_eq!(r.unwrap_err(), SymCryptError::InvalidArgument);
+
+        let r = xts.encrypt_in_place(24, 0, &mut buffer);
+        assert_eq!(r.unwrap_err(), SymCryptError::InvalidArgument);
+    }
+
+    #[test]
     fn test_xts_aes_empty_buffer_fails() {
         let key = hex::decode(KEY_HEX).unwrap();
         let xts = XtsAesKey::new(&key).unwrap();
         let mut buffer = [0u8; 0];
 
+        // Empty buffer with a valid data_unit_size, should be WrongDataSize path.
         let r = xts.encrypt_in_place(16, 0, &mut buffer);
         assert_eq!(r.unwrap_err(), SymCryptError::WrongDataSize);
+    }
+
+    #[test]
+    fn test_xts_aes_empty_buffer_with_zero_data_unit_size_reports_data_unit_error() {
+        let key = hex::decode(KEY_HEX).unwrap();
+        let xts = XtsAesKey::new(&key).unwrap();
+        let mut buffer = [0u8; 0];
+
+        let r = xts.encrypt_in_place(0, 0, &mut buffer);
+        assert_eq!(r.unwrap_err(), SymCryptError::InvalidArgument);
     }
 
     #[test]

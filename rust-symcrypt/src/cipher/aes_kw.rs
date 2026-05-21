@@ -10,6 +10,10 @@
 //!
 //! AES-KW(P) is significantly slower than other AES modes, use of this cipher is not recommended.
 //!
+//! The recovered plaintext returned by [`AesKwKey::decrypt`] and [`AesKwpKey::decrypt`] is
+//! held in a [`zeroize::Zeroizing<Vec<u8>>`] so the backing buffer is wiped on drop and
+//! recovered key material does not linger in the allocator after the value goes out of scope.
+//!
 //! # Examples
 //!
 //! ## AES-KW
@@ -22,7 +26,7 @@
 //! let kw = AesKwKey::new(&wrapping_key).unwrap();
 //! let ciphertext = kw.encrypt(&plaintext).unwrap();
 //! let recovered = kw.decrypt(&ciphertext).unwrap();
-//! assert_eq!(recovered, plaintext);
+//! assert_eq!(*recovered, plaintext);
 //! ```
 //!
 //! ## AES-KWP
@@ -35,15 +39,38 @@
 //! let kwp = AesKwpKey::new(&wrapping_key).unwrap();
 //! let ciphertext = kwp.encrypt(&plaintext).unwrap();
 //! let recovered = kwp.decrypt(&ciphertext).unwrap();
-//! assert_eq!(recovered, plaintext);
+//! assert_eq!(*recovered, plaintext);
 //! ```
 
 use crate::cipher::{expand_aes_key, AesInnerKey};
 use crate::errors::SymCryptError;
 use std::pin::Pin;
 use symcrypt_sys;
+use zeroize::Zeroizing;
 
 const KW_SEMIBLOCK: usize = 8;
+
+/// Computes the AES-KW encrypt output buffer length: `plaintext_len + KW_SEMIBLOCK`.
+/// Returns `InvalidArgument` if the addition would overflow `usize`.
+#[inline]
+fn kw_encrypt_buffer_len(plaintext_len: usize) -> Result<usize, SymCryptError> {
+    plaintext_len
+        .checked_add(KW_SEMIBLOCK)
+        .ok_or(SymCryptError::InvalidArgument)
+}
+
+/// Computes the AES-KWP encrypt output buffer length:
+/// `plaintext_len.next_multiple_of(KW_SEMIBLOCK) + KW_SEMIBLOCK`.
+/// Returns `InvalidArgument` if either operation would overflow `usize`.
+#[inline]
+fn kwp_encrypt_buffer_len(plaintext_len: usize) -> Result<usize, SymCryptError> {
+    let padded = plaintext_len
+        .checked_next_multiple_of(KW_SEMIBLOCK)
+        .ok_or(SymCryptError::InvalidArgument)?;
+    padded
+        .checked_add(KW_SEMIBLOCK)
+        .ok_or(SymCryptError::InvalidArgument)
+}
 
 /// [`AesKwKey`] wraps an expanded AES key for use with AES-KW.
 pub struct AesKwKey {
@@ -69,7 +96,9 @@ impl AesKwKey {
     /// `plaintext.len()` must be a multiple of 8 and at least 16. The returned `Vec` has length
     /// `plaintext.len() + 8`.
     pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        let mut ciphertext = vec![0u8; plaintext.len() + KW_SEMIBLOCK];
+        // Use checked_add so inputs cannot wrap and produce an undersized output buffer.
+        let ct_len = kw_encrypt_buffer_len(plaintext.len())?;
+        let mut ciphertext = vec![0u8; ct_len];
         let mut written: symcrypt_sys::SIZE_T = 0;
         unsafe {
             // SAFETY: FFI call.
@@ -94,9 +123,11 @@ impl AesKwKey {
     ///
     /// `ciphertext.len()` must be a multiple of 8 and at least 24. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check fails.
-    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        // SymCrypt will handle invalid data sizes
-        let mut plaintext = vec![0u8; ciphertext.len()];
+    /// The plaintext is held in a [`Zeroizing<Vec<u8>>`] that wipes its backing buffer on drop.
+    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Zeroizing<Vec<u8>>, SymCryptError> {
+        // SymCrypt's SymCryptAesKwDecrypt writes exactly `ciphertext.len() - 8` bytes on
+        // success and requires `cbDst >= cbSrc - 8`.
+        let mut plaintext = vec![0u8; ciphertext.len().saturating_sub(KW_SEMIBLOCK)];
         let mut written: symcrypt_sys::SIZE_T = 0;
         unsafe {
             // SAFETY: FFI call.
@@ -110,7 +141,7 @@ impl AesKwKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     plaintext.truncate(written as usize);
-                    Ok(plaintext)
+                    Ok(Zeroizing::new(plaintext))
                 }
                 err => Err(err.into()),
             }
@@ -129,10 +160,11 @@ impl AesKwpKey {
 
     /// `encrypt()` wraps `plaintext` (any non-zero length) using AES-KWP and returns the ciphertext.
     ///
-    /// The output length is `plaintext.len() + 16 - (plaintext.len() % 8) - ((plaintext.len() % 8) == 0 ? 8 : 0)`.
+    /// The output length is `plaintext.len().next_multiple_of(8) + 8`.
     pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        let padded_len = plaintext.len().next_multiple_of(KW_SEMIBLOCK);
-        let mut ciphertext = vec![0u8; padded_len + KW_SEMIBLOCK];
+        // Use checked_add so inputs cannot wrap and produce an undersized output buffer.
+        let ct_len = kwp_encrypt_buffer_len(plaintext.len())?;
+        let mut ciphertext = vec![0u8; ct_len];
         let mut written: symcrypt_sys::SIZE_T = 0;
         unsafe {
             // SAFETY: FFI call.
@@ -157,9 +189,13 @@ impl AesKwpKey {
     ///
     /// `ciphertext.len()` must be a multiple of 8 and at least 16. Returns
     /// [`SymCryptError::AuthenticationFailure`] if the integrity check or padding check fails.
-    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, SymCryptError> {
-        // SymCrypt will handle invalid data sizes
-        let mut plaintext = vec![0u8; ciphertext.len()];
+    /// The recovered plaintext is held in a [`Zeroizing<Vec<u8>>`] that wipes its backing
+    /// buffer on drop.
+    pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Zeroizing<Vec<u8>>, SymCryptError> {
+        // SymCrypt's SymCryptAesKwpDecrypt requires `cbDst >= cbSrc - 15`, and the actual
+        // plaintext length is always `<= cbSrc - 8`. Allocate that upper bound; the buffer
+        // is truncated to the real plaintext length on success.
+        let mut plaintext = vec![0u8; ciphertext.len().saturating_sub(KW_SEMIBLOCK)];
         let mut written: symcrypt_sys::SIZE_T = 0;
         unsafe {
             // SAFETY: FFI call.
@@ -173,7 +209,7 @@ impl AesKwpKey {
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
                     plaintext.truncate(written as usize);
-                    Ok(plaintext)
+                    Ok(Zeroizing::new(plaintext))
                 }
                 err => Err(err.into()),
             }
@@ -218,7 +254,7 @@ mod test {
         let expected_pt = hex::decode(KW_PT_HEX).unwrap();
         let kw = AesKwKey::new(&key).unwrap();
         let pt = kw.decrypt(&ct).unwrap();
-        assert_eq!(pt, expected_pt);
+        assert_eq!(*pt, expected_pt);
     }
 
     #[test]
@@ -229,7 +265,7 @@ mod test {
         let ct = kw.encrypt(&pt).unwrap();
         assert_eq!(ct.len(), pt.len() + 8);
         let recovered = kw.decrypt(&ct).unwrap();
-        assert_eq!(recovered, pt);
+        assert_eq!(*recovered, pt);
     }
 
     #[test]
@@ -289,7 +325,7 @@ mod test {
         let expected_pt = hex::decode(KWP_PT_HEX).unwrap();
         let kwp = AesKwpKey::new(&key).unwrap();
         let pt = kwp.decrypt(&ct).unwrap();
-        assert_eq!(pt, expected_pt);
+        assert_eq!(*pt, expected_pt);
     }
 
     #[test]
@@ -303,7 +339,7 @@ mod test {
             let expected_ct_len = pt.len().next_multiple_of(8) + 8;
             assert_eq!(ct.len(), expected_ct_len, "len={}", len);
             let recovered = kwp.decrypt(&ct).unwrap();
-            assert_eq!(recovered, pt, "round-trip mismatch at len={}", len);
+            assert_eq!(*recovered, pt, "round-trip mismatch at len={}", len);
         }
     }
 
@@ -327,5 +363,82 @@ mod test {
             kwp.decrypt(&ct).unwrap_err(),
             SymCryptError::AuthenticationFailure
         );
+    }
+
+    // -------- output buffer sizing helpers --------
+
+    #[test]
+    fn test_kw_encrypt_buffer_len_basic() {
+        assert_eq!(kw_encrypt_buffer_len(0).unwrap(), 8);
+        assert_eq!(kw_encrypt_buffer_len(16).unwrap(), 24);
+        assert_eq!(kw_encrypt_buffer_len(4096).unwrap(), 4104);
+    }
+
+    #[test]
+    fn test_kw_encrypt_buffer_len_overflow() {
+        // usize::MAX - 7 + 8 wraps; usize::MAX + 8 wraps.
+        for len in [usize::MAX - 7, usize::MAX - 1, usize::MAX] {
+            assert_eq!(
+                kw_encrypt_buffer_len(len).unwrap_err(),
+                SymCryptError::InvalidArgument,
+                "len={}",
+                len
+            );
+        }
+    }
+
+    #[test]
+    fn test_kwp_encrypt_buffer_len_basic() {
+        assert_eq!(kwp_encrypt_buffer_len(1).unwrap(), 16);
+        assert_eq!(kwp_encrypt_buffer_len(8).unwrap(), 16);
+        assert_eq!(kwp_encrypt_buffer_len(9).unwrap(), 24);
+        assert_eq!(kwp_encrypt_buffer_len(100).unwrap(), 112);
+    }
+
+    #[test]
+    fn test_kwp_encrypt_buffer_len_overflow() {
+        // next_multiple_of(8) overflows for any len in (usize::MAX - 7 ..= usize::MAX) that
+        // isn't already a multiple of 8.
+        for len in [usize::MAX, usize::MAX - 1, usize::MAX - 7] {
+            assert_eq!(
+                kwp_encrypt_buffer_len(len).unwrap_err(),
+                SymCryptError::InvalidArgument,
+                "len={}",
+                len
+            );
+        }
+    }
+
+    // -------- decrypt output buffer trimming --------
+
+    #[test]
+    fn test_aes_kw_decrypt_buffer_len_is_trimmed() {
+        let key = vec![0xA5u8; 32];
+        let pt = vec![0x11u8; 32];
+        let kw = AesKwKey::new(&key).unwrap();
+        let ct = kw.encrypt(&pt).unwrap();
+        let recovered = kw.decrypt(&ct).unwrap();
+        // KW always produces exactly cbSrc - 8 bytes of plaintext.
+        assert_eq!(recovered.len(), ct.len() - KW_SEMIBLOCK);
+    }
+
+    #[test]
+    fn test_aes_kwp_decrypt_buffer_len_is_at_most_ct_minus_8() {
+        let key = vec![0x5Au8; 32];
+        let kwp = AesKwpKey::new(&key).unwrap();
+        for len in [1usize, 7, 8, 9, 15, 16, 17, 100] {
+            let pt: Vec<u8> = (0..len).map(|i| i as u8).collect();
+            let ct = kwp.encrypt(&pt).unwrap();
+            let recovered = kwp.decrypt(&ct).unwrap();
+            // KWP plaintext is always <= cbSrc - 8.
+            assert!(
+                recovered.len() <= ct.len() - KW_SEMIBLOCK,
+                "len={}: recovered.len() = {}, ct.len() - 8 = {}",
+                len,
+                recovered.len(),
+                ct.len() - KW_SEMIBLOCK
+            );
+            assert_eq!(recovered.len(), pt.len(), "len={}", len);
+        }
     }
 }
