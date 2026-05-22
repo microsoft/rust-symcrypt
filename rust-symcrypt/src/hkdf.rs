@@ -54,15 +54,15 @@ use symcrypt_sys;
 /// `info` is a `&[u8]` that represents an optional application-specific context that customizes the derived key. If you do not
 /// wish to use a salt, you can pass an empty slice.
 ///
-/// `output_key_size` is an `u64` that represents the desired length of the derived key in bytes, the `Vec<u8>` returned will be of this length.
+/// `output_key_size` is a `usize` that represents the desired length of the derived key in bytes, the `Vec<u8>` returned will be of this length.
 pub fn hkdf(
     hmac_algorithm: HmacAlgorithm,
     key_material: &[u8],
     salt: &[u8],
     info: &[u8],
-    output_key_size: u64,
+    output_key_size: usize,
 ) -> Result<Vec<u8>, SymCryptError> {
-    let mut hmac_res = vec![0u8; output_key_size as usize];
+    let mut hmac_res = vec![0u8; output_key_size];
     unsafe {
         // UNSAFE: FFI calls
         match symcrypt_sys::SymCryptHkdf(

@@ -55,17 +55,17 @@ use symcrypt_sys;
 ///
 /// `context` is a `&[u8]` containing application-specific context bytes. You can pass an empty slice.
 ///
-/// `output_key_size` is a `u64` specifying the desired length of the derived key in bytes.
+/// `output_key_size` is a `usize` specifying the desired length of the derived key in bytes.
 /// The returned `Vec<u8>` will have exactly this length.
 pub fn sp800_108_counter_mode(
     hmac_algorithm: HmacAlgorithm,
     key_material: &[u8],
     label: &[u8],
     context: &[u8],
-    output_key_size: u64,
+    output_key_size: usize,
 ) -> Result<Vec<u8>, SymCryptError> {
     symcrypt_init();
-    let mut result = vec![0u8; output_key_size as usize];
+    let mut result = vec![0u8; output_key_size];
     unsafe {
         // UNSAFE: FFI calls
         match symcrypt_sys::SymCryptSp800_108(
