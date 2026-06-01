@@ -1,76 +1,76 @@
-# TODO: Re-enable once Azure host images ship with SymCrypt >= v103.11.0.
-# The current runner images have an older symcrypt.dll in System32 that causes
-# SymCryptModuleInit to crash with STATUS_STACK_BUFFER_OVERRUN. Our downloaded
-# v103.11.0 DLL cannot override it reliably via PATH or DLL staging.
+# NOTE: x86_64-pc-windows-msvc is intentionally not in the matrix below.
+# The current Azure windows-latest images ship an older symcrypt.dll in System32
+# that causes SymCryptModuleInit to crash with STATUS_STACK_BUFFER_OVERRUN, and
+# our downloaded v103.11.0 DLL cannot reliably override it via PATH or DLL staging.
+# Re-add the x86_64 matrix entry once the windows-latest image ships SymCrypt
+# >= v103.11.0 (or once a reliable DLL-override workaround is in place).
+#
+# The aarch64-pc-windows-msvc entry runs on the windows-11-arm image, which does
+# not have the same System32 DLL collision, so arm64 builds and tests are enabled.
 
-# name: Build Windows
-#
-# on:
-#   push:
-#     branches: [ "main" ]
-#   pull_request:
-#
-# permissions:
-#   contents: read
-#
-# env:
-#   CARGO_TERM_COLOR: always
-#   FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
-#
-# jobs:
-#   build:
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         include:
-#         - target: x86_64-pc-windows-msvc
-#           os: windows-latest
-#           runs-on: windows-latest
-#           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-amd64-release-103.11.0-748c20f1.zip"
-#           run-tests: true
-#         - target: aarch64-pc-windows-msvc
-#           os: windows-11-arm
-#           runs-on: windows-11-arm
-#           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-arm64-release-103.11.0-748c20f1.zip"
-#           run-tests: true
-#     runs-on: ${{ matrix.os }}
-#     name: ${{ matrix.target }}
-#     env:
-#       CARGO_BUILD_TARGET: ${{ matrix.target }}
-#
-#     steps:
-#     - uses: actions/checkout@v4 # Checks out SymCrypt based on Github submodule
-#       with:
-#         submodules: true
-#
-#     - uses: Swatinem/rust-cache@v2
-#
-#     # Install host architecture (no-op when runner already matches matrix.target)
-#     - name: Install host target
-#       shell: pwsh
-#       run: |
-#         rustup target add ${{ matrix.target }}
-#
-#     - name: Download SymCrypt and Set Environment Variables
-#       shell: pwsh
-#       run: |
-#           Invoke-WebRequest -Uri ${{ matrix.symcrypt }} -OutFile symcrypt.zip
-#           New-Item -ItemType Directory -Force -Path symcrypt
-#           Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
-#           echo "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
-#           echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
-#           echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV
-#
-#     - name: Debug build
-#       run: cargo build --locked --verbose --target ${{ matrix.target }}
-#
-#     - name: Release build
-#       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
-#
-#     - name: Run tests (Debug)
-#       if: matrix.run-tests
-#       run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
-#
-#     - name: Run tests (Release)
-#       if: matrix.run-tests
-#       run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
+name: Build Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - target: aarch64-pc-windows-msvc
+          os: windows-11-arm
+          runs-on: windows-11-arm
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-arm64-release-103.11.0-748c20f1.zip"
+          run-tests: true
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.target }}
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.target }}
+
+    steps:
+    - uses: actions/checkout@v4 # Checks out SymCrypt based on Github submodule
+      with:
+        submodules: true
+
+    - uses: Swatinem/rust-cache@v2
+
+    # Install host target (no-op when runner already matches matrix.target)
+    - name: Install host target
+      shell: pwsh
+      run: |
+        rustup target add ${{ matrix.target }}
+
+    - name: Download SymCrypt and Set Environment Variables
+      shell: pwsh
+      run: |
+          Invoke-WebRequest -Uri ${{ matrix.symcrypt }} -OutFile symcrypt.zip
+          New-Item -ItemType Directory -Force -Path symcrypt
+          Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
+          echo "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
+          echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
+          echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV
+
+    - name: Debug build
+      run: cargo build --locked --verbose --target ${{ matrix.target }}
+
+    - name: Release build
+      run: cargo build --release --locked --verbose --target ${{ matrix.target }}
+
+    - name: Run tests (Debug)
+      if: matrix.run-tests
+      run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run tests (Release)
+      if: matrix.run-tests
+      run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
