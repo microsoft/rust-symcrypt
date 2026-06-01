@@ -29,10 +29,10 @@
 #           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-amd64-release-103.11.0-748c20f1.zip"
 #           run-tests: true
 #         - target: aarch64-pc-windows-msvc
-#           os: windows-latest
-#           runs-on: windows-latest
+#           os: windows-11-arm
+#           runs-on: windows-11-arm
 #           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-arm64-release-103.11.0-748c20f1.zip"
-#           run-tests: false # Windows doesn't support ARM64 emulation
+#           run-tests: true
 #     runs-on: ${{ matrix.os }}
 #     name: ${{ matrix.target }}
 #     env:
@@ -45,7 +45,7 @@
 #
 #     - uses: Swatinem/rust-cache@v2
 #
-#     # Install host architecture, required for cross-compilation since there is no arm64-windows-msvc runner
+#     # Install host architecture (no-op when runner already matches matrix.target)
 #     - name: Install host target
 #       shell: pwsh
 #       run: |

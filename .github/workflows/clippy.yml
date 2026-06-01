@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest] # Run on Linux and Windows
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm] # Run on x86_64 and arm64 for Linux and Windows
 
     steps:
       - name: Checkout sources
