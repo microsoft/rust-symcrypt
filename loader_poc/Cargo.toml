@@ -1,0 +1,17 @@
+[package]
+name = "loader_poc"
+version = "0.0.1"
+edition = "2021"
+publish = false
+build = "build.rs"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+] }
+
+# Build-time only: compute SHA-256 of the embedded DLL so the cache path
+# is content-addressed (no runtime sha2 dep in the final binary).
+[build-dependencies]
+sha2 = "0.10"

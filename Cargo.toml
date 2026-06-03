@@ -4,6 +4,10 @@ members = [
     "symcrypt-bindgen",
     "symcrypt-sys"
 ]
+# `loader_poc/` lives alongside the workspace crates but is intentionally
+# excluded so it has zero impact on the main rust-symcrypt build.  Build and
+# test it with `cd loader_poc && cargo test`.
+exclude = ["loader_poc"]
 resolver = "2"
 
 [workspace.package]
