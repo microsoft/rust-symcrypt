@@ -1,0 +1,9 @@
+[package]
+name = "mscrypto-bcrypt"
+authors = ["Microsoft"]
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+description = "BCrypt/CNG backend for the mscrypto contract (stub, Windows-only; not yet implemented)"
+edition.workspace = true
+rust-version.workspace = true
+repository = "https://github.com/microsoft/rust-symcrypt"
