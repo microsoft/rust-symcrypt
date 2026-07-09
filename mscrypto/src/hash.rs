@@ -25,6 +25,9 @@ impl Digest {
         &self.bytes[..self.len as usize]
     }
 
+    // A digest has a fixed, nonzero length set by its algorithm, so an `is_empty`
+    // companion would be dead API.
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.len as usize
     }
