@@ -1,0 +1,17 @@
+[package]
+name = "mscrypto-example"
+authors = ["Microsoft"]
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+description = "Minimal example of choosing an mscrypto backend and hashing"
+edition.workspace = true
+rust-version.workspace = true
+repository = "https://github.com/microsoft/rust-symcrypt"
+publish = false
+
+[dependencies]
+mscrypto-symcrypt = { path = "../mscrypto-symcrypt", version = "0.1.0" }
+
+# BCrypt is Windows-only; on other targets the example uses SymCrypt alone.
+[target.'cfg(windows)'.dependencies]
+mscrypto-bcrypt = { path = "../mscrypto-bcrypt", version = "0.1.0" }

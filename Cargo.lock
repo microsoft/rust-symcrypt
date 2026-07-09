@@ -228,10 +228,29 @@ version = "0.1.0"
 [[package]]
 name = "mscrypto-bcrypt"
 version = "0.1.0"
+dependencies = [
+ "hex",
+ "mscrypto",
+ "windows-sys",
+]
+
+[[package]]
+name = "mscrypto-example"
+version = "0.1.0"
+dependencies = [
+ "mscrypto-bcrypt",
+ "mscrypto-symcrypt",
+]
 
 [[package]]
 name = "mscrypto-symcrypt"
 version = "0.1.0"
+dependencies = [
+ "hex",
+ "mscrypto",
+ "symcrypt",
+ "symcrypt-sys",
+]
 
 [[package]]
 name = "nom"

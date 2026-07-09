@@ -5,7 +5,8 @@ members = [
     "symcrypt-sys",
     "mscrypto",
     "mscrypto-symcrypt",
-    "mscrypto-bcrypt"
+    "mscrypto-bcrypt",
+    "mscrypto-example"
 ]
 resolver = "2"
 
