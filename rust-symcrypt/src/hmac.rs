@@ -1510,7 +1510,7 @@ mod test {
         let data = hex::decode("4869205468657265").unwrap();
         let tag = hmac_sha256(&p_key, &data).unwrap();
 
-        // The exact tag verifies.
+        // The exact tag verifies
         assert!(hmac_sha256_verify(&p_key, &data, &tag).is_ok());
 
         // A single flipped byte is rejected.
