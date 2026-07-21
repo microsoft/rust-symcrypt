@@ -4,8 +4,10 @@
 //! `symcrypt` crate
 
 mod hash;
+mod mac;
 
 pub use hash::SymCryptHasher;
+pub use mac::SymCryptMac;
 #[cfg(feature = "sha3")]
 pub use hash::SymCryptSha3Hasher;
 
@@ -15,11 +17,12 @@ pub use hash::SymCryptSha3Hasher;
 /// algorithm, error, and metadata types from the contract, so a consumer
 /// does not need a separate dependency on `mscrypto` for the common path.
 pub mod prelude {
-    pub use crate::{SymCryptHasher, SymCryptProvider, SymCryptProviderBuilder};
+    pub use crate::{SymCryptHasher, SymCryptMac, SymCryptProvider, SymCryptProviderBuilder};
 
-    pub use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm};
+    pub use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm, MacAlgorithm};
     pub use mscrypto::error::{Error, ProviderBuildError};
     pub use mscrypto::hash::{Digest, Hash, HashOps};
+    pub use mscrypto::mac::{Mac, MacOps};
     pub use mscrypto::provider::{BackendInfo, BackendVersion, CryptoProvider, LinkMode};
 
     #[cfg(feature = "sha3")]
@@ -30,7 +33,7 @@ pub mod prelude {
     pub use mscrypto::sha3::Sha3;
 }
 
-use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm};
+use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm, MacAlgorithm};
 use mscrypto::error::ProviderBuildError;
 use mscrypto::provider::{BackendInfo, BackendVersion, CryptoProvider, LinkMode};
 
@@ -98,6 +101,9 @@ impl CryptoProvider for SymCryptProvider {
             Algorithm::Hash(
                 BaseHashAlgorithm::Sha256 | BaseHashAlgorithm::Sha384 | BaseHashAlgorithm::Sha512,
             ) => true,
+            Algorithm::Mac(MacAlgorithm::Hmac(
+                BaseHashAlgorithm::Sha256 | BaseHashAlgorithm::Sha384 | BaseHashAlgorithm::Sha512,
+            )) => true,
             #[cfg(feature = "sha3")]
             Algorithm::Sha3(
                 Sha3Algorithm::Sha3_256 | Sha3Algorithm::Sha3_384 | Sha3Algorithm::Sha3_512,

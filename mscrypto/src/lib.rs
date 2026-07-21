@@ -8,6 +8,7 @@
 pub mod algorithm;
 pub mod error;
 pub mod hash;
+pub mod mac;
 pub mod provider;
 
 #[cfg(feature = "sha3")]

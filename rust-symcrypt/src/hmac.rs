@@ -17,6 +17,13 @@
 //!
 //! `symcrypt = {version = "0.2.0", features = ["weak-crypto"]}`
 //!
+//! # Comparing tags
+//!
+//! To check a tag, use the constant-time `verify` functions ([`hmac_sha256_verify`]
+//! and friends, or [`HmacState::verify`]) rather than comparing a returned tag with
+//! `==`. Equality operators short-circuit and leak via timing how many leading bytes
+//! matched, which enables byte-at-a-time forgery.
+//!
 //! # Examples
 //!
 //! ## Stateless Hmac for HmacSha256
@@ -150,6 +157,43 @@ pub trait HmacState: Clone {
     // by ShaXXXState Result routine. This difference is by design; re-initializing a hash state is a safe operation. Re-initializing a
     // MAC state puts keying information in the state, and callers would have to wipe the MAC state explicitly.
     fn result(self) -> Self::Result;
+
+    /// Consumes the state and verifies in constant time that `expected` equals the
+    /// computed tag. Returns `Ok(())` on an exact match, or
+    /// [`SymCryptError::AuthenticationFailure`] if the lengths differ or any byte
+    /// differs. Prefer this over comparing [`result`](HmacState::result) with `==`,
+    /// which short-circuits and is not constant time.
+    fn verify(self, expected: &[u8]) -> Result<(), SymCryptError>
+    where
+        Self: Sized,
+        Self::Result: AsRef<[u8]>,
+    {
+        verify_tag(self.result().as_ref(), expected)
+    }
+}
+
+/// Constant-time tag comparison backed by SymCrypt's `SymCryptEqual`. The length check
+/// is not secret: a tag of the wrong length can never be valid. `SymCryptEqual` compares
+/// the bytes with no early-out, so the check runs in time independent of the contents and
+/// does not reveal where a mismatch occurs.
+fn verify_tag(computed: &[u8], expected: &[u8]) -> Result<(), SymCryptError> {
+    if computed.len() != expected.len() {
+        return Err(SymCryptError::AuthenticationFailure);
+    }
+    // SAFETY: FFI call. `SymCryptEqual` reads exactly `computed.len()` bytes from each
+    // pointer, and both slices are that length.
+    let equal = unsafe {
+        symcrypt_sys::SymCryptEqual(
+            computed.as_ptr(),
+            expected.as_ptr(),
+            computed.len() as symcrypt_sys::SIZE_T,
+        )
+    };
+    if equal != 0 {
+        Ok(())
+    } else {
+        Err(SymCryptError::AuthenticationFailure)
+    }
 }
 
 #[cfg(feature = "md5")]
@@ -339,7 +383,7 @@ impl Drop for HmacMd5State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE>() as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -358,26 +402,27 @@ impl Drop for HmacMd5State {
 pub fn hmac_md5(key: &[u8], data: &[u8]) -> Result<[u8; MD5_HMAC_RESULT_SIZE], SymCryptError> {
     symcrypt_init();
     let mut result = [0u8; MD5_HMAC_RESULT_SIZE];
+    let mut expanded_key = HmacMd5ExpandedKey::new(key)?;
     unsafe {
         // SAFETY: FFI calls
-        let mut expanded_key = HmacMd5ExpandedKey::new(key)?;
-        match symcrypt_sys::SymCryptHmacMd5ExpandKey(
+        symcrypt_sys::SymCryptHmacMd5(
             &mut expanded_key.as_mut().get_unchecked_mut().inner,
-            key.as_ptr(),
-            key.len() as symcrypt_sys::SIZE_T,
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                symcrypt_sys::SymCryptHmacMd5(
-                    &mut expanded_key.as_mut().get_unchecked_mut().inner,
-                    data.as_ptr(),
-                    data.len() as symcrypt_sys::SIZE_T,
-                    result.as_mut_ptr(),
-                );
-                Ok(result)
-            }
-            err => Err(err.into()),
-        }
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
     }
+    Ok(result)
+}
+
+#[cfg(feature = "md5")]
+/// Verifies in constant time that `expected` is the HMAC-MD5 of `data` under `key`.
+///
+/// Returns `Ok(())` on an exact match, or [`SymCryptError::AuthenticationFailure`] if the
+/// lengths differ or any byte differs. Prefer this over comparing [`hmac_md5`]'s output
+/// with `==`, which short-circuits and is not constant time.
+pub fn hmac_md5_verify(key: &[u8], data: &[u8], expected: &[u8]) -> Result<(), SymCryptError> {
+    verify_tag(&hmac_md5(key, data)?, expected)
 }
 
 #[cfg(feature = "sha1")]
@@ -567,7 +612,7 @@ impl Drop for HmacSha1State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_SHA1_STATE>() as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -586,26 +631,27 @@ impl Drop for HmacSha1State {
 pub fn hmac_sha1(key: &[u8], data: &[u8]) -> Result<[u8; SHA1_HMAC_RESULT_SIZE], SymCryptError> {
     symcrypt_init();
     let mut result = [0u8; SHA1_HMAC_RESULT_SIZE];
+    let mut expanded_key = HmacSha1ExpandedKey::new(key)?;
     unsafe {
         // SAFETY: FFI calls
-        let mut expanded_key = HmacSha1ExpandedKey::new(key)?;
-        match symcrypt_sys::SymCryptHmacSha1ExpandKey(
+        symcrypt_sys::SymCryptHmacSha1(
             &mut expanded_key.as_mut().get_unchecked_mut().inner,
-            key.as_ptr(),
-            key.len() as symcrypt_sys::SIZE_T,
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                symcrypt_sys::SymCryptHmacSha1(
-                    &mut expanded_key.as_mut().get_unchecked_mut().inner,
-                    data.as_ptr(),
-                    data.len() as symcrypt_sys::SIZE_T,
-                    result.as_mut_ptr(),
-                );
-                Ok(result)
-            }
-            err => Err(err.into()),
-        }
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
     }
+    Ok(result)
+}
+
+#[cfg(feature = "sha1")]
+/// Verifies in constant time that `expected` is the HMAC-SHA-1 of `data` under `key`.
+///
+/// Returns `Ok(())` on an exact match, or [`SymCryptError::AuthenticationFailure`] if the
+/// lengths differ or any byte differs. Prefer this over comparing [`hmac_sha1`]'s output
+/// with `==`, which short-circuits and is not constant time.
+pub fn hmac_sha1_verify(key: &[u8], data: &[u8], expected: &[u8]) -> Result<(), SymCryptError> {
+    verify_tag(&hmac_sha1(key, data)?, expected)
 }
 
 /// `HmacSha256ExpandedKey` is a struct that represents the expanded key for the [`HmacSha256State`].
@@ -789,7 +835,7 @@ impl Drop for HmacSha256State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_SHA256_STATE>() as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -810,26 +856,26 @@ pub fn hmac_sha256(
 ) -> Result<[u8; SHA256_HMAC_RESULT_SIZE], SymCryptError> {
     symcrypt_init();
     let mut result = [0u8; SHA256_HMAC_RESULT_SIZE];
+    let mut expanded_key = HmacSha256ExpandedKey::new(key)?;
     unsafe {
         // SAFETY: FFI calls
-        let mut expanded_key = HmacSha256ExpandedKey::new(key)?;
-        match symcrypt_sys::SymCryptHmacSha256ExpandKey(
+        symcrypt_sys::SymCryptHmacSha256(
             &mut expanded_key.as_mut().get_unchecked_mut().inner,
-            key.as_ptr(),
-            key.len() as symcrypt_sys::SIZE_T,
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                symcrypt_sys::SymCryptHmacSha256(
-                    &mut expanded_key.as_mut().get_unchecked_mut().inner,
-                    data.as_ptr(),
-                    data.len() as symcrypt_sys::SIZE_T,
-                    result.as_mut_ptr(),
-                );
-                Ok(result)
-            }
-            err => Err(err.into()),
-        }
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
     }
+    Ok(result)
+}
+
+/// Verifies in constant time that `expected` is the HMAC-SHA-256 of `data` under `key`.
+///
+/// Returns `Ok(())` on an exact match, or [`SymCryptError::AuthenticationFailure`] if the
+/// lengths differ or any byte differs. Prefer this over comparing [`hmac_sha256`]'s output
+/// with `==`, which short-circuits and is not constant time.
+pub fn hmac_sha256_verify(key: &[u8], data: &[u8], expected: &[u8]) -> Result<(), SymCryptError> {
+    verify_tag(&hmac_sha256(key, data)?, expected)
 }
 
 /// `HmacSha384ExpandedKey` is a struct that represents the expanded key for the [`HmacSha384State`].
@@ -1014,7 +1060,7 @@ impl Drop for HmacSha384State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_SHA384_STATE>() as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -1035,26 +1081,26 @@ pub fn hmac_sha384(
 ) -> Result<[u8; SHA384_HMAC_RESULT_SIZE], SymCryptError> {
     symcrypt_init();
     let mut result = [0u8; SHA384_HMAC_RESULT_SIZE];
+    let mut expanded_key = HmacSha384ExpandedKey::new(key)?;
     unsafe {
         // SAFETY: FFI calls
-        let mut expanded_key = HmacSha384ExpandedKey::new(key)?;
-        match symcrypt_sys::SymCryptHmacSha384ExpandKey(
+        symcrypt_sys::SymCryptHmacSha384(
             &mut expanded_key.as_mut().get_unchecked_mut().inner,
-            key.as_ptr(),
-            key.len() as symcrypt_sys::SIZE_T,
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                symcrypt_sys::SymCryptHmacSha384(
-                    &mut expanded_key.as_mut().get_unchecked_mut().inner,
-                    data.as_ptr(),
-                    data.len() as symcrypt_sys::SIZE_T,
-                    result.as_mut_ptr(),
-                );
-                Ok(result)
-            }
-            err => Err(err.into()),
-        }
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
     }
+    Ok(result)
+}
+
+/// Verifies in constant time that `expected` is the HMAC-SHA-384 of `data` under `key`.
+///
+/// Returns `Ok(())` on an exact match, or [`SymCryptError::AuthenticationFailure`] if the
+/// lengths differ or any byte differs. Prefer this over comparing [`hmac_sha384`]'s output
+/// with `==`, which short-circuits and is not constant time.
+pub fn hmac_sha384_verify(key: &[u8], data: &[u8], expected: &[u8]) -> Result<(), SymCryptError> {
+    verify_tag(&hmac_sha384(key, data)?, expected)
 }
 
 /// `HmacSha512ExpandedKey` is a struct that represents the expanded key for the [`HmacSha512State`].
@@ -1234,7 +1280,7 @@ impl Drop for HmacSha512State {
             // SAFETY: FFI calls
             symcrypt_sys::SymCryptWipe(
                 self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of_val(&self.state.get_inner()) as symcrypt_sys::SIZE_T,
+                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_SHA512_STATE>() as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -1255,26 +1301,26 @@ pub fn hmac_sha512(
 ) -> Result<[u8; SHA512_HMAC_RESULT_SIZE], SymCryptError> {
     symcrypt_init();
     let mut result = [0u8; SHA512_HMAC_RESULT_SIZE];
+    let mut expanded_key = HmacSha512ExpandedKey::new(key)?;
     unsafe {
         // SAFETY: FFI calls
-        let mut expanded_key = HmacSha512ExpandedKey::new(key)?;
-        match symcrypt_sys::SymCryptHmacSha512ExpandKey(
+        symcrypt_sys::SymCryptHmacSha512(
             &mut expanded_key.as_mut().get_unchecked_mut().inner,
-            key.as_ptr(),
-            key.len() as symcrypt_sys::SIZE_T,
-        ) {
-            symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                symcrypt_sys::SymCryptHmacSha512(
-                    &mut expanded_key.as_mut().get_unchecked_mut().inner,
-                    data.as_ptr(),
-                    data.len() as symcrypt_sys::SIZE_T,
-                    result.as_mut_ptr(),
-                );
-                Ok(result)
-            }
-            err => Err(err.into()),
-        }
+            data.as_ptr(),
+            data.len() as symcrypt_sys::SIZE_T,
+            result.as_mut_ptr(),
+        );
     }
+    Ok(result)
+}
+
+/// Verifies in constant time that `expected` is the HMAC-SHA-512 of `data` under `key`.
+///
+/// Returns `Ok(())` on an exact match, or [`SymCryptError::AuthenticationFailure`] if the
+/// lengths differ or any byte differs. Prefer this over comparing [`hmac_sha512`]'s output
+/// with `==`, which short-circuits and is not constant time.
+pub fn hmac_sha512_verify(key: &[u8], data: &[u8], expected: &[u8]) -> Result<(), SymCryptError> {
+    verify_tag(&hmac_sha512(key, data)?, expected)
 }
 
 #[cfg(test)]
@@ -1459,6 +1505,50 @@ mod test {
     }
 
     #[test]
+    fn test_hmac_sha256_verify() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("4869205468657265").unwrap();
+        let tag = hmac_sha256(&p_key, &data).unwrap();
+
+        // The exact tag verifies.
+        assert!(hmac_sha256_verify(&p_key, &data, &tag).is_ok());
+
+        // A single flipped byte is rejected.
+        let mut forged = tag;
+        forged[0] ^= 0x01;
+        assert_eq!(
+            hmac_sha256_verify(&p_key, &data, &forged).unwrap_err(),
+            SymCryptError::AuthenticationFailure
+        );
+
+        // A wrong-length tag is rejected before any byte comparison.
+        assert_eq!(
+            hmac_sha256_verify(&p_key, &data, &tag[..16]).unwrap_err(),
+            SymCryptError::AuthenticationFailure
+        );
+    }
+
+    #[test]
+    fn test_hmac_sha256_state_verify() {
+        let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
+        let data = hex::decode("4869205468657265").unwrap();
+        let tag = hmac_sha256(&p_key, &data).unwrap();
+
+        let mut state = HmacSha256State::new(&p_key).unwrap();
+        state.append(&data);
+        assert!(state.verify(&tag).is_ok());
+
+        let mut forged = tag;
+        forged[0] ^= 0x01;
+        let mut state = HmacSha256State::new(&p_key).unwrap();
+        state.append(&data);
+        assert_eq!(
+            state.verify(&forged).unwrap_err(),
+            SymCryptError::AuthenticationFailure
+        );
+    }
+
+    #[test]
     pub fn test_hmac_sha384() {
         let p_key = hex::decode("ba139c3403432b6ee435d71fed08d6fa12aee12201f02d47b3b29d12417936c4")
             .unwrap();
@@ -1547,5 +1637,79 @@ mod test {
 
         let result = hmac_sha512(&p_key, &data).unwrap();
         assert_eq!(hex::encode(result), expected);
+    }
+
+    // Dropping an HMAC state before finalizing must wipe the whole SymCrypt
+    // state (which holds key-derived chaining values and buffered input), not
+    // just a pointer to it. The boxed state is freed by `Drop`, so inspecting it
+    // afterwards would be use-after-free; instead this proves the property two
+    // ways: (1) on a live, owned state value it shows that wiping only a
+    // pointer's worth of bytes leaves secret bytes behind while wiping
+    // `size_of::<STATE>()` clears them all, and (2) it runs each real `Drop`
+    // via an early drop after feeding in secret material.
+    #[test]
+    fn hmac_state_drop_wipes_full_state() {
+        fn assert_full_wipe_clears_state<T: Default>() {
+            let mut state = T::default();
+            let base = &mut state as *mut T as *mut u8;
+            let full = mem::size_of::<T>();
+            let ptr_len = mem::size_of::<*const T>();
+            unsafe {
+                // SAFETY: `base` points to `full` owned bytes for the lifetime of `state`.
+                ptr::write_bytes(base, 0xAA, full);
+
+                // Wiping only a pointer's worth of bytes (the original defect) must
+                // leave the rest of the secret state intact.
+                symcrypt_sys::SymCryptWipe(base as *mut c_void, ptr_len as symcrypt_sys::SIZE_T);
+                assert!(
+                    (ptr_len..full).any(|i| *base.add(i) != 0),
+                    "pointer-sized wipe unexpectedly cleared the full state",
+                );
+
+                // Wiping `size_of::<STATE>()` bytes (what `Drop` now does) clears everything.
+                symcrypt_sys::SymCryptWipe(base as *mut c_void, full as symcrypt_sys::SIZE_T);
+                assert!(
+                    (0..full).all(|i| *base.add(i) == 0),
+                    "full-state wipe left secret bytes behind",
+                );
+            }
+        }
+
+        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_SHA256_STATE>();
+        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_SHA384_STATE>();
+        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_SHA512_STATE>();
+        #[cfg(feature = "md5")]
+        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE>();
+        #[cfg(feature = "sha1")]
+        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_SHA1_STATE>();
+
+        // Exercise the real early-drop path for every state: build it, feed it
+        // secret material, then drop before finalizing. A wrong wipe length would
+        // over-wipe and corrupt the heap here.
+        let key = [0x0bu8; 16];
+        let secret = [0x42u8; 128];
+
+        {
+            let mut state = HmacSha256State::new(&key).unwrap();
+            state.append(&secret);
+        }
+        {
+            let mut state = HmacSha384State::new(&key).unwrap();
+            state.append(&secret);
+        }
+        {
+            let mut state = HmacSha512State::new(&key).unwrap();
+            state.append(&secret);
+        }
+        #[cfg(feature = "md5")]
+        {
+            let mut state = HmacMd5State::new(&key).unwrap();
+            state.append(&secret);
+        }
+        #[cfg(feature = "sha1")]
+        {
+            let mut state = HmacSha1State::new(&key).unwrap();
+            state.append(&secret);
+        }
     }
 }

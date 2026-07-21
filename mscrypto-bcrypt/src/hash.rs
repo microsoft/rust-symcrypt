@@ -71,6 +71,15 @@ impl BcryptHasher {
             output_len,
         }
     }
+
+    /// Builds a keyed hasher (HMAC) from an algorithm pseudo-handle. Shares the
+    /// streaming machinery with the bare hash path; only construction differs.
+    pub(crate) fn new_keyed(alg: BCRYPT_ALG_HANDLE, output_len: usize, key: &[u8]) -> Self {
+        BcryptHasher {
+            hash: create_keyed_hash_handle(alg, key),
+            output_len,
+        }
+    }
 }
 
 /// Creates a hash object from an algorithm pseudo-handle. Passing NULL/0 for the object
@@ -80,6 +89,30 @@ fn create_hash_handle(alg: BCRYPT_ALG_HANDLE) -> HashHandle {
     // SAFETY: alg is a valid algorithm pseudo-handle; the hash object is bcrypt owned.
     let status =
         unsafe { BCryptCreateHash(alg, &mut handle, ptr::null_mut(), 0, ptr::null_mut(), 0, 0) };
+    expect_success("BCryptCreateHash", status);
+    HashHandle(handle)
+}
+
+/// Creates a keyed hash object (HMAC) from an algorithm pseudo-handle, passing the
+/// key as the secret. Passing NULL/0 for the object buffer lets bcrypt allocate it,
+/// freed via BCryptDestroyHash. Panics on failure (the HMAC path is infallible, like
+/// SHA-2). An HMAC key is never large enough to overflow the u32 length.
+fn create_keyed_hash_handle(alg: BCRYPT_ALG_HANDLE, key: &[u8]) -> HashHandle {
+    let mut handle: BCRYPT_HASH_HANDLE = ptr::null_mut();
+    // SAFETY: alg is a valid HMAC algorithm pseudo-handle; key is valid for its length;
+    // the hash object is bcrypt owned.
+    let status = unsafe {
+        BCryptCreateHash(
+            alg,
+            &mut handle,
+            ptr::null_mut(),
+            0,
+            key.as_ptr(),
+            // TODO: `key.len() as u32` truncates keys longer than u32::MAX.
+            key.len() as u32,
+            0,
+        )
+    };
     expect_success("BCryptCreateHash", status);
     HashHandle(handle)
 }

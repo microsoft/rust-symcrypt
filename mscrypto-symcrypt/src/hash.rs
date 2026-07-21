@@ -37,7 +37,7 @@ impl HashOps for SymCryptHasher {
 /// Copies a fixed-size SymCrypt result into a `Digest`. SymCrypt's safe API hands
 /// back an owned array, so the digest bytes are moved through a single stack copy
 /// of at most `Digest::MAX_LEN` bytes.
-fn digest_from<const N: usize>(out: [u8; N]) -> Digest {
+pub(crate) fn digest_from<const N: usize>(out: [u8; N]) -> Digest {
     Digest::from_fn(N, |buf| buf.copy_from_slice(&out))
 }
 

@@ -8,6 +8,7 @@
 #[non_exhaustive]
 pub enum Algorithm {
     Hash(BaseHashAlgorithm),
+    Mac(MacAlgorithm),
     #[cfg(feature = "sha3")]
     Sha3(Sha3Algorithm),
 }
@@ -17,6 +18,13 @@ pub enum BaseHashAlgorithm {
     Sha256,
     Sha384,
     Sha512,
+}
+
+// `Hmac(h)` denotes HMAC built on base hash `h`. Keeping the mechanism generic
+// over the hash leaves room for other MAC constructions as sibling variants.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum MacAlgorithm {
+    Hmac(BaseHashAlgorithm),
 }
 
 #[cfg(feature = "sha3")]
