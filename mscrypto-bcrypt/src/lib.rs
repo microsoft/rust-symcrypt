@@ -1,7 +1,7 @@
 //! BCrypt backend for the `mscrypto` contract.
 //!
 //! Provides [`BcryptProvider`], a concrete [`CryptoProvider`] backed by Windows
-//! (`bcryptprimitives.dll`). 
+//! (`bcryptprimitives.dll`).
 
 #![cfg(windows)]
 
@@ -12,7 +12,7 @@ pub use hash::BcryptHasher;
 pub use mac::BcryptMac;
 
 /// Everything needed to use this provider in one glob import:
-/// `use mscrypto_bcrypt::prelude::*;`. It re-exports the provider and traits 
+/// `use mscrypto_bcrypt::prelude::*;`. It re-exports the provider and traits
 /// (whose methods are otherwise not in scope), and the shared
 /// algorithm, error, and metadata types from the contract, so a consumer
 /// does not need a separate dependency on `mscrypto` for the common path.

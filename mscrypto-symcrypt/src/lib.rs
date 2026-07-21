@@ -7,9 +7,9 @@ mod hash;
 mod mac;
 
 pub use hash::SymCryptHasher;
-pub use mac::SymCryptMac;
 #[cfg(feature = "sha3")]
 pub use hash::SymCryptSha3Hasher;
+pub use mac::SymCryptMac;
 
 /// Everything needed to use this provider in one glob import:
 /// `use mscrypto_symcrypt::prelude::*;`. It re-exports the provider. builder, and traits
@@ -75,7 +75,9 @@ impl SymCryptProviderBuilder {
     /// Builds the provider, failing if any required algorithm is unsupported.
     pub fn build(self) -> Result<SymCryptProvider, ProviderBuildError> {
         initialize_module()?;
-        let provider = SymCryptProvider { info: backend_info() };
+        let provider = SymCryptProvider {
+            info: backend_info(),
+        };
         let missing: Vec<Algorithm> = self
             .required
             .into_iter()
@@ -121,7 +123,7 @@ impl CryptoProvider for SymCryptProvider {
 fn initialize_module() -> Result<(), ProviderBuildError> {
     // SAFETY: FFI call to a stateless version check that aborts on an incompatible
     // module and is safe to call more than once (the symcrypt crate also calls it
-    // lazily on first use). TODO: Change to SymCryptModuleInitEX. 
+    // lazily on first use). TODO: Change to SymCryptModuleInitEX.
     unsafe {
         symcrypt_sys::SymCryptModuleInit(
             symcrypt_sys::SYMCRYPT_CODE_VERSION_API,
