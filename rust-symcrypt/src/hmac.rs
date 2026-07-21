@@ -28,30 +28,33 @@
 //!
 //! ## Stateless Hmac for HmacSha256
 //! ```rust
-//! use symcrypt::hmac::hmac_sha256;
+//! use symcrypt::hmac::{hmac_sha256, hmac_sha256_verify};
 //!
 //! // Set up input
 //! let p_key = hex::decode("0a71d5cf99849bc13d73832dcd864244").unwrap();
 //! let data = hex::decode("17f1ee0c6767a1f3f04bb3c1b7a4e0d4f0e59e5963c1a3bf1540a76b25136baef425faf488722e3e331c77d26fbbd8300df532498f50c5ecd243f481f09348f964ddb8056f6e2886bb5b2f453fcf1de5629f3d166324570bf849792d35e3f711b041b1a7e30494b5d1316484ed85b8da37094627a8e66003d079bfd8beaa80dc").unwrap();
-//! let expected = "2a0f542090b51b84465cd93e5ddeeaa14ca51162f48047835d2df845fb488af4";
 //!
-//! // Perform stateless HmacSh256
-//! let result = hmac_sha256(&p_key, &data).unwrap();
-//! assert_eq!(hex::encode(result), expected);
+//! // The sender computes a tag over the message.
+//! let tag = hmac_sha256(&p_key, &data).unwrap();
+//!
+//! // The receiver checks the tag in constant time. Prefer this over `==`, which
+//! // short-circuits and leaks, via timing, how many leading bytes matched.
+//! hmac_sha256_verify(&p_key, &data, &tag).unwrap();
 //! ```
 //!
 //! ## Stateless Hmac for HmacSha384
 //! ```rust
-//! use symcrypt::hmac::hmac_sha384;
+//! use symcrypt::hmac::{hmac_sha384, hmac_sha384_verify};
 //!
 //! // Set up input
 //! let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
 //! let data = hex::decode("").unwrap();
-//! let expected = "ad88735f29e167dabded11b57e168f0b773b2985f4c2d2234c8d7a6bf01e2a791590bc0165003f9a7e47c4c687622fd6";
 //!
-//! // Perform stateless HmacSha384
-//! let result = hmac_sha384(&p_key, &data).unwrap();
-//! assert_eq!(hex::encode(result), expected);
+//! // The sender computes a tag over the message.
+//! let tag = hmac_sha384(&p_key, &data).unwrap();
+//!
+//! // The receiver checks the tag in constant time instead of comparing with `==`.
+//! hmac_sha384_verify(&p_key, &data, &tag).unwrap();
 //! ```
 //!
 //! ## Stateful Hmac for HmacSha256 and HmacSha384
@@ -66,14 +69,17 @@
 //! // Set up input
 //! let p_key = hex::decode("0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b").unwrap();
 //! let data = hex::decode("").unwrap();
-//! let expected = "915cb2c078aaf5dfb3560cf6d96997e987b2de5cd46f9a2ef92493bfc34bab16";
 //!
-//! // Perform stateful HmacSha256
-//! let mut hmac_test = HmacSha256State::new(&p_key).unwrap();
-//! hmac_test.append(&data);
+//! // The sender computes a tag over the message.
+//! let mut mac = HmacSha256State::new(&p_key).unwrap();
+//! mac.append(&data);
+//! let tag = mac.result();
 //!
-//! let result = hmac_test.result();
-//! assert_eq!(hex::encode(result), expected);
+//! // The receiver checks the tag in constant time using a fresh state (result
+//! // and verify each consume the state). Prefer this over comparing with `==`.
+//! let mut verifier = HmacSha256State::new(&p_key).unwrap();
+//! verifier.append(&data);
+//! verifier.verify(&tag).unwrap();
 //! ```
 
 use crate::errors::SymCryptError;
@@ -156,6 +162,8 @@ pub trait HmacState: Clone {
     // The state cannot be reused after result has been called. This behaviour is different from Hashing. The hash states are re-initialized
     // by ShaXXXState Result routine. This difference is by design; re-initializing a hash state is a safe operation. Re-initializing a
     // MAC state puts keying information in the state, and callers would have to wipe the MAC state explicitly.
+    /// To check the returned tag against an expected value, use [`HmacState::verify`]
+    /// rather than `==`, which short-circuits and is not constant time.
     fn result(self) -> Self::Result;
 
     /// Consumes the state and verifies in constant time that `expected` equals the
@@ -399,6 +407,9 @@ impl Drop for HmacMd5State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `MD5_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
+///
+/// To check the returned tag against an expected value, use [`hmac_md5_verify`]
+/// rather than `==`, which short-circuits and is not constant time.
 pub fn hmac_md5(key: &[u8], data: &[u8]) -> Result<[u8; MD5_HMAC_RESULT_SIZE], SymCryptError> {
     symcrypt_init();
     let mut result = [0u8; MD5_HMAC_RESULT_SIZE];
@@ -628,6 +639,9 @@ impl Drop for HmacSha1State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `SHA1_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
+///
+/// To check the returned tag against an expected value, use [`hmac_sha1_verify`]
+/// rather than `==`, which short-circuits and is not constant time.
 pub fn hmac_sha1(key: &[u8], data: &[u8]) -> Result<[u8; SHA1_HMAC_RESULT_SIZE], SymCryptError> {
     symcrypt_init();
     let mut result = [0u8; SHA1_HMAC_RESULT_SIZE];
@@ -850,6 +864,9 @@ impl Drop for HmacSha256State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `SHA256_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
+///
+/// To check the returned tag against an expected value, use [`hmac_sha256_verify`]
+/// rather than `==`, which short-circuits and is not constant time.
 pub fn hmac_sha256(
     key: &[u8],
     data: &[u8],
@@ -1075,6 +1092,9 @@ impl Drop for HmacSha384State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `SHA384_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
+///
+/// To check the returned tag against an expected value, use [`hmac_sha384_verify`]
+/// rather than `==`, which short-circuits and is not constant time.
 pub fn hmac_sha384(
     key: &[u8],
     data: &[u8],
@@ -1295,6 +1315,9 @@ impl Drop for HmacSha512State {
 /// `data` is a reference to an array of arbitrary length.
 ///
 /// `result` is an array of size `SHA512_HMAC_RESULT_SIZE`. This call can fail with a `SymCryptError`.
+///
+/// To check the returned tag against an expected value, use [`hmac_sha512_verify`]
+/// rather than `==`, which short-circuits and is not constant time.
 pub fn hmac_sha512(
     key: &[u8],
     data: &[u8],

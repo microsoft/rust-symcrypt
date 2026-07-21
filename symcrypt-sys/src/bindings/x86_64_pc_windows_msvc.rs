@@ -2615,6 +2615,9 @@ unsafe extern "C" {
     pub fn SymCryptModuleInit(api: UINT32, minor: UINT32);
 }
 unsafe extern "C" {
+    pub fn SymCryptEqual(pbSrc1: PCBYTE, pbSrc2: PCBYTE, cbBytes: SIZE_T) -> BOOLEAN;
+}
+unsafe extern "C" {
     pub fn SymCryptMd5(pbData: PCBYTE, cbData: SIZE_T, pbResult: PBYTE);
 }
 unsafe extern "C" {
