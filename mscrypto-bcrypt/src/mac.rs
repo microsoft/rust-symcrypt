@@ -12,10 +12,6 @@ use windows_sys::Win32::Security::Cryptography::{
 use crate::hash::BcryptHasher;
 use crate::BcryptProvider;
 
-const SHA256_LEN: usize = 32;
-const SHA384_LEN: usize = 48;
-const SHA512_LEN: usize = 64;
-
 /// Streaming HMAC state. HMAC runs on the same BCrypt hash-object machinery as a
 /// bare hash, so this wraps a keyed hasher; only construction differs.
 pub struct BcryptMac(BcryptHasher);
@@ -33,14 +29,13 @@ impl MacOps for BcryptMac {
 /// Maps an HMAC mechanism to its algorithm pseudo-handle and tag length.
 fn hmac_alg(algorithm: MacAlgorithm) -> (BCRYPT_ALG_HANDLE, usize) {
     match algorithm {
-        MacAlgorithm::Hmac(BaseHashAlgorithm::Sha256) => {
-            (BCRYPT_HMAC_SHA256_ALG_HANDLE, SHA256_LEN)
-        }
-        MacAlgorithm::Hmac(BaseHashAlgorithm::Sha384) => {
-            (BCRYPT_HMAC_SHA384_ALG_HANDLE, SHA384_LEN)
-        }
-        MacAlgorithm::Hmac(BaseHashAlgorithm::Sha512) => {
-            (BCRYPT_HMAC_SHA512_ALG_HANDLE, SHA512_LEN)
+        MacAlgorithm::Hmac(base) => {
+            let handle = match base {
+                BaseHashAlgorithm::Sha256 => BCRYPT_HMAC_SHA256_ALG_HANDLE,
+                BaseHashAlgorithm::Sha384 => BCRYPT_HMAC_SHA384_ALG_HANDLE,
+                BaseHashAlgorithm::Sha512 => BCRYPT_HMAC_SHA512_ALG_HANDLE,
+            };
+            (handle, base.output_len())
         }
     }
 }

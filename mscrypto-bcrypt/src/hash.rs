@@ -13,10 +13,6 @@ use windows_sys::Win32::Security::Cryptography::*;
 
 use crate::BcryptProvider;
 
-const SHA256_LEN: usize = 32;
-const SHA384_LEN: usize = 48;
-const SHA512_LEN: usize = 64;
-
 // windows-sys exposes the SHA-2 algorithm pseudo-handles but not the SHA-3 ones, so
 // define them the same way it defines its own (a BCRYPT_ALG_HANDLE built from the value
 // in the bcrypt pseudo-handle table). SHA-3 pseudo-handles exist on Windows 11 24H2 and later.
@@ -147,12 +143,12 @@ impl Hash for BcryptProvider {
     type Hasher = BcryptHasher;
 
     fn hash(&self, algorithm: BaseHashAlgorithm) -> BcryptHasher {
-        let (alg, len) = match algorithm {
-            BaseHashAlgorithm::Sha256 => (BCRYPT_SHA256_ALG_HANDLE, SHA256_LEN),
-            BaseHashAlgorithm::Sha384 => (BCRYPT_SHA384_ALG_HANDLE, SHA384_LEN),
-            BaseHashAlgorithm::Sha512 => (BCRYPT_SHA512_ALG_HANDLE, SHA512_LEN),
+        let alg = match algorithm {
+            BaseHashAlgorithm::Sha256 => BCRYPT_SHA256_ALG_HANDLE,
+            BaseHashAlgorithm::Sha384 => BCRYPT_SHA384_ALG_HANDLE,
+            BaseHashAlgorithm::Sha512 => BCRYPT_SHA512_ALG_HANDLE,
         };
-        BcryptHasher::new(alg, len)
+        BcryptHasher::new(alg, algorithm.output_len())
     }
 
     fn digest(&self, algorithm: BaseHashAlgorithm, data: &[u8]) -> Digest {
@@ -200,7 +196,7 @@ pub(crate) fn sha3_available(algorithm: Sha3Algorithm) -> bool {
 
 #[cfg(feature = "sha3")]
 mod sha3_impl {
-    use super::{sha3_alg_handle, BcryptHasher, SHA256_LEN, SHA384_LEN, SHA512_LEN};
+    use super::{sha3_alg_handle, BcryptHasher};
     use crate::BcryptProvider;
     use mscrypto::algorithm::Sha3Algorithm;
     use mscrypto::error::Error;
@@ -211,15 +207,18 @@ mod sha3_impl {
         type Sha3Hasher = BcryptHasher;
 
         fn sha3(&self, algorithm: Sha3Algorithm) -> Result<BcryptHasher, Error> {
-            let (len, available) = match algorithm {
-                Sha3Algorithm::Sha3_256 => (SHA256_LEN, self.sha3_256),
-                Sha3Algorithm::Sha3_384 => (SHA384_LEN, self.sha3_384),
-                Sha3Algorithm::Sha3_512 => (SHA512_LEN, self.sha3_512),
+            let available = match algorithm {
+                Sha3Algorithm::Sha3_256 => self.sha3_256,
+                Sha3Algorithm::Sha3_384 => self.sha3_384,
+                Sha3Algorithm::Sha3_512 => self.sha3_512,
             };
             if !available {
                 return Err(Error::Unavailable);
             }
-            Ok(BcryptHasher::new(sha3_alg_handle(algorithm), len))
+            Ok(BcryptHasher::new(
+                sha3_alg_handle(algorithm),
+                algorithm.output_len(),
+            ))
         }
 
         fn sha3_digest(&self, algorithm: Sha3Algorithm, data: &[u8]) -> Result<Digest, Error> {

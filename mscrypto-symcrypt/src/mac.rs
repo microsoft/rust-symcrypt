@@ -71,10 +71,13 @@ impl Mac for SymCryptProvider {
     }
 }
 
-// An HMAC key is always valid input, so construction only fails on a catastrophic
-// backend error. Mirror base hashing and treat that as unrecoverable.
+// HMAC accepts a key of any length, so SymCrypt's key expansion cannot fail here; the
+// fallible signature exists only to share the generic MAC interface with algorithms
+// whose key setup can fail (for example AES-CMAC, which rejects non-AES key sizes).
 fn expect_key<T>(result: Result<T, SymCryptError>) -> T {
-    result.unwrap_or_else(|error| panic!("mscrypto-symcrypt: HMAC failed: {error:?}"))
+    result.unwrap_or_else(|error| {
+        panic!("mscrypto-symcrypt: HMAC key expansion cannot fail: {error:?}")
+    })
 }
 
 #[cfg(test)]

@@ -9,12 +9,6 @@ pub enum ProviderBuildError {
         backend: &'static str,
         missing: Vec<Algorithm>,
     },
-    // Opaque low-level backend failure (e.g. a provider handle could not be
-    // opened). `operation` names the failing step; the raw status is not exposed.
-    Backend {
-        backend: &'static str,
-        operation: &'static str,
-    },
 }
 
 /// Runtime error for fallible crypto operations.
