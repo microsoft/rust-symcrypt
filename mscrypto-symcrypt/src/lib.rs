@@ -118,8 +118,8 @@ impl CryptoProvider for SymCryptProvider {
 // Single point where SymCrypt module usability is verified when a provider is
 // built. SymCrypt checks version compatibility during its lazy initialization on
 // first use, which aborts on a mismatch, so there is no recoverable failure to
-// report today. A graceful module-init entry point will surface an incompatible
-// module here as `ProviderBuildError::Backend { backend, operation }`.
+// report today. A graceful module-init entry point would let this surface an
+// incompatible module as a `ProviderBuildError` instead of aborting.
 fn initialize_module() -> Result<(), ProviderBuildError> {
     // SAFETY: FFI call to a stateless version check that aborts on an incompatible
     // module and is safe to call more than once (the symcrypt crate also calls it

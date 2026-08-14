@@ -387,11 +387,13 @@ impl Clone for HmacMd5State {
 #[cfg(feature = "md5")]
 impl Drop for HmacMd5State {
     fn drop(&mut self) {
+        let inner = self.state.as_mut().get_inner_mut();
         unsafe {
-            // SAFETY: FFI calls
+            // SAFETY: `inner` points to a live, owned SymCrypt state; wiping its full
+            // size clears the key-derived secrets it holds.
             symcrypt_sys::SymCryptWipe(
-                self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE>() as symcrypt_sys::SIZE_T,
+                inner as *mut c_void,
+                mem::size_of_val(&*inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -619,11 +621,13 @@ impl Clone for HmacSha1State {
 #[cfg(feature = "sha1")]
 impl Drop for HmacSha1State {
     fn drop(&mut self) {
+        let inner = self.state.as_mut().get_inner_mut();
         unsafe {
-            // SAFETY: FFI calls
+            // SAFETY: `inner` points to a live, owned SymCrypt state; wiping its full
+            // size clears the key-derived secrets it holds.
             symcrypt_sys::SymCryptWipe(
-                self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_SHA1_STATE>() as symcrypt_sys::SIZE_T,
+                inner as *mut c_void,
+                mem::size_of_val(&*inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -845,11 +849,13 @@ impl Clone for HmacSha256State {
 
 impl Drop for HmacSha256State {
     fn drop(&mut self) {
+        let inner = self.state.as_mut().get_inner_mut();
         unsafe {
-            // SAFETY: FFI calls
+            // SAFETY: `inner` points to a live, owned SymCrypt state; wiping its full
+            // size clears the key-derived secrets it holds.
             symcrypt_sys::SymCryptWipe(
-                self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_SHA256_STATE>() as symcrypt_sys::SIZE_T,
+                inner as *mut c_void,
+                mem::size_of_val(&*inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -1073,11 +1079,13 @@ impl Clone for HmacSha384State {
 
 impl Drop for HmacSha384State {
     fn drop(&mut self) {
+        let inner = self.state.as_mut().get_inner_mut();
         unsafe {
-            // SAFETY: FFI calls
+            // SAFETY: `inner` points to a live, owned SymCrypt state; wiping its full
+            // size clears the key-derived secrets it holds.
             symcrypt_sys::SymCryptWipe(
-                self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_SHA384_STATE>() as symcrypt_sys::SIZE_T,
+                inner as *mut c_void,
+                mem::size_of_val(&*inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -1296,11 +1304,13 @@ impl Clone for HmacSha512State {
 
 impl Drop for HmacSha512State {
     fn drop(&mut self) {
+        let inner = self.state.as_mut().get_inner_mut();
         unsafe {
-            // SAFETY: FFI calls
+            // SAFETY: `inner` points to a live, owned SymCrypt state; wiping its full
+            // size clears the key-derived secrets it holds.
             symcrypt_sys::SymCryptWipe(
-                self.state.as_mut().get_inner_mut() as *mut c_void,
-                mem::size_of::<symcrypt_sys::SYMCRYPT_HMAC_SHA512_STATE>() as symcrypt_sys::SIZE_T,
+                inner as *mut c_void,
+                mem::size_of_val(&*inner) as symcrypt_sys::SIZE_T,
             );
         }
     }
@@ -1662,53 +1672,41 @@ mod test {
         assert_eq!(hex::encode(result), expected);
     }
 
-    // Dropping an HMAC state before finalizing must wipe the whole SymCrypt
-    // state (which holds key-derived chaining values and buffered input), not
-    // just a pointer to it. The boxed state is freed by `Drop`, so inspecting it
-    // afterwards would be use-after-free; instead this proves the property two
-    // ways: (1) on a live, owned state value it shows that wiping only a
-    // pointer's worth of bytes leaves secret bytes behind while wiping
-    // `size_of::<STATE>()` clears them all, and (2) it runs each real `Drop`
-    // via an early drop after feeding in secret material.
+    // Each HMAC state's `Drop` wipes `size_of_val(&*inner)` bytes, i.e. the whole
+    // SymCrypt state (key-derived chaining values + buffered input), not just a
+    // pointer's worth. A real `Drop` frees the state, so inspecting it afterwards
+    // would be use-after-free; instead poison a full state and wipe it exactly as
+    // `Drop` does, requiring every byte to be zero.
     #[test]
-    fn hmac_state_drop_wipes_full_state() {
-        fn assert_full_wipe_clears_state<T: Default>() {
-            let mut state = T::default();
-            let base = &mut state as *mut T as *mut u8;
-            let full = mem::size_of::<T>();
-            let ptr_len = mem::size_of::<*const T>();
+    fn drop_wipe_clears_full_state() {
+        fn assert_wipes<S: Default>() {
+            let mut state = S::default();
+            let base = &mut state as *mut S;
+            let full = mem::size_of::<S>();
             unsafe {
-                // SAFETY: `base` points to `full` owned bytes for the lifetime of `state`.
-                ptr::write_bytes(base, 0xAA, full);
-
-                // Wiping only a pointer's worth of bytes (the original defect) must
-                // leave the rest of the secret state intact.
-                symcrypt_sys::SymCryptWipe(base as *mut c_void, ptr_len as symcrypt_sys::SIZE_T);
-                assert!(
-                    (ptr_len..full).any(|i| *base.add(i) != 0),
-                    "pointer-sized wipe unexpectedly cleared the full state",
+                // SAFETY: `base` points to a live, owned `S`.
+                ptr::write_bytes(base as *mut u8, 0xAA, full);
+                symcrypt_sys::SymCryptWipe(
+                    base as *mut c_void,
+                    mem::size_of_val(&*base) as symcrypt_sys::SIZE_T,
                 );
-
-                // Wiping `size_of::<STATE>()` bytes (what `Drop` now does) clears everything.
-                symcrypt_sys::SymCryptWipe(base as *mut c_void, full as symcrypt_sys::SIZE_T);
                 assert!(
-                    (0..full).all(|i| *base.add(i) == 0),
-                    "full-state wipe left secret bytes behind",
+                    (0..full).all(|i| *(base as *const u8).add(i) == 0),
+                    "state wipe left secret bytes behind",
                 );
             }
         }
 
-        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_SHA256_STATE>();
-        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_SHA384_STATE>();
-        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_SHA512_STATE>();
+        assert_wipes::<symcrypt_sys::SYMCRYPT_HMAC_SHA256_STATE>();
+        assert_wipes::<symcrypt_sys::SYMCRYPT_HMAC_SHA384_STATE>();
+        assert_wipes::<symcrypt_sys::SYMCRYPT_HMAC_SHA512_STATE>();
         #[cfg(feature = "md5")]
-        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE>();
+        assert_wipes::<symcrypt_sys::SYMCRYPT_HMAC_MD5_STATE>();
         #[cfg(feature = "sha1")]
-        assert_full_wipe_clears_state::<symcrypt_sys::SYMCRYPT_HMAC_SHA1_STATE>();
+        assert_wipes::<symcrypt_sys::SYMCRYPT_HMAC_SHA1_STATE>();
 
         // Exercise the real early-drop path for every state: build it, feed it
-        // secret material, then drop before finalizing. A wrong wipe length would
-        // over-wipe and corrupt the heap here.
+        // secret material, then drop before finalizing.
         let key = [0x0bu8; 16];
         let secret = [0x42u8; 128];
 
