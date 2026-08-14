@@ -1,76 +1,85 @@
-# TODO: Re-enable once Azure host images ship with SymCrypt >= v103.11.0.
-# The current runner images have an older symcrypt.dll in System32 that causes
-# SymCryptModuleInit to crash with STATUS_STACK_BUFFER_OVERRUN. Our downloaded
-# v103.11.0 DLL cannot override it reliably via PATH or DLL staging.
+# Re-enabled alongside the SymCrypt v103.6.0 pin.
+#
+# This workflow was disabled by 608d55a with the note "Disable Windows CI until Azure host
+# images ship SymCrypt >= v103.11.0", because SymCryptModuleInit crashed with
+# STATUS_STACK_BUFFER_OVERRUN against the older symcrypt.dll in the runner System32.
+#
+# That crash is the version abort, not a missing-symbol problem: SymCryptFatal('vers') resolves
+# to __fastfail(FAST_FAIL_CRYPTO_LIBRARY), which surfaces as 0xC0000409. The submodule is pinned at
+# v103.6.0, so SymCryptModuleInit requests API 103 / minor 6 and the older DLL should satisfy it.
+#
+# Unverified until this workflow actually runs. If the runner System32 DLL turns out to predate
+# v103.6 then AES-KW is genuinely unavailable there, which is a scoping decision rather than a
+# version-negotiation artifact, and this workflow goes back to being disabled.
 
-# name: Build Windows
-#
-# on:
-#   push:
-#     branches: [ "main" ]
-#   pull_request:
-#
-# permissions:
-#   contents: read
-#
-# env:
-#   CARGO_TERM_COLOR: always
-#   FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
-#
-# jobs:
-#   build:
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         include:
-#         - target: x86_64-pc-windows-msvc
-#           os: windows-latest
-#           runs-on: windows-latest
-#           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-amd64-release-103.11.0-748c20f1.zip"
-#           run-tests: true
-#         - target: aarch64-pc-windows-msvc
-#           os: windows-latest
-#           runs-on: windows-latest
-#           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.11.0/symcrypt-windows-arm64-release-103.11.0-748c20f1.zip"
-#           run-tests: false # Windows doesn't support ARM64 emulation
-#     runs-on: ${{ matrix.os }}
-#     name: ${{ matrix.target }}
-#     env:
-#       CARGO_BUILD_TARGET: ${{ matrix.target }}
-#
-#     steps:
-#     - uses: actions/checkout@v4 # Checks out SymCrypt based on Github submodule
-#       with:
-#         submodules: true
-#
-#     - uses: Swatinem/rust-cache@v2
-#
-#     # Install host architecture, required for cross-compilation since there is no arm64-windows-msvc runner
-#     - name: Install host target
-#       shell: pwsh
-#       run: |
-#         rustup target add ${{ matrix.target }}
-#
-#     - name: Download SymCrypt and Set Environment Variables
-#       shell: pwsh
-#       run: |
-#           Invoke-WebRequest -Uri ${{ matrix.symcrypt }} -OutFile symcrypt.zip
-#           New-Item -ItemType Directory -Force -Path symcrypt
-#           Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
-#           echo "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
-#           echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
-#           echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV
-#
-#     - name: Debug build
-#       run: cargo build --locked --verbose --target ${{ matrix.target }}
-#
-#     - name: Release build
-#       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
-#
-#     - name: Run tests (Debug)
-#       if: matrix.run-tests
-#       run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
-#
-#     - name: Run tests (Release)
-#       if: matrix.run-tests
-#       run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
+name: Build Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
+          runs-on: windows-latest
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.6.0/symcrypt-windows-amd64-release-103.6.0-1d7e34b.zip"
+          run-tests: true
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
+          runs-on: windows-latest
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.6.0/symcrypt-windows-arm64-release-103.6.0-1d7e34b.zip"
+          run-tests: false # Windows doesn't support ARM64 emulation
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.target }}
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.target }}
+
+    steps:
+    - uses: actions/checkout@v4 # Checks out SymCrypt based on Github submodule
+      with:
+        submodules: true
+
+    - uses: Swatinem/rust-cache@v2
+
+    # Install host architecture, required for cross-compilation since there is no arm64-windows-msvc runner
+    - name: Install host target
+      shell: pwsh
+      run: |
+        rustup target add ${{ matrix.target }}
+
+    - name: Download SymCrypt and Set Environment Variables
+      shell: pwsh
+      run: |
+          Invoke-WebRequest -Uri ${{ matrix.symcrypt }} -OutFile symcrypt.zip
+          New-Item -ItemType Directory -Force -Path symcrypt
+          Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
+          echo "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
+          echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
+          echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV
+
+    - name: Debug build
+      run: cargo build --locked --verbose --target ${{ matrix.target }}
+
+    - name: Release build
+      run: cargo build --release --locked --verbose --target ${{ matrix.target }}
+
+    - name: Run tests (Debug)
+      if: matrix.run-tests
+      run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
+
+    - name: Run tests (Release)
+      if: matrix.run-tests
+      run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}

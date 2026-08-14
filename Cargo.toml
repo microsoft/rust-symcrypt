@@ -13,4 +13,4 @@ rust-version = "1.84.0"
 [workspace.dependencies]
 libc = "0.2.0"
 hex = "0.4.3"
-symcrypt-sys = { path = "symcrypt-sys", version = "0.4.0" }
+symcrypt-sys = { path = "symcrypt-sys", version = "0.5.0" }
