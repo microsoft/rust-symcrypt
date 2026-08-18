@@ -719,64 +719,6 @@ const _: () = {
 };
 pub type SYMCRYPT_KMAC256_EXPANDED_KEY = _SYMCRYPT_KMAC256_EXPANDED_KEY;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _SYMCRYPT_OID {
-    pub cbOID: UINT32,
-    pub pbOID: PCBYTE,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_OID"][::std::mem::size_of::<_SYMCRYPT_OID>() - 16usize];
-    ["Alignment of _SYMCRYPT_OID"][::std::mem::align_of::<_SYMCRYPT_OID>() - 8usize];
-    ["Offset of field: _SYMCRYPT_OID::cbOID"]
-        [::std::mem::offset_of!(_SYMCRYPT_OID, cbOID) - 0usize];
-    ["Offset of field: _SYMCRYPT_OID::pbOID"]
-        [::std::mem::offset_of!(_SYMCRYPT_OID, pbOID) - 8usize];
-};
-impl Default for _SYMCRYPT_OID {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-pub type SYMCRYPT_OID = _SYMCRYPT_OID;
-pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
-#[link(name = "symcrypt", kind = "dylib")]
-unsafe extern "C" {
-    pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
-}
-#[link(name = "symcrypt", kind = "dylib")]
-unsafe extern "C" {
-    pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
-}
-#[link(name = "symcrypt", kind = "dylib")]
-unsafe extern "C" {
-    pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
-}
-#[link(name = "symcrypt", kind = "dylib")]
-unsafe extern "C" {
-    pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
-}
-#[link(name = "symcrypt", kind = "dylib")]
-unsafe extern "C" {
-    pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
-}
-#[link(name = "symcrypt", kind = "dylib")]
-unsafe extern "C" {
-    pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
-}
-#[link(name = "symcrypt", kind = "dylib")]
-unsafe extern "C" {
-    pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
-}
-#[link(name = "symcrypt", kind = "dylib")]
-unsafe extern "C" {
-    pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
-}
-#[repr(C)]
 #[repr(align(16))]
 #[derive(Copy, Clone)]
 pub union _SYMCRYPT_HASH_STATE {
@@ -3669,6 +3611,64 @@ unsafe extern "C" {
         cbDst: SIZE_T,
         pcbDst: *mut SIZE_T,
     ) -> SYMCRYPT_ERROR;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _SYMCRYPT_OID {
+    pub cbOID: UINT32,
+    pub pbOID: PCBYTE,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _SYMCRYPT_OID"][::std::mem::size_of::<_SYMCRYPT_OID>() - 16usize];
+    ["Alignment of _SYMCRYPT_OID"][::std::mem::align_of::<_SYMCRYPT_OID>() - 8usize];
+    ["Offset of field: _SYMCRYPT_OID::cbOID"]
+        [::std::mem::offset_of!(_SYMCRYPT_OID, cbOID) - 0usize];
+    ["Offset of field: _SYMCRYPT_OID::pbOID"]
+        [::std::mem::offset_of!(_SYMCRYPT_OID, pbOID) - 8usize];
+};
+impl Default for _SYMCRYPT_OID {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type SYMCRYPT_OID = _SYMCRYPT_OID;
+pub type PCSYMCRYPT_OID = *const SYMCRYPT_OID;
+#[link(name = "symcrypt", kind = "dylib")]
+unsafe extern "C" {
+    pub static SymCryptMd5OidList: [SYMCRYPT_OID; 2usize];
+}
+#[link(name = "symcrypt", kind = "dylib")]
+unsafe extern "C" {
+    pub static SymCryptSha1OidList: [SYMCRYPT_OID; 2usize];
+}
+#[link(name = "symcrypt", kind = "dylib")]
+unsafe extern "C" {
+    pub static SymCryptSha256OidList: [SYMCRYPT_OID; 2usize];
+}
+#[link(name = "symcrypt", kind = "dylib")]
+unsafe extern "C" {
+    pub static SymCryptSha384OidList: [SYMCRYPT_OID; 2usize];
+}
+#[link(name = "symcrypt", kind = "dylib")]
+unsafe extern "C" {
+    pub static SymCryptSha512OidList: [SYMCRYPT_OID; 2usize];
+}
+#[link(name = "symcrypt", kind = "dylib")]
+unsafe extern "C" {
+    pub static SymCryptSha3_256OidList: [SYMCRYPT_OID; 2usize];
+}
+#[link(name = "symcrypt", kind = "dylib")]
+unsafe extern "C" {
+    pub static SymCryptSha3_384OidList: [SYMCRYPT_OID; 2usize];
+}
+#[link(name = "symcrypt", kind = "dylib")]
+unsafe extern "C" {
+    pub static SymCryptSha3_512OidList: [SYMCRYPT_OID; 2usize];
 }
 unsafe extern "C" {
     pub fn SymCryptRsaPkcs1Sign(
