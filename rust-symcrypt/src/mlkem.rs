@@ -1,4 +1,11 @@
-//! ML-KEM functions. For further information please see symcrypt.h for more info
+//! ML-KEM functions. For more info please refer to symcrypt.h
+//!
+//! ML-KEM establishes a shared secret between two parties. The receiver generates a key pair and
+//! publishes the encapsulation key. The sender encapsulates using that public key and sends the
+//! ciphertext to the receiver. The shared secret is never transmitted.
+//!
+//! ML-KEM does not authenticate either party. Use the shared secret according to the surrounding
+//! protocol's KDF or key schedule rather than designing a protocol directly around these methods.
 //!
 //! # Examples
 //!
@@ -6,20 +13,14 @@
 //! ```rust
 //! use symcrypt::mlkem::{MlKemKey, MlKemParams};
 //!
-//! // The receiver generates a key pair and publishes the encapsulation key.
 //! let receiver = MlKemKey::generate_key_pair(MlKemParams::MlKem768).unwrap();
 //! let encapsulation_key = receiver.export_encapsulation_key().unwrap();
 //!
-//! // The sender imports the encapsulation key and encapsulates to it.
 //! let sender = MlKemKey::from_encapsulation_key(MlKemParams::MlKem768, &encapsulation_key).unwrap();
 //! let encapsulation = sender.encapsulate().unwrap();
 //!
-//! // The receiver decapsulates the ciphertext and both sides hold the same secret.
 //! let received = receiver.decapsulate(&encapsulation.ciphertext).unwrap();
 //! assert_eq!(received.as_bytes(), encapsulation.shared_secret.as_bytes());
-//!
-//! // A key holding only the encapsulation key cannot decapsulate.
-//! assert!(!sender.can_decapsulate());
 //! ```
 //!
 //! ## Store and restore a key pair from its private seed
@@ -28,10 +29,7 @@
 //!
 //! let key = MlKemKey::generate_key_pair(MlKemParams::MlKem512).unwrap();
 //!
-//! // The private seed is the smallest representation of a full ML-KEM key.
 //! let seed = key.export_private_seed().unwrap();
-//! assert_eq!(seed.len(), MlKemParams::PRIVATE_SEED_LEN);
-//!
 //! let restored = MlKemKey::from_private_seed(MlKemParams::MlKem512, &seed).unwrap();
 //! assert_eq!(
 //!     restored.export_encapsulation_key().unwrap(),
@@ -46,49 +44,39 @@ use std::fmt;
 /// The size in bytes of the secret agreed by ML-KEM.
 const SHARED_SECRET_LEN: usize = 32;
 
-/// [`MlKemParams`] provides an enum of the ML-KEM parameter sets defined by FIPS 203.
+/// ML-KEM parameter sets.
+///
+/// The parameter set is normally selected by the protocol using ML-KEM. Do not choose a different
+/// set independently of the peer. ML-KEM-768 is the commonly deployed choice when a protocol does
+/// not require another set.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum MlKemParams {
-    /// ML-KEM-512, FIPS 203 security category 1.
+    /// ML-KEM-512.
     MlKem512,
-    /// ML-KEM-768, FIPS 203 security category 3. This is the parameter set used by the TLS hybrid
-    /// groups `X25519MLKEM768` and `SECP256R1MLKEM768`.
+    /// ML-KEM-768.
     MlKem768,
-    /// ML-KEM-1024, FIPS 203 security category 5.
+    /// ML-KEM-1024.
     MlKem1024,
 }
 
 impl MlKemParams {
-    /// The size in bytes of an ML-KEM private seed, which is the same for every parameter set.
+    /// Size in bytes of the `d || z` private seed.
     ///
-    /// The seed is the 64-byte concatenation of `d || z` from FIPS 203, stored by SymCrypt as the
-    /// two 32-byte fields `privateSeed` and `privateRandom`. Note the
-    /// `SYMCRYPT_MLKEM_PRIVATE_SEED_SIZE` macro that names this size only exists at v103.11.0 and
-    /// later, so it cannot be referenced against the pinned headers.
-    ///
-    /// # Warning
-    ///
-    /// A private seed does not record which parameter set it belongs to. SymCrypt's own header
-    /// notes that "on its own it is ambiguous which ML-KEM parameter set this represents; callers
-    /// wanting to store this format must track the parameter set alongside the key". Importing a
-    /// seed under the wrong parameter set silently produces a valid but different key rather than
-    /// an error, so store the parameter set with the seed.
+    /// The seed does not identify its parameter set, so callers must store the parameter set
+    /// alongside it.
     pub const PRIVATE_SEED_LEN: usize = 64;
 
-    /// `encapsulation_key_len()` returns the size in bytes of this parameter set's encapsulation
-    /// key blob: 800, 1184, or 1568.
+    /// Returns the encapsulation key size in bytes.
     pub fn encapsulation_key_len(&self) -> usize {
         self.key_format_len(MlKemKeyFormat::EncapsulationKey)
     }
 
-    /// `decapsulation_key_len()` returns the size in bytes of this parameter set's decapsulation
-    /// key blob: 1632, 2400, or 3168.
+    /// Returns the decapsulation key size in bytes.
     pub fn decapsulation_key_len(&self) -> usize {
         self.key_format_len(MlKemKeyFormat::DecapsulationKey)
     }
 
-    /// `ciphertext_len()` returns the size in bytes of this parameter set's ciphertext:
-    /// 768, 1088, or 1568.
+    /// Returns the ciphertext size in bytes.
     pub fn ciphertext_len(&self) -> usize {
         symcrypt_init();
         let mut size: symcrypt_sys::SIZE_T = 0;
@@ -104,12 +92,7 @@ impl MlKemParams {
         }
     }
 
-    /// Queries SymCrypt for the blob size of a given key format.
-    ///
-    /// Sizes come from `SymCryptMlKemSizeofKeyFormatFromParams` rather than the
-    /// `SYMCRYPT_MLKEM_{ENCAPSULATION,DECAPSULATION}_KEY_SIZE_*` macros because those macros were
-    /// only added in SymCrypt v103.11.0 and so do not exist in the v103.6.0 headers this crate is
-    /// pinned to. The query function has been available since v103.5.
+    /// Returns the key blob size for `format`.
     fn key_format_len(&self, format: MlKemKeyFormat) -> usize {
         symcrypt_init();
         let mut size: symcrypt_sys::SIZE_T = 0;
@@ -126,7 +109,6 @@ impl MlKemParams {
         }
     }
 
-    /// Converts [`MlKemParams`] to the corresponding `SYMCRYPT_MLKEM_PARAMS`.
     fn to_symcrypt_params(self) -> symcrypt_sys::SYMCRYPT_MLKEM_PARAMS {
         match self {
             MlKemParams::MlKem512 => {
@@ -142,9 +124,7 @@ impl MlKemParams {
     }
 }
 
-/// The size queries only reject `SYMCRYPT_MLKEM_PARAMS_NULL` / `SYMCRYPT_MLKEMKEY_FORMAT_NULL` and
-/// out-of-range values, neither of which [`MlKemParams`] or [`MlKemKeyFormat`] can represent, so
-/// reaching this is a bug in the mapping above rather than something a caller can trigger.
+// Rust only exposes parameter and format values accepted by the size-query APIs.
 fn unreachable_size_error(function: &str, err: symcrypt_sys::SYMCRYPT_ERROR) -> ! {
     panic!(
         "{} rejected a parameter set that this crate can represent: {}",
@@ -153,22 +133,14 @@ fn unreachable_size_error(function: &str, err: symcrypt_sys::SYMCRYPT_ERROR) -> 
     )
 }
 
-/// [`MlKemKeyFormat`] provides an enum of the external key blob formats defined by FIPS 203.
-///
-/// These describe only import and export encodings; the internal representation of a key is not
-/// visible to the caller.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub enum MlKemKeyFormat {
-    /// The 64-byte concatenation of `d || z`. The smallest representation of a full ML-KEM key.
+enum MlKemKeyFormat {
     PrivateSeed,
-    /// The standard byte encoding of an ML-KEM decapsulation key.
     DecapsulationKey,
-    /// The standard byte encoding of an ML-KEM encapsulation key.
     EncapsulationKey,
 }
 
 impl MlKemKeyFormat {
-    /// Converts [`MlKemKeyFormat`] to the corresponding `SYMCRYPT_MLKEMKEY_FORMAT`.
     fn to_symcrypt_format(self) -> symcrypt_sys::SYMCRYPT_MLKEMKEY_FORMAT {
         match self {
             MlKemKeyFormat::PrivateSeed => {
@@ -184,14 +156,14 @@ impl MlKemKeyFormat {
     }
 }
 
+// Owns a SymCrypt ML-KEM key allocation.
 #[derive(Debug)]
-// InnerMlKemKey is a wrapper around symcrypt_sys::PSYMCRYPT_MLKEMKEY.
 struct InnerMlKemKey(symcrypt_sys::PSYMCRYPT_MLKEMKEY);
 
 impl Drop for InnerMlKemKey {
     fn drop(&mut self) {
         unsafe {
-            // SAFETY: FFI call to free the resource if it has been allocated.
+            // SAFETY: `self.0` is owned by this wrapper.
             if !self.0.is_null() {
                 symcrypt_sys::SymCryptMlKemkeyFree(self.0);
             }
@@ -199,14 +171,13 @@ impl Drop for InnerMlKemKey {
     }
 }
 
-/// [`SharedSecret`] is the 32-byte secret agreed by an ML-KEM encapsulation or decapsulation.
+/// A 32-byte ML-KEM shared secret.
 ///
-/// The bytes are wiped when the value is dropped. The type is deliberately neither `Copy` nor
-/// `Clone`, and its `Debug` implementation does not print the secret.
+/// The bytes are wiped on drop and omitted from `Debug`.
 pub struct SharedSecret([u8; SHARED_SECRET_LEN]);
 
 impl SharedSecret {
-    /// `as_bytes()` returns a reference to the 32-byte agreed secret.
+    /// Returns the shared secret bytes.
     pub fn as_bytes(&self) -> &[u8; SHARED_SECRET_LEN] {
         &self.0
     }
@@ -230,21 +201,18 @@ impl fmt::Debug for SharedSecret {
     }
 }
 
-/// [`MlKemEncapsulation`] is the pair of values produced by [`MlKemKey::encapsulate`].
-///
-/// `ciphertext` is sent to the peer holding the decapsulation key; `shared_secret` is kept.
+/// The result of [`MlKemKey::encapsulate`].
 #[derive(Debug)]
 pub struct MlKemEncapsulation {
-    /// The encapsulated secret, to be sent to the peer.
+    /// The ciphertext to send to the peer.
     pub ciphertext: Vec<u8>,
-    /// The agreed secret, to be kept.
+    /// The shared secret.
     pub shared_secret: SharedSecret,
 }
 
-/// [`MlKemKey`] is a struct that represents an ML-KEM key.
+/// An ML-KEM key.
 ///
-/// Depending on how it was created it may hold a full key pair or only an encapsulation key. See
-/// the module documentation for the capability table.
+/// A key may contain a full key pair or only an encapsulation key.
 #[derive(Debug)]
 pub struct MlKemKey {
     inner_key: InnerMlKemKey,
@@ -254,27 +222,16 @@ pub struct MlKemKey {
 }
 
 impl MlKemKey {
-    /// `generate_key_pair()` generates a random ML-KEM key pair for the provided [`MlKemParams`].
-    ///
-    /// This function will return a [`SymCryptError::MemoryAllocationFailure`] if there is not
-    /// enough memory to allocate the key.
-    ///
-    /// Note that no pairwise consistency test is promised. SymCrypt v103.6 deliberately omits one
-    /// on ML-KEM key generation, "awaiting feedback from NIST ... before implementing costly PCT on
-    /// ML-KEM key generation which is not expected by FIPS 203" (`lib/mlkem.c:713-717`); v103.11
-    /// and later do run one. Since this crate supports v103.6 and newer, whether a PCT runs is a
-    /// property of the loaded runtime rather than a guarantee of this API.
+    /// Generates a random ML-KEM key pair.
     pub fn generate_key_pair(params: MlKemParams) -> Result<Self, SymCryptError> {
         let inner_key = Self::allocate(params)?;
         unsafe {
-            // SAFETY: FFI call. Flags are 0, meaning full FIPS validation; this crate deliberately
-            // does not expose a SYMCRYPT_FLAG_KEY_NO_FIPS opt-out.
+            // SAFETY: `inner_key` is allocated and owned here. Flags request FIPS validation.
             match symcrypt_sys::SymCryptMlKemkeyGenerate(inner_key.0, 0) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(MlKemKey {
                     inner_key,
                     params,
-                    // SymCryptMlKemkeyGenerate imports a random private seed, so the generated key
-                    // has both the seed and the expanded private key.
+                    // Generated keys contain both private representations.
                     has_private_key: true,
                     has_private_seed: true,
                 }),
@@ -283,29 +240,19 @@ impl MlKemKey {
         }
     }
 
-    /// `from_private_seed()` imports a full ML-KEM key from its `d || z` private seed.
+    /// Imports a full ML-KEM key from a `d || z` private seed.
     ///
-    /// `seed` must be exactly [`MlKemParams::PRIVATE_SEED_LEN`] bytes or this returns
-    /// [`SymCryptError::WrongKeySize`].
-    ///
-    /// # Warning
-    ///
-    /// The seed does not encode its parameter set. Importing it under a different [`MlKemParams`]
-    /// than it was generated with produces a valid but unrelated key rather than an error. See the
-    /// warning on [`MlKemParams::PRIVATE_SEED_LEN`].
+    /// `seed` must be [`MlKemParams::PRIVATE_SEED_LEN`] bytes. Store the parameter set with the
+    /// seed: importing the same seed under a different parameter set succeeds but creates an
+    /// unrelated key.
     pub fn from_private_seed(params: MlKemParams, seed: &[u8]) -> Result<Self, SymCryptError> {
         Self::from_blob(params, seed, MlKemKeyFormat::PrivateSeed)
     }
 
-    /// `from_decapsulation_key()` imports an ML-KEM key from a decapsulation key blob.
+    /// Imports an ML-KEM decapsulation key.
     ///
-    /// `bytes` must be exactly [`MlKemParams::decapsulation_key_len`] bytes or this returns
-    /// [`SymCryptError::WrongKeySize`]. The blob embeds a hash of the corresponding encapsulation
-    /// key, which SymCrypt recomputes and checks, so a corrupted blob returns
-    /// [`SymCryptError::InvalidBlob`].
-    ///
-    /// The resulting key can decapsulate but cannot export its private seed, which is not
-    /// recoverable from this format.
+    /// `bytes` must be [`MlKemParams::decapsulation_key_len`] bytes. This format cannot be used to
+    /// export the private seed.
     pub fn from_decapsulation_key(
         params: MlKemParams,
         bytes: &[u8],
@@ -313,13 +260,10 @@ impl MlKemKey {
         Self::from_blob(params, bytes, MlKemKeyFormat::DecapsulationKey)
     }
 
-    /// `from_encapsulation_key()` imports an ML-KEM key from an encapsulation key blob.
+    /// Imports an ML-KEM encapsulation key.
     ///
-    /// `bytes` must be exactly [`MlKemParams::encapsulation_key_len`] bytes or this returns
-    /// [`SymCryptError::WrongKeySize`].
-    ///
-    /// The resulting key can only encapsulate. [`MlKemKey::decapsulate`] on it returns
-    /// [`SymCryptError::IncompatibleFormat`].
+    /// `bytes` must be [`MlKemParams::encapsulation_key_len`] bytes. The resulting key cannot
+    /// decapsulate.
     pub fn from_encapsulation_key(
         params: MlKemParams,
         bytes: &[u8],
@@ -327,50 +271,44 @@ impl MlKemKey {
         Self::from_blob(params, bytes, MlKemKeyFormat::EncapsulationKey)
     }
 
-    /// `export_encapsulation_key()` returns the encapsulation key blob, which is safe to publish.
-    ///
-    /// This is available for every [`MlKemKey`], however it was created.
+    /// Exports the encapsulation key.
     pub fn export_encapsulation_key(&self) -> Result<Vec<u8>, SymCryptError> {
         self.export(MlKemKeyFormat::EncapsulationKey)
     }
 
-    /// `export_decapsulation_key()` returns the decapsulation key blob.
+    /// Exports the decapsulation key.
     ///
     /// Returns [`SymCryptError::IncompatibleFormat`] for a key imported from an encapsulation key.
-    ///
-    /// The returned buffer is secret key material. It is the caller's responsibility to wipe it
-    /// (for example with the [`zeroize`](https://crates.io/crates/zeroize) crate) once it is no
-    /// longer needed.
+    /// The returned bytes contain secret key material.
+    /// The returned `Vec<u8>` is not wiped automatically; the caller must protect and erase it
+    /// after use.
     pub fn export_decapsulation_key(&self) -> Result<Vec<u8>, SymCryptError> {
-        // Checked here rather than left to SymCrypt, because SymCrypt's answer is not stable across
-        // the runtimes this crate supports. At v103.6 the `!pkMlKemkey->hasPrivateKey` arm of
-        // SymCryptMlKemkeyGetValue returns SYMCRYPT_INVALID_ARGUMENT (`lib/mlkem.c:633-637`),
-        // sharing a code with the output-length check; v103.11 changed it to
-        // SYMCRYPT_INCOMPATIBLE_FORMAT (`lib/mlkem.c:650`). Deciding it here keeps this error the
-        // same on every supported runtime and matches `decapsulate()`.
+        // SymCrypt v103.6 returns INVALID_ARGUMENT here, while v103.7 and later return
+        // INCOMPATIBLE_FORMAT. Normalize the transition across supported runtimes.
         if !self.has_private_key {
             return Err(SymCryptError::IncompatibleFormat);
         }
         self.export(MlKemKeyFormat::DecapsulationKey)
     }
 
-    /// `export_private_seed()` returns the `d || z` private seed.
+    /// Exports the `d || z` private seed.
     ///
-    /// Returns [`SymCryptError::IncompatibleFormat`] unless the key was generated or imported from
-    /// a private seed; the seed cannot be recovered from a decapsulation key blob. Check with
-    /// [`MlKemKey::has_private_seed`] first to avoid relying on the error.
-    ///
-    /// The returned buffer is secret key material. It is the caller's responsibility to wipe it
-    /// (for example with the [`zeroize`](https://crates.io/crates/zeroize) crate) once it is no
-    /// longer needed.
+    /// Returns [`SymCryptError::IncompatibleFormat`] if the key does not contain the private seed.
+    /// The returned bytes contain secret key material.
+    /// The returned `Vec<u8>` is not wiped automatically; the caller must protect and erase it
+    /// after use.
     pub fn export_private_seed(&self) -> Result<Vec<u8>, SymCryptError> {
+        // Enforce the capability before allocating the output buffer.
+        if !self.has_private_seed {
+            return Err(SymCryptError::IncompatibleFormat);
+        }
         self.export(MlKemKeyFormat::PrivateSeed)
     }
 
-    /// `encapsulate()` generates a fresh shared secret and the ciphertext that carries it.
+    /// Generates a shared secret and ciphertext.
     ///
-    /// Send [`MlKemEncapsulation::ciphertext`] to the peer holding the decapsulation key and keep
-    /// [`MlKemEncapsulation::shared_secret`].
+    /// Send `ciphertext` to the peer holding the decapsulation key. Keep `shared_secret` private
+    /// and use it only through the surrounding protocol's KDF or key schedule.
     pub fn encapsulate(&self) -> Result<MlKemEncapsulation, SymCryptError> {
         let mut ciphertext = vec![0u8; self.params.ciphertext_len()];
         let mut shared_secret = SharedSecret([0u8; SHARED_SECRET_LEN]);
@@ -393,24 +331,13 @@ impl MlKemKey {
         }
     }
 
-    /// `decapsulate()` recovers the shared secret from a peer's `ciphertext`.
+    /// Decapsulates `ciphertext` into a shared secret.
     ///
-    /// Returns [`SymCryptError::IncompatibleFormat`] if this key cannot decapsulate, and
-    /// [`SymCryptError::InvalidArgument`] if `ciphertext` is not
-    /// [`MlKemParams::ciphertext_len`] bytes.
-    ///
-    /// # Warning
-    ///
-    /// A correctly sized but tampered ciphertext does **not** produce an error. FIPS 203 mandates
-    /// implicit rejection: decapsulation succeeds in constant time and returns a pseudo-random
-    /// secret that will not match the sender's. "Decapsulate succeeded" therefore says nothing
-    /// about whether the peer's ciphertext was authentic. In TLS that guarantee comes from the
-    /// handshake transcript MAC, not from the KEM.
+    /// A correctly sized invalid ciphertext is implicitly rejected: this method returns `Ok` with
+    /// a pseudo-random secret. A successful return therefore does not authenticate the ciphertext
+    /// or peer. Authentication must be provided by the surrounding protocol.
     pub fn decapsulate(&self, ciphertext: &[u8]) -> Result<SharedSecret, SymCryptError> {
-        // SymCrypt folds this case into a SYMCRYPT_INVALID_ARGUMENT alongside the length checks
-        // (`lib/mlkem.c`, the `!pkMlKemkey->hasPrivateKey` arm of SymCryptMlKemDecapsulate).
-        // Checking it here separates "you gave me the wrong number of bytes" from "this key cannot
-        // decapsulate at all", which are very different caller mistakes.
+        // Distinguish an incompatible key from an invalid ciphertext length.
         if !self.has_private_key {
             return Err(SymCryptError::IncompatibleFormat);
         }
@@ -435,18 +362,17 @@ impl MlKemKey {
         }
     }
 
-    /// `params()` returns the [`MlKemParams`] this key was created with.
+    /// Returns the key's parameter set.
     pub fn params(&self) -> MlKemParams {
         self.params
     }
 
-    /// `can_decapsulate()` returns whether this key holds the private material needed by
-    /// [`MlKemKey::decapsulate`].
+    /// Returns whether the key can decapsulate.
     pub fn can_decapsulate(&self) -> bool {
         self.has_private_key
     }
 
-    /// `has_private_seed()` returns whether [`MlKemKey::export_private_seed`] will succeed.
+    /// Returns whether the private seed can be exported.
     pub fn has_private_seed(&self) -> bool {
         self.has_private_seed
     }
@@ -470,16 +396,14 @@ impl MlKemKey {
         blob: &[u8],
         format: MlKemKeyFormat,
     ) -> Result<Self, SymCryptError> {
-        // Length-check in Rust so the caller gets a clean error rather than one that depends on
-        // which internal branch SymCrypt reaches first.
+        // Match the SymCrypt key format size requirement.
         if blob.len() != params.key_format_len(format) {
             return Err(SymCryptError::WrongKeySize);
         }
 
         let inner_key = Self::allocate(params)?;
         unsafe {
-            // SAFETY: FFI call. Flags are 0, meaning full FIPS validation; this crate deliberately
-            // exposes neither SYMCRYPT_FLAG_KEY_NO_FIPS nor SYMCRYPT_FLAG_KEY_MINIMAL_VALIDATION.
+            // SAFETY: `blob` has the required length and `inner_key` is owned here.
             match symcrypt_sys::SymCryptMlKemkeySetValue(
                 blob.as_ptr(),
                 blob.len() as symcrypt_sys::SIZE_T,
@@ -488,7 +412,7 @@ impl MlKemKey {
                 inner_key.0,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                    // Mirrors what SymCryptMlKemkeySetValue records internally per format.
+                    // Match SymCrypt's capabilities for each imported format.
                     let (has_private_key, has_private_seed) = match format {
                         MlKemKeyFormat::PrivateSeed => (true, true),
                         MlKemKeyFormat::DecapsulationKey => (true, false),
@@ -509,8 +433,7 @@ impl MlKemKey {
     fn export(&self, format: MlKemKeyFormat) -> Result<Vec<u8>, SymCryptError> {
         let mut blob = vec![0u8; self.params.key_format_len(format)];
         unsafe {
-            // SAFETY: FFI call. The output buffer is owned here and sized from SymCrypt's own size
-            // query, so the only failure left is the capability check inside SymCrypt.
+            // SAFETY: `blob` is owned here and has the size required by SymCrypt.
             match symcrypt_sys::SymCryptMlKemkeyGetValue(
                 self.inner_key.0,
                 blob.as_mut_ptr(),
@@ -525,12 +448,7 @@ impl MlKemKey {
     }
 }
 
-// No custom Send / Sync impl. needed for the inner pointer beyond asserting it, since the
-// underlying data is a pointer to a SymCrypt struct that is not modified after it is created.
-// SymCrypt's header states the library is multi-thread safe and that concurrent read-only use of a
-// single data element is safe. SymCryptMlKemEncapsulate and SymCryptMlKemDecapsulate both take
-// `_In_ PCSYMCRYPT_MLKEMKEY`; only MlKemkeyGenerate and MlKemkeySetValue mutate the key, and both
-// are confined to construction.
+// SymCrypt permits concurrent read-only use of a key. Mutation is limited to construction.
 unsafe impl Send for MlKemKey {}
 unsafe impl Sync for MlKemKey {}
 
@@ -546,9 +464,7 @@ mod test {
 
     #[test]
     fn test_mlkem_sizes_match_fips_203() {
-        // Cross-checks the runtime size queries against the values FIPS 203 fixes for each
-        // parameter set, which are also the SYMCRYPT_MLKEM_*_SIZE_* macros this crate avoids
-        // depending on at compile time.
+        // Values from the SymCrypt ML-KEM size definitions.
         let expected = [
             (MlKemParams::MlKem512, 800, 1632, 768),
             (MlKemParams::MlKem768, 1184, 2400, 1088),
@@ -621,14 +537,12 @@ mod test {
 
             let restored = MlKemKey::from_decapsulation_key(params, &decapsulation_key).unwrap();
             assert!(restored.can_decapsulate());
-            // The private seed is not recoverable from a decapsulation key blob.
             assert!(!restored.has_private_seed());
             assert_eq!(
                 restored.export_private_seed().unwrap_err(),
                 SymCryptError::IncompatibleFormat
             );
 
-            // The restored key still decapsulates what the original encapsulates.
             let encapsulation = key.encapsulate().unwrap();
             let decapsulated = restored.decapsulate(&encapsulation.ciphertext).unwrap();
             assert_eq!(
@@ -711,9 +625,7 @@ mod test {
 
     #[test]
     fn test_mlkem_tampered_ciphertext_is_implicitly_rejected() {
-        // FIPS 203 implicit rejection: a correctly sized but corrupt ciphertext must decapsulate
-        // successfully to a pseudo-random secret rather than return an error. Callers must not read
-        // decapsulation success as ciphertext authenticity.
+        // SymCrypt implicitly rejects correctly sized invalid ciphertexts.
         let params = MlKemParams::MlKem768;
         let key = MlKemKey::generate_key_pair(params).unwrap();
         let encapsulation = key.encapsulate().unwrap();
@@ -736,43 +648,12 @@ mod test {
 
         assert_eq!(rendered, "SharedSecret([redacted])");
 
-        // The same check for MlKemEncapsulation, whose derived Debug delegates to the above.
         let rendered = format!("{:?}", encapsulation);
         assert!(rendered.contains("SharedSecret([redacted])"));
         assert!(!rendered.contains(&hex::encode(encapsulation.shared_secret.as_bytes())));
     }
 
-    // ---------------------------------------------------------------------------------------
-    // Known-answer test vectors, ML-KEM-768 only.
-    //
-    // Transcribed from `symcrypt-sys/symcrypt/unittest/kat_kem.dat` in the pinned SymCrypt
-    // submodule, which the SymCrypt project derived from the NIST ACVP server's FIPS 203 example
-    // files (ACVP-Server commit 65370b861b96efd30dfe0daae607bde26a78a5c8):
-    //
-    //   gen-val/json-files/ML-KEM-keyGen-FIPS203/internalProjection.json
-    //   gen-val/json-files/ML-KEM-encapDecap-FIPS203/internalProjection.json
-    //
-    // Lowercased from the source, which is uppercase, to match `hex::encode` and the rest of the
-    // crate's tests. Wrapped at 96 hex characters per line, matching `kat_kem.dat`, so each line
-    // can be diffed against the source directly. Each constant records the line its record starts
-    // on.
-    //
-    // Only ML-KEM-768 is covered, and only one record of each kind. This is deliberate:
-    //
-    //   - 768 is the parameter set that ships in TLS, via X25519MLKEM768 and SECP256R1MLKEM768.
-    //   - The job of a KAT here is to prove the *wrapper* marshals buffers correctly against an
-    //     authoritative external answer. SymCrypt's own unittest exercises the full vector set for
-    //     all three parameter sets, so re-running it here would only re-validate SymCrypt.
-    //   - 512 and 1024 are still covered functionally by the round-trip tests above, and
-    //     `test_mlkem_sizes_match_fips_203` independently pins each parameter set to its FIPS 203
-    //     sizes, which is what would catch a mis-mapped `MlKemParams` variant. A round trip alone
-    //     could not: it is self-consistent, so a swapped enum mapping would still pass.
-    //
-    // Encapsulation has no KAT. Deterministic encapsulation needs `SymCryptMlKemEncapsulateEx`,
-    // which lives in `inc/symcrypt_low_level.h` and is an explicitly unstable API this crate does
-    // not bind. It is covered instead by the randomized round-trip tests plus the fact that
-    // decapsulation is KAT-verified.
-    // ---------------------------------------------------------------------------------------
+    // ML-KEM-768 vectors from `symcrypt-sys/symcrypt/unittest/kat_kem.dat`.
 
     // KAT_KEYGEN_D: 32 bytes, kat_kem.dat line 2787
     const KAT_KEYGEN_D: &str = "e34a701c4c87582f42264ee422d3c684d97611f2523efe0c998af05056d693dc";
@@ -949,7 +830,6 @@ mod test {
 
     #[test]
     fn test_mlkem_768_keygen_kat() {
-        // The deterministic half of key generation: d || z must expand to exactly these blobs.
         let mut seed = hex::decode(KAT_KEYGEN_D).unwrap();
         seed.extend_from_slice(&hex::decode(KAT_KEYGEN_Z).unwrap());
         assert_eq!(seed.len(), MlKemParams::PRIVATE_SEED_LEN);
