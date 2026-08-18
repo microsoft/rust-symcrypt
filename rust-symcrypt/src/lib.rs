@@ -9,6 +9,7 @@ pub mod gcm;
 pub mod hash;
 pub mod hkdf;
 pub mod hmac;
+pub mod mlkem;
 pub mod rsa;
 pub mod sp800_108;
 

@@ -2,7 +2,7 @@
 
 This page provides more detailed installation instructions for linking against `SymCrypt` on Windows and Linux.
 
-The `symcrypt` crate is a wrapper on top of the `SymCrypt` library, and requires access to the `SymCrypt` library during the build and execution stage. For ease of use, the recommended way to configure your `SymCrypt` library dependancy is to obtain the required binaries from the official [SymCrypt Repo](https://github.com/microsoft/SymCrypt/releases/tag/v103.11.0).
+The `symcrypt` crate is a wrapper on top of the `SymCrypt` library, and requires access to the `SymCrypt` library during the build and execution stage. For ease of use, the recommended way to configure your `SymCrypt` library dependancy is to obtain the required binaries from the official [SymCrypt Repo](https://github.com/microsoft/SymCrypt/releases/tag/v103.6.0).
 
 However, If you wish to build your own version of the underlying `SymCrypt` library please follow the [Build Instructions](https://github.com/microsoft/SymCrypt/blob/main/BUILD.md) that are provided by SymCrypt to install SymCrypt for your target architecture.
 
@@ -36,7 +36,7 @@ Here are 2 recommended options to ensure your `symcrypt.dll` is found by Windows
 
 ### Linux Install
 
-Though the artifacts on the [SymCrypt Repo](https://github.com/microsoft/SymCrypt/releases/tag/v103.11.0). Have been built with `Ubuntu` in mind, the `SymCrypt` library has been built with very few standard library dependencies and should work on most Linux distributions. 
+Though the artifacts on the [SymCrypt Repo](https://github.com/microsoft/SymCrypt/releases/tag/v103.6.0). Have been built with `Ubuntu` in mind, the `SymCrypt` library has been built with very few standard library dependencies and should work on most Linux distributions. 
 
 After installing and unzipping SymCrypt on a Linux distro, the required `libsymcrypt.so*` files can be found in the following path:
 `~/Your-Path-To-SymCrypt-Release-Download/lib/`

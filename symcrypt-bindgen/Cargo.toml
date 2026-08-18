@@ -1,7 +1,7 @@
 [package]
 name = "symcrypt-bindgen"
 authors = ["Microsoft"]
-version = "0.2.0"
+version = "0.3.0"
 description = "Bindings generation for symcrypt-sys"
 edition.workspace = true
 rust-version.workspace = true

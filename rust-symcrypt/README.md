@@ -3,7 +3,7 @@ This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https:/
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**`symcrypt` version `0.6.0` is based off of `SymCrypt v103.11.0`.** You must use a version that is greater than or equal to `SymCrypt v103.11.0`.
+**`symcrypt` version `0.6.0` is based off of `SymCrypt v103.6.0`.** You must use a version that is greater than or equal to `SymCrypt v103.6.0`.
 
 To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
 
@@ -67,6 +67,10 @@ RSA:
 - PKCS1 ( Sign, Verify, Encrypt, Decrypt )
 - PSS ( Sign, Verify )
 - OAEP ( Encrypt, Decrypt )
+
+Post-Quantum (FIPS 203):
+- ML-KEM Key Generation / Encapsulate / Decapsulate ( ML-KEM-512, ML-KEM-768, ML-KEM-1024 )
+- Key import / export ( private seed, decapsulation key, encapsulation key )
 
 **Note**: `Md5` and `Sha1`, and `PKCS1 Encrypt/Decrypt` are considered weak crypto, and are only added for interop purposes.
 To enable either `Md5` or `Sha1`, or `Pkcs1 Encrypt/Decrypt` pass the `md5` or `sha1` or `pkcs1-encrypt-decrypt` flag into your `Cargo.toml`.
