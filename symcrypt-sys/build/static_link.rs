@@ -89,6 +89,7 @@ impl SymCryptOptions {
                     .flag("/WX") // Treat warnings as errors
                     .flag("/guard:cf") // Control Flow Guard
                     .flag("/wd5105") // Disable warning caused by Windows SDK headers
+                    .flag("/wd5287") // Disable warning C5287: operands are different enum types '_SYMCRYPT_INTERNAL_ECURVE_TYPE' and '_SYMCRYPT_ECURVE_TYPE'; use an explicit cast to silence this warning
                     .flag("/EHsc"); // Exception handling
                                     // .flag("/dynamicbase"); // Enabling ASLR produces lots of warnings
 
