@@ -30,11 +30,11 @@ jobs:
       CARGO_BUILD_TARGET: ${{ matrix.target }}
     
     steps:
-    - uses: actions/checkout@v4 # Checks out SymCrypt based on Github submodule
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
         submodules: true
 
-    - uses: Swatinem/rust-cache@v2
+    - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 
     # Download SymCrypt via PMC
     - name: Install SymCrypt via PMC
