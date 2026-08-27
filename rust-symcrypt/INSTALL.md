@@ -39,6 +39,8 @@ setx SYMCRYPT_LIB_PATH "C:\path\to\SymCrypt\dll"
 
 Open a new terminal after using `setx`.
 
+This sets only the `SYMCRYPT_LIB_PATH` variable. It does not modify the Windows `PATH` variable.
+
 `SYMCRYPT_LIB_PATH` only tells the Rust linker where to find `symcrypt.lib`. It does not add the
 directory to the Windows DLL search path and does not control which `symcrypt.dll` is loaded at
 runtime.
@@ -69,48 +71,57 @@ Setting `SYMCRYPT_LIB_PATH` and configuring runtime DLL discovery are separate s
 
 ## Linux installation
 
-The Linux release archive contains `libsymcrypt.so*` under `lib/`.
+### Azure Linux 3
 
-SymCrypt can also be installed through packages.microsoft.com on supported distributions. For
-example, after configuring the Microsoft package repository on Ubuntu 24.04:
+SymCrypt is normally preinstalled on Azure Linux 3. Install it if needed, apply available updates,
+and verify the installed version:
 
 ```bash
+sudo tdnf install symcrypt
+sudo tdnf update symcrypt
+tdnf info symcrypt
+```
+
+### Other supported distributions
+
+Connect the system to [packages.microsoft.com](https://learn.microsoft.com/en-us/linux/packages),
+then install the `symcrypt` package using the distribution's package manager.
+
+For example, on Ubuntu 24.04:
+
+```bash
+curl -sSL -O https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
 sudo apt-get update
 sudo apt-get install -y symcrypt
 ```
 
-Package-manager installation normally places the library in standard linker and runtime-loader
-paths, so no additional environment variables are needed.
+The package manager installs SymCrypt into the standard linker and runtime-loader paths. Do not set
+`SYMCRYPT_LIB_PATH` or `LD_LIBRARY_PATH` when using this installation method.
 
-### Build-time configuration
+If the package manager reports that no `symcrypt` package is available, use the
+[manual archive installation](#manual-archive-installation) below.
 
-When using an extracted release archive or another nonstandard installation location, set
-`SYMCRYPT_LIB_PATH` to the directory containing `libsymcrypt.so`:
+### Manual archive installation
+
+If a package is unavailable, download the matching Linux archive from the
+[SymCrypt releases page](https://github.com/microsoft/SymCrypt/releases). The archive contains
+`libsymcrypt.so*` under `lib/`.
+
+For an extracted archive in a nonstandard location, configure the build-time linker:
 
 ```bash
 export SYMCRYPT_LIB_PATH="/path/to/SymCrypt/lib"
 ```
 
-This adds the directory to the native linker search path while Cargo builds the application.
-
-### Runtime configuration
-
-The Linux runtime loader must also be able to find `libsymcrypt.so`. Depending on the application
-and distribution, configure this with one of the following:
-
-- Install the library in a standard system library directory.
-- Add its directory to the system loader configuration using `ldconfig`.
-- Set `LD_LIBRARY_PATH` before running the application.
-- Configure an `rpath` when linking the final executable.
-
-For a local development session:
+The runtime loader must also be able to find `libsymcrypt.so`. For a local development session:
 
 ```bash
 export LD_LIBRARY_PATH="/path/to/SymCrypt/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 ```
 
-As on Windows, `SYMCRYPT_LIB_PATH` controls the build-time linker search path. Runtime discovery
-must be configured separately.
+For deployed applications, install the library in a standard system location, configure it through
+`ldconfig`, or set an appropriate `rpath`.
 
 ## Target-specific environment variables
 
