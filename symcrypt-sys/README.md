@@ -20,16 +20,16 @@ You must also configure your system to pick up the SymCrypt lib on your machine,
 
 In your `Cargo.toml`
 ```Rust
-symcrypt-sys = "0.4.0"
+symcrypt-sys = "0.5.0"
 ```
 Then you can call the underlying SymCrypt code directly via the FFIs.
 ```Rust
 unsafe {
     // SAFETY: FFI calls
-	symcrypt_sys::SymCryptSha384(
-	data.as_ptr(),
-	data.len() as  symcrypt_sys::SIZE_T,
-	result.as_mut_ptr(),
-	);
+    symcrypt_sys::SymCryptSha384(
+        data.as_ptr(),
+        data.len() as symcrypt_sys::SIZE_T,
+        result.as_mut_ptr(),
+    );
 }
 ```

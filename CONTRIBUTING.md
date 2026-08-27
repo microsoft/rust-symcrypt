@@ -10,21 +10,15 @@ Thank you for your interest in contributing. This document covers the branch mod
 |---|---|
 | `main` | Published releases only (tagged) |
 | `release/X.Y.Z` | Staging for the next release |
-| `experimental/static-linking` | Long-lived experimental work (not yet released) |
 | `user/<alias>/<feature>` | Individual contributor branches |
 
 ### `main`
-Matches the latest published crate version exactly. Only updated when a release ships. `main` is never committed to directly. Every commit on `main` has a corresponding version tag (`0.5.1`, `0.6.0`, etc.).
+Receives completed release branches through pull requests. Release tags identify the exact commits published to crates.io; the individual commits brought in by a release merge are not tagged separately.
 
 ### `release/X.Y.Z`
 The active staging branch for the next release. Feature and fix PRs should target this branch. When the release is ready, it is merged into `main` and tagged. The branch is kept alive afterward for backporting critical fixes.
 
 **To find the current active release branch**, check the branch list, it will be the most recent `release/` branch.
-
-### `experimental/static-linking`
-WIP static linking support. Not part of any release yet, periodic rebases onto `main`.
-
----
 
 ## How to Contribute
 

@@ -107,6 +107,9 @@ fn main() {
         .allowlist_var("SYMCRYPT_FLAG_RSA_PKCS1_OPTIONAL_HASH_OID")
         // RSA PSS FUNCTIONS
         .allowlist_function("^(SymCryptRsaPss(Sign|Verify).*)$")
+        // ML-KEM FUNCTIONS
+        .allowlist_function("^SymCryptMlKem(?:key(?:Allocate|Free|Generate|SetValue|GetValue)|Encapsulate|Decapsulate|SizeofKeyFormatFromParams|SizeofCiphertextFromParams|Selftest)$")
+        .allowlist_type("^SYMCRYPT_MLKEM(?:KEY_FORMAT|_PARAMS)$")
         // OID LISTS
         .allowlist_var("^SymCrypt(Sha(1|256|384|512|3_(256|384|512))|Md5)OidList$")
         // UTILITY FUNCTIONS

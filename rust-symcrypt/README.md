@@ -3,7 +3,7 @@ This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https:/
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**`symcrypt` version `0.6.0` is based off of `SymCrypt v103.11.0`.** You must use a version that is greater than or equal to `SymCrypt v103.11.0`.
+**`symcrypt` version `0.6.0` is based on `SymCrypt v103.6.0`.** You must use `SymCrypt v103.6.0` or newer.
 
 To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
 
@@ -75,7 +75,7 @@ To enable either `Md5` or `Sha1`, or `Pkcs1 Encrypt/Decrypt` pass the `md5` or `
 
 ## Quick Start Guide
 
-The `symcrypt` crate links against the `SymCrypt` library dynamically by default. This requires the `SymCrypt` library to be available on your system at build and runtime. Experimental static linking is also available, see [`INSTALL.md`](./INSTALL.md#static-linking) for details.
+The `symcrypt` crate links dynamically against the `SymCrypt` library. The library must be available during both build and runtime.
 
 ### Windows:
 Download the latest `symcrypt.dll` and `symcrypt.lib` for your corresponding CPU architecture from the [SymCrypt Releases Page](https://github.com/microsoft/SymCrypt/releases) and place them somewhere accessible on your machine.
