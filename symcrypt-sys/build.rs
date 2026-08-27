@@ -33,13 +33,5 @@ fn main() {
         panic!("SYMCRYPT_LIB_PATH environment variable not set, for more information please see: https://github.com/microsoft/rust-symcrypt/tree/main/rust-symcrypt#quick-start-guide")
     }
 
-    if let Some(static_link) = env_var_for_target("SYMCRYPT_STATIC") {
-        if static_link != "0" {
-            println!("cargo:rustc-link-lib=static=symcrypt");
-        } else {
-            println!("cargo:rustc-link-lib=dylib=symcrypt");
-        }
-    } else {
-        println!("cargo:rustc-link-lib=dylib=symcrypt");
-    }
+    println!("cargo:rustc-link-lib=dylib=symcrypt");
 }

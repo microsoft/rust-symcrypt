@@ -21,10 +21,12 @@ jobs:
         - target: x86_64-unknown-linux-gnu
           os: ubuntu-latest
           runs-on: ubuntu-latest
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.6.0/symcrypt-linux-generic-amd64-release-103.6.0-1d7e34b.tar.gz"
           run-tests: true
         - target: aarch64-unknown-linux-gnu
           os: ubuntu-24.04-arm
           runs-on: ubuntu-24.04-arm
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.6.0/symcrypt-linux-generic-arm64-release-103.6.0-1d7e34b.tar.gz"
           run-tests: true
           
     runs-on: ${{ matrix.os }}
@@ -39,14 +41,14 @@ jobs:
 
     - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 
-    # Download SymCrypt via PMC
-    - name: Install SymCrypt via PMC
+    - name: Install SymCrypt v103.6.0
       shell: bash
       run: |
-        curl -sSL -O https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb
-        sudo dpkg -i packages-microsoft-prod.deb
-        sudo apt-get update
-        sudo apt-get install -y symcrypt
+        mkdir symcrypt
+        curl --fail --location --silent --show-error "${{ matrix.symcrypt }}" |
+          tar --extract --gzip --directory symcrypt
+        echo "SYMCRYPT_LIB_PATH=$GITHUB_WORKSPACE/symcrypt/lib" >> "$GITHUB_ENV"
+        echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/symcrypt/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
     
     - name: Install host target
       shell: pwsh
