@@ -48,28 +48,15 @@ jobs:
       run: |
         Invoke-WebRequest -Uri "${{ matrix.symcrypt }}" -OutFile symcrypt.zip
         Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
+        "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
         "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
+        "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV
 
     - name: Debug build
       run: cargo build --locked --verbose --target ${{ matrix.target }}
 
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
-
-    - name: Prepare test binaries
-      if: matrix.run-tests
-      run: |
-        cargo test --locked --all-features --no-run --target ${{ matrix.target }}
-        cargo test --release --locked --all-features --no-run --target ${{ matrix.target }}
-
-    - name: Stage SymCrypt beside test binaries
-      if: matrix.run-tests
-      shell: pwsh
-      run: |
-        $dll = "$env:GITHUB_WORKSPACE\symcrypt\dll\symcrypt.dll"
-        Copy-Item $dll "$env:GITHUB_WORKSPACE\target\${{ matrix.target }}\debug\deps\symcrypt.dll"
-        Copy-Item $dll "$env:GITHUB_WORKSPACE\target\${{ matrix.target }}\release\deps\symcrypt.dll"
-        Get-FileHash $dll
 
     - name: Run tests (Debug)
       if: matrix.run-tests
