@@ -4,7 +4,7 @@ The `symcrypt` crate dynamically links against the native SymCrypt library on Wi
 The native library must be available both while building the Rust application and when running it.
 
 Version 0.6.0 requires
-[SymCrypt v103.6.0](https://github.com/microsoft/SymCrypt/releases/tag/v103.6.0) or newer. The
+[SymCrypt v103.8.0](https://github.com/microsoft/SymCrypt/releases/tag/v103.8.0) or newer. The
 recommended starting point is the matching archive from the official
 [SymCrypt releases page](https://github.com/microsoft/SymCrypt/releases). To build SymCrypt
 yourself, follow the upstream [build instructions](https://github.com/microsoft/SymCrypt/blob/main/BUILD.md).

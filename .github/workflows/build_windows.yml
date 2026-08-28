@@ -20,11 +20,11 @@ jobs:
         include:
         - target: x86_64-pc-windows-msvc
           os: windows-latest
-          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.6.0/symcrypt-windows-amd64-release-103.6.0-1d7e34b.zip"
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-amd64-release-103.8.0-53be637d.zip"
           run-tests: true
         - target: aarch64-pc-windows-msvc
           os: windows-latest
-          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.6.0/symcrypt-windows-arm64-release-103.6.0-1d7e34b.zip"
+          symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-arm64-release-103.8.0-53be637d.zip"
           run-tests: false
 
     runs-on: ${{ matrix.os }}
@@ -43,7 +43,7 @@ jobs:
       shell: pwsh
       run: rustup target add ${{ matrix.target }}
 
-    - name: Download SymCrypt v103.6.0
+    - name: Download SymCrypt v103.8.0
       shell: pwsh
       run: |
         Invoke-WebRequest -Uri "${{ matrix.symcrypt }}" -OutFile symcrypt.zip
