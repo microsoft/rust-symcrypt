@@ -3,7 +3,7 @@ This crate provides friendly and idiomatic Rust wrappers over [SymCrypt](https:/
 
 This crate has a dependency on `symcrypt-sys`, which utilizes `bindgen` to create Rust/C FFI bindings.
 
-**`symcrypt` version `0.6.0` is based on `SymCrypt v103.6.0`.** You must use `SymCrypt v103.6.0` or newer.
+**`symcrypt` version `0.6.0` is based on `SymCrypt v103.8.0`.** You must use `SymCrypt v103.8.0` or newer.
 
 To view a detailed list of changes please see the [releases page](https://github.com/microsoft/rust-symcrypt/releases/).
 

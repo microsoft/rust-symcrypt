@@ -23,7 +23,7 @@
 //
 
 #define SYMCRYPT_CODE_VERSION_API       103
-#define SYMCRYPT_CODE_VERSION_MINOR     6
+#define SYMCRYPT_CODE_VERSION_MINOR     8
 #define SYMCRYPT_CODE_VERSION_PATCH     0
 
 #if defined(DBG)
