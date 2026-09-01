@@ -1,0 +1,15 @@
+[package]
+name = "mscrypto"
+authors = ["Microsoft"]
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+description = "Backend-neutral cryptographic provider contract (traits and types) shared by the SymCrypt and BCrypt/CNG backends"
+edition.workspace = true
+rust-version.workspace = true
+homepage = "https://github.com/microsoft/SymCrypt"
+repository = "https://github.com/microsoft/rust-symcrypt"
+categories = ["cryptography", "api-bindings"]
+keywords = ["symcrypt", "bcrypt", "crypto", "fips", "hashing"]
+
+[features]
+sha3 = []

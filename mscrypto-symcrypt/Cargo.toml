@@ -1,0 +1,23 @@
+[package]
+name = "mscrypto-symcrypt"
+authors = ["Microsoft"]
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+description = "SymCrypt backend for the mscrypto contract"
+edition.workspace = true
+rust-version.workspace = true
+repository = "https://github.com/microsoft/rust-symcrypt"
+
+[dependencies]
+mscrypto = { path = "../mscrypto", version = "0.1.0" }
+symcrypt = { path = "../rust-symcrypt", version = "0.6.0" }
+# Used only to read the SYMCRYPT_CODE_VERSION_* constants reported through
+# BackendInfo::version. symcrypt already pulls this in, so it adds nothing new.
+symcrypt-sys = { workspace = true }
+
+[dev-dependencies]
+hex = { workspace = true }
+
+[features]
+# Forwards to the contract's SHA-3 surface; off by default.
+sha3 = ["mscrypto/sha3"]
