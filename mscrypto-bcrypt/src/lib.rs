@@ -1,25 +1,28 @@
 //! BCrypt backend for the `mscrypto` contract.
 //!
 //! Provides [`BcryptProvider`], a concrete [`CryptoProvider`] backed by Windows
-//! (`bcryptprimitives.dll`). 
+//! (`bcryptprimitives.dll`).
 
 #![cfg(windows)]
 
 mod hash;
+mod mac;
 
 pub use hash::BcryptHasher;
+pub use mac::BcryptMac;
 
 /// Everything needed to use this provider in one glob import:
-/// `use mscrypto_bcrypt::prelude::*;`. It re-exports the provider and traits 
+/// `use mscrypto_bcrypt::prelude::*;`. It re-exports the provider and traits
 /// (whose methods are otherwise not in scope), and the shared
 /// algorithm, error, and metadata types from the contract, so a consumer
 /// does not need a separate dependency on `mscrypto` for the common path.
 pub mod prelude {
-    pub use crate::{BcryptHasher, BcryptProvider, BcryptProviderBuilder};
+    pub use crate::{BcryptHasher, BcryptMac, BcryptProvider, BcryptProviderBuilder};
 
-    pub use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm};
+    pub use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm, MacAlgorithm};
     pub use mscrypto::error::{Error, ProviderBuildError};
     pub use mscrypto::hash::{Digest, Hash, HashOps};
+    pub use mscrypto::mac::{Mac, MacOps};
     pub use mscrypto::provider::{BackendInfo, BackendVersion, CryptoProvider, LinkMode};
 
     #[cfg(feature = "sha3")]
@@ -28,7 +31,7 @@ pub mod prelude {
     pub use mscrypto::sha3::Sha3;
 }
 
-use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm};
+use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm, MacAlgorithm};
 use mscrypto::error::ProviderBuildError;
 use mscrypto::provider::{BackendInfo, BackendVersion, CryptoProvider, LinkMode};
 
@@ -112,6 +115,9 @@ impl CryptoProvider for BcryptProvider {
             Algorithm::Hash(
                 BaseHashAlgorithm::Sha256 | BaseHashAlgorithm::Sha384 | BaseHashAlgorithm::Sha512,
             ) => true,
+            Algorithm::Mac(MacAlgorithm::Hmac(
+                BaseHashAlgorithm::Sha256 | BaseHashAlgorithm::Sha384 | BaseHashAlgorithm::Sha512,
+            )) => true,
             #[cfg(feature = "sha3")]
             Algorithm::Sha3(variant) => match variant {
                 Sha3Algorithm::Sha3_256 => self.sha3_256,

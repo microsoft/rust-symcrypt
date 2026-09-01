@@ -9,12 +9,6 @@ pub enum ProviderBuildError {
         backend: &'static str,
         missing: Vec<Algorithm>,
     },
-    // Opaque low-level backend failure (e.g. a provider handle could not be
-    // opened). `operation` names the failing step; the raw status is not exposed.
-    Backend {
-        backend: &'static str,
-        operation: &'static str,
-    },
 }
 
 /// Runtime error for fallible crypto operations.
@@ -37,3 +31,24 @@ impl core::fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+/// A MAC verification failed: the supplied tag did not match the computed tag.
+///
+/// Deliberately opaque. It carries no detail about the expected tag or where the
+/// mismatch occurred, so nothing about the secret leaks through the error value.
+#[derive(Debug)]
+pub struct MacError(());
+
+impl MacError {
+    pub(crate) fn new() -> Self {
+        MacError(())
+    }
+}
+
+impl core::fmt::Display for MacError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("MAC verification failed")
+    }
+}
+
+impl std::error::Error for MacError {}

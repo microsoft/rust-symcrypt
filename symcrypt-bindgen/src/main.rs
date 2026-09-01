@@ -114,6 +114,7 @@ fn main() {
         .allowlist_var("^SymCrypt(Sha(1|256|384|512|3_(256|384|512))|Md5)OidList$")
         // UTILITY FUNCTIONS
         .allowlist_function("SymCryptWipe")
+        .allowlist_function("SymCryptEqual")
         .allowlist_function("SymCryptRandom")
         .allowlist_function("SymCryptLoadMsbFirstUint64")
         .allowlist_function("SymCryptStoreMsbFirstUint64")    
