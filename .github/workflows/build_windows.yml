@@ -21,11 +21,13 @@ jobs:
         - target: x86_64-pc-windows-msvc
           os: windows-latest
           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-amd64-release-103.8.0-53be637d.zip"
+          symcrypt_sha256: "9f57ea2118e8441bef1b6070952ae08f43d0209648009af588143334c7cf58c2"
           run-tests: true
         - target: aarch64-pc-windows-msvc
-          os: windows-latest
+          os: windows-11-arm
           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-arm64-release-103.8.0-53be637d.zip"
-          run-tests: false
+          symcrypt_sha256: "c58bfb0438082422b21290b831e9647dc4faeb2cc8cfb067c6df84b850bcbf11"
+          run-tests: true
 
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.target }}
@@ -47,6 +49,10 @@ jobs:
       shell: pwsh
       run: |
         Invoke-WebRequest -Uri "${{ matrix.symcrypt }}" -OutFile symcrypt.zip
+        $actualHash = (Get-FileHash -Path symcrypt.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actualHash -ne "${{ matrix.symcrypt_sha256 }}") {
+          throw "SymCrypt archive checksum mismatch: expected ${{ matrix.symcrypt_sha256 }}, got $actualHash"
+        }
         Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
         "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
         "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
