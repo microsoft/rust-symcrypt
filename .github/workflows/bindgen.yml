@@ -21,11 +21,11 @@ jobs:
         - target: x86_64-pc-windows-msvc
           os: windows-latest
         - target: aarch64-pc-windows-msvc
-          os: windows-latest
+          os: windows-11-arm
         - target: x86_64-unknown-linux-gnu
           os: ubuntu-24.04
         - target: aarch64-unknown-linux-gnu
-          os: ubuntu-24.04
+          os: ubuntu-24.04-arm
 
     runs-on: ${{ matrix.os }}
     name: Bindgen ${{ matrix.target }}
@@ -37,12 +37,7 @@ jobs:
 
     - name: Install host target
       shell: pwsh
-      run: |
-        rustup target add ${{ matrix.target }}
-        if ("${{ matrix.target }}" -match "aarch64-unknown-linux-gnu") {
-          sudo apt update
-          sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-        }
+      run: rustup target add ${{ matrix.target }}
 
     - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 
