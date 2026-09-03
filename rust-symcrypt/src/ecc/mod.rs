@@ -58,8 +58,8 @@
 //!
 use crate::NumberFormat;
 use crate::{errors::SymCryptError, symcrypt_init};
-use lazy_static::lazy_static;
 use std::ptr;
+use std::sync::LazyLock;
 
 pub mod ecdh;
 pub mod ecdsa;
@@ -416,13 +416,14 @@ unsafe impl Send for EcKey {}
 unsafe impl Sync for EcKey {}
 
 // Curves can be re-used across EcKey calls, creating static references to save on allocations and increase perf.
-lazy_static! {
-    static ref NIST_P256: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP256);
-    static ref NIST_P384: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP384);
-    static ref NIST_P521: Result<InnerEcCurve, SymCryptError> = internal_new(CurveType::NistP521);
-    static ref CURVE_25519: Result<InnerEcCurve, SymCryptError> =
-        internal_new(CurveType::Curve25519);
-}
+static NIST_P256: LazyLock<Result<InnerEcCurve, SymCryptError>> =
+    LazyLock::new(|| internal_new(CurveType::NistP256));
+static NIST_P384: LazyLock<Result<InnerEcCurve, SymCryptError>> =
+    LazyLock::new(|| internal_new(CurveType::NistP384));
+static NIST_P521: LazyLock<Result<InnerEcCurve, SymCryptError>> =
+    LazyLock::new(|| internal_new(CurveType::NistP521));
+static CURVE_25519: LazyLock<Result<InnerEcCurve, SymCryptError>> =
+    LazyLock::new(|| internal_new(CurveType::Curve25519));
 
 // SymCryptInit must be called before any EcDh operations are performed.
 fn internal_new(curve: CurveType) -> Result<InnerEcCurve, SymCryptError> {

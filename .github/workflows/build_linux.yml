@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   pull_request:
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
   FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
@@ -40,19 +43,18 @@ jobs:
     - name: Install SymCrypt via PMC
       shell: bash
       run: |
-        curl -sSL -O https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb
+        curl --fail --location --silent --show-error \
+          --output packages-microsoft-prod.deb \
+          https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb
+        echo "c13f01ac7c3001b51a9281d40dde666db5e037e05512840c319832f7852bfec4  packages-microsoft-prod.deb" |
+          sha256sum --check --strict
         sudo dpkg -i packages-microsoft-prod.deb
         sudo apt-get update
         sudo apt-get install -y symcrypt
     
-    - name: Install host target
+    - name: Install target
       shell: pwsh
-      run: |
-        rustup target add ${{ matrix.target }}
-        if ("${{ matrix.target }}" -match "aarch64-unknown-linux-gnu") {
-          sudo apt update
-          sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-        }
+      run: rustup target add ${{ matrix.target }}
 
     - name: Debug build
       run: cargo build --locked --verbose --target ${{ matrix.target }}
@@ -60,18 +62,10 @@ jobs:
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
 
-    - name: Run tests (Debug, dynamic)
+    - name: Run tests (Debug)
       if: matrix.run-tests
       run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
 
-    - name: Run tests (Release, dynamic)
+    - name: Run tests (Release)
       if: matrix.run-tests
       run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
-
-    - name: Run test (Debug, static)
-      if: matrix.run-tests
-      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
-
-    - name: Run test (Release, static)
-      if: matrix.run-tests
-      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}

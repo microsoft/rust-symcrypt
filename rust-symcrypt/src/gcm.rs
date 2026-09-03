@@ -114,7 +114,7 @@ impl GcmInnerKey {
         unsafe { &mut self.get_unchecked_mut().inner as *mut _ }
     }
 
-    // Safe method to access the inner state immutably
+    /// Safe method to access the inner state immutably
     pub(crate) fn get_inner(&self) -> *const symcrypt_sys::SYMCRYPT_GCM_EXPANDED_KEY {
         &self.inner as *const _
     }

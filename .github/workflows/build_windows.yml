@@ -5,6 +5,9 @@ on:
     branches: [ "main" ]
   pull_request:
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
   FEATURES_TO_TEST: md5,sha1,pkcs1-encrypt-decrypt
@@ -17,16 +20,17 @@ jobs:
         include:
         - target: x86_64-pc-windows-msvc
           os: windows-latest
-          runs-on: windows-latest
           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-amd64-release-103.8.0-53be637d.zip"
+          symcrypt_sha256: "9f57ea2118e8441bef1b6070952ae08f43d0209648009af588143334c7cf58c2"
           run-tests: true
         - target: aarch64-pc-windows-msvc
-          os: windows-latest
-          runs-on: windows-latest
+          os: windows-11-arm
           symcrypt: "https://github.com/microsoft/SymCrypt/releases/download/v103.8.0/symcrypt-windows-arm64-release-103.8.0-53be637d.zip"
-          run-tests: false # Windows doesn't support ARM64 emulation
+          symcrypt_sha256: "c58bfb0438082422b21290b831e9647dc4faeb2cc8cfb067c6df84b850bcbf11"
+          run-tests: true
+
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.target }}    
+    name: ${{ matrix.target }}
     env:
       CARGO_BUILD_TARGET: ${{ matrix.target }}
 
@@ -36,41 +40,34 @@ jobs:
         submodules: true
 
     - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
-    
-    # Install host architecture, required for cross-compilation since there is no arm64-windows-msvc runner
-    - name: Install host target
-      shell: pwsh
-      run: |
-        rustup target add ${{ matrix.target }}
 
-    - name: Download SymCrypt and Set Environment Variables
+    - name: Install target
+      shell: pwsh
+      run: rustup target add ${{ matrix.target }}
+
+    - name: Download SymCrypt v103.8.0
       shell: pwsh
       run: |
-          Invoke-WebRequest -Uri ${{ matrix.symcrypt }} -OutFile symcrypt.zip
-          New-Item -ItemType Directory -Force -Path symcrypt
-          Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
-          echo "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
-          echo "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
-          echo "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV  
-    
+        Invoke-WebRequest -Uri "${{ matrix.symcrypt }}" -OutFile symcrypt.zip
+        $actualHash = (Get-FileHash -Path symcrypt.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actualHash -ne "${{ matrix.symcrypt_sha256 }}") {
+          throw "SymCrypt archive checksum mismatch: expected ${{ matrix.symcrypt_sha256 }}, got $actualHash"
+        }
+        Expand-Archive -Path symcrypt.zip -DestinationPath symcrypt
+        "$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_PATH
+        "SYMCRYPT_LIB_PATH=$env:GITHUB_WORKSPACE\symcrypt\dll" >> $env:GITHUB_ENV
+        "PATH=$env:GITHUB_WORKSPACE\symcrypt\dll;$env:PATH" >> $env:GITHUB_ENV
+
     - name: Debug build
       run: cargo build --locked --verbose --target ${{ matrix.target }}
 
     - name: Release build
       run: cargo build --release --locked --verbose --target ${{ matrix.target }}
 
-    - name: Run tests (Debug, dynamic)
+    - name: Run tests (Debug)
       if: matrix.run-tests
       run: cargo test --locked --verbose --all-features --target ${{ matrix.target }}
 
-    - name: Run tests (Release, dynamic)
+    - name: Run tests (Release)
       if: matrix.run-tests
       run: cargo test --release --locked --verbose --all-features --target ${{ matrix.target }}
-
-    - name: Run test (Debug, static)
-      if: matrix.run-tests
-      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}
-
-    - name: Run test (Release, static)
-      if: matrix.run-tests
-      run: cargo test --features ${{ env.FEATURES_TO_TEST }} --locked --target ${{ matrix.target }}

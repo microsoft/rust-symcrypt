@@ -1,15 +1,14 @@
 # SymCrypt on Rust
 
-## Introduction
-
 Within this repository, there are 2 crates:
 
-1. **symcrypt-sys**: Modified Rust/C FFI bindings over SymCrypt.
-2. **symcrypt**: Provides friendly Rust wrappers over `symcrypt-sys`.
+1. **symcrypt-sys**: Rust/C FFI bindings for [SymCrypt](https://github.com/microsoft/SymCrypt).
+2. **symcrypt**: Friendly and idiomatic Rust wrappers over `symcrypt-sys`.
 
-Additionally, the repository includes **`symcrypt-bindgen`**, a folder that contains tooling to generate Rust/C FFI bindings used by **symcrypt-sys**.
+Additionally, the repository includes **`symcrypt-bindgen`**, tooling to generate the FFI bindings used by `symcrypt-sys`.
 
-The purpose of these crates is to bring FIPS-compliant cryptography to the Rust Ecosystem.
+The purpose of these crates is to bring FIPS-compliant cryptography to the Rust ecosystem.
 
-## Contribute
-We love to receive comments and suggestions. Unfortunately we cannot accept external code contributions except in specific circumstances from vetted partners with whom we have a pre-arranged agreement. If you are a developer of `symcrypt` please see DEVELOPER.md
+## Contributing
+
+We welcome comments, suggestions, and contributions from vetted partners. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the branch model, PR process, and developer workflows.
