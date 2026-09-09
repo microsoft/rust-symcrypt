@@ -8,7 +8,8 @@ fn main() {
     println!("cargo::rerun-if-env-changed=SYMCRYPT_STATIC");
     println!("cargo::rerun-if-env-changed={prefix}_SYMCRYPT_STATIC");
 
-    let read = |name: &str| std::env::var(format!("{prefix}_{name}")).or_else(|_| std::env::var(name));
+    let read =
+        |name: &str| std::env::var(format!("{prefix}_{name}")).or_else(|_| std::env::var(name));
     let is_static = read("SYMCRYPT_STATIC").map(|v| v != "0").unwrap_or(false);
 
     // v1 distinguishes dynamic vs prebuilt-static only. "from_source" is reserved

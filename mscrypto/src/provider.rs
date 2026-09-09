@@ -1,11 +1,13 @@
 //! The provider surface: identity, capability queries, and backend metadata.
 //!
-//! Base hashing (`Hash`) is a supertrait, so every provider can hash.
+//! Base hashing (`Hash`) and keyed hashing (`Mac`) are supertraits, so every
+//! provider can hash and compute MACs.
 
 use crate::algorithm::Algorithm;
 use crate::hash::Hash;
+use crate::mac::Mac;
 
-pub trait CryptoProvider: Hash {
+pub trait CryptoProvider: Hash + Mac {
     fn info(&self) -> &BackendInfo;
     fn supports(&self, a: Algorithm) -> bool;
 }

@@ -4,10 +4,12 @@
 //! `symcrypt` crate
 
 mod hash;
+mod mac;
 
 pub use hash::SymCryptHasher;
 #[cfg(feature = "sha3")]
 pub use hash::SymCryptSha3Hasher;
+pub use mac::SymCryptMac;
 
 /// Everything needed to use this provider in one glob import:
 /// `use mscrypto_symcrypt::prelude::*;`. It re-exports the provider. builder, and traits
@@ -15,11 +17,12 @@ pub use hash::SymCryptSha3Hasher;
 /// algorithm, error, and metadata types from the contract, so a consumer
 /// does not need a separate dependency on `mscrypto` for the common path.
 pub mod prelude {
-    pub use crate::{SymCryptHasher, SymCryptProvider, SymCryptProviderBuilder};
+    pub use crate::{SymCryptHasher, SymCryptMac, SymCryptProvider, SymCryptProviderBuilder};
 
-    pub use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm};
+    pub use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm, MacAlgorithm};
     pub use mscrypto::error::{Error, ProviderBuildError};
     pub use mscrypto::hash::{Digest, Hash, HashOps};
+    pub use mscrypto::mac::{Mac, MacOps};
     pub use mscrypto::provider::{BackendInfo, BackendVersion, CryptoProvider, LinkMode};
 
     #[cfg(feature = "sha3")]
@@ -30,7 +33,7 @@ pub mod prelude {
     pub use mscrypto::sha3::Sha3;
 }
 
-use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm};
+use mscrypto::algorithm::{Algorithm, BaseHashAlgorithm, MacAlgorithm};
 use mscrypto::error::ProviderBuildError;
 use mscrypto::provider::{BackendInfo, BackendVersion, CryptoProvider, LinkMode};
 
@@ -72,7 +75,9 @@ impl SymCryptProviderBuilder {
     /// Builds the provider, failing if any required algorithm is unsupported.
     pub fn build(self) -> Result<SymCryptProvider, ProviderBuildError> {
         initialize_module()?;
-        let provider = SymCryptProvider { info: backend_info() };
+        let provider = SymCryptProvider {
+            info: backend_info(),
+        };
         let missing: Vec<Algorithm> = self
             .required
             .into_iter()
@@ -98,6 +103,9 @@ impl CryptoProvider for SymCryptProvider {
             Algorithm::Hash(
                 BaseHashAlgorithm::Sha256 | BaseHashAlgorithm::Sha384 | BaseHashAlgorithm::Sha512,
             ) => true,
+            Algorithm::Mac(MacAlgorithm::Hmac(
+                BaseHashAlgorithm::Sha256 | BaseHashAlgorithm::Sha384 | BaseHashAlgorithm::Sha512,
+            )) => true,
             #[cfg(feature = "sha3")]
             Algorithm::Sha3(
                 Sha3Algorithm::Sha3_256 | Sha3Algorithm::Sha3_384 | Sha3Algorithm::Sha3_512,
@@ -110,12 +118,12 @@ impl CryptoProvider for SymCryptProvider {
 // Single point where SymCrypt module usability is verified when a provider is
 // built. SymCrypt checks version compatibility during its lazy initialization on
 // first use, which aborts on a mismatch, so there is no recoverable failure to
-// report today. A graceful module-init entry point will surface an incompatible
-// module here as `ProviderBuildError::Backend { backend, operation }`.
+// report today. A graceful module-init entry point would let this surface an
+// incompatible module as a `ProviderBuildError` instead of aborting.
 fn initialize_module() -> Result<(), ProviderBuildError> {
     // SAFETY: FFI call to a stateless version check that aborts on an incompatible
     // module and is safe to call more than once (the symcrypt crate also calls it
-    // lazily on first use). TODO: Change to SymCryptModuleInitEX. 
+    // lazily on first use). TODO: Change to SymCryptModuleInitEX.
     unsafe {
         symcrypt_sys::SymCryptModuleInit(
             symcrypt_sys::SYMCRYPT_CODE_VERSION_API,

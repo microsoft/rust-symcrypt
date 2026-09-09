@@ -55,5 +55,9 @@ fn main() {
 }
 
 fn to_hex(digest: &Digest) -> String {
-    digest.as_bytes().iter().map(|byte| format!("{byte:02x}")).collect()
+    digest
+        .as_bytes()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
