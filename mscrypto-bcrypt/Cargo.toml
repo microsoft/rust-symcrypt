@@ -1,0 +1,26 @@
+[package]
+name = "mscrypto-bcrypt"
+authors = ["Microsoft"]
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+description = "BCrypt backend for the mscrypto contract (Windows-only)"
+edition.workspace = true
+rust-version.workspace = true
+repository = "https://github.com/microsoft/rust-symcrypt"
+
+[dependencies]
+mscrypto = { path = "../mscrypto", version = "0.1.0" }
+
+# BCrypt is a Windows component, so the backend and its binding are Windows-only.
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_Security_Cryptography",
+] }
+
+[dev-dependencies]
+hex = { workspace = true }
+
+[features]
+# Forwards to the contract's SHA-3 surface; off by default.
+sha3 = ["mscrypto/sha3"]

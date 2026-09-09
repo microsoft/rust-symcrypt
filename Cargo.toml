@@ -2,7 +2,11 @@
 members = [
     "rust-symcrypt",
     "symcrypt-bindgen",
-    "symcrypt-sys"
+    "symcrypt-sys",
+    "mscrypto",
+    "mscrypto-symcrypt",
+    "mscrypto-bcrypt",
+    "mscrypto-example"
 ]
 resolver = "2"
 
