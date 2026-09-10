@@ -56,7 +56,6 @@ pub type ULONG_PTR = ::std::os::raw::c_ulonglong;
 pub type SIZE_T = ULONG_PTR;
 pub type PBYTE = *mut BYTE;
 pub type PCBYTE = *const BYTE;
-pub type PCUINT32 = *const UINT32;
 pub type PUINT64 = *mut UINT64;
 pub type PCUINT64 = *const UINT64;
 pub type PVOID = *mut ::std::os::raw::c_void;
@@ -839,55 +838,15 @@ impl Default for _SYMCRYPT_HASH_STATE {
 pub type SYMCRYPT_HASH_STATE = _SYMCRYPT_HASH_STATE;
 pub type SYMCRYPT_HASH = _SYMCRYPT_HASH;
 pub type PCSYMCRYPT_HASH = *const SYMCRYPT_HASH;
-pub type PSYMCRYPT_HASH_INIT_FUNC = ::std::option::Option<unsafe extern "C" fn(pState: PVOID)>;
-pub type PSYMCRYPT_HASH_APPEND_FUNC =
-    ::std::option::Option<unsafe extern "C" fn(pState: PVOID, pbData: PCBYTE, cbData: SIZE_T)>;
-pub type PSYMCRYPT_HASH_RESULT_FUNC =
-    ::std::option::Option<unsafe extern "C" fn(pState: PVOID, pbResult: PVOID)>;
-pub type PSYMCRYPT_HASH_APPEND_BLOCKS_FUNC = ::std::option::Option<
-    unsafe extern "C" fn(pChain: PVOID, pbData: PCBYTE, cbData: SIZE_T, pcbRemaining: *mut SIZE_T),
->;
-pub type PSYMCRYPT_HASH_STATE_COPY_FUNC =
-    ::std::option::Option<unsafe extern "C" fn(pStateSrc: PCVOID, pStateDst: PVOID)>;
 #[repr(C)]
-#[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_HASH {
-    pub initFunc: PSYMCRYPT_HASH_INIT_FUNC,
-    pub appendFunc: PSYMCRYPT_HASH_APPEND_FUNC,
-    pub resultFunc: PSYMCRYPT_HASH_RESULT_FUNC,
-    pub appendBlockFunc: PSYMCRYPT_HASH_APPEND_BLOCKS_FUNC,
-    pub stateCopyFunc: PSYMCRYPT_HASH_STATE_COPY_FUNC,
-    pub stateSize: UINT32,
-    pub resultSize: UINT32,
-    pub inputBlockSize: UINT32,
-    pub chainOffset: UINT32,
-    pub chainSize: UINT32,
+    pub _address: u8,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of _SYMCRYPT_HASH"][::std::mem::size_of::<_SYMCRYPT_HASH>() - 64usize];
     ["Alignment of _SYMCRYPT_HASH"][::std::mem::align_of::<_SYMCRYPT_HASH>() - 16usize];
-    ["Offset of field: _SYMCRYPT_HASH::initFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, initFunc) - 0usize];
-    ["Offset of field: _SYMCRYPT_HASH::appendFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, appendFunc) - 8usize];
-    ["Offset of field: _SYMCRYPT_HASH::resultFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, resultFunc) - 16usize];
-    ["Offset of field: _SYMCRYPT_HASH::appendBlockFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, appendBlockFunc) - 24usize];
-    ["Offset of field: _SYMCRYPT_HASH::stateCopyFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, stateCopyFunc) - 32usize];
-    ["Offset of field: _SYMCRYPT_HASH::stateSize"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, stateSize) - 40usize];
-    ["Offset of field: _SYMCRYPT_HASH::resultSize"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, resultSize) - 44usize];
-    ["Offset of field: _SYMCRYPT_HASH::inputBlockSize"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, inputBlockSize) - 48usize];
-    ["Offset of field: _SYMCRYPT_HASH::chainOffset"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, chainOffset) - 52usize];
-    ["Offset of field: _SYMCRYPT_HASH::chainSize"]
-        [::std::mem::offset_of!(_SYMCRYPT_HASH, chainSize) - 56usize];
 };
 #[repr(C)]
 #[repr(align(16))]
@@ -1893,82 +1852,16 @@ impl Default for _SYMCRYPT_GCM_STATE {
 pub type SYMCRYPT_GCM_STATE = _SYMCRYPT_GCM_STATE;
 pub type PSYMCRYPT_GCM_STATE = *mut _SYMCRYPT_GCM_STATE;
 pub type PCSYMCRYPT_GCM_STATE = *const SYMCRYPT_GCM_STATE;
-pub type PSYMCRYPT_BLOCKCIPHER_EXPAND_KEY = ::std::option::Option<
-    unsafe extern "C" fn(pExpandedKey: PVOID, pbKey: PCBYTE, cbKey: SIZE_T) -> SYMCRYPT_ERROR,
->;
-pub type PSYMCRYPT_BLOCKCIPHER_CRYPT =
-    ::std::option::Option<unsafe extern "C" fn(pExpandedKey: PCVOID, pbSrc: PCBYTE, pbDst: PBYTE)>;
-pub type PSYMCRYPT_BLOCKCIPHER_CRYPT_ECB = ::std::option::Option<
-    unsafe extern "C" fn(pExpandedKey: PCVOID, pbSrc: PCBYTE, pbDst: PBYTE, cbData: SIZE_T),
->;
-pub type PSYMCRYPT_BLOCKCIPHER_CRYPT_MODE = ::std::option::Option<
-    unsafe extern "C" fn(
-        pExpandedKey: PCVOID,
-        pbChainingValue: PBYTE,
-        pbSrc: PCBYTE,
-        pbDst: PBYTE,
-        cbData: SIZE_T,
-    ),
->;
-pub type PSYMCRYPT_BLOCKCIPHER_MAC_MODE = ::std::option::Option<
-    unsafe extern "C" fn(
-        pExpandedKey: PCVOID,
-        pbChainingValue: PBYTE,
-        pbSrc: PCBYTE,
-        cbData: SIZE_T,
-    ),
->;
-pub type PSYMCRYPT_BLOCKCIPHER_AEADPART_MODE = ::std::option::Option<
-    unsafe extern "C" fn(pState: PVOID, pbSrc: PCBYTE, pbDst: PBYTE, cbData: SIZE_T),
->;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_BLOCKCIPHER {
-    pub expandKeyFunc: PSYMCRYPT_BLOCKCIPHER_EXPAND_KEY,
-    pub encryptFunc: PSYMCRYPT_BLOCKCIPHER_CRYPT,
-    pub decryptFunc: PSYMCRYPT_BLOCKCIPHER_CRYPT,
-    pub ecbEncryptFunc: PSYMCRYPT_BLOCKCIPHER_CRYPT_ECB,
-    pub ecbDecryptFunc: PSYMCRYPT_BLOCKCIPHER_CRYPT_ECB,
-    pub cbcEncryptFunc: PSYMCRYPT_BLOCKCIPHER_CRYPT_MODE,
-    pub cbcDecryptFunc: PSYMCRYPT_BLOCKCIPHER_CRYPT_MODE,
-    pub cbcMacFunc: PSYMCRYPT_BLOCKCIPHER_MAC_MODE,
-    pub ctrMsb64Func: PSYMCRYPT_BLOCKCIPHER_CRYPT_MODE,
-    pub gcmEncryptPartFunc: PSYMCRYPT_BLOCKCIPHER_AEADPART_MODE,
-    pub gcmDecryptPartFunc: PSYMCRYPT_BLOCKCIPHER_AEADPART_MODE,
-    pub blockSize: SIZE_T,
-    pub expandedKeySize: SIZE_T,
+    pub _address: u8,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of _SYMCRYPT_BLOCKCIPHER"][::std::mem::size_of::<_SYMCRYPT_BLOCKCIPHER>() - 104usize];
     ["Alignment of _SYMCRYPT_BLOCKCIPHER"]
         [::std::mem::align_of::<_SYMCRYPT_BLOCKCIPHER>() - 8usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::expandKeyFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, expandKeyFunc) - 0usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::encryptFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, encryptFunc) - 8usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::decryptFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, decryptFunc) - 16usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::ecbEncryptFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, ecbEncryptFunc) - 24usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::ecbDecryptFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, ecbDecryptFunc) - 32usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::cbcEncryptFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, cbcEncryptFunc) - 40usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::cbcDecryptFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, cbcDecryptFunc) - 48usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::cbcMacFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, cbcMacFunc) - 56usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::ctrMsb64Func"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, ctrMsb64Func) - 64usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::gcmEncryptPartFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, gcmEncryptPartFunc) - 72usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::gcmDecryptPartFunc"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, gcmDecryptPartFunc) - 80usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::blockSize"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, blockSize) - 88usize];
-    ["Offset of field: _SYMCRYPT_BLOCKCIPHER::expandedKeySize"]
-        [::std::mem::offset_of!(_SYMCRYPT_BLOCKCIPHER, expandedKeySize) - 96usize];
 };
 #[repr(C)]
 #[repr(align(16))]
@@ -2062,7 +1955,6 @@ pub type PSYMCRYPT_HKDF_EXPANDED_KEY = *mut _SYMCRYPT_HKDF_EXPANDED_KEY;
 pub type PCSYMCRYPT_HKDF_EXPANDED_KEY = *const SYMCRYPT_HKDF_EXPANDED_KEY;
 pub type SYMCRYPT_INT = _SYMCRYPT_INT;
 pub type PSYMCRYPT_INT = *mut SYMCRYPT_INT;
-pub type SYMCRYPT_DIVISOR = _SYMCRYPT_DIVISOR;
 pub type SYMCRYPT_MODULUS = _SYMCRYPT_MODULUS;
 pub type PSYMCRYPT_MODULUS = *mut SYMCRYPT_MODULUS;
 pub type SYMCRYPT_MODELEMENT = _SYMCRYPT_MODELEMENT;
@@ -2070,309 +1962,35 @@ pub type PSYMCRYPT_MODELEMENT = *mut SYMCRYPT_MODELEMENT;
 pub type SYMCRYPT_ECPOINT = _SYMCRYPT_ECPOINT;
 pub type PSYMCRYPT_ECPOINT = *mut SYMCRYPT_ECPOINT;
 #[repr(C)]
-#[repr(align(32))]
-#[derive(Copy, Clone)]
-pub struct _SYMCRYPT_INT {
-    pub type_: UINT32,
-    pub nDigits: UINT32,
-    pub cbSize: UINT32,
-    pub magic: SIZE_T,
-    pub __bindgen_padding_0: u64,
-    pub ti: _SYMCRYPT_INT__bindgen_ty_1,
-}
-#[repr(C)]
-#[repr(align(32))]
-#[derive(Copy, Clone)]
-pub union _SYMCRYPT_INT__bindgen_ty_1 {
-    pub fdef: _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1,
-}
-#[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1 {
-    pub uint32: [UINT32; 1usize],
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1"]
-        [::std::mem::size_of::<_SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1>() - 4usize];
-    ["Alignment of _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1"]
-        [::std::mem::align_of::<_SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1>() - 4usize];
-    ["Offset of field: _SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1::uint32"]
-        [::std::mem::offset_of!(_SYMCRYPT_INT__bindgen_ty_1__bindgen_ty_1, uint32) - 0usize];
-};
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_INT__bindgen_ty_1"]
-        [::std::mem::size_of::<_SYMCRYPT_INT__bindgen_ty_1>() - 32usize];
-    ["Alignment of _SYMCRYPT_INT__bindgen_ty_1"]
-        [::std::mem::align_of::<_SYMCRYPT_INT__bindgen_ty_1>() - 32usize];
-    ["Offset of field: _SYMCRYPT_INT__bindgen_ty_1::fdef"]
-        [::std::mem::offset_of!(_SYMCRYPT_INT__bindgen_ty_1, fdef) - 0usize];
-};
-impl Default for _SYMCRYPT_INT__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
+pub struct _SYMCRYPT_INT {
+    pub _address: u8,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of _SYMCRYPT_INT"][::std::mem::size_of::<_SYMCRYPT_INT>() - 64usize];
     ["Alignment of _SYMCRYPT_INT"][::std::mem::align_of::<_SYMCRYPT_INT>() - 32usize];
-    ["Offset of field: _SYMCRYPT_INT::type_"]
-        [::std::mem::offset_of!(_SYMCRYPT_INT, type_) - 0usize];
-    ["Offset of field: _SYMCRYPT_INT::nDigits"]
-        [::std::mem::offset_of!(_SYMCRYPT_INT, nDigits) - 4usize];
-    ["Offset of field: _SYMCRYPT_INT::cbSize"]
-        [::std::mem::offset_of!(_SYMCRYPT_INT, cbSize) - 8usize];
-    ["Offset of field: _SYMCRYPT_INT::magic"]
-        [::std::mem::offset_of!(_SYMCRYPT_INT, magic) - 16usize];
-    ["Offset of field: _SYMCRYPT_INT::ti"][::std::mem::offset_of!(_SYMCRYPT_INT, ti) - 32usize];
 };
-impl Default for _SYMCRYPT_INT {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[repr(align(32))]
-#[derive(Copy, Clone)]
-pub struct _SYMCRYPT_DIVISOR {
-    pub type_: UINT32,
-    pub nDigits: UINT32,
-    pub cbSize: UINT32,
-    pub nBits: UINT32,
-    pub magic: SIZE_T,
-    pub td: _SYMCRYPT_DIVISOR__bindgen_ty_1,
-    pub Int: SYMCRYPT_INT,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union _SYMCRYPT_DIVISOR__bindgen_ty_1 {
-    pub fdef: _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1,
-}
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
-pub struct _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1 {
-    pub W: UINT64,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1"]
-        [::std::mem::size_of::<_SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1>() - 8usize];
-    ["Alignment of _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1"]
-        [::std::mem::align_of::<_SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1>() - 8usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1::W"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR__bindgen_ty_1__bindgen_ty_1, W) - 0usize];
-};
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_DIVISOR__bindgen_ty_1"]
-        [::std::mem::size_of::<_SYMCRYPT_DIVISOR__bindgen_ty_1>() - 8usize];
-    ["Alignment of _SYMCRYPT_DIVISOR__bindgen_ty_1"]
-        [::std::mem::align_of::<_SYMCRYPT_DIVISOR__bindgen_ty_1>() - 8usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR__bindgen_ty_1::fdef"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR__bindgen_ty_1, fdef) - 0usize];
-};
-impl Default for _SYMCRYPT_DIVISOR__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_DIVISOR"][::std::mem::size_of::<_SYMCRYPT_DIVISOR>() - 96usize];
-    ["Alignment of _SYMCRYPT_DIVISOR"][::std::mem::align_of::<_SYMCRYPT_DIVISOR>() - 32usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR::type_"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, type_) - 0usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR::nDigits"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, nDigits) - 4usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR::cbSize"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, cbSize) - 8usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR::nBits"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, nBits) - 12usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR::magic"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, magic) - 16usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR::td"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, td) - 24usize];
-    ["Offset of field: _SYMCRYPT_DIVISOR::Int"]
-        [::std::mem::offset_of!(_SYMCRYPT_DIVISOR, Int) - 32usize];
-};
-impl Default for _SYMCRYPT_DIVISOR {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[repr(align(32))]
-#[derive(Copy, Clone)]
 pub struct _SYMCRYPT_MODULUS {
-    pub type_: UINT32,
-    pub nDigits: UINT32,
-    pub cbSize: UINT32,
-    pub flags: UINT32,
-    pub cbModElement: UINT32,
-    pub inv64: UINT64,
-    pub magic: SIZE_T,
-    pub tm: _SYMCRYPT_MODULUS__bindgen_ty_1,
-    pub __bindgen_padding_0: [u64; 2usize],
-    pub Divisor: SYMCRYPT_DIVISOR,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union _SYMCRYPT_MODULUS__bindgen_ty_1 {
-    pub montgomery: _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1,
-    pub pseudoMersenne: _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2,
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1 {
-    pub Rsqr: PCUINT32,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1"]
-        [::std::mem::size_of::<_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1>() - 8usize];
-    ["Alignment of _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1"]
-        [::std::mem::align_of::<_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1>() - 8usize];
-    ["Offset of field: _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1::Rsqr"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1, Rsqr) - 0usize];
-};
-impl Default for _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
-pub struct _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2 {
-    pub k: UINT32,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2"]
-        [::std::mem::size_of::<_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2>() - 4usize];
-    ["Alignment of _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2"]
-        [::std::mem::align_of::<_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2>() - 4usize];
-    ["Offset of field: _SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2::k"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS__bindgen_ty_1__bindgen_ty_2, k) - 0usize];
-};
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_MODULUS__bindgen_ty_1"]
-        [::std::mem::size_of::<_SYMCRYPT_MODULUS__bindgen_ty_1>() - 8usize];
-    ["Alignment of _SYMCRYPT_MODULUS__bindgen_ty_1"]
-        [::std::mem::align_of::<_SYMCRYPT_MODULUS__bindgen_ty_1>() - 8usize];
-    ["Offset of field: _SYMCRYPT_MODULUS__bindgen_ty_1::montgomery"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS__bindgen_ty_1, montgomery) - 0usize];
-    ["Offset of field: _SYMCRYPT_MODULUS__bindgen_ty_1::pseudoMersenne"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS__bindgen_ty_1, pseudoMersenne) - 0usize];
-};
-impl Default for _SYMCRYPT_MODULUS__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
+    pub _address: u8,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of _SYMCRYPT_MODULUS"][::std::mem::size_of::<_SYMCRYPT_MODULUS>() - 160usize];
     ["Alignment of _SYMCRYPT_MODULUS"][::std::mem::align_of::<_SYMCRYPT_MODULUS>() - 32usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::type_"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, type_) - 0usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::nDigits"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, nDigits) - 4usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::cbSize"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, cbSize) - 8usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::flags"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, flags) - 12usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::cbModElement"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, cbModElement) - 16usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::inv64"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, inv64) - 24usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::magic"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, magic) - 32usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::tm"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, tm) - 40usize];
-    ["Offset of field: _SYMCRYPT_MODULUS::Divisor"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODULUS, Divisor) - 64usize];
 };
-impl Default for _SYMCRYPT_MODULUS {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[repr(align(32))]
-#[derive(Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_MODELEMENT {
-    pub d: _SYMCRYPT_MODELEMENT__bindgen_ty_1,
-}
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub union _SYMCRYPT_MODELEMENT__bindgen_ty_1 {
-    pub uint32: [UINT32; 1usize],
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _SYMCRYPT_MODELEMENT__bindgen_ty_1"]
-        [::std::mem::size_of::<_SYMCRYPT_MODELEMENT__bindgen_ty_1>() - 4usize];
-    ["Alignment of _SYMCRYPT_MODELEMENT__bindgen_ty_1"]
-        [::std::mem::align_of::<_SYMCRYPT_MODELEMENT__bindgen_ty_1>() - 4usize];
-    ["Offset of field: _SYMCRYPT_MODELEMENT__bindgen_ty_1::uint32"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODELEMENT__bindgen_ty_1, uint32) - 0usize];
-};
-impl Default for _SYMCRYPT_MODELEMENT__bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
+    pub _address: u8,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of _SYMCRYPT_MODELEMENT"][::std::mem::size_of::<_SYMCRYPT_MODELEMENT>() - 32usize];
     ["Alignment of _SYMCRYPT_MODELEMENT"][::std::mem::align_of::<_SYMCRYPT_MODELEMENT>() - 32usize];
-    ["Offset of field: _SYMCRYPT_MODELEMENT::d"]
-        [::std::mem::offset_of!(_SYMCRYPT_MODELEMENT, d) - 0usize];
 };
-impl Default for _SYMCRYPT_MODELEMENT {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _SYMCRYPT_MLKEMKEY {
@@ -2661,33 +2279,15 @@ pub type SYMCRYPT_ECURVE = _SYMCRYPT_ECURVE;
 pub type PSYMCRYPT_ECURVE = *mut SYMCRYPT_ECURVE;
 pub type PCSYMCRYPT_ECURVE = *const SYMCRYPT_ECURVE;
 #[repr(C)]
-#[repr(align(32))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct _SYMCRYPT_ECPOINT {
-    pub normalized: BOOLEAN,
-    pub pCurve: PCSYMCRYPT_ECURVE,
-    pub magic: SIZE_T,
+    pub _address: u8,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of _SYMCRYPT_ECPOINT"][::std::mem::size_of::<_SYMCRYPT_ECPOINT>() - 32usize];
     ["Alignment of _SYMCRYPT_ECPOINT"][::std::mem::align_of::<_SYMCRYPT_ECPOINT>() - 32usize];
-    ["Offset of field: _SYMCRYPT_ECPOINT::normalized"]
-        [::std::mem::offset_of!(_SYMCRYPT_ECPOINT, normalized) - 0usize];
-    ["Offset of field: _SYMCRYPT_ECPOINT::pCurve"]
-        [::std::mem::offset_of!(_SYMCRYPT_ECPOINT, pCurve) - 8usize];
-    ["Offset of field: _SYMCRYPT_ECPOINT::magic"]
-        [::std::mem::offset_of!(_SYMCRYPT_ECPOINT, magic) - 16usize];
 };
-impl Default for _SYMCRYPT_ECPOINT {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[repr(align(32))]
 #[derive(Debug, Copy, Clone)]
