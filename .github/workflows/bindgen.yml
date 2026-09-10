@@ -10,6 +10,7 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
+  LLVM_VERSION: "20.1.6"
 
 jobs:
   bindgen:
@@ -40,6 +41,19 @@ jobs:
       run: rustup target add ${{ matrix.target }}
 
     - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+
+    - name: Install pinned LLVM
+      uses: KyleMayes/install-llvm-action@ebc0426251bc40c7cd31162802432c68818ab8f0 # v2.0.9
+      with:
+        version: ${{ env.LLVM_VERSION }}
+        directory: ${{ runner.temp }}/llvm
+
+    - name: Select pinned libclang
+      shell: pwsh
+      run: |
+        $libraryDir = if ($IsWindows) { "bin" } else { "lib" }
+        $libclangPath = Join-Path $env:LLVM_PATH $libraryDir
+        echo "LIBCLANG_PATH=$libclangPath" >> $env:GITHUB_ENV
 
     - name: Generate bindings
       shell: pwsh
