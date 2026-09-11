@@ -1,4 +1,4 @@
-//! ML-KEM functions. For more info please refer to symcrypt.h
+//! ML-KEM functions backed by the SymCrypt implementation.
 //!
 //! ML-KEM establishes a shared secret between two parties. The receiver generates a key pair and
 //! publishes the encapsulation key. The sender encapsulates using that public key and sends the
