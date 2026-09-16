@@ -68,6 +68,11 @@ RSA:
 - PSS ( Sign, Verify )
 - OAEP ( Encrypt, Decrypt )
 
+ML-KEM:
+- ML-KEM-512
+- ML-KEM-768
+- ML-KEM-1024
+
 **Note**: `Md5` and `Sha1`, and `PKCS1 Encrypt/Decrypt` are considered weak crypto, and are only added for interop purposes.
 To enable either `Md5` or `Sha1`, or `Pkcs1 Encrypt/Decrypt` pass the `md5` or `sha1` or `pkcs1-encrypt-decrypt` flag into your `Cargo.toml`.
 

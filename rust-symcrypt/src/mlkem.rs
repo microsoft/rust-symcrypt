@@ -217,8 +217,6 @@ pub struct MlKemEncapsulation {
 pub struct MlKemKey {
     inner_key: InnerMlKemKey,
     params: MlKemParams,
-    has_private_key: bool,
-    has_private_seed: bool,
 }
 
 impl MlKemKey {
@@ -228,13 +226,9 @@ impl MlKemKey {
         unsafe {
             // SAFETY: `inner_key` is allocated and owned here. Flags request FIPS validation.
             match symcrypt_sys::SymCryptMlKemkeyGenerate(inner_key.0, 0) {
-                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(MlKemKey {
-                    inner_key,
-                    params,
-                    // Generated keys contain both private representations.
-                    has_private_key: true,
-                    has_private_seed: true,
-                }),
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
+                    Ok(MlKemKey { inner_key, params })
+                }
                 err => Err(err.into()),
             }
         }
@@ -279,28 +273,20 @@ impl MlKemKey {
     /// Exports the decapsulation key.
     ///
     /// Returns [`SymCryptError::IncompatibleFormat`] for a key imported from an encapsulation key.
-    /// The returned bytes contain secret key material.
-    /// The returned `Vec<u8>` is not wiped automatically; the caller must protect and erase it
-    /// after use.
+    /// The returned `Vec<u8>` contains secret key material. Dropping it does not wipe the
+    /// underlying memory; callers should explicitly zero the buffer (e.g. with the
+    /// [`zeroize`](https://crates.io/crates/zeroize) crate) after use.
     pub fn export_decapsulation_key(&self) -> Result<Vec<u8>, SymCryptError> {
-        // Enforce the capability before allocating the output buffer.
-        if !self.has_private_key {
-            return Err(SymCryptError::IncompatibleFormat);
-        }
         self.export(MlKemKeyFormat::DecapsulationKey)
     }
 
     /// Exports the `d || z` private seed.
     ///
     /// Returns [`SymCryptError::IncompatibleFormat`] if the key does not contain the private seed.
-    /// The returned bytes contain secret key material.
-    /// The returned `Vec<u8>` is not wiped automatically; the caller must protect and erase it
-    /// after use.
+    /// The returned `Vec<u8>` contains secret key material. Dropping it does not wipe the
+    /// underlying memory; callers should explicitly zero the buffer (e.g. with the
+    /// [`zeroize`](https://crates.io/crates/zeroize) crate) after use.
     pub fn export_private_seed(&self) -> Result<Vec<u8>, SymCryptError> {
-        // Enforce the capability before allocating the output buffer.
-        if !self.has_private_seed {
-            return Err(SymCryptError::IncompatibleFormat);
-        }
         self.export(MlKemKeyFormat::PrivateSeed)
     }
 
@@ -335,11 +321,9 @@ impl MlKemKey {
     /// A correctly sized invalid ciphertext is implicitly rejected: this method returns `Ok` with
     /// a pseudo-random secret. A successful return therefore does not authenticate the ciphertext
     /// or peer. Authentication must be provided by the surrounding protocol.
+    ///
+    /// Returns [`SymCryptError::IncompatibleFormat`] if the key contains only an encapsulation key.
     pub fn decapsulate(&self, ciphertext: &[u8]) -> Result<SharedSecret, SymCryptError> {
-        // Distinguish an incompatible key from an invalid ciphertext length.
-        if !self.has_private_key {
-            return Err(SymCryptError::IncompatibleFormat);
-        }
         if ciphertext.len() != self.params.ciphertext_len() {
             return Err(SymCryptError::InvalidArgument);
         }
@@ -356,6 +340,11 @@ impl MlKemKey {
                 SHARED_SECRET_LEN as symcrypt_sys::SIZE_T,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => Ok(shared_secret),
+                // The output and ciphertext lengths are validated above, so SymCrypt reports
+                // InvalidArgument here only when the key cannot decapsulate.
+                symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_INVALID_ARGUMENT => {
+                    Err(SymCryptError::IncompatibleFormat)
+                }
                 err => Err(err.into()),
             }
         }
@@ -364,16 +353,6 @@ impl MlKemKey {
     /// Returns the key's parameter set.
     pub fn params(&self) -> MlKemParams {
         self.params
-    }
-
-    /// Returns whether the key can decapsulate.
-    pub fn can_decapsulate(&self) -> bool {
-        self.has_private_key
-    }
-
-    /// Returns whether the private seed can be exported.
-    pub fn has_private_seed(&self) -> bool {
-        self.has_private_seed
     }
 
     fn allocate(params: MlKemParams) -> Result<InnerMlKemKey, SymCryptError> {
@@ -411,18 +390,7 @@ impl MlKemKey {
                 inner_key.0,
             ) {
                 symcrypt_sys::SYMCRYPT_ERROR_SYMCRYPT_NO_ERROR => {
-                    // Match SymCrypt's capabilities for each imported format.
-                    let (has_private_key, has_private_seed) = match format {
-                        MlKemKeyFormat::PrivateSeed => (true, true),
-                        MlKemKeyFormat::DecapsulationKey => (true, false),
-                        MlKemKeyFormat::EncapsulationKey => (false, false),
-                    };
-                    Ok(MlKemKey {
-                        inner_key,
-                        params,
-                        has_private_key,
-                        has_private_seed,
-                    })
+                    Ok(MlKemKey { inner_key, params })
                 }
                 err => Err(err.into()),
             }
@@ -484,16 +452,12 @@ mod test {
     fn test_mlkem_round_trip() {
         for params in ALL_PARAMS {
             let receiver = MlKemKey::generate_key_pair(params).unwrap();
-            assert!(receiver.can_decapsulate());
-            assert!(receiver.has_private_seed());
             assert_eq!(receiver.params(), params);
 
             let encapsulation_key = receiver.export_encapsulation_key().unwrap();
             assert_eq!(encapsulation_key.len(), params.encapsulation_key_len());
 
             let sender = MlKemKey::from_encapsulation_key(params, &encapsulation_key).unwrap();
-            assert!(!sender.can_decapsulate());
-            assert!(!sender.has_private_seed());
 
             let encapsulation = sender.encapsulate().unwrap();
             assert_eq!(encapsulation.ciphertext.len(), params.ciphertext_len());
@@ -514,8 +478,6 @@ mod test {
             assert_eq!(seed.len(), MlKemParams::PRIVATE_SEED_LEN);
 
             let restored = MlKemKey::from_private_seed(params, &seed).unwrap();
-            assert!(restored.can_decapsulate());
-            assert!(restored.has_private_seed());
             assert_eq!(
                 restored.export_encapsulation_key().unwrap(),
                 key.export_encapsulation_key().unwrap()
@@ -535,8 +497,6 @@ mod test {
             assert_eq!(decapsulation_key.len(), params.decapsulation_key_len());
 
             let restored = MlKemKey::from_decapsulation_key(params, &decapsulation_key).unwrap();
-            assert!(restored.can_decapsulate());
-            assert!(!restored.has_private_seed());
             assert_eq!(
                 restored.export_private_seed().unwrap_err(),
                 SymCryptError::IncompatibleFormat
