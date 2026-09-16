@@ -42,7 +42,10 @@ use std::ffi::c_void;
 use std::fmt;
 
 /// The size in bytes of the secret agreed by ML-KEM.
-const SHARED_SECRET_LEN: usize = 32;
+pub const SHARED_SECRET_LEN: usize = 32;
+
+/// The size in bytes of an ML-KEM `d || z` private seed.
+pub const PRIVATE_SEED_LEN: usize = 64;
 
 /// ML-KEM parameter sets.
 ///
@@ -60,12 +63,6 @@ pub enum MlKemParams {
 }
 
 impl MlKemParams {
-    /// Size in bytes of the `d || z` private seed.
-    ///
-    /// The seed does not identify its parameter set, so callers must store the parameter set
-    /// alongside it.
-    pub const PRIVATE_SEED_LEN: usize = 64;
-
     /// Returns the encapsulation key size in bytes.
     pub fn encapsulation_key_len(&self) -> usize {
         self.key_format_len(MlKemKeyFormat::EncapsulationKey)
@@ -236,7 +233,7 @@ impl MlKemKey {
 
     /// Imports a full ML-KEM key from a `d || z` private seed.
     ///
-    /// `seed` must be [`MlKemParams::PRIVATE_SEED_LEN`] bytes. Store the parameter set with the
+    /// `seed` must be [`PRIVATE_SEED_LEN`] bytes. Store the parameter set with the
     /// seed: importing the same seed under a different parameter set succeeds but creates an
     /// unrelated key.
     pub fn from_private_seed(params: MlKemParams, seed: &[u8]) -> Result<Self, SymCryptError> {
@@ -443,7 +440,7 @@ mod test {
             assert_eq!(params.ciphertext_len(), ciphertext);
             assert_eq!(
                 params.key_format_len(MlKemKeyFormat::PrivateSeed),
-                MlKemParams::PRIVATE_SEED_LEN
+                PRIVATE_SEED_LEN
             );
         }
     }
@@ -475,7 +472,7 @@ mod test {
         for params in ALL_PARAMS {
             let key = MlKemKey::generate_key_pair(params).unwrap();
             let seed = key.export_private_seed().unwrap();
-            assert_eq!(seed.len(), MlKemParams::PRIVATE_SEED_LEN);
+            assert_eq!(seed.len(), PRIVATE_SEED_LEN);
 
             let restored = MlKemKey::from_private_seed(params, &seed).unwrap();
             assert_eq!(
@@ -559,8 +556,7 @@ mod test {
     fn test_mlkem_wrong_key_blob_length() {
         for params in ALL_PARAMS {
             assert_eq!(
-                MlKemKey::from_private_seed(params, &[0u8; MlKemParams::PRIVATE_SEED_LEN - 1])
-                    .unwrap_err(),
+                MlKemKey::from_private_seed(params, &[0u8; PRIVATE_SEED_LEN - 1]).unwrap_err(),
                 SymCryptError::WrongKeySize
             );
             assert_eq!(
@@ -791,7 +787,7 @@ mod test {
     fn test_mlkem_768_keygen_kat() {
         let mut seed = hex::decode(KAT_KEYGEN_D).unwrap();
         seed.extend_from_slice(&hex::decode(KAT_KEYGEN_Z).unwrap());
-        assert_eq!(seed.len(), MlKemParams::PRIVATE_SEED_LEN);
+        assert_eq!(seed.len(), PRIVATE_SEED_LEN);
 
         let key = MlKemKey::from_private_seed(MlKemParams::MlKem768, &seed).unwrap();
 
